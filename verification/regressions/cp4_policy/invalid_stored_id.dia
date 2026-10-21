@@ -1,0 +1,25 @@
+# Replay: python3 verification/policy_enforcement.py --regressions-only
+# Seed Items: ("1" * 64, "NOT/AN/OPAQUE/ID").
+# Expected: typed operation failure for invalid stored Id shape.
+# Baseline 0.3.0 binary sha256 8dd247c6ac73f49704bc56c8607a0eb7c1dba5c0c674774b1334457d0c1285f7:
+# actual exit 0, stdout "NOT/AN/OPAQUE/ID\n", empty stderr.
+app InvalidStoredId:
+  database SQLite
+  provides DbRead<Items>
+
+type ItemId = Id<"item">
+type UserId = Id<"user">
+
+type Item:
+  id: ItemId
+  owner: UserId
+
+resource Items: Item
+
+policy Items:
+  read(item, by principal):
+    true
+
+fn main() -> Result<UserId, DataError>:
+  let item = items.get(ItemId("1111111111111111111111111111111111111111111111111111111111111111"))?
+  Ok(item.owner)

@@ -1,0 +1,41 @@
+{
+  "status": "FAIL",
+  "observations": {
+    "forward": {
+      "issued_valid": true,
+      "before_fault_valid": true,
+      "after_fault_valid": false,
+      "after_fault_csrf": false,
+      "wall_elapsed_seconds": 3600.000090047,
+      "monotonic_elapsed_seconds": 8.8609e-05,
+      "fault_active": true,
+      "valid_timing": true,
+      "expected_valid": true,
+      "passed": false
+    },
+    "backward": {
+      "issued_valid": true,
+      "before_fault_valid": false,
+      "after_fault_valid": true,
+      "after_fault_csrf": true,
+      "wall_elapsed_seconds": -3599.879697492,
+      "monotonic_elapsed_seconds": 0.120305117,
+      "fault_active": true,
+      "valid_timing": true,
+      "expected_valid": false,
+      "passed": false
+    }
+  },
+  "library_sha256": "a8b13a26115161c1d72ed7e9ac8e2f3621bcf71967fba6c79e8992c99c38f1b7",
+  "rust_source_sha256": "b256d825d3d5a2881ca9499767ca6c7475c0e1d92a8d27fe6f04572a0f87f265",
+  "c_source_sha256": "cd23398dfd1ffca5afa6150d70e0e76c3882d4ced87099ce79c56b0d0f1142a6",
+  "consumer_sha256": "feb7c85bb24af7fabd0c38b625937652f669c6bcb0fc5f57548110b8da9b825c",
+  "shim_sha256": "4b7d0eb208badb507606419f3e3dbbc1cda995902920617b28588a7afb919926",
+  "driver_sha256": "bd599d837bb5925142b9fc5b3d2a37f7793a8bae2cb9c2ce1e75da65820727eb",
+  "child_limits": {
+    "address_space_bytes": 536870912,
+    "cpu_seconds": 3,
+    "wall_seconds": 5,
+    "core_bytes": 0
+  }
+}

@@ -1,0 +1,10 @@
+app Test:
+  database SQLite
+fn inner() -> Int:
+  transaction db:
+    7
+fn middle() -> Int:
+  inner()
+fn main() -> Int:
+  transaction db:
+    middle()

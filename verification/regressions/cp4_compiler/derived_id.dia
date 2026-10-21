@@ -1,0 +1,5 @@
+app Test:
+  database SQLite
+type Item:
+  id: Id<"user"> @created_by_principal
+resource Items: Item

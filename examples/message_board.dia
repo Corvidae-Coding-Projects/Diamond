@@ -1,0 +1,152 @@
+app MessageBoard:
+  database SQLite
+  session SecureCookie
+  provides DbRead<Posts>, DbWrite<Posts>
+
+type UserId = Id<"user">
+type PostId = Id<"post">
+
+type Post:
+  id: PostId
+  author: UserId @created_by_principal
+  title: Text
+  body: Text
+  published: Bool = false
+
+type NewPost:
+  title: Text<length: 1..120>
+  body: Text<length: 1..10_000>
+
+resource Posts: Post
+
+enum Publication:
+  Draft
+  Published
+
+type PublicationChange:
+  published: Bool
+
+fn publication(published: Bool) -> Publication:
+  match published:
+    true => Published
+    false => Draft
+
+fn publication_label(state: Publication) -> Text:
+  match state:
+    Draft => "Draft"
+    Published => "Published"
+
+fn form_error(error: DataError, retry: Url) -> Html:
+  html:
+    <main><h1>Invalid post</h1><p>{error_message(error)}</p><a href={retry}>Try again</a></main>
+
+fn post_controls(post: Post, owner: Bool) -> Html:
+  match owner:
+    false =>
+      html:
+        <span></span>
+    true =>
+      let publishing = match post.published:
+        true =>
+          html:
+            <form method="POST" action={route_url(ChangePublication, post.id)}><input type="hidden" name="published" value="false"><button type="submit">Unpublish</button></form>
+        false =>
+          html:
+            <form method="POST" action={route_url(ChangePublication, post.id)}><input type="hidden" name="published" value="true"><button type="submit">Publish</button></form>
+      html:
+        <section><a href={route_url(EditPost, post.id)}>Edit post</a>{publishing}<form method="POST" action={route_url(DeletePost, post.id)}><button type="submit">Delete post</button></form></section>
+
+policy Posts:
+  read(post, by principal):
+    post.published or principal.is_user(post.author)
+  create(proposed, by principal):
+    principal.authenticated
+  update(before, after, by principal):
+    principal.is_user(before.author) and before.author == after.author
+  delete(post, by principal):
+    principal.is_user(post.author) or principal.has_role(.admin)
+
+route GET "/" as Home:
+  let entries = for post in posts.select(author: request.user_id, limit: 100)? :
+    html:
+      <li><a href={route_url(PostDetails, post.id)}>{post.title}</a> <span>{publication_label(publication(post.published))}</span></li>
+  let listing = match len(entries) == 0:
+    true =>
+      html:
+        <p>No posts yet.</p>
+    false =>
+      html:
+        <ul>{entries}</ul>
+  html:
+    <main>
+      <h1>Message board</h1>
+      <nav><a href={route_url(PublishedPosts)}>Published posts</a></nav>
+      <h2>Your posts</h2>{listing}
+      <h2>Create a post</h2>
+      <form method="POST" action="/posts">
+        <p><label for="post-title">Title</label><input id="post-title" name="title" type="text" maxlength="120"></p>
+        <p><label for="post-body">Body</label><textarea id="post-body" name="body" maxlength="10000"></textarea></p>
+        <button type="submit">Create post</button>
+      </form>
+      <form method="POST" action="/_diamond/logout"><button type="submit">Sign out</button></form>
+    </main>
+
+public route GET "/posts" as PublishedPosts:
+  let entries = for post in posts.select(published: true, limit: 100)? :
+    html:
+      <li><a href={route_url(PostDetails, post.id)}>{post.title}</a></li>
+  let listing = match len(entries) == 0:
+    true =>
+      html:
+        <p>No published posts.</p>
+    false =>
+      html:
+        <ul>{entries}</ul>
+  html:
+    <main><h1>Published posts</h1>{listing}<nav><a href={route_url(Home)}>Your posts</a><a href="/_diamond/login">Sign in</a></nav></main>
+
+public route GET "/posts/{id:PostId}" as PostDetails:
+  let post = posts.get(id)?
+  let controls = post_controls(post, request.is_user(post.author))
+  html:
+    <article>
+      <h1>{post.title}</h1><p>{post.body}</p>
+      <p>{publication_label(publication(post.published))}</p>
+      {controls}
+      <a href={route_url(Home)}>Create another post</a>
+      <a href={route_url(PublishedPosts)}>Published posts</a>
+    </article>
+
+route POST "/posts":
+  match request.form<NewPost>():
+    Err(error) => bad_request(form_error(error, route_url(Home)))
+    Ok(form) =>
+      transaction db:
+        let saved = posts.create(form)?
+        redirect route_url(PostDetails, saved.id)
+
+route GET "/posts/{id:PostId}/edit" as EditPost:
+  let post = posts.get(id)?
+  html:
+    <main><h1>Edit post</h1><form method="POST" action={route_url(SavePost, post.id)}><p><label for="edit-title">Title</label><input id="edit-title" name="title" type="text" maxlength="120" value={post.title}></p><p><label for="edit-body">Body</label><textarea id="edit-body" name="body" maxlength="10000">{post.body}</textarea></p><button type="submit">Save changes</button></form><a href={route_url(PostDetails, post.id)}>Cancel</a></main>
+
+route POST "/posts/{id:PostId}/edit" as SavePost:
+  match request.form<NewPost>():
+    Err(error) => bad_request(form_error(error, route_url(EditPost, id)))
+    Ok(form) =>
+      transaction db:
+        let saved = posts.update(id, form)?
+        redirect route_url(PostDetails, saved.id)
+
+route POST "/posts/{id:PostId}/publication" as ChangePublication:
+  let form = request.form<PublicationChange>()?
+  let saved = posts.update(id, form)?
+  redirect route_url(PostDetails, saved.id)
+
+route POST "/posts/{id:PostId}/delete" as DeletePost:
+  posts.delete(id)?
+  redirect route_url(Home)
+
+route DELETE "/posts/{id:PostId}":
+  posts.delete(id)?
+  redirect "/posts"

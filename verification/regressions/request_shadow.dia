@@ -1,0 +1,8 @@
+type Input:
+  authenticated: Bool
+
+fn read(request: Input) -> Bool:
+  request.authenticated
+
+fn main() -> Bool:
+  read(Input(authenticated: true))

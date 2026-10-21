@@ -1,0 +1,36 @@
+# Replay: python3 verification/policy_enforcement.py --regressions-only
+# Seed Items: ("1" * 64, "oversized", false), then run main.
+# Expected: the caught typed selection failure still aborts the transaction;
+# its earlier successful create must roll back, leaving only the seeded row.
+# Baseline 0.3.0 executable (sha256 recorded in the sibling fixtures) exited 0,
+# stdout "1\n", and persisted both labels "good" and "oversized".
+app CaughtInvalidSelection:
+  database SQLite
+  provides DbRead<Items>, DbWrite<Items>
+
+type ItemId = Id<"item">
+
+type Item:
+  id: ItemId
+  label: Text<length: 1..4>
+  visible: Bool
+
+type Input:
+  label: Text<length: 1..4>
+  visible: Bool
+
+resource Items: Item
+
+policy Items:
+  read(item, by principal):
+    item.visible
+  create(item, by principal):
+    true
+
+fn main() -> Result<Int, DataError>:
+  transaction db:
+    let saved = items.create(Input(label: "good", visible: true))?
+    let recovered = match items.select(limit: 1):
+      Ok(_) => 1
+      Err(_) => 2
+    Ok(recovered)

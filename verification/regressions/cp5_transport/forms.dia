@@ -1,0 +1,68 @@
+app Transport:
+  database SQLite
+  session SecureCookie
+  provides DbRead<Entries>, DbWrite<Entries>
+
+type EntryId = Id<"entry">
+type UserId = Id<"user">
+
+type Entry:
+  id: EntryId
+  owner: UserId @created_by_principal
+  text: Text<length: 1..8>
+  number: Int
+  enabled: Bool
+  reference: UserId
+  optional: Option<Int>
+
+type NewEntry:
+  text: Text<length: 1..8>
+  number: Int
+  enabled: Bool
+  reference: UserId
+  optional: Option<Int>
+
+type IdForm:
+  reference: UserId
+  optional: Option<UserId>
+
+resource Entries: Entry
+
+policy Entries:
+  read(entry, by principal):
+    principal.is_user(entry.owner)
+  create(proposed, by principal):
+    principal.authenticated
+  update(before, after, by principal):
+    principal.is_user(before.owner) and before.owner == after.owner
+  delete(entry, by principal):
+    principal.is_user(entry.owner)
+
+fn invalid_form(error: DataError) -> Html:
+  html:
+    <p>Typed validation failed</p>
+
+public route GET "/health":
+  "healthy"
+
+public route POST "/probe":
+  "accepted"
+
+public route GET "/numbers/{number:Int}":
+  number
+
+route GET "/":
+  html:
+    <main><form method="POST" action="/entries"><button type="submit">Save</button></form><form method="POST" action="/_diamond/logout"><button type="submit">Sign out</button></form></main>
+
+route POST "/entries":
+  let form = request.form<NewEntry>()?
+  let saved = entries.create(form)?
+  redirect "/"
+
+route POST "/id-validation":
+  match request.form<IdForm>():
+    Err(error) => bad_request(invalid_form(error))
+    Ok(fields) =>
+      html:
+        <p>Typed fields accepted</p>

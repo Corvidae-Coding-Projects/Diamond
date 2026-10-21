@@ -1,0 +1,44 @@
+[package]
+name = "diamond-lang"
+version = "0.6.0"
+edition = "2024"
+rust-version = "1.96"
+description = "An early reference interpreter for the Diamond language"
+license = "MIT"
+repository = "https://github.com/Corvidae-Coding-Projects/Diamond"
+publish = false
+
+[lib]
+name = "diamond"
+
+[[bin]]
+name = "diamond"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1.0.104"
+argon2 = "0.5.3"
+getrandom = "0.4.3"
+libc = "0.2.191"
+rpassword = "7.5.4"
+rusqlite = { version = "0.40.2", features = ["bundled"] }
+sha2 = "0.11.1"
+subtle = "2.6.1"
+thiserror = "2.0.21"
+zeroize = "1.9.1"
+
+[lints.rust]
+unsafe_code = "forbid"
+missing_debug_implementations = "deny"
+missing_docs = "deny"
+rust_2018_idioms = { level = "deny", priority = -1 }
+
+[lints.clippy]
+all = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
+correctness = { level = "deny", priority = -1 }
+unwrap_used = "deny"
+expect_used = "deny"
+todo = "deny"
+unimplemented = "deny"
+dbg_macro = "deny"

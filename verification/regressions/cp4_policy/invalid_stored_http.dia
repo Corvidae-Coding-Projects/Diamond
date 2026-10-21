@@ -1,0 +1,40 @@
+# Replay: python3 verification/policy_enforcement.py --regressions-only
+# The driver seeds the actual schema through SQLite and requests these routes.
+# Invalid hidden labels must make selection fail as sanitized HTTP 400.
+# Invalid stored owner IDs must fail before they are used in a typed route URL.
+# Baseline 0.3.0 executable (sha256 recorded in the sibling fixtures) returned:
+# hidden malformed label: HTTP 200, <p>1</p>;
+# owner="alice/more": HTTP 200, <a href="/people/alice/more">Owner</a>.
+app InvalidStoredHttp:
+  database SQLite
+  session SecureCookie
+  provides DbRead<Items>
+
+type ItemId = Id<"item">
+type UserId = Id<"user">
+
+type Item:
+  id: ItemId
+  label: Text<length: 1..4>
+  owner: UserId
+  visible: Bool
+
+resource Items: Item
+
+policy Items:
+  read(item, by principal):
+    item.visible
+
+public route GET "/":
+  let selected = items.select(limit: 1)?
+  html:
+    <p>{len(selected)}</p>
+
+public route GET "/link":
+  let item = items.get(ItemId("1111111111111111111111111111111111111111111111111111111111111111"))?
+  html:
+    <a href={route_url(Profile, item.owner)}>Owner</a>
+
+public route GET "/people/{id:UserId}" as Profile:
+  html:
+    <p>{id}</p>

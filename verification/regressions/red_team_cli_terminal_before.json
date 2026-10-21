@@ -1,0 +1,23 @@
+{
+  "binary_sha256": "fae37713cf0ca82c26928bc5b2fcefbac8d35965cefad8cba14c60fa7afeda69",
+  "status": "CONFIRMED",
+  "finding": "the CLI assumes UTF-8 arguments and writes command names and source paths without neutralizing terminal controls",
+  "cases": [
+    {
+      "argument_hex": "6261641b5b324a636f6d6d616e64",
+      "stderr_hex": "6572726f723a20756e737570706f7274656420636f6d6d616e64206261641b5b324a636f6d6d616e643b20757365202d2d68656c700a",
+      "observed_control": "ESC [ 2 J"
+    },
+    {
+      "argument_hex": "6e616d651b5b33316d0a666f726765643a206f6b2e646961",
+      "stderr_hex": "6572726f723a2072656164204469616d6f6e6420736f75726365206e616d651b5b33316d0a666f726765643a206f6b2e6469613a204e6f20737563682066696c65206f72206469726563746f727920286f73206572726f722032290a",
+      "observed_controls": ["ESC [ 31 m", "LF"]
+    },
+    {
+      "argument_hex": "626164ff",
+      "exit": 101,
+      "stderr_prefix_hex": "0a74687265616420276d61696e2720",
+      "observed": "Rust panic from std::env::args after invalid UTF-8"
+    }
+  ]
+}

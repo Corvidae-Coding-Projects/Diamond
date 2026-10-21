@@ -1,0 +1,9 @@
+app Test:
+  database SQLite
+type ItemId = Id<"item">
+type Item:
+  id: ItemId
+  values: List<Int>
+resource Items: Item
+fn main() -> Int:
+  7

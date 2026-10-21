@@ -1,0 +1,483 @@
+{
+  "schema": 1,
+  "started_utc": "2026-10-21T21:49:28.775525+00:00",
+  "binary_sha256": "b8ae4f208469c846114a92bd5b0229954bfe8f08f8fd3467d64d7928db1e1afc",
+  "cases": [
+    {
+      "name": "valid_separator",
+      "observed": {
+        "arguments": [
+          "run",
+          "/tmp/diamond-cp6-diagnostics-ci9wbki8/valid_separator.dia"
+        ],
+        "exit": 0,
+        "seconds": 0.000994,
+        "stdout": "1002\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "valid_crlf",
+      "observed": {
+        "arguments": [
+          "check",
+          "/tmp/diamond-cp6-diagnostics-ci9wbki8/valid_crlf.dia"
+        ],
+        "exit": 0,
+        "seconds": 0.000822,
+        "stdout": "checked /tmp/diamond-cp6-diagnostics-ci9wbki8/valid_crlf.dia: 1 functions, 0 records, 0 resources, 0 routes, 0 policies\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "valid_comments",
+      "observed": {
+        "arguments": [
+          "check",
+          "/tmp/diamond-cp6-diagnostics-ci9wbki8/valid_comments.dia"
+        ],
+        "exit": 0,
+        "seconds": 0.00081,
+        "stdout": "checked /tmp/diamond-cp6-diagnostics-ci9wbki8/valid_comments.dia: 1 functions, 0 records, 0 resources, 0 routes, 0 policies\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "empty",
+      "observed": {
+        "arguments": [
+          "check",
+          "/tmp/diamond-cp6-diagnostics-ci9wbki8/empty.dia"
+        ],
+        "exit": 0,
+        "seconds": 0.00069,
+        "stdout": "checked /tmp/diamond-cp6-diagnostics-ci9wbki8/empty.dia: 0 functions, 0 records, 0 resources, 0 routes, 0 policies\n",
+        "stderr": ""
+      },
+      "accepted": false,
+      "failures": [
+        "invalid source succeeded",
+        "missing rendered D010",
+        "missing path span 1:1"
+      ]
+    },
+    {
+      "name": "tab",
+      "observed": {
+        "arguments": [
+          "check",
+          "/tmp/diamond-cp6-diagnostics-ci9wbki8/tab.dia"
+        ],
+        "exit": 1,
+        "seconds": 0.000766,
+        "stdout": "",
+        "stderr": "Error: check /tmp/diamond-cp6-diagnostics-ci9wbki8/tab.dia\n\nCaused by:\n    D001 at 2:1: tabs are not supported; indent with spaces\n"
+      },
+      "accepted": false,
+      "failures": [
+        "missing rendered D001",
+        "missing path span 2:1",
+        "missing source caret"
+      ]
+    },
+    {
+      "name": "indent",
+      "observed": {
+        "arguments": [
+          "check",
+          "/tmp/diamond-cp6-diagnostics-ci9wbki8/indent.dia"
+        ],
+        "exit": 1,
+        "seconds": 0.000636,
+        "stdout": "",
+        "stderr": "Error: check /tmp/diamond-cp6-diagnostics-ci9wbki8/indent.dia\n\nCaused by:\n    D002 at 3:4: indentation does not match an enclosing block\n"
+      },
+      "accepted": false,
+      "failures": [
+        "missing rendered D002",
+        "missing path span 3:4",
+        "missing source caret"
+      ]
+    },
+    {
+      "name": "repeated_separator",
+      "observed": {
+        "arguments": [
+          "check",
+          "/tmp/diamond-cp6-diagnostics-ci9wbki8/repeated_separator.dia"
+        ],
+        "exit": 0,
+        "seconds": 0.000547,
+        "stdout": "checked /tmp/diamond-cp6-diagnostics-ci9wbki8/repeated_separator.dia: 1 functions, 0 records, 0 resources, 0 routes, 0 policies\n",
+        "stderr": ""
+      },
+      "accepted": false,
+      "failures": [
+        "invalid source succeeded",
+        "missing rendered D004",
+        "missing path span 2:4",
+        "missing source caret"
+      ]
+    },
+    {
+      "name": "trailing_separator",
+      "observed": {
+        "arguments": [
+          "check",
+          "/tmp/diamond-cp6-diagnostics-ci9wbki8/trailing_separator.dia"
+        ],
+        "exit": 0,
+        "seconds": 0.000776,
+        "stdout": "checked /tmp/diamond-cp6-diagnostics-ci9wbki8/trailing_separator.dia: 1 functions, 0 records, 0 resources, 0 routes, 0 policies\n",
+        "stderr": ""
+      },
+      "accepted": false,
+      "failures": [
+        "invalid source succeeded",
+        "missing rendered D004",
+        "missing path span 2:4",
+        "missing source caret"
+      ]
+    },
+    {
+      "name": "integer_overflow",
+      "observed": {
+        "arguments": [
+          "check",
+          "/tmp/diamond-cp6-diagnostics-ci9wbki8/integer_overflow.dia"
+        ],
+        "exit": 1,
+        "seconds": 0.000622,
+        "stdout": "",
+        "stderr": "Error: check /tmp/diamond-cp6-diagnostics-ci9wbki8/integer_overflow.dia\n\nCaused by:\n    D004 at 2:3: integer exceeds signed 64-bit range\n"
+      },
+      "accepted": false,
+      "failures": [
+        "missing rendered D004",
+        "missing path span 2:3",
+        "missing source caret"
+      ]
+    },
+    {
+      "name": "unterminated_string",
+      "observed": {
+        "arguments": [
+          "check",
+          "/tmp/diamond-cp6-diagnostics-ci9wbki8/unterminated_string.dia"
+        ],
+        "exit": 1,
+        "seconds": 0.000572,
+        "stdout": "",
+        "stderr": "Error: check /tmp/diamond-cp6-diagnostics-ci9wbki8/unterminated_string.dia\n\nCaused by:\n    D005 at 2:3: unterminated string literal\n"
+      },
+      "accepted": false,
+      "failures": [
+        "missing rendered D005",
+        "missing path span 2:3",
+        "missing source caret"
+      ]
+    },
+    {
+      "name": "unsupported_token",
+      "observed": {
+        "arguments": [
+          "check",
+          "/tmp/diamond-cp6-diagnostics-ci9wbki8/unsupported_token.dia"
+        ],
+        "exit": 1,
+        "seconds": 0.000619,
+        "stdout": "",
+        "stderr": "Error: check /tmp/diamond-cp6-diagnostics-ci9wbki8/unsupported_token.dia\n\nCaused by:\n    D900 unsupported at 2:5: token '&'\n"
+      },
+      "accepted": false,
+      "failures": [
+        "missing rendered D900",
+        "missing path span 2:5",
+        "missing source caret"
+      ]
+    },
+    {
+      "name": "unicode_column",
+      "observed": {
+        "arguments": [
+          "check",
+          "/tmp/diamond-cp6-diagnostics-ci9wbki8/unicode_column.dia"
+        ],
+        "exit": 1,
+        "seconds": 0.000512,
+        "stdout": "",
+        "stderr": "Error: check /tmp/diamond-cp6-diagnostics-ci9wbki8/unicode_column.dia\n\nCaused by:\n    D010 at 2:10: expected Newline, found Symbol(\"@\")\n"
+      },
+      "accepted": false,
+      "failures": [
+        "missing rendered D010",
+        "missing path span 2:10",
+        "missing source caret"
+      ]
+    },
+    {
+      "name": "unclosed_group",
+      "observed": {
+        "arguments": [
+          "check",
+          "/tmp/diamond-cp6-diagnostics-ci9wbki8/unclosed_group.dia"
+        ],
+        "exit": 1,
+        "seconds": 0.000518,
+        "stdout": "",
+        "stderr": "Error: check /tmp/diamond-cp6-diagnostics-ci9wbki8/unclosed_group.dia\n\nCaused by:\n    D010 at 2:3: expected Symbol(\")\"), found Newline\n"
+      },
+      "accepted": false,
+      "failures": [
+        "missing rendered D010",
+        "missing path span 2:9",
+        "missing source caret"
+      ]
+    },
+    {
+      "name": "html_interpolation",
+      "observed": {
+        "arguments": [
+          "check",
+          "/tmp/diamond-cp6-diagnostics-ci9wbki8/html_interpolation.dia"
+        ],
+        "exit": 1,
+        "seconds": 0.000757,
+        "stdout": "",
+        "stderr": "Error: check /tmp/diamond-cp6-diagnostics-ci9wbki8/html_interpolation.dia\n\nCaused by:\n    D112 at 3:14: unknown value missing; authority and functions cannot be captured as ordinary values in this subset\n"
+      },
+      "accepted": false,
+      "failures": [
+        "missing rendered D110",
+        "missing path span 3:14",
+        "missing source caret"
+      ]
+    },
+    {
+      "name": "html_closing_tag",
+      "observed": {
+        "arguments": [
+          "check",
+          "/tmp/diamond-cp6-diagnostics-ci9wbki8/html_closing_tag.dia"
+        ],
+        "exit": 1,
+        "seconds": 0.000605,
+        "stdout": "",
+        "stderr": "Error: check /tmp/diamond-cp6-diagnostics-ci9wbki8/html_closing_tag.dia\n\nCaused by:\n    D020 at 3:18: unexpected closing tag </div>\n"
+      },
+      "accepted": false,
+      "failures": [
+        "missing rendered D020",
+        "missing path span 3:12",
+        "missing source caret"
+      ]
+    },
+    {
+      "name": "empty_interpolation",
+      "observed": {
+        "arguments": [
+          "check",
+          "/tmp/diamond-cp6-diagnostics-ci9wbki8/empty_interpolation.dia"
+        ],
+        "exit": 1,
+        "seconds": 0.000517,
+        "stdout": "",
+        "stderr": "Error: check /tmp/diamond-cp6-diagnostics-ci9wbki8/empty_interpolation.dia\n\nCaused by:\n    D010 at 3:9: expected an expression, found End\n"
+      },
+      "accepted": false,
+      "failures": [
+        "missing rendered D010",
+        "missing path span 3:9",
+        "missing source caret"
+      ]
+    },
+    {
+      "name": "example_hello",
+      "observed": {
+        "arguments": [
+          "check",
+          "/home/doll/diamond/examples/hello.dia"
+        ],
+        "exit": 0,
+        "seconds": 0.000663,
+        "stdout": "checked /home/doll/diamond/examples/hello.dia: 2 functions, 0 records, 0 resources, 0 routes, 0 policies\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "example_language",
+      "observed": {
+        "arguments": [
+          "check",
+          "/home/doll/diamond/examples/language.dia"
+        ],
+        "exit": 0,
+        "seconds": 0.000774,
+        "stdout": "checked /home/doll/diamond/examples/language.dia: 3 functions, 0 records, 0 resources, 0 routes, 0 policies\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "example_message_board",
+      "observed": {
+        "arguments": [
+          "check",
+          "/home/doll/diamond/examples/message_board.dia"
+        ],
+        "exit": 0,
+        "seconds": 0.001839,
+        "stdout": "checked /home/doll/diamond/examples/message_board.dia: 4 functions, 3 records, 1 resources, 9 routes, 1 policies\n  app MessageBoard\n  private GET / {Read(\"Posts\")}\n  public GET /posts {Read(\"Posts\")}\n  public GET /posts/{id:PostId} {Read(\"Posts\")}\n  private POST /posts {Read(\"Posts\"), Write(\"Posts\")}\n  private GET /posts/{id:PostId}/edit {Read(\"Posts\")}\n  private POST /posts/{id:PostId}/edit {Read(\"Posts\"), Write(\"Posts\")}\n  private POST /posts/{id:PostId}/publication {Read(\"Posts\"), Write(\"Posts\")}\n  private POST /posts/{id:PostId}/delete {Write(\"Posts\")}\n  private DELETE /posts/{id:PostId} {Write(\"Posts\")}\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "example_storage",
+      "observed": {
+        "arguments": [
+          "check",
+          "/home/doll/diamond/examples/storage.dia"
+        ],
+        "exit": 0,
+        "seconds": 0.00075,
+        "stdout": "checked /home/doll/diamond/examples/storage.dia: 1 functions, 2 records, 1 resources, 0 routes, 1 policies\n  app Storage\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "example_web",
+      "observed": {
+        "arguments": [
+          "check",
+          "/home/doll/diamond/examples/web.dia"
+        ],
+        "exit": 0,
+        "seconds": 0.00074,
+        "stdout": "checked /home/doll/diamond/examples/web.dia: 0 functions, 1 records, 0 resources, 5 routes, 0 policies\n  app Preview\n  public GET / {}\n  public GET /notes/{id:NoteId} {}\n  public GET /numbers/{number:Int} {}\n  public POST /echo {}\n  private GET /account {}\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "explain_D004",
+      "observed": {
+        "arguments": [
+          "explain",
+          "D004"
+        ],
+        "exit": 1,
+        "seconds": 0.000688,
+        "stdout": "",
+        "stderr": "Error: unsupported command explain; use --help\n"
+      },
+      "accepted": false,
+      "failures": [
+        "known diagnostic explanation failed",
+        "canonical code missing",
+        "integer remedy missing"
+      ]
+    },
+    {
+      "name": "explain_d004",
+      "observed": {
+        "arguments": [
+          "explain",
+          "d004"
+        ],
+        "exit": 1,
+        "seconds": 0.000621,
+        "stdout": "",
+        "stderr": "Error: unsupported command explain; use --help\n"
+      },
+      "accepted": false,
+      "failures": [
+        "known diagnostic explanation failed",
+        "canonical code missing",
+        "integer remedy missing"
+      ]
+    },
+    {
+      "name": "explain_unknown",
+      "observed": {
+        "arguments": [
+          "explain",
+          "D999"
+        ],
+        "exit": 1,
+        "seconds": 0.000559,
+        "stdout": "",
+        "stderr": "Error: unsupported command explain; use --help\n"
+      },
+      "accepted": false,
+      "failures": [
+        "unknown-code error missing"
+      ]
+    }
+  ],
+  "case_count": 24,
+  "failures": [
+    "empty: invalid source succeeded",
+    "empty: missing rendered D010",
+    "empty: missing path span 1:1",
+    "tab: missing rendered D001",
+    "tab: missing path span 2:1",
+    "tab: missing source caret",
+    "indent: missing rendered D002",
+    "indent: missing path span 3:4",
+    "indent: missing source caret",
+    "repeated_separator: invalid source succeeded",
+    "repeated_separator: missing rendered D004",
+    "repeated_separator: missing path span 2:4",
+    "repeated_separator: missing source caret",
+    "trailing_separator: invalid source succeeded",
+    "trailing_separator: missing rendered D004",
+    "trailing_separator: missing path span 2:4",
+    "trailing_separator: missing source caret",
+    "integer_overflow: missing rendered D004",
+    "integer_overflow: missing path span 2:3",
+    "integer_overflow: missing source caret",
+    "unterminated_string: missing rendered D005",
+    "unterminated_string: missing path span 2:3",
+    "unterminated_string: missing source caret",
+    "unsupported_token: missing rendered D900",
+    "unsupported_token: missing path span 2:5",
+    "unsupported_token: missing source caret",
+    "unicode_column: missing rendered D010",
+    "unicode_column: missing path span 2:10",
+    "unicode_column: missing source caret",
+    "unclosed_group: missing rendered D010",
+    "unclosed_group: missing path span 2:9",
+    "unclosed_group: missing source caret",
+    "html_interpolation: missing rendered D110",
+    "html_interpolation: missing path span 3:14",
+    "html_interpolation: missing source caret",
+    "html_closing_tag: missing rendered D020",
+    "html_closing_tag: missing path span 3:12",
+    "html_closing_tag: missing source caret",
+    "empty_interpolation: missing rendered D010",
+    "empty_interpolation: missing path span 3:9",
+    "empty_interpolation: missing source caret",
+    "explain_D004: known diagnostic explanation failed",
+    "explain_D004: canonical code missing",
+    "explain_D004: integer remedy missing",
+    "explain_d004: known diagnostic explanation failed",
+    "explain_d004: canonical code missing",
+    "explain_d004: integer remedy missing",
+    "explain_unknown: unknown-code error missing"
+  ],
+  "result": "FAIL"
+}

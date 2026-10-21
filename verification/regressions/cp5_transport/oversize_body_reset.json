@@ -1,0 +1,21 @@
+{
+  "source": "verification/regressions/cp5_transport/forms.dia",
+  "required_invariant": "A fully supplied near-limit HTTP body rejected for declared size receives a complete HTTP 413 response without dispatch or writes; the next healthy request works. The body limit remains 65536 bytes.",
+  "request": {
+    "method": "POST",
+    "path": "/probe",
+    "host": "localhost:<disposable loopback port>",
+    "content_length": 65537,
+    "body": "65537 ASCII x bytes"
+  },
+  "baseline": {
+    "binary_sha256": "2301011ea38785ccf779d3f2176542be2d45c6aaea632a3ce83c825aa2fb6be1",
+    "ordinary_http_client_observation": [413, "ConnectionResetError", 413, 413, 413, 413, 413, 413, "ConnectionResetError", 413],
+    "whole_raw_body_observation": "65537 and 66560 byte bodies each returned complete 413 responses in two attempts",
+    "fragment_schedule": "Send the complete headers, then body in 1024 byte chunks with TCP_NODELAY and 1 millisecond between writes; half-close after the last byte",
+    "fragmented_observation": "Both 65537 and 66560 byte bodies raised BrokenPipeError [Errno 32] while sending in two attempts each",
+    "state_and_recovery": "Independent SQLite remained empty; GET /health returned 200/healthy after every attempted request"
+  },
+  "coverage_boundary": "Near-limit fully supplied bodies are distinct from an arbitrary unbounded or silent sender; the latter only promises bounded release.",
+  "replay": "python3 verification/transport_exploration.py --oversize-regression-only"
+}

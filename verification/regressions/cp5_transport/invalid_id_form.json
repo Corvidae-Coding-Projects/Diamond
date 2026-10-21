@@ -1,0 +1,27 @@
+{
+  "source": "verification/regressions/cp5_transport/forms.dia",
+  "prerequisite": "Provision a disposable alice account; sign in; retain its secure cookie and session-bound CSRF token.",
+  "request": {
+    "method": "POST",
+    "path": "/entries",
+    "content-type": "application/x-www-form-urlencoded",
+    "fields": {
+      "text": "ordinary",
+      "number": "0",
+      "enabled": "false",
+      "reference": "invalid/name",
+      "optional": ""
+    }
+  },
+  "required_invariant": "Reject the invalid supported Id value as a typed validation error (HTTP 400) without inserting a record; matching request.form's Err must render the application's validation page; a subsequent healthy request must work.",
+  "baseline": {
+    "binary_sha256": "c24890807ddfa962e37d44dfbd031d9166182ea40b5b4fcf56b45e6d45995b95",
+    "observed_status": 501,
+    "matched_reference_status": 501,
+    "matched_option_id_status": 501,
+    "application_validation_page_rendered": false,
+    "classification": "Supported Id field's invalid value falls through to unsupported-type error, bypassing normal Result/Err validation feedback. No write occurred."
+  },
+  "replay": "python3 verification/transport_exploration.py --id-regression-only",
+  "baseline_observation_command": "python3 verification/transport_exploration.py --binary /tmp/diamond-checkpoint-five-baseline-i4hz4njs/diamond --id-regression-only --observe-known-id-classification"
+}

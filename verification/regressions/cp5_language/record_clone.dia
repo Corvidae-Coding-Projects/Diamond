@@ -1,0 +1,27 @@
+type Tree:
+  left: Option<Tree>
+  right: Option<Tree>
+fn main() -> Int:
+  let node0 = Tree(left: None, right: None)
+  let node1 = Tree(left: Some(node0), right: Some(node0))
+  let node2 = Tree(left: Some(node1), right: Some(node1))
+  let node3 = Tree(left: Some(node2), right: Some(node2))
+  let node4 = Tree(left: Some(node3), right: Some(node3))
+  let node5 = Tree(left: Some(node4), right: Some(node4))
+  let node6 = Tree(left: Some(node5), right: Some(node5))
+  let node7 = Tree(left: Some(node6), right: Some(node6))
+  let node8 = Tree(left: Some(node7), right: Some(node7))
+  let node9 = Tree(left: Some(node8), right: Some(node8))
+  let node10 = Tree(left: Some(node9), right: Some(node9))
+  let node11 = Tree(left: Some(node10), right: Some(node10))
+  let node12 = Tree(left: Some(node11), right: Some(node11))
+  let node13 = Tree(left: Some(node12), right: Some(node12))
+  let node14 = Tree(left: Some(node13), right: Some(node13))
+  let node15 = Tree(left: Some(node14), right: Some(node14))
+  let node16 = Tree(left: Some(node15), right: Some(node15))
+  let node17 = Tree(left: Some(node16), right: Some(node16))
+  let node18 = Tree(left: Some(node17), right: Some(node17))
+  let node19 = Tree(left: Some(node18), right: Some(node18))
+  let node20 = Tree(left: Some(node19), right: Some(node19))
+  let node21 = Tree(left: Some(node20), right: Some(node20))
+  7

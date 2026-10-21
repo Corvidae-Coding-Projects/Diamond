@@ -1,0 +1,303 @@
+{
+  "binary": "/home/doll/diamond/target/debug/diamond",
+  "binary_sha256": "0de84e0b5624ebd47f7739f05dd0d40411547997a307c8b92f41fe68ef4784c0",
+  "driver_sha256": "739be3a3f29e6b4e314673e50d6c0355659614361e269551ac788ed453dc73c6",
+  "shim_sha256": "2839f85ea3480e9c00b8a0527ec0959b8c30a9a30eb16c57c97f2f577369b6da",
+  "seed": 858628,
+  "rounds": 1,
+  "cases": [
+    {
+      "round": 0,
+      "protocol": "CLI",
+      "scope": "implicit",
+      "outcome": "success",
+      "title": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "source_sha256": "8c34a8744fd9392f095d02af58aad191832156ee81bc5e72dfef1b19741ab594",
+      "exit": 0,
+      "stdout": "f025c381d94c6798c63f8ee267ed5b93816ffe22b8e42a20fa42c8e3c8cd3944\n",
+      "stderr": "",
+      "final_rows": [
+        [
+          "f025c381d94c6798c63f8ee267ed5b93816ffe22b8e42a20fa42c8e3c8cd3944",
+          "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+          1
+        ]
+      ],
+      "fresh_process_readback": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "result": "PASS"
+    },
+    {
+      "round": 0,
+      "protocol": "CLI",
+      "scope": "implicit",
+      "outcome": "read-lock",
+      "title": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "source_sha256": "8c34a8744fd9392f095d02af58aad191832156ee81bc5e72dfef1b19741ab594",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "Error: execute main\n\nCaused by:\n    transaction aborted\n",
+      "rows_after_failure": [],
+      "final_rows": [
+        [
+          "c746bac4af005c0605f13657223f7d6ac3fb8cb2afefa1c226ba73b023a29ae0",
+          "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+          1
+        ]
+      ],
+      "fresh_process_readback": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "result": "PASS"
+    },
+    {
+      "round": 0,
+      "protocol": "CLI",
+      "scope": "implicit",
+      "outcome": "ack-loss",
+      "title": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "source_sha256": "8c34a8744fd9392f095d02af58aad191832156ee81bc5e72dfef1b19741ab594",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "Error: execute main\n\nCaused by:\n    transaction outcome unknown; operation 6a8f63847971870056e4ed2f541f8fa9be478f8a9523110594dd4a71e1822b3d; do not automatically retry\n",
+      "fault_log": "unlink committed journal; returned EIO\n",
+      "rows_after_failure": [
+        [
+          "ea1fb133a18da21af45c739b339b670ae3f2d7d6ad0edc5aea6541f2320ec185",
+          "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+          1
+        ]
+      ],
+      "operation_id": "6a8f63847971870056e4ed2f541f8fa9be478f8a9523110594dd4a71e1822b3d",
+      "final_rows": [
+        [
+          "ea1fb133a18da21af45c739b339b670ae3f2d7d6ad0edc5aea6541f2320ec185",
+          "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+          1
+        ]
+      ],
+      "fresh_process_readback": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "result": "PASS"
+    },
+    {
+      "round": 0,
+      "protocol": "CLI",
+      "scope": "explicit",
+      "outcome": "success",
+      "title": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "source_sha256": "86d8c9ff361f364e1471e07d98aa12b4998d652b72c722c9f20b557abef2a3b0",
+      "exit": 0,
+      "stdout": "a5ca85ae016b9b5c58a9c4b6fcd1b0249047feb2c34864d368cccbfad1975603\n",
+      "stderr": "",
+      "final_rows": [
+        [
+          "a5ca85ae016b9b5c58a9c4b6fcd1b0249047feb2c34864d368cccbfad1975603",
+          "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+          1
+        ]
+      ],
+      "fresh_process_readback": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "result": "PASS"
+    },
+    {
+      "round": 0,
+      "protocol": "CLI",
+      "scope": "explicit",
+      "outcome": "read-lock",
+      "title": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "source_sha256": "86d8c9ff361f364e1471e07d98aa12b4998d652b72c722c9f20b557abef2a3b0",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "Error: execute main\n\nCaused by:\n    transaction aborted\n",
+      "rows_after_failure": [],
+      "final_rows": [
+        [
+          "d59c8684a7b3fe10a569a36e86efd081f61f08eb1eeb37e5f9b1f6dc983b767d",
+          "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+          1
+        ]
+      ],
+      "fresh_process_readback": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "result": "PASS"
+    },
+    {
+      "round": 0,
+      "protocol": "CLI",
+      "scope": "explicit",
+      "outcome": "ack-loss",
+      "title": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "source_sha256": "86d8c9ff361f364e1471e07d98aa12b4998d652b72c722c9f20b557abef2a3b0",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "Error: execute main\n\nCaused by:\n    transaction outcome unknown; operation 006f397e4db7721b191e20d0cd15996c4219157d3a4787ce3dd3bf2ef1371d75; do not automatically retry\n",
+      "fault_log": "unlink committed journal; returned EIO\n",
+      "rows_after_failure": [
+        [
+          "f8591119417f9daa7ee79558fc1fae0594f8a4f39876ecffae42f9b1a9a0c790",
+          "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+          1
+        ]
+      ],
+      "operation_id": "006f397e4db7721b191e20d0cd15996c4219157d3a4787ce3dd3bf2ef1371d75",
+      "final_rows": [
+        [
+          "f8591119417f9daa7ee79558fc1fae0594f8a4f39876ecffae42f9b1a9a0c790",
+          "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+          1
+        ]
+      ],
+      "fresh_process_readback": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "result": "PASS"
+    },
+    {
+      "round": 0,
+      "protocol": "HTTP",
+      "scope": "implicit",
+      "outcome": "success",
+      "title": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "source_sha256": "bb3a2b3b97ae1a3cdd4b0d96098d1bb4a10d634a22ea44a0d634f808dfe8f415",
+      "status": 200,
+      "body": "committed",
+      "final_rows": [
+        [
+          "05f5b981823b1c8fa9ea292bce349f14de86cbee711cecc73d5aba6c850205f0",
+          "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+          1
+        ]
+      ],
+      "requests": 2,
+      "fresh_process_readback": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "result": "PASS"
+    },
+    {
+      "round": 0,
+      "protocol": "HTTP",
+      "scope": "implicit",
+      "outcome": "read-lock",
+      "title": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "source_sha256": "bb3a2b3b97ae1a3cdd4b0d96098d1bb4a10d634a22ea44a0d634f808dfe8f415",
+      "status": 409,
+      "body": "Transaction aborted",
+      "rows_after_failure": [],
+      "after_unlock": [
+        200,
+        "committed"
+      ],
+      "final_rows": [
+        [
+          "ee749684eb24cff30ebd555404a9c6910fe254aae594fdabfd8c0605681e4fa6",
+          "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+          1
+        ]
+      ],
+      "requests": 3,
+      "fresh_process_readback": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "result": "PASS"
+    },
+    {
+      "round": 0,
+      "protocol": "HTTP",
+      "scope": "implicit",
+      "outcome": "ack-loss",
+      "title": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "source_sha256": "bb3a2b3b97ae1a3cdd4b0d96098d1bb4a10d634a22ea44a0d634f808dfe8f415",
+      "status": 503,
+      "body": "Operation outcome unknown; do not automatically retry",
+      "fault_log": "unlink committed journal; returned EIO\n",
+      "rows_after_failure": [
+        [
+          "cc9afe02045a26be916a9ea18b89aca98b08f3c656386ca36d39ca62bda2cb12",
+          "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+          1
+        ]
+      ],
+      "poisoned_write": [
+        404,
+        "Not found"
+      ],
+      "poisoned_read": [
+        404,
+        "Not found"
+      ],
+      "requests": 5,
+      "result": "FAIL",
+      "error": "('missing opaque operation ID', 'Operation outcome unknown; do not automatically retry')"
+    },
+    {
+      "round": 0,
+      "protocol": "HTTP",
+      "scope": "explicit",
+      "outcome": "success",
+      "title": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "source_sha256": "b5c53a9038a991298a4fec5e746e72b490e40411b926fc55d5602bafb30f1df2",
+      "status": 200,
+      "body": "committed",
+      "final_rows": [
+        [
+          "a42cf04433a7a7fb7a13a12e7c271c4c19f0736d91ec25588ff61ee2af8829d4",
+          "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+          1
+        ]
+      ],
+      "requests": 2,
+      "fresh_process_readback": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "result": "PASS"
+    },
+    {
+      "round": 0,
+      "protocol": "HTTP",
+      "scope": "explicit",
+      "outcome": "read-lock",
+      "title": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "source_sha256": "b5c53a9038a991298a4fec5e746e72b490e40411b926fc55d5602bafb30f1df2",
+      "status": 409,
+      "body": "Transaction aborted",
+      "rows_after_failure": [],
+      "after_unlock": [
+        200,
+        "committed"
+      ],
+      "final_rows": [
+        [
+          "26e16c566f5f0ad14cfe6198999fe7437a82c71ff4e9965fa71c1f8418497344",
+          "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+          1
+        ]
+      ],
+      "requests": 3,
+      "fresh_process_readback": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "result": "PASS"
+    },
+    {
+      "round": 0,
+      "protocol": "HTTP",
+      "scope": "explicit",
+      "outcome": "ack-loss",
+      "title": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "source_sha256": "b5c53a9038a991298a4fec5e746e72b490e40411b926fc55d5602bafb30f1df2",
+      "status": 503,
+      "body": "Operation outcome unknown; do not automatically retry",
+      "fault_log": "unlink committed journal; returned EIO\n",
+      "rows_after_failure": [
+        [
+          "86d0827a5dd32eb2a6f5a6d71dec6982f68389e1ec37fa6a09423b15d72969b9",
+          "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+          1
+        ]
+      ],
+      "poisoned_write": [
+        404,
+        "Not found"
+      ],
+      "poisoned_read": [
+        404,
+        "Not found"
+      ],
+      "requests": 5,
+      "result": "FAIL",
+      "error": "('missing opaque operation ID', 'Operation outcome unknown; do not automatically retry')"
+    }
+  ],
+  "elapsed_seconds": 8.147,
+  "passed": 10,
+  "failed": 2,
+  "temporary_resources_removed": true,
+  "requests": 20
+}

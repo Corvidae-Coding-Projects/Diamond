@@ -1,0 +1,8 @@
+{
+  "binary_sha256": "b5bdb9d4c28b69d38a9d1737f7d38019114f8028501c59020a8b86d6988a6225",
+  "status": "CONFIRMED",
+  "finding": "a FIFO account path blocks read-only authentication-provider startup before file-type validation",
+  "input": {"path_type": "FIFO", "mode": "0600", "writer_present": false},
+  "observations": {"timeout_seconds": 1, "timed_out": true, "application_database_created": false},
+  "violated_invariant": "unsupported account path types must fail without an unbounded pre-validation wait"
+}

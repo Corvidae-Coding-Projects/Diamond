@@ -1,0 +1,13 @@
+{
+  "binary_sha256": "2072536546aea25c0f07b864d396442499247cbdc8e76e3cdfcb87a58204c809",
+  "status": "CONFIRMED",
+  "finding": "the CLI reads an entire file before applying the compiler's one-megabyte source limit",
+  "input": {"sparse_file_bytes": 67108864},
+  "observations": {
+    "exit": 1,
+    "elapsed_seconds": 0.045,
+    "child_max_rss_kib": 69608,
+    "stderr": "resource limit exceeded: source size"
+  },
+  "violated_invariant": "source rejected by the declared byte ceiling must not first allocate in proportion to the oversized file"
+}

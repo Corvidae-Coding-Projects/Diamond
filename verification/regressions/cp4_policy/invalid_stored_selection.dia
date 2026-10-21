@@ -1,0 +1,26 @@
+# Replay: python3 verification/policy_enforcement.py --regressions-only
+# Seed Items: ("1" * 64, "okay", 1), ("2" * 64, "oversized", 0).
+# Expected: typed operation failure; no successful partial query.
+# Baseline 0.3.0 binary sha256 8dd247c6ac73f49704bc56c8607a0eb7c1dba5c0c674774b1334457d0c1285f7:
+# actual exit 0, stdout "1\n", empty stderr. Equality/LIMIT/offset siblings
+# and clean-state SQLite setup are retained in the replay driver.
+app InvalidStoredSelection:
+  database SQLite
+  provides DbRead<Items>
+
+type ItemId = Id<"item">
+
+type Item:
+  id: ItemId
+  label: Text<length: 1..4>
+  visible: Bool
+
+resource Items: Item
+
+policy Items:
+  read(item, by principal):
+    item.visible
+
+fn main() -> Result<Int, DataError>:
+  let selected = items.select(limit: 1)?
+  Ok(len(selected))

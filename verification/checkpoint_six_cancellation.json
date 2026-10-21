@@ -1,0 +1,341 @@
+{
+  "binary_sha256": "51b5829a10ebad5500ca78b83d8f39a4a61d97c685a54646d97c083cdd70fa3f",
+  "seed": 858629,
+  "cases": [
+    {
+      "protocol": "CLI",
+      "scope": "implicit",
+      "phase": "before",
+      "action": "kill",
+      "source_sha256": "6f8ed2ff94793dfd49202f7d66a7e656e0a0ebde3ca3fb7c91cbfc93c119a182",
+      "expected_rows": 0,
+      "observed_rows": [],
+      "fresh_Diamond_readback": "0",
+      "integrity": "ok",
+      "result": "PASS"
+    },
+    {
+      "protocol": "CLI",
+      "scope": "implicit",
+      "phase": "after",
+      "action": "kill",
+      "source_sha256": "6f8ed2ff94793dfd49202f7d66a7e656e0a0ebde3ca3fb7c91cbfc93c119a182",
+      "expected_rows": 1,
+      "observed_rows": [
+        [
+          "SQL '); -- <b>雪</b> A2265",
+          1
+        ]
+      ],
+      "fresh_Diamond_readback": "1",
+      "integrity": "ok",
+      "result": "PASS"
+    },
+    {
+      "protocol": "CLI",
+      "scope": "explicit",
+      "phase": "before",
+      "action": "kill",
+      "source_sha256": "6ae2df8b37a49b44532b3d975ac55525b83e475684efb3aa7e095df4e0537c30",
+      "expected_rows": 0,
+      "observed_rows": [],
+      "fresh_Diamond_readback": "0",
+      "integrity": "ok",
+      "result": "PASS"
+    },
+    {
+      "protocol": "CLI",
+      "scope": "explicit",
+      "phase": "after",
+      "action": "kill",
+      "source_sha256": "6ae2df8b37a49b44532b3d975ac55525b83e475684efb3aa7e095df4e0537c30",
+      "expected_rows": 2,
+      "observed_rows": [
+        [
+          "SQL '); -- <b>雪</b> A2265",
+          1
+        ],
+        [
+          "SQL '); -- <b>雪</b> B2265",
+          1
+        ]
+      ],
+      "fresh_Diamond_readback": "2",
+      "integrity": "ok",
+      "result": "PASS"
+    },
+    {
+      "protocol": "HTTP",
+      "scope": "implicit",
+      "phase": "before",
+      "action": "kill",
+      "source_sha256": "f773e3e3b3111a9b659dfc303d15c66e26b9007e06b254c28d0504fbaa75fa91",
+      "expected_rows": 0,
+      "observed_rows": [],
+      "fresh_Diamond_readback": "0",
+      "integrity": "ok",
+      "result": "PASS"
+    },
+    {
+      "protocol": "HTTP",
+      "scope": "implicit",
+      "phase": "after",
+      "action": "kill",
+      "source_sha256": "f773e3e3b3111a9b659dfc303d15c66e26b9007e06b254c28d0504fbaa75fa91",
+      "expected_rows": 1,
+      "observed_rows": [
+        [
+          "SQL '); -- <b>雪</b> A2265",
+          1
+        ]
+      ],
+      "fresh_Diamond_readback": "1",
+      "integrity": "ok",
+      "result": "PASS"
+    },
+    {
+      "protocol": "HTTP",
+      "scope": "explicit",
+      "phase": "before",
+      "action": "kill",
+      "source_sha256": "08ec0d0bc008133845e147a2597273f36e2c5b9c70dd14c567c3dbded4c03893",
+      "expected_rows": 0,
+      "observed_rows": [],
+      "fresh_Diamond_readback": "0",
+      "integrity": "ok",
+      "result": "PASS"
+    },
+    {
+      "protocol": "HTTP",
+      "scope": "explicit",
+      "phase": "after",
+      "action": "kill",
+      "source_sha256": "08ec0d0bc008133845e147a2597273f36e2c5b9c70dd14c567c3dbded4c03893",
+      "expected_rows": 2,
+      "observed_rows": [
+        [
+          "SQL '); -- <b>雪</b> A2265",
+          1
+        ],
+        [
+          "SQL '); -- <b>雪</b> B2265",
+          1
+        ]
+      ],
+      "fresh_Diamond_readback": "2",
+      "integrity": "ok",
+      "result": "PASS"
+    },
+    {
+      "protocol": "HTTP",
+      "scope": "explicit",
+      "phase": "before",
+      "action": "disconnect",
+      "source_sha256": "08ec0d0bc008133845e147a2597273f36e2c5b9c70dd14c567c3dbded4c03893",
+      "expected_rows": 2,
+      "observed_rows": [
+        [
+          "SQL '); -- <b>雪</b> A2265",
+          1
+        ],
+        [
+          "SQL '); -- <b>雪</b> B2265",
+          1
+        ]
+      ],
+      "fresh_Diamond_readback": "2",
+      "integrity": "ok",
+      "result": "PASS"
+    },
+    {
+      "protocol": "HTTP",
+      "scope": "explicit",
+      "phase": "after",
+      "action": "disconnect",
+      "source_sha256": "08ec0d0bc008133845e147a2597273f36e2c5b9c70dd14c567c3dbded4c03893",
+      "expected_rows": 2,
+      "observed_rows": [
+        [
+          "SQL '); -- <b>雪</b> A2265",
+          1
+        ],
+        [
+          "SQL '); -- <b>雪</b> B2265",
+          1
+        ]
+      ],
+      "fresh_Diamond_readback": "2",
+      "integrity": "ok",
+      "result": "PASS"
+    },
+    {
+      "protocol": "CLI",
+      "scope": "implicit",
+      "phase": "before",
+      "action": "kill",
+      "source_sha256": "be7789b294204bafd3695308fd8fc8c73d4a409da1472cda8a0ff290dcd0dbe2",
+      "expected_rows": 0,
+      "observed_rows": [],
+      "fresh_Diamond_readback": "0",
+      "integrity": "ok",
+      "result": "PASS"
+    },
+    {
+      "protocol": "CLI",
+      "scope": "implicit",
+      "phase": "after",
+      "action": "kill",
+      "source_sha256": "be7789b294204bafd3695308fd8fc8c73d4a409da1472cda8a0ff290dcd0dbe2",
+      "expected_rows": 1,
+      "observed_rows": [
+        [
+          "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé A2659",
+          1
+        ]
+      ],
+      "fresh_Diamond_readback": "1",
+      "integrity": "ok",
+      "result": "PASS"
+    },
+    {
+      "protocol": "CLI",
+      "scope": "explicit",
+      "phase": "before",
+      "action": "kill",
+      "source_sha256": "e22b5ee3f530de35a584156bf7a5e2c86b626eba9ee809d4f303d1f370c7b787",
+      "expected_rows": 0,
+      "observed_rows": [],
+      "fresh_Diamond_readback": "0",
+      "integrity": "ok",
+      "result": "PASS"
+    },
+    {
+      "protocol": "CLI",
+      "scope": "explicit",
+      "phase": "after",
+      "action": "kill",
+      "source_sha256": "e22b5ee3f530de35a584156bf7a5e2c86b626eba9ee809d4f303d1f370c7b787",
+      "expected_rows": 2,
+      "observed_rows": [
+        [
+          "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé A2659",
+          1
+        ],
+        [
+          "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé B2659",
+          1
+        ]
+      ],
+      "fresh_Diamond_readback": "2",
+      "integrity": "ok",
+      "result": "PASS"
+    },
+    {
+      "protocol": "HTTP",
+      "scope": "implicit",
+      "phase": "before",
+      "action": "kill",
+      "source_sha256": "8017879c5df1eb2c31ab954e5cf47e836f196910f16804b45ad37f6beb0819be",
+      "expected_rows": 0,
+      "observed_rows": [],
+      "fresh_Diamond_readback": "0",
+      "integrity": "ok",
+      "result": "PASS"
+    },
+    {
+      "protocol": "HTTP",
+      "scope": "implicit",
+      "phase": "after",
+      "action": "kill",
+      "source_sha256": "8017879c5df1eb2c31ab954e5cf47e836f196910f16804b45ad37f6beb0819be",
+      "expected_rows": 1,
+      "observed_rows": [
+        [
+          "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé A2659",
+          1
+        ]
+      ],
+      "fresh_Diamond_readback": "1",
+      "integrity": "ok",
+      "result": "PASS"
+    },
+    {
+      "protocol": "HTTP",
+      "scope": "explicit",
+      "phase": "before",
+      "action": "kill",
+      "source_sha256": "bef4888a52a1f142f3b7f69665d5a5d097fd24cd5bfc28f4d6ed969763be6a0d",
+      "expected_rows": 0,
+      "observed_rows": [],
+      "fresh_Diamond_readback": "0",
+      "integrity": "ok",
+      "result": "PASS"
+    },
+    {
+      "protocol": "HTTP",
+      "scope": "explicit",
+      "phase": "after",
+      "action": "kill",
+      "source_sha256": "bef4888a52a1f142f3b7f69665d5a5d097fd24cd5bfc28f4d6ed969763be6a0d",
+      "expected_rows": 2,
+      "observed_rows": [
+        [
+          "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé A2659",
+          1
+        ],
+        [
+          "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé B2659",
+          1
+        ]
+      ],
+      "fresh_Diamond_readback": "2",
+      "integrity": "ok",
+      "result": "PASS"
+    },
+    {
+      "protocol": "HTTP",
+      "scope": "explicit",
+      "phase": "before",
+      "action": "disconnect",
+      "source_sha256": "bef4888a52a1f142f3b7f69665d5a5d097fd24cd5bfc28f4d6ed969763be6a0d",
+      "expected_rows": 2,
+      "observed_rows": [
+        [
+          "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé A2659",
+          1
+        ],
+        [
+          "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé B2659",
+          1
+        ]
+      ],
+      "fresh_Diamond_readback": "2",
+      "integrity": "ok",
+      "result": "PASS"
+    },
+    {
+      "protocol": "HTTP",
+      "scope": "explicit",
+      "phase": "after",
+      "action": "disconnect",
+      "source_sha256": "bef4888a52a1f142f3b7f69665d5a5d097fd24cd5bfc28f4d6ed969763be6a0d",
+      "expected_rows": 2,
+      "observed_rows": [
+        [
+          "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé A2659",
+          1
+        ],
+        [
+          "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé B2659",
+          1
+        ]
+      ],
+      "fresh_Diamond_readback": "2",
+      "integrity": "ok",
+      "result": "PASS"
+    }
+  ],
+  "result": "PASS",
+  "case_count": 20,
+  "temporary_resources_removed": true
+}

@@ -1,0 +1,9 @@
+app Test:
+  database SQLite
+fn recursive(value: Bool) -> Int:
+  transaction db:
+    match value:
+      true => recursive(false)
+      false => 7
+fn main() -> Int:
+  recursive(true)

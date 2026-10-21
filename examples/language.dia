@@ -1,0 +1,23 @@
+enum AccountState:
+  Active
+  Suspended(reason: Text)
+  Closed
+
+fn describe(state: AccountState) -> Text:
+  match state:
+    Active => "Active"
+    Suspended(reason) => "Suspended: " + reason
+    Closed => "Closed"
+
+fn recover(result: Result<AccountState, DataError>) -> Text:
+  match result:
+    Ok(state) => describe(state)
+    Err(error) => error_message(error)
+
+fn main() -> Text:
+  let labels = for state in [Active, Suspended("review"), Closed]:
+    describe(state)
+  let optional = Some(recover(Ok(Suspended("example"))))
+  match optional:
+    Some(label) => label
+    None => "No account"

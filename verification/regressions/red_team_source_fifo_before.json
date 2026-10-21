@@ -1,0 +1,8 @@
+{
+  "binary_sha256": "565e68aebacf80d33581c47b823bb87b54282a7d8798ddf5c2cdd43b09215c99",
+  "status": "CONFIRMED",
+  "finding": "opening a FIFO as a source blocks before source-size and compiler work limits apply",
+  "input": {"path_type": "FIFO", "mode": "0600", "writer_present": false},
+  "observations": {"timeout_seconds": 1, "timed_out": true, "stdout": null, "stderr": null},
+  "violated_invariant": "unsupported source path types must fail without an unbounded pre-read wait"
+}

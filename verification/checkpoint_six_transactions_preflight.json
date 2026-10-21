@@ -1,0 +1,623 @@
+{
+  "binary": "/home/doll/diamond/target/debug/diamond",
+  "binary_sha256": "3b64a376bc69cf10f9dde027973b31edef66b47ca7e7cf7fdad2f131730a3ad9",
+  "driver_sha256": "739be3a3f29e6b4e314673e50d6c0355659614361e269551ac788ed453dc73c6",
+  "shim_sha256": "2839f85ea3480e9c00b8a0527ec0959b8c30a9a30eb16c57c97f2f577369b6da",
+  "seed": 858628,
+  "rounds": 2,
+  "cases": [
+    {
+      "round": 0,
+      "protocol": "CLI",
+      "scope": "implicit",
+      "outcome": "success",
+      "title": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "source_sha256": "8c34a8744fd9392f095d02af58aad191832156ee81bc5e72dfef1b19741ab594",
+      "exit": 0,
+      "stdout": "3e2791e67d82d5d7a463648e79cda16246156335af8bbf6685c43eee1edc18cd\n",
+      "stderr": "",
+      "final_rows": [
+        [
+          "3e2791e67d82d5d7a463648e79cda16246156335af8bbf6685c43eee1edc18cd",
+          "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+          1
+        ]
+      ],
+      "fresh_process_readback": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "result": "PASS"
+    },
+    {
+      "round": 0,
+      "protocol": "CLI",
+      "scope": "implicit",
+      "outcome": "read-lock",
+      "title": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "source_sha256": "8c34a8744fd9392f095d02af58aad191832156ee81bc5e72dfef1b19741ab594",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: execute main: transaction aborted\n",
+      "rows_after_failure": [],
+      "final_rows": [
+        [
+          "9603ab4207df1a30922b2255d34d54b80605e824d7999c11c8513bf309155a38",
+          "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+          1
+        ]
+      ],
+      "fresh_process_readback": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "result": "PASS"
+    },
+    {
+      "round": 0,
+      "protocol": "CLI",
+      "scope": "implicit",
+      "outcome": "ack-loss",
+      "title": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "source_sha256": "8c34a8744fd9392f095d02af58aad191832156ee81bc5e72dfef1b19741ab594",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: execute main: transaction outcome unknown; operation 88792ca62de651c6df661f6a41c74ffd704db417e3db30502de6724037619b74; do not automatically retry\n",
+      "fault_log": "unlink committed journal; returned EIO\n",
+      "rows_after_failure": [
+        [
+          "d8c396747fa7dc84ec317752e8f375516f089e396da3107a5200480bd6cdecb9",
+          "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+          1
+        ]
+      ],
+      "operation_id": "88792ca62de651c6df661f6a41c74ffd704db417e3db30502de6724037619b74",
+      "final_rows": [
+        [
+          "d8c396747fa7dc84ec317752e8f375516f089e396da3107a5200480bd6cdecb9",
+          "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+          1
+        ]
+      ],
+      "fresh_process_readback": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "result": "PASS"
+    },
+    {
+      "round": 0,
+      "protocol": "CLI",
+      "scope": "explicit",
+      "outcome": "success",
+      "title": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "source_sha256": "86d8c9ff361f364e1471e07d98aa12b4998d652b72c722c9f20b557abef2a3b0",
+      "exit": 0,
+      "stdout": "0aedd4e06e5c50155e7d5d92e954dcbebc6d7c71075a9a2044e93fc286bb577e\n",
+      "stderr": "",
+      "final_rows": [
+        [
+          "0aedd4e06e5c50155e7d5d92e954dcbebc6d7c71075a9a2044e93fc286bb577e",
+          "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+          1
+        ]
+      ],
+      "fresh_process_readback": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "result": "PASS"
+    },
+    {
+      "round": 0,
+      "protocol": "CLI",
+      "scope": "explicit",
+      "outcome": "read-lock",
+      "title": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "source_sha256": "86d8c9ff361f364e1471e07d98aa12b4998d652b72c722c9f20b557abef2a3b0",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: execute main: transaction aborted\n",
+      "rows_after_failure": [],
+      "final_rows": [
+        [
+          "163a9f0a4e9f0d0427407bd6267523c20dbe210bff37a23b01ec7fbf71bb5470",
+          "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+          1
+        ]
+      ],
+      "fresh_process_readback": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "result": "PASS"
+    },
+    {
+      "round": 0,
+      "protocol": "CLI",
+      "scope": "explicit",
+      "outcome": "ack-loss",
+      "title": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "source_sha256": "86d8c9ff361f364e1471e07d98aa12b4998d652b72c722c9f20b557abef2a3b0",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: execute main: transaction outcome unknown; operation 306b02dc7eab661b8405b3cf9d65f011f03283a875400e7ec29977195436d850; do not automatically retry\n",
+      "fault_log": "unlink committed journal; returned EIO\n",
+      "rows_after_failure": [
+        [
+          "60d932a7a5552c83c50a884398d62506a8bbd1f8aba0e4835360748681c0fbf0",
+          "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+          1
+        ]
+      ],
+      "operation_id": "306b02dc7eab661b8405b3cf9d65f011f03283a875400e7ec29977195436d850",
+      "final_rows": [
+        [
+          "60d932a7a5552c83c50a884398d62506a8bbd1f8aba0e4835360748681c0fbf0",
+          "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+          1
+        ]
+      ],
+      "fresh_process_readback": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "result": "PASS"
+    },
+    {
+      "round": 0,
+      "protocol": "HTTP",
+      "scope": "implicit",
+      "outcome": "success",
+      "title": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "source_sha256": "bb3a2b3b97ae1a3cdd4b0d96098d1bb4a10d634a22ea44a0d634f808dfe8f415",
+      "status": 200,
+      "body": "committed",
+      "final_rows": [
+        [
+          "867e9106d5a0d57aaa31a5595a66be6a680df4a46c411a6b77d493e3b3f6e25e",
+          "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+          1
+        ]
+      ],
+      "requests": 2,
+      "fresh_process_readback": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "result": "PASS"
+    },
+    {
+      "round": 0,
+      "protocol": "HTTP",
+      "scope": "implicit",
+      "outcome": "read-lock",
+      "title": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "source_sha256": "bb3a2b3b97ae1a3cdd4b0d96098d1bb4a10d634a22ea44a0d634f808dfe8f415",
+      "status": 409,
+      "body": "Transaction aborted",
+      "rows_after_failure": [],
+      "after_unlock": [
+        200,
+        "committed"
+      ],
+      "final_rows": [
+        [
+          "863f993ef4ba4a235bad6f53acf546b96c72b63be05f545e665131dca79eb35f",
+          "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+          1
+        ]
+      ],
+      "requests": 3,
+      "fresh_process_readback": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "result": "PASS"
+    },
+    {
+      "round": 0,
+      "protocol": "HTTP",
+      "scope": "implicit",
+      "outcome": "ack-loss",
+      "title": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "source_sha256": "bb3a2b3b97ae1a3cdd4b0d96098d1bb4a10d634a22ea44a0d634f808dfe8f415",
+      "status": 503,
+      "body": "Operation outcome unknown; operation 43fc29212a7f7d7e98f55203dc225c56af1c0cc8644032ac8340dab11a1ccd31; do not automatically retry",
+      "fault_log": "unlink committed journal; returned EIO\n",
+      "rows_after_failure": [
+        [
+          "df36f3e766228c59094a41fbd611ee11ba224515fbc48eca005b666869e22c78",
+          "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+          1
+        ]
+      ],
+      "poisoned_write": [
+        404,
+        "Not found"
+      ],
+      "poisoned_read": [
+        404,
+        "Not found"
+      ],
+      "operation_id": "43fc29212a7f7d7e98f55203dc225c56af1c0cc8644032ac8340dab11a1ccd31",
+      "final_rows": [
+        [
+          "df36f3e766228c59094a41fbd611ee11ba224515fbc48eca005b666869e22c78",
+          "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+          1
+        ]
+      ],
+      "requests": 5,
+      "fresh_process_readback": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "result": "PASS"
+    },
+    {
+      "round": 0,
+      "protocol": "HTTP",
+      "scope": "explicit",
+      "outcome": "success",
+      "title": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "source_sha256": "b5c53a9038a991298a4fec5e746e72b490e40411b926fc55d5602bafb30f1df2",
+      "status": 200,
+      "body": "committed",
+      "final_rows": [
+        [
+          "7558580e6bfa1c15f69d1cb3a428a9bb2dd5a9545467852a5941ee22a4733193",
+          "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+          1
+        ]
+      ],
+      "requests": 2,
+      "fresh_process_readback": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "result": "PASS"
+    },
+    {
+      "round": 0,
+      "protocol": "HTTP",
+      "scope": "explicit",
+      "outcome": "read-lock",
+      "title": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "source_sha256": "b5c53a9038a991298a4fec5e746e72b490e40411b926fc55d5602bafb30f1df2",
+      "status": 409,
+      "body": "Transaction aborted",
+      "rows_after_failure": [],
+      "after_unlock": [
+        200,
+        "committed"
+      ],
+      "final_rows": [
+        [
+          "6f9d41d9e73e8c5dc8524afab211c1d62ef5cf231a585fec0872c4d1f6241c80",
+          "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+          1
+        ]
+      ],
+      "requests": 3,
+      "fresh_process_readback": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "result": "PASS"
+    },
+    {
+      "round": 0,
+      "protocol": "HTTP",
+      "scope": "explicit",
+      "outcome": "ack-loss",
+      "title": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "source_sha256": "b5c53a9038a991298a4fec5e746e72b490e40411b926fc55d5602bafb30f1df2",
+      "status": 503,
+      "body": "Operation outcome unknown; operation a33c1146705dc523dd2248f3ac4ce1c36e7cfb3665843ae7bc12f6eea77bdc0e; do not automatically retry",
+      "fault_log": "unlink committed journal; returned EIO\n",
+      "rows_after_failure": [
+        [
+          "8582b9bb7052e7b15d53c3a2da3acb8d604eb270a46ecdd230c1d6a6bfc06be3",
+          "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+          1
+        ]
+      ],
+      "poisoned_write": [
+        404,
+        "Not found"
+      ],
+      "poisoned_read": [
+        404,
+        "Not found"
+      ],
+      "operation_id": "a33c1146705dc523dd2248f3ac4ce1c36e7cfb3665843ae7bc12f6eea77bdc0e",
+      "final_rows": [
+        [
+          "8582b9bb7052e7b15d53c3a2da3acb8d604eb270a46ecdd230c1d6a6bfc06be3",
+          "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+          1
+        ]
+      ],
+      "requests": 5,
+      "fresh_process_readback": "Robert'); DROP TABLE Notes; -- <b>雪</b>aZ1Zb",
+      "result": "PASS"
+    },
+    {
+      "round": 1,
+      "protocol": "CLI",
+      "scope": "implicit",
+      "outcome": "success",
+      "title": "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+      "source_sha256": "c77d7e81f508c7a4314db1d9468ce2062f2f73569d4df16351a4ce4a8efb6e66",
+      "exit": 0,
+      "stdout": "b4191f12e8349fb711620cbe14a5892c995dc49ab46e034b71c2044c0f6058ce\n",
+      "stderr": "",
+      "final_rows": [
+        [
+          "b4191f12e8349fb711620cbe14a5892c995dc49ab46e034b71c2044c0f6058ce",
+          "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+          1
+        ]
+      ],
+      "fresh_process_readback": "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+      "result": "PASS"
+    },
+    {
+      "round": 1,
+      "protocol": "CLI",
+      "scope": "implicit",
+      "outcome": "read-lock",
+      "title": "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+      "source_sha256": "c77d7e81f508c7a4314db1d9468ce2062f2f73569d4df16351a4ce4a8efb6e66",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: execute main: transaction aborted\n",
+      "rows_after_failure": [],
+      "final_rows": [
+        [
+          "24510e3f7407df93b0e710fcf9dc37726a74cccf91d3f350f3165c02eac2bdf2",
+          "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+          1
+        ]
+      ],
+      "fresh_process_readback": "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+      "result": "PASS"
+    },
+    {
+      "round": 1,
+      "protocol": "CLI",
+      "scope": "implicit",
+      "outcome": "ack-loss",
+      "title": "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+      "source_sha256": "c77d7e81f508c7a4314db1d9468ce2062f2f73569d4df16351a4ce4a8efb6e66",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: execute main: transaction outcome unknown; operation 43c1438a7d36db832e5581a8df644bbc787a1f0d8c89cfe2c41f7ca28c1c7298; do not automatically retry\n",
+      "fault_log": "unlink committed journal; returned EIO\n",
+      "rows_after_failure": [
+        [
+          "23417de0e921f143f850928b7e039acb51063e319525607cf4f7c0b4d8e7dd00",
+          "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+          1
+        ]
+      ],
+      "operation_id": "43c1438a7d36db832e5581a8df644bbc787a1f0d8c89cfe2c41f7ca28c1c7298",
+      "final_rows": [
+        [
+          "23417de0e921f143f850928b7e039acb51063e319525607cf4f7c0b4d8e7dd00",
+          "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+          1
+        ]
+      ],
+      "fresh_process_readback": "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+      "result": "PASS"
+    },
+    {
+      "round": 1,
+      "protocol": "CLI",
+      "scope": "explicit",
+      "outcome": "success",
+      "title": "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+      "source_sha256": "88c63ee2556e2bf28c68adc65b4736c8f911758ed0709ea633accec4793a13d1",
+      "exit": 0,
+      "stdout": "c739f7a8310fa9b4c0648c1dde301fd9e05729f85a8af6be3a60a73e1e5d1a19\n",
+      "stderr": "",
+      "final_rows": [
+        [
+          "c739f7a8310fa9b4c0648c1dde301fd9e05729f85a8af6be3a60a73e1e5d1a19",
+          "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+          1
+        ]
+      ],
+      "fresh_process_readback": "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+      "result": "PASS"
+    },
+    {
+      "round": 1,
+      "protocol": "CLI",
+      "scope": "explicit",
+      "outcome": "read-lock",
+      "title": "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+      "source_sha256": "88c63ee2556e2bf28c68adc65b4736c8f911758ed0709ea633accec4793a13d1",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: execute main: transaction aborted\n",
+      "rows_after_failure": [],
+      "final_rows": [
+        [
+          "5675be769efbf52c676f07e2e5fdaa7eed9c790b41998a8e099a9a0098e22eee",
+          "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+          1
+        ]
+      ],
+      "fresh_process_readback": "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+      "result": "PASS"
+    },
+    {
+      "round": 1,
+      "protocol": "CLI",
+      "scope": "explicit",
+      "outcome": "ack-loss",
+      "title": "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+      "source_sha256": "88c63ee2556e2bf28c68adc65b4736c8f911758ed0709ea633accec4793a13d1",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: execute main: transaction outcome unknown; operation ce8b8421cd161d090ec19fa46e554e1f2e1bb2a28e93e9362422afb568748c1b; do not automatically retry\n",
+      "fault_log": "unlink committed journal; returned EIO\n",
+      "rows_after_failure": [
+        [
+          "47c1253a68ba1311a80d185ef389605baf51248d7d8ea255d1d51de9c5da976b",
+          "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+          1
+        ]
+      ],
+      "operation_id": "ce8b8421cd161d090ec19fa46e554e1f2e1bb2a28e93e9362422afb568748c1b",
+      "final_rows": [
+        [
+          "47c1253a68ba1311a80d185ef389605baf51248d7d8ea255d1d51de9c5da976b",
+          "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+          1
+        ]
+      ],
+      "fresh_process_readback": "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+      "result": "PASS"
+    },
+    {
+      "round": 1,
+      "protocol": "HTTP",
+      "scope": "implicit",
+      "outcome": "success",
+      "title": "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+      "source_sha256": "74f15a7b959846116e649fe864275d8132e331260e6a2632f2cd797acbb10fc4",
+      "status": 200,
+      "body": "committed",
+      "final_rows": [
+        [
+          "55d4dad48212f9d5cd11094698015cc539d5852165b21b03401c213f1d71bbfe",
+          "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+          1
+        ]
+      ],
+      "requests": 2,
+      "fresh_process_readback": "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+      "result": "PASS"
+    },
+    {
+      "round": 1,
+      "protocol": "HTTP",
+      "scope": "implicit",
+      "outcome": "read-lock",
+      "title": "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+      "source_sha256": "74f15a7b959846116e649fe864275d8132e331260e6a2632f2cd797acbb10fc4",
+      "status": 409,
+      "body": "Transaction aborted",
+      "rows_after_failure": [],
+      "after_unlock": [
+        200,
+        "committed"
+      ],
+      "final_rows": [
+        [
+          "2137f9944694e4ccaf0e59ba09019bc8bdc7337cc695579d75def3a788c57a76",
+          "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+          1
+        ]
+      ],
+      "requests": 3,
+      "fresh_process_readback": "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+      "result": "PASS"
+    },
+    {
+      "round": 1,
+      "protocol": "HTTP",
+      "scope": "implicit",
+      "outcome": "ack-loss",
+      "title": "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+      "source_sha256": "74f15a7b959846116e649fe864275d8132e331260e6a2632f2cd797acbb10fc4",
+      "status": 503,
+      "body": "Operation outcome unknown; operation a32a835d3c3cf65a482fe769fb09dcb075d308ef8d9b7ada46880eab81b63ddd; do not automatically retry",
+      "fault_log": "unlink committed journal; returned EIO\n",
+      "rows_after_failure": [
+        [
+          "6180aae3fee2d7c849ab70ae05af9e5f2fe8704fd0640287a77daa8d1eca36f4",
+          "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+          1
+        ]
+      ],
+      "poisoned_write": [
+        404,
+        "Not found"
+      ],
+      "poisoned_read": [
+        404,
+        "Not found"
+      ],
+      "operation_id": "a32a835d3c3cf65a482fe769fb09dcb075d308ef8d9b7ada46880eab81b63ddd",
+      "final_rows": [
+        [
+          "6180aae3fee2d7c849ab70ae05af9e5f2fe8704fd0640287a77daa8d1eca36f4",
+          "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+          1
+        ]
+      ],
+      "requests": 5,
+      "fresh_process_readback": "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+      "result": "PASS"
+    },
+    {
+      "round": 1,
+      "protocol": "HTTP",
+      "scope": "explicit",
+      "outcome": "success",
+      "title": "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+      "source_sha256": "2a8442ed565aefd336340b9fff016c648ffa29330db0e53cd0a011531970cda5",
+      "status": 200,
+      "body": "committed",
+      "final_rows": [
+        [
+          "9737ebe817e952838628911768b71f105fce7aa8892ff5a2a7e0d88a6272274a",
+          "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+          1
+        ]
+      ],
+      "requests": 2,
+      "fresh_process_readback": "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+      "result": "PASS"
+    },
+    {
+      "round": 1,
+      "protocol": "HTTP",
+      "scope": "explicit",
+      "outcome": "read-lock",
+      "title": "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+      "source_sha256": "2a8442ed565aefd336340b9fff016c648ffa29330db0e53cd0a011531970cda5",
+      "status": 409,
+      "body": "Transaction aborted",
+      "rows_after_failure": [],
+      "after_unlock": [
+        200,
+        "committed"
+      ],
+      "final_rows": [
+        [
+          "2b7429d356440c0352aee0557e2663448d834e3c7349456281abeeaae911615d",
+          "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+          1
+        ]
+      ],
+      "requests": 3,
+      "fresh_process_readback": "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+      "result": "PASS"
+    },
+    {
+      "round": 1,
+      "protocol": "HTTP",
+      "scope": "explicit",
+      "outcome": "ack-loss",
+      "title": "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+      "source_sha256": "2a8442ed565aefd336340b9fff016c648ffa29330db0e53cd0a011531970cda5",
+      "status": 503,
+      "body": "Operation outcome unknown; operation dd985c2d0162436e92bf47f3512308f7dd2ac117d68ba25e32eb857e5c6b4c41; do not automatically retry",
+      "fault_log": "unlink committed journal; returned EIO\n",
+      "rows_after_failure": [
+        [
+          "fe32fee6d986866c1886f9d6e66ffa0f0565114b168fade40aeeac9f2e127d06",
+          "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+          1
+        ]
+      ],
+      "poisoned_write": [
+        404,
+        "Not found"
+      ],
+      "poisoned_read": [
+        404,
+        "Not found"
+      ],
+      "operation_id": "dd985c2d0162436e92bf47f3512308f7dd2ac117d68ba25e32eb857e5c6b4c41",
+      "final_rows": [
+        [
+          "fe32fee6d986866c1886f9d6e66ffa0f0565114b168fade40aeeac9f2e127d06",
+          "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+          1
+        ]
+      ],
+      "requests": 5,
+      "fresh_process_readback": "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+      "result": "PASS"
+    }
+  ],
+  "elapsed_seconds": 16.245,
+  "passed": 24,
+  "failed": 0,
+  "temporary_resources_removed": true,
+  "requests": 40
+}

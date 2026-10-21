@@ -1,0 +1,31 @@
+app Preview:
+  session SecureCookie
+
+type NoteId = Id<"note">
+
+type Echo:
+  message: Text<length: 1..120>
+
+public route GET "/" as Home:
+  let title = "Diamond <checkpoint one>"
+  html:
+    <main>
+      <h1>{title}</h1>
+      <p>The parser, checker, interpreter, and HTML adapter are connected.</p>
+      <a href={route_url(Details, NoteId("demo"))}>A typed route</a>
+    </main>
+
+public route GET "/notes/{id:NoteId}" as Details:
+  html:
+    <article><h1>Note {id}</h1></article>
+
+public route GET "/numbers/{number:Int}":
+  number * 3
+
+public route POST "/echo":
+  let form = request.form<Echo>()?
+  html:
+    <p>{form.message}</p>
+
+route GET "/account":
+  "Only a verified session may reach this handler."

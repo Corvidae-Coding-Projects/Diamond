@@ -1,0 +1,97 @@
+{
+  "source_sha256": {
+    "src/accounts.rs": "83af700e483c45868faf84be7b5a634c2afd0d406a87dbf2a945ae768f84b1f8",
+    "src/auth.rs": "59d3e680cd74785642521b020cc7cfd6d39f521d02a90df52e1d9ba12d292e2b",
+    "src/authority.rs": "53eb0faac5a942eac7a63cb410ecf190e775fbc8382aad0ee3786eff59f2863f",
+    "src/browser_auth.rs": "032f0b4f73aae36c44cc768884128662caa25ad2c5ab7998185e35fb9da5da01",
+    "src/checker.rs": "7002f645c7ccf9287cf55a74c37ac05a7b83c9efdb92d354917533fb6e3306c8",
+    "src/data.rs": "e9f8e03d95c2ffd394dff29df6de842c6edfd9ef8f4a2c3440ef0c42f38ba8f3",
+    "src/error.rs": "7ad638bd7188996b086cdd771c1fbd44cd5365b77de79da2ddd51e04ff1cff62",
+    "src/eval.rs": "121479172475bd02125de71df740f12df2792ff1c6fbd217abebdd3624fd9535",
+    "src/forms.rs": "07d642674076128f27b551814f37d0d20914877137f8b5be503c91f64ceb6600",
+    "src/hir.rs": "6b41aaa5b92709721da2ad298ca08b6b17e2c3ca8b8dbd145f7297f2907738c7",
+    "src/http.rs": "633cdb89289bd857df488e8775acfe6af84ffe50a0c08b5d6796245a7a7f341e",
+    "src/lexer.rs": "45923d07b2b56468ace5617862529fa334e935d3d4e2d8be8b4900059138d127",
+    "src/lib.rs": "4cd2df21873de3125a0202276abc85869b1e245968d4d63a45ff1a924b9f87a3",
+    "src/main.rs": "abc9a809a25192392e117447312d346981c1aac06db02da1b37950ada75397ab",
+    "src/parser.rs": "a0bbeb8a87263ae32eb7b5200639613d589bcce1f469d69190e8c484ab6686ad",
+    "src/policy.rs": "b8f0535e56bdd66fbdbfd862fc2ac6d1574d5e0ebe1cb0e337b1ab1a21bf0129",
+    "src/syntax.rs": "cdcd69d40e4291b72908a36383ede71970272130dc2c86983133ed228ede2788",
+    "src/template.rs": "7f2c19a79c68797db40c4e0f2c48c65bb774808bca600199ab5770de67799d02",
+    "src/value.rs": "de9d8fdb9efff4cad8643da91037170abdbae8e633d84b107bfd4b7f7abda682",
+    "src/web.rs": "f0da41df9f9d4e5d147ffdc959db1ee6a08db3230b285b55412abdc09cdf30d8",
+    "Cargo.toml": "d505d8f06df79e496dd457d1a82ec456a4a6eafc28374594b18faa6bcfdeb934",
+    "Cargo.lock": "03a35c866f4f7578c7276afb79ac16ce148c035e40a13c79fad9ec72915cf685",
+    "verification/resource_enforcement.py": "549acdf3fc85bae1d954ebac8a6ec6d2f822ca3befd2e7eb800d0107d9eb8993",
+    "verification/regressions/cp5_resource/recursive_record.dia": "22c68b578654bf76ead78e11aca3d251a0b41dc34a2e2c1792962bf42422b881",
+    "verification/regressions/cp5_resource/README.md": "84d33fde0484f10d594e37a25c82122c6316b90054f1f2f34f0322fd349e162e"
+  },
+  "rustc": "rustc 1.96.0 (ac68faa20 2026-05-25)\nbinary: rustc\ncommit-hash: ac68faa20c58cbccd01ee7208bf3b6e93a7d7f96\ncommit-date: 2026-05-25\nhost: x86_64-unknown-linux-gnu\nrelease: 1.96.0\nLLVM version: 22.1.2",
+  "cargo": "cargo 1.96.0 (30a34c682 2026-05-25)",
+  "verification_correction": "The three copy-work cases now require successful diamond check followed by the specific managed value work runtime error; this supersedes the earlier generic-limit work-case evidence. Production Rust was not edited.",
+  "focused_commands": [
+    {
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--check"
+      ],
+      "cwd": "/home/doll/diamond",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "cargo",
+        "build",
+        "--locked"
+      ],
+      "cwd": "/home/doll/diamond",
+      "exit": 0,
+      "stdout": "",
+      "stderr": "   Compiling diamond-lang v0.5.0 (/home/doll/diamond)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.27s\n"
+    },
+    {
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--all-targets",
+        "--all-features",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "cwd": "/home/doll/diamond",
+      "exit": 0,
+      "stdout": "",
+      "stderr": "    Checking diamond-lang v0.5.0 (/home/doll/diamond)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.67s\n"
+    },
+    {
+      "command": [
+        "python3",
+        "verification/resource_enforcement.py"
+      ],
+      "cwd": "/home/doll/diamond",
+      "exit": 0,
+      "stdout": "{\n  \"seed\": 858629,\n  \"binary_sha256\": \"2301011ea38785ccf779d3f2176542be2d45c6aaea632a3ce83c825aa2fb6be1\",\n  \"cli_checks\": 43,\n  \"sqlite_checks\": 10,\n  \"http_requests\": 8,\n  \"generated_and_regression_cases\": [\n    \"tree-3\",\n    \"tree-12\",\n    \"tree-10\",\n    \"tree-2\",\n    \"tree-7\",\n    \"tree-4\",\n    \"tree-6\",\n    \"tree-8\",\n    \"tree-1\",\n    \"tree-5\",\n    \"tree-9\",\n    \"tree-11\",\n    \"recursive-record-regression\",\n    \"linear-depth-32\",\n    \"linear-depth-33\",\n    \"list-payload-0\",\n    \"list-payload-1\",\n    \"list-payload-3\",\n    \"list-payload-7\",\n    \"list-payload-8\",\n    \"iteration-scope-copy-work\",\n    \"parameter-and-scope-copy-work\",\n    \"branch-scope-copy-work\",\n    \"result-cannot-catch-resource-limit\",\n    \"owned-option-patterns\",\n    \"owned-enum-patterns\",\n    \"ordinary-result-remains-catchable\",\n    \"selection-aggregate-size\",\n    \"selection-modest-readback\",\n    \"stored-row-size-preflight\",\n    \"created-row-size-before-commit\",\n    \"updated-row-size-before-commit\",\n    \"stored-relation-materialization-work\",\n    \"committed-state-fresh-process\"\n  ],\n  \"compile_pass_then_runtime_work_limit\": [\n    \"iteration-scope-copy-work\",\n    \"parameter-and-scope-copy-work\",\n    \"branch-scope-copy-work\"\n  ],\n  \"bounds\": {\n    \"child_address_space_mib\": 512,\n    \"child_cpu_seconds\": 5,\n    \"managed_value_mib\": 4,\n    \"managed_depth\": 64,\n    \"evaluation_value_work_mib\": 64\n  }\n}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python3",
+        "verification/resource_enforcement.py",
+        "--baseline-only",
+        "--binary",
+        "/tmp/diamond-checkpoint-five-baseline-i4hz4njs/diamond"
+      ],
+      "cwd": "/home/doll/diamond",
+      "exit": 0,
+      "stdout": "{\n  \"binary_sha256\": \"c24890807ddfa962e37d44dfbd031d9166182ea40b5b4fcf56b45e6d45995b95\",\n  \"exit\": -6,\n  \"stdout\": \"\",\n  \"stderr\": \"memory allocation of 4 bytes failed\\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\\n\"\n}\n",
+      "stderr": ""
+    }
+  ],
+  "required_whole_project_matrix": "Parent-owned; this focused receipt does not substitute for final combined-source cargo test/docs/native-consumer checks and checkpoint replays."
+}

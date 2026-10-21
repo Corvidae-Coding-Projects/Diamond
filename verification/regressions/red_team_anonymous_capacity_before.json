@@ -1,0 +1,15 @@
+{
+  "binary_sha256": "fae37713cf0ca82c26928bc5b2fcefbac8d35965cefad8cba14c60fa7afeda69",
+  "status": "CONFIRMED",
+  "finding": "unauthenticated requests exhaust the shared browser session registry and deny every subsequent safe route",
+  "scope": "disposable loopback server with a disposable account and application database",
+  "observations": {
+    "login_request_1": 200,
+    "login_request_4095": 200,
+    "login_request_4096": 200,
+    "login_request_4097": 413,
+    "health_after_exhaustion": 413,
+    "server_process_alive": true,
+    "total_requests": 4098
+  }
+}

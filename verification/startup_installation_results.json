@@ -1,0 +1,322 @@
+{
+  "schema": 1,
+  "finished_utc": "2026-10-21T21:53:20.605210+00:00",
+  "binary_sha256": "896c9b6262a63d73c8d053589bb77ef7dceeb0c356fa81d631fd86a244d1954f",
+  "host_binary_sha256": "fce87b57340f91d3cbcd16cf798c39868950c98c7fe1997cc36d7d9341e580f5",
+  "install_root_file_count": 3,
+  "cases": [
+    {
+      "name": "cargo_install",
+      "observed": {
+        "exit": 0,
+        "seconds": 29.264682,
+        "stdout": "",
+        "stderr": "  Installing diamond-lang v0.6.0 (/home/doll/diamond)\n    Updating crates.io index\n   Compiling typenum v1.20.1\n   Compiling version_check v0.9.5\n   Compiling proc-macro2 v1.0.107\n   Compiling find-msvc-tools v0.1.14\n   Compiling quote v1.0.47\n   Compiling unicode-ident v1.0.27\n   Compiling shlex v2.0.1\n   Compiling libc v0.2.191\n   Compiling pkg-config v0.3.34\n   Compiling vcpkg v0.2.15\n   Compiling subtle v2.6.1\n   Compiling foldhash v0.2.0\n   Compiling anyhow v1.0.104\n   Compiling cfg-if v1.0.5\n   Compiling rand_core v0.6.4\n   Compiling thiserror v2.0.21\n   Compiling const-oid v0.10.2\n   Compiling base64ct v1.8.3\n   Compiling getrandom v0.4.3\n   Compiling fallible-streaming-iterator v0.1.9\n   Compiling bitflags v2.13.2\n   Compiling fallible-iterator v0.3.0\n   Compiling cpufeatures v0.3.1\n   Compiling cpufeatures v0.2.17\n   Compiling smallvec v1.16.3\n   Compiling zeroize v1.9.1\n   Compiling cc v1.8.0\n   Compiling hashbrown v0.17.1\n   Compiling generic-array v0.14.7\n   Compiling password-hash v0.5.0\n   Compiling hashlink v0.12.2\n   Compiling hybrid-array v0.4.15\n   Compiling syn v3.0.9\n   Compiling rtoolbox v0.0.6\n   Compiling crypto-common v0.2.2\n   Compiling block-buffer v0.12.1\n   Compiling libsqlite3-sys v0.38.2\n   Compiling rpassword v7.5.4\n   Compiling crypto-common v0.1.7\n   Compiling block-buffer v0.10.4\n   Compiling digest v0.10.7\n   Compiling blake2 v0.10.6\n   Compiling argon2 v0.5.3\n   Compiling digest v0.11.3\n   Compiling sha2 v0.11.1\n   Compiling thiserror-impl v2.0.21\n   Compiling rusqlite v0.40.2\n   Compiling diamond-lang v0.6.0 (/home/doll/diamond)\n    Finished `release` profile [optimized] target(s) in 29.25s\n  Installing /tmp/diamond-cp6-install-yzf29gcz/install/bin/diamond\n   Installed package `diamond-lang v0.6.0 (/home/doll/diamond)` (executable `diamond`)\nwarning: be sure to add `/tmp/diamond-cp6-install-yzf29gcz/install/bin` to your PATH to be able to run the installed binaries\n",
+        "files": [
+          ".crates.toml",
+          ".crates2.json",
+          "bin/diamond"
+        ]
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "installed_version",
+      "observed": {
+        "arguments": [
+          "--version"
+        ],
+        "cwd": "/tmp/diamond-cp6-install-yzf29gcz",
+        "exit": 0,
+        "seconds": 0.000925,
+        "stdout": "diamond 0.6.0 (checkpoint six)\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "installed_help",
+      "observed": {
+        "arguments": [
+          "--help"
+        ],
+        "cwd": "/tmp/diamond-cp6-install-yzf29gcz",
+        "exit": 0,
+        "seconds": 0.000621,
+        "stdout": "Diamond 0.6.0 — checkpoint-six interpreted MVP\n\n  diamond check FILE\n  diamond run FILE [--database PATH] [--auth PATH] [--listen 127.0.0.1:PORT] [--max-requests N]\n  diamond db-init FILE --database PATH\n  diamond user-add --auth PATH --user USERNAME [--password-stdin]\n  diamond explain CODE\n\nOpen http://localhost:PORT for browser secure-cookie support.\nSee README.md for installation, examples, supported language, and limits.\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "installed_run_outside_tree",
+      "observed": {
+        "arguments": [
+          "run",
+          "hello.dia"
+        ],
+        "cwd": "/tmp/diamond-cp6-install-yzf29gcz",
+        "exit": 0,
+        "seconds": 0.000726,
+        "stdout": "Hello, Diamond!\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "installed_check_hello",
+      "observed": {
+        "arguments": [
+          "check",
+          "/home/doll/diamond/examples/hello.dia"
+        ],
+        "cwd": "/tmp/diamond-cp6-install-yzf29gcz",
+        "exit": 0,
+        "seconds": 0.000594,
+        "stdout": "checked /home/doll/diamond/examples/hello.dia: 2 functions, 0 records, 0 resources, 0 routes, 0 policies\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "installed_check_language",
+      "observed": {
+        "arguments": [
+          "check",
+          "/home/doll/diamond/examples/language.dia"
+        ],
+        "cwd": "/tmp/diamond-cp6-install-yzf29gcz",
+        "exit": 0,
+        "seconds": 0.000745,
+        "stdout": "checked /home/doll/diamond/examples/language.dia: 3 functions, 0 records, 0 resources, 0 routes, 0 policies\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "installed_check_message_board",
+      "observed": {
+        "arguments": [
+          "check",
+          "/home/doll/diamond/examples/message_board.dia"
+        ],
+        "cwd": "/tmp/diamond-cp6-install-yzf29gcz",
+        "exit": 0,
+        "seconds": 0.00108,
+        "stdout": "checked /home/doll/diamond/examples/message_board.dia: 4 functions, 3 records, 1 resources, 9 routes, 1 policies\n  app MessageBoard\n  private GET / {Read(\"Posts\")}\n  public GET /posts {Read(\"Posts\")}\n  public GET /posts/{id:PostId} {Read(\"Posts\")}\n  private POST /posts {Read(\"Posts\"), Write(\"Posts\")}\n  private GET /posts/{id:PostId}/edit {Read(\"Posts\")}\n  private POST /posts/{id:PostId}/edit {Read(\"Posts\"), Write(\"Posts\")}\n  private POST /posts/{id:PostId}/publication {Read(\"Posts\"), Write(\"Posts\")}\n  private POST /posts/{id:PostId}/delete {Write(\"Posts\")}\n  private DELETE /posts/{id:PostId} {Write(\"Posts\")}\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "installed_check_storage",
+      "observed": {
+        "arguments": [
+          "check",
+          "/home/doll/diamond/examples/storage.dia"
+        ],
+        "cwd": "/tmp/diamond-cp6-install-yzf29gcz",
+        "exit": 0,
+        "seconds": 0.000614,
+        "stdout": "checked /home/doll/diamond/examples/storage.dia: 1 functions, 2 records, 1 resources, 0 routes, 1 policies\n  app Storage\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "installed_check_web",
+      "observed": {
+        "arguments": [
+          "check",
+          "/home/doll/diamond/examples/web.dia"
+        ],
+        "cwd": "/tmp/diamond-cp6-install-yzf29gcz",
+        "exit": 0,
+        "seconds": 0.000612,
+        "stdout": "checked /home/doll/diamond/examples/web.dia: 0 functions, 1 records, 0 resources, 5 routes, 0 policies\n  app Preview\n  public GET / {}\n  public GET /notes/{id:NoteId} {}\n  public GET /numbers/{number:Int} {}\n  public POST /echo {}\n  private GET /account {}\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "check_side_effects",
+      "observed": {
+        "command": {
+          "arguments": [
+            "check",
+            "program.dia"
+          ],
+          "cwd": "/tmp/diamond-cp6-install-yzf29gcz/check-side-effects",
+          "exit": 0,
+          "seconds": 0.000585,
+          "stdout": "checked program.dia: 1 functions, 0 records, 0 resources, 0 routes, 0 policies\n",
+          "stderr": ""
+        },
+        "before": [
+          "program.dia"
+        ],
+        "after": [
+          "program.dia"
+        ]
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "database_initialization",
+      "observed": {
+        "command": {
+          "arguments": [
+            "db-init",
+            "/home/doll/diamond/examples/storage.dia",
+            "--database",
+            "/tmp/diamond-cp6-install-yzf29gcz/storage.sqlite"
+          ],
+          "cwd": "/tmp/diamond-cp6-install-yzf29gcz",
+          "exit": 0,
+          "seconds": 0.000942,
+          "stdout": "initialized checked schema\n",
+          "stderr": ""
+        },
+        "tables": [
+          "Notes"
+        ]
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "non_loopback_refusal",
+      "observed": {
+        "arguments": [
+          "run",
+          "/home/doll/diamond/examples/web.dia",
+          "--listen",
+          "0.0.0.0:0",
+          "--max-requests",
+          "1"
+        ],
+        "cwd": "/tmp/diamond-cp6-install-yzf29gcz",
+        "exit": 1,
+        "seconds": 0.000556,
+        "stdout": "",
+        "stderr": "error: serve checked program: D900 unsupported at 0:0: non-loopback or production serving; TLS, deployment validation, and concurrent serving are not implemented\n"
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "missing_database_grant",
+      "observed": {
+        "command": {
+          "arguments": [
+            "run",
+            "/home/doll/diamond/examples/message_board.dia",
+            "--listen",
+            "127.0.0.1:0",
+            "--max-requests",
+            "1"
+          ],
+          "cwd": "/tmp/diamond-cp6-install-yzf29gcz",
+          "exit": 1,
+          "seconds": 0.000892,
+          "stdout": "",
+          "stderr": "error: serve checked program: invalid input: database-backed routes require an explicit --database PATH host grant\n"
+        },
+        "database_exists": false
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "conflicting_database_paths",
+      "observed": {
+        "user_add": {
+          "arguments": [
+            "user-add",
+            "--auth",
+            "/tmp/diamond-cp6-install-yzf29gcz/accounts.sqlite",
+            "--user",
+            "alice",
+            "--password-stdin"
+          ],
+          "cwd": "/tmp/diamond-cp6-install-yzf29gcz",
+          "exit": 0,
+          "seconds": 0.023324,
+          "stdout": "local account created\n",
+          "stderr": ""
+        },
+        "run": {
+          "arguments": [
+            "run",
+            "/home/doll/diamond/examples/message_board.dia",
+            "--database",
+            "/tmp/diamond-cp6-install-yzf29gcz/accounts.sqlite",
+            "--auth",
+            "/tmp/diamond-cp6-install-yzf29gcz/accounts.sqlite",
+            "--listen",
+            "127.0.0.1:0",
+            "--max-requests",
+            "1"
+          ],
+          "cwd": "/tmp/diamond-cp6-install-yzf29gcz",
+          "exit": 1,
+          "seconds": 0.001272,
+          "stdout": "",
+          "stderr": "error: serve checked program: invalid input: account and application databases must be separate files\n"
+        }
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "occupied_port",
+      "observed": {
+        "command": {
+          "arguments": [
+            "run",
+            "/home/doll/diamond/examples/web.dia",
+            "--listen",
+            "127.0.0.1:51243",
+            "--max-requests",
+            "1"
+          ],
+          "cwd": "/tmp/diamond-cp6-install-yzf29gcz/occupied",
+          "exit": 1,
+          "seconds": 0.00072,
+          "stdout": "",
+          "stderr": "error: serve checked program: I/O operation failed: Address already in use (os error 98): Address already in use (os error 98)\n"
+        },
+        "files": []
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "loopback_readiness",
+      "observed": {
+        "startup_line": "Diamond checkpoint-six development server: http://localhost:44757 (http://127.0.0.1:44757)\n",
+        "seconds_to_line": 0.001793,
+        "exit": 0,
+        "stdout": "",
+        "stderr": "",
+        "response_sha256": "3e68f15996283651ffbc1153dcef51840f0001ec6f9af6a1b354d22fddf4a946",
+        "response_prefix": "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: 194\r\nConnection: close\r\nCache-Control: no-store\r\nX-Content-Type-Options: nosniff\r\nRefer"
+      },
+      "accepted": true,
+      "failures": []
+    }
+  ],
+  "case_count": 16,
+  "failures": [],
+  "result": "PASS"
+}

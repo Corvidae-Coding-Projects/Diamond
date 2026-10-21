@@ -1,0 +1,5 @@
+fn greeting(name: Text) -> Text:
+  "Hello, " + name + "!"
+
+fn main() -> Text:
+  greeting("Diamond")

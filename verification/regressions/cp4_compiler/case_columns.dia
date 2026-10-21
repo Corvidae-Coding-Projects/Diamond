@@ -1,0 +1,6 @@
+app Test:
+  database SQLite
+type Item:
+  id: Id<"item">
+  ID: Text
+resource Items: Item

@@ -1,0 +1,5 @@
+type Input:
+  _diamond_csrf: Text
+public route POST "/":
+  let input = request.form<Input>()?
+  "ok"

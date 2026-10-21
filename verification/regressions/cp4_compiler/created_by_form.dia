@@ -1,0 +1,5 @@
+type Input:
+  author: Id<"user"> @created_by_principal
+public route POST "/":
+  let input = request.form<Input>()?
+  "ok"

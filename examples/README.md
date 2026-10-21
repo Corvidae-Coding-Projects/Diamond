@@ -1,0 +1,22 @@
+# Example progression
+
+Run these examples in order when learning the interpreted MVP:
+
+1. `hello.dia` — annotated functions, text concatenation, and a pure `main`.
+   Run with `diamond run examples/hello.dia`.
+2. `language.dia` — enums, payload matching, Result/Option recovery, lists, and
+   bounded iteration. It needs no host authority.
+3. `web.dia` — public/private routes, typed paths, forms, and escaped HTML. Run
+   with `diamond run examples/web.dia`; private routes deny access without auth.
+4. `storage.dia` — a policy-controlled SQLite resource and pure CLI evaluation.
+   Supply `--database PATH`; the source declaration alone grants no access.
+5. `message_board.dia` — the complete browser journey: local accounts, sessions,
+   typed forms, CRUD policies, selections, transactions, editing, publishing,
+   deletion, and redirects. Follow the
+   [README walkthrough](../README.md#try-the-authenticated-message-board).
+6. `embedding.rs` — a native Rust consumer of compilation, evaluation, sessions,
+   CSRF binding, revocation, and expiry. Run with
+   `cargo run --locked --example embedding`.
+
+Use `diamond check FILE` first when reading or changing any `.dia` example. It
+does not open a database, start a listener, or execute `main`.

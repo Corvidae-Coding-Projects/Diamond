@@ -1,0 +1,14 @@
+app Routing:
+  session SecureCookie
+
+public route GET "/private-head":
+  "Public GET"
+
+route HEAD "/private-head":
+  "Private HEAD"
+
+route GET "/public-head":
+  "Private GET"
+
+public route HEAD "/public-head":
+  "Public HEAD"

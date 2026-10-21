@@ -1,0 +1,11 @@
+{
+  "binary_sha256": "89deaca4095e742485c22d6a1a09a4608a11ed4def4875650663d4e6335436d6",
+  "status": "CONFIRMED",
+  "finding": "a malformed stored password hash makes an existing username distinguishable from a nonexistent username",
+  "scope": "one disposable account database with alice's Argon2 algorithm changed from argon2id to argon2i",
+  "observations": {
+    "alice": {"status": 400, "body": "Invalid input"},
+    "nonexistent": {"status": 401, "body_shape": "login page with Invalid credentials and session-bound CSRF"}
+  },
+  "violated_invariant": "login response class and shape must not reveal whether the tested username has a stored row"
+}

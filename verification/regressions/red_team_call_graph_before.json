@@ -1,0 +1,24 @@
+{
+  "binary_sha256": "1d402eab8f0be677a8c593a3840b02892d432a5b0c932b18377ff6c16d0bdfd3",
+  "status": "CONFIRMED",
+  "finding": "a legal maximum-size linear call graph forces quadratic whole-program fixed-point scans",
+  "input": {
+    "functions": 4094,
+    "declarations": 4095,
+    "source_bytes": 116549,
+    "shape": "f0 calls f1 through f4092; the last function opens a transaction"
+  },
+  "limit": {
+    "address_space_mib": 512,
+    "cpu_seconds": 10,
+    "wall_timeout_seconds": 15
+  },
+  "observations": {
+    "exit": -9,
+    "signal": 9,
+    "elapsed_seconds": 10.036,
+    "stdout": "",
+    "stderr": ""
+  },
+  "violated_invariant": "source inside the declared size and declaration ceilings must terminate checking within the campaign CPU bound"
+}

@@ -1,0 +1,11 @@
+{
+  "binary_sha256": "c24890807ddfa962e37d44dfbd031d9166182ea40b5b4fcf56b45e6d45995b95",
+  "source": "record_clone.dia",
+  "limits": {"address_space_bytes": 536870912, "cpu_seconds": 5, "core_bytes": 0, "wall_seconds": 8},
+  "check": {"returncode": 0, "functions": 1, "records": 1},
+  "run_repetitions": [
+    {"returncode": -6, "elapsed_seconds": 0.282, "stderr": "memory allocation of 1072 bytes failed\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n"},
+    {"returncode": -6, "elapsed_seconds": 0.298, "stderr": "memory allocation of 1072 bytes failed\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n"}
+  ],
+  "expected": "Legal immutable record construction may return 7 or an ordinary bounded resource-limit error. It must not abort."
+}

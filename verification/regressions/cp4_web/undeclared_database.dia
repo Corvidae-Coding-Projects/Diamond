@@ -1,0 +1,2 @@
+public route GET "/":
+  "This application declares no database."

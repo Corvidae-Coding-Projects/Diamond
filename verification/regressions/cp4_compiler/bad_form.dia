@@ -1,0 +1,5 @@
+type Input:
+  values: List<Int>
+public route POST "/":
+  let input = request.form<Input>()?
+  "ok"

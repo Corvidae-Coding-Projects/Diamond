@@ -1,0 +1,13 @@
+{
+  "binary_sha256": "b9e411156e1559af20b10423d87a3af8ad6f4f6efbc07e230ba55039a2cf5a28",
+  "status": "CONFIRMED",
+  "finding": "the account path can be replaced after permission validation but before SQLite opens it",
+  "method": "the red-team lstat interposer paused the process after real metadata was returned for one disposable path; the harness then renamed a second private regular account database into that path",
+  "observations": {
+    "user_add_exit": 0,
+    "user_add_stdout": "local account created\n",
+    "replacement_database_users": ["injected-user", "victim-owner"],
+    "original_checked_database_users": ["candidate-owner"]
+  },
+  "violated_invariant": "account provisioning must mutate the exact private regular file whose identity and permissions were validated"
+}

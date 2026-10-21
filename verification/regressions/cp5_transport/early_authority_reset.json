@@ -1,0 +1,21 @@
+{
+  "source": "verification/regressions/cp5_transport/forms.dia",
+  "required_invariant": "A well-framed bounded body rejected for Origin/Host must receive a complete HTTP rejection; no handler executes and a subsequent healthy request succeeds.",
+  "minimal_request": {
+    "method": "POST",
+    "path": "/probe",
+    "host": "localhost:<disposable loopback port>",
+    "origin": "https://other.invalid",
+    "content_length": 8192,
+    "header_length_including_final_CRLF_CRLF": 16384,
+    "body": "8192 ASCII x bytes",
+    "client_chunks": "16 chunks of 1024 header bytes followed by 64 chunks of 128 body bytes, TCP_NODELAY and 1 millisecond between chunks"
+  },
+  "baseline": {
+    "binary_sha256": "c24890807ddfa962e37d44dfbd031d9166182ea40b5b4fcf56b45e6d45995b95",
+    "fragmented_observation": "BrokenPipeError [Errno 32] while client was sending the body; server had rejected the headers before consuming it",
+    "ordinary_http_client_observation": "Ten sequential authenticated valid-form requests with foreign Origin gave 404,404,404,ConnectionResetError,ConnectionResetError,404,ConnectionResetError,404,ConnectionResetError,404",
+    "storage_observation": "No records inserted; healthy GET succeeded after every ordinary-client attempt"
+  },
+  "replay": "python3 verification/transport_exploration.py --authority-regression-only"
+}
