@@ -1,0 +1,6 @@
+export fn main() -> Text:
+  let version = host.postgres_version()
+  host.postgres_echo(welcome() + " / PostgreSQL " + version)
+
+fn private_server_message() -> Text:
+  "SERVER_ONLY_CANARY_W1_91fba78c"

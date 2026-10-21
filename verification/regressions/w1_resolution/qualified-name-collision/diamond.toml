@@ -1,0 +1,23 @@
+schema_version = 1
+name = "Verify"
+server = "server"
+browser = "ui"
+component = "Counter"
+
+[modules.a]
+path = "a.dia"
+target = "shared"
+
+[modules.server]
+path = "server.dia"
+target = "server"
+imports = ["a", "a_b"]
+
+[modules.ui]
+path = "ui.dia"
+target = "browser"
+imports = ["a", "a_b"]
+
+[modules.a_b]
+path = "a_b.dia"
+target = "shared"

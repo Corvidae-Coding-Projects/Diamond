@@ -1,0 +1,17 @@
+export component Counter:
+  state count: Int = 2
+  state caption: Text = welcome()
+
+  on increment:
+    count = bump(count)
+
+  on decrement:
+    count = count - 1
+
+  html:
+    <main>
+      <h1>{caption}</h1>
+      <p>Count: <strong id="count">{count}</strong></p>
+      <button id="increment" type="button" on-click={increment}>Add three</button>
+      <button id="decrement" type="button" on-click={decrement}>Subtract one</button>
+    </main>

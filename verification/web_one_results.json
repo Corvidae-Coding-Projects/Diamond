@@ -1,0 +1,1017 @@
+{
+  "schema": 1,
+  "seed": 3516952833,
+  "binary_sha256": "399a7b34c016bbed78c7870b6ca7f6ff1ff0300b48f3f2790e1f2c4281ff3ff0",
+  "status": "PASS",
+  "deterministic_artifacts": {
+    "server.json": "6afa7ec5bf765cc51d16c5e6f1e5d537f9497521cb700b09dbfc0759992ee041",
+    "index.html": "3435ac35849fd197db790484391a1c46dd47b81ee250e6f99eff308d77c1e316",
+    "contract.json": "d18aaefc81d87fb0b3f3cd4195a5c25de5ff7fc3ee19e87fa00d3eda5f1544b8",
+    "assets/3ebce6fdc8ee63864d3367ad1ec0a12767a3ce8482df711f7f50a33cf8febc6a.js": "3ebce6fdc8ee63864d3367ad1ec0a12767a3ce8482df711f7f50a33cf8febc6a"
+  },
+  "http": {
+    "requests": 58,
+    "concurrent_requests": 48,
+    "seconds_with_slow_connection": 0.0077,
+    "observations": [
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/assets/3ebce6fdc8ee63864d3367ad1ec0a12767a3ce8482df711f7f50a33cf8febc6a.js",
+        "method": "GET",
+        "status": 200,
+        "bytes": 4463,
+        "headers": {
+          "content-type": "text/javascript; charset=utf-8",
+          "content-length": "4463",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/server.json",
+        "method": "GET",
+        "status": 404,
+        "bytes": 9,
+        "headers": {
+          "content-type": "text/plain; charset=utf-8",
+          "content-length": "9",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/contract.json",
+        "method": "GET",
+        "status": 404,
+        "bytes": 9,
+        "headers": {
+          "content-type": "text/plain; charset=utf-8",
+          "content-length": "9",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "POST",
+        "status": 405,
+        "bytes": 18,
+        "headers": {
+          "content-type": "text/plain; charset=utf-8",
+          "content-length": "18",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/?query=1",
+        "method": "GET",
+        "status": 400,
+        "bytes": 23,
+        "headers": {
+          "content-type": "text/plain; charset=utf-8",
+          "content-length": "23",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 400,
+        "bytes": 23,
+        "headers": {
+          "content-type": "text/plain; charset=utf-8",
+          "content-length": "23",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 400,
+        "bytes": 23,
+        "headers": {
+          "content-type": "text/plain; charset=utf-8",
+          "content-length": "23",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 403,
+        "bytes": 13,
+        "headers": {
+          "content-type": "text/plain; charset=utf-8",
+          "content-length": "13",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "HEAD",
+        "status": 200,
+        "bytes": 0,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      },
+      {
+        "path": "/",
+        "method": "GET",
+        "status": 200,
+        "bytes": 369,
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "369",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+          "cross-origin-resource-policy": "same-origin",
+          "content-security-policy": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "date": "Wed, 21 Oct 2026 23:30:35 GMT"
+        }
+      }
+    ]
+  },
+  "postgres": {
+    "version": "18.6",
+    "cli_invocations": 11,
+    "observations": [
+      {
+        "args": [
+          "run",
+          "/home/doll/diamond/examples/foundations/diamond.toml",
+          "--postgres-env",
+          "DIAMOND_W1_TEST_POSTGRES"
+        ],
+        "exit": 0,
+        "stdout": "A component written in Diamond / PostgreSQL 18.6\n",
+        "stderr": ""
+      },
+      {
+        "args": [
+          "run",
+          "/tmp/diamond-w1-campaign-sg6ebpcq/echo/diamond.toml",
+          "--postgres-env",
+          "DIAMOND_W1_TEST_POSTGRES"
+        ],
+        "exit": 0,
+        "stdout": "\n",
+        "stderr": ""
+      },
+      {
+        "args": [
+          "run",
+          "/tmp/diamond-w1-campaign-sg6ebpcq/echo/diamond.toml",
+          "--postgres-env",
+          "DIAMOND_W1_TEST_POSTGRES"
+        ],
+        "exit": 0,
+        "stdout": "ordinary\n",
+        "stderr": ""
+      },
+      {
+        "args": [
+          "run",
+          "/tmp/diamond-w1-campaign-sg6ebpcq/echo/diamond.toml",
+          "--postgres-env",
+          "DIAMOND_W1_TEST_POSTGRES"
+        ],
+        "exit": 0,
+        "stdout": "café 雪😀\n",
+        "stderr": ""
+      },
+      {
+        "args": [
+          "run",
+          "/tmp/diamond-w1-campaign-sg6ebpcq/echo/diamond.toml",
+          "--postgres-env",
+          "DIAMOND_W1_TEST_POSTGRES"
+        ],
+        "exit": 0,
+        "stdout": "a'b\"c\\d\n",
+        "stderr": ""
+      },
+      {
+        "args": [
+          "run",
+          "/tmp/diamond-w1-campaign-sg6ebpcq/echo/diamond.toml",
+          "--postgres-env",
+          "DIAMOND_W1_TEST_POSTGRES"
+        ],
+        "exit": 0,
+        "stdout": "x'); DROP TABLE accounts; --\n",
+        "stderr": ""
+      },
+      {
+        "args": [
+          "run",
+          "/tmp/diamond-w1-campaign-sg6ebpcq/echo/diamond.toml",
+          "--postgres-env",
+          "DIAMOND_W1_TEST_POSTGRES"
+        ],
+        "exit": 0,
+        "stdout": "<script>&literal</script>\n",
+        "stderr": ""
+      },
+      {
+        "args": [
+          "run",
+          "/tmp/diamond-w1-campaign-sg6ebpcq/echo/diamond.toml"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: access denied or resource not found\n"
+      },
+      {
+        "args": [
+          "run",
+          "/tmp/diamond-w1-campaign-sg6ebpcq/echo/diamond.toml",
+          "--postgres-env",
+          "DIAMOND_W1_TEST_POSTGRES"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: invalid input: W1 PostgreSQL grants require one explicit local Unix socket; remote/TLS connections are not implemented\n"
+      },
+      {
+        "args": [
+          "run",
+          "/tmp/diamond-w1-campaign-sg6ebpcq/echo/diamond.toml",
+          "--postgres-env",
+          "DIAMOND_W1_TEST_POSTGRES"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: resource limit exceeded: PostgreSQL connection deadline\n"
+      },
+      {
+        "args": [
+          "run",
+          "/home/doll/diamond/examples/foundations/diamond.toml",
+          "--postgres-env",
+          "DIAMOND_W1_TEST_POSTGRES"
+        ],
+        "exit": 0,
+        "stdout": "A component written in Diamond / PostgreSQL 18.6\n",
+        "stderr": ""
+      }
+    ],
+    "independent_public_table_count": 0,
+    "stalled_connection_seconds": 5.003,
+    "native_consumer": "project embedding: checking, deterministic interfaces, artifact loading, and explicit host grants passed"
+  }
+}

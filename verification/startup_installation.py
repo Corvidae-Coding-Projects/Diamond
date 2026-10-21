@@ -13,11 +13,13 @@ import sqlite3
 import subprocess
 import tempfile
 import time
+import tomllib
 from datetime import datetime, timezone
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+VERSION = tomllib.loads((ROOT / "Cargo.toml").read_text())["package"]["version"]
 
 
 def digest(path: Path) -> str:
@@ -106,7 +108,7 @@ def main() -> int:
             observed,
             [
                 (observed["exit"] == 0, "installed version failed"),
-                (observed["stdout"] == "diamond 0.6.0 (checkpoint six)\n", "installed version mismatch"),
+                (observed["stdout"] == f"diamond {VERSION} (W1 foundations; checkpoint six compatibility)\n", "installed version mismatch"),
             ],
         )
         observed = run(binary, ["--help"], cwd=directory)
@@ -116,7 +118,8 @@ def main() -> int:
             [
                 (observed["exit"] == 0, "installed help failed"),
                 ("diamond explain CODE" in str(observed["stdout"]), "explain absent from help"),
-                ("checkpoint-six interpreted MVP" in str(observed["stdout"]), "checkpoint label mismatch"),
+                ("W1 project foundations and interpreted MVP" in str(observed["stdout"]), "checkpoint label mismatch"),
+                ("diamond build" in str(observed["stdout"]) and "diamond serve" in str(observed["stdout"]), "project commands absent from help"),
             ],
         )
 

@@ -1,0 +1,947 @@
+{
+  "started_utc": "2026-10-21T23:30:34.800680+00:00",
+  "full": true,
+  "inputs_sha256": {
+    "Cargo.toml": "a8ed9098cfa7d406054a92521cefb80d7ca3f68c876490dc9a71377b25db6c99",
+    "Cargo.lock": "1e6ea4eb3a7c2cbf5c7f464157d0722fe4c95cf789c4e45fd7a4d06b1f703701",
+    "README.md": "312e8fd613340a39de785580ac8aaa9af6fae30424002b6b0af32231d4b22e89",
+    "design.md": "492fa008c94e33a623046757f4c25b4287c4ad3ebcca14f0ce26569159ace420",
+    "verification/checkpoint_five.md": "860101bd97599c7acf0f8dc2326b705a9fc45d686f6fe49375738784dbefbe31",
+    "src/accounts.rs": "f62c59d045bd44a0606a45fff0508d6232f9f0a12ad24f2e777e5c055180884c",
+    "src/auth.rs": "3aa34e4d3cab50ecae4df15aa334ac2f19c5632689914ce7dee10b0bc0c2e47c",
+    "src/authority.rs": "5a0ec916baabdc4233284dfc5d62d01f93471ad715b70918fee05ad3d0207c4e",
+    "src/browser_auth.rs": "cdee991702464eda1360b8c29044e54cc7856e80a40dda795a884fc4e72d5401",
+    "src/checker.rs": "ce83485ae3e26574b63d4e318f44134518536f61099b7fd49a04a32ab349f1d5",
+    "src/data.rs": "e9f8e03d95c2ffd394dff29df6de842c6edfd9ef8f4a2c3440ef0c42f38ba8f3",
+    "src/diagnostic_help.rs": "cec6b8df1c9d207a7bfb869cd23c2d2ada731fc45eb07fd8fc0d135cedce1206",
+    "src/error.rs": "d41fcde09a38b759fb87548f6ccc8c56b3244c8ed44604c79686df9a2ff0c77d",
+    "src/eval.rs": "4ec2251e073212c09e36502bfbfffff3e842d24aba271fb7bdcfcf21f2bc14e6",
+    "src/forms.rs": "07d642674076128f27b551814f37d0d20914877137f8b5be503c91f64ceb6600",
+    "src/hir.rs": "9a30cf53df882395b8983b39a976e54cfec3b446d33ba584656a885d498003cc",
+    "src/host.rs": "dbfb643918bca051c2cf2ab51da4431a0432119d63f8fbf904664ff6925ebf47",
+    "src/http.rs": "3fec14bbdaa3d48b951f22a7c973e924ed08660007033a78095ba3bbb0e2a421",
+    "src/lexer.rs": "cf2736000129095b1ab1766501d729e7460d1ff3ae7756d896ea8c419a0d1c24",
+    "src/lib.rs": "5801fc166f654678c2bec3475b17e56e26a192ee387fe966f157b30e8b242899",
+    "src/main.rs": "df414bd2c722972fec3f6087ac5edc979d367373472f30ef7bba00c3470aa2c6",
+    "src/parser.rs": "aca007125a135d81172562be18c1cdb07c7c6ed5f2fa4ed8c411e2bee471732b",
+    "src/policy.rs": "b8f0535e56bdd66fbdbfd862fc2ac6d1574d5e0ebe1cb0e337b1ab1a21bf0129",
+    "src/syntax.rs": "7932374843f17e4a9a186bd2cedef0f27159a91eae89b25169905ff14ade85ea",
+    "src/template.rs": "47d74ab0737fa0f63026935f93cc663406baa507fb934805f2d8d8ba0cafc72d",
+    "src/value.rs": "de9d8fdb9efff4cad8643da91037170abdbae8e633d84b107bfd4b7f7abda682",
+    "src/web.rs": "13392e6717bb772f621551d61d3a4e9ec9f0e9874263d39014ba98976a6d5ebe",
+    "examples/README.md": "4b7f8db240d46b15720fabc2e707ca306aeadc4147204999659c777e70ef693d",
+    "examples/embedding.rs": "b7ef57b47585255b39264a80990cafee4e058934e10c76e31f51e10dbf6e1f7c",
+    "examples/hello.dia": "8cfb92e906749a967427a53237bbb334c230469a2f8c8240a914fbee78a597b9",
+    "examples/language.dia": "9dbb19b839ac3cca8b30932553656e3308deebb07ca9b0b14ebe24bcbfca6082",
+    "examples/message_board.dia": "412e8a0007d11701ceca196b5415776cb6d186f9bc0d774998d7eeeeb75ddf16",
+    "examples/project_embedding.rs": "c45e63ecc314bb80b54c903cd68a356c2d894d0a0416ede3d9a940786871125c",
+    "examples/storage.dia": "387f63a3ef86090287040bf6214cc2fef7244fde6f64e308883e8ef9d1d1217b",
+    "examples/web.dia": "7342f561aed2337d078ad472c9f86e9db964e484e20aec81e2333ec395782aa8",
+    "verification/cancellation_recovery.py": "e4bf82d3c142a5d43f609329b4deb9a2572043495a52c79d4c3d677213132011",
+    "verification/checkpoint_five.py": "529291188aeb8b063ea99ca49e847a599ad696cca9796bbaf93fca046c382b93",
+    "verification/checkpoint_four.py": "0edd6b97b23d0ec7f795e9afb5355ee477110aa17a791dfdc7e23fa1819c06f1",
+    "verification/checkpoint_one.py": "41bef66302f42c383b21cbf3c296d62167b458d52a00fc322299a80220519315",
+    "verification/checkpoint_six.py": "07651b36c1e97eb270fbe186ef5122e188013c1de7d4527732df169a21274d3b",
+    "verification/checkpoint_three.py": "a187c4f299eb7dd70b1487fc90065a7db145c3f197674d628d13129dba68dba9",
+    "verification/checkpoint_two.py": "6406fad396b18ca730153ef721093f9ec137d36c166f617845ce86a8e95b2ff0",
+    "verification/compiler_enforcement.py": "96cf9d44773b206ad9a96df7f3d6367b04c8dc40b2d81ddcbc9dda68d2cdb80f",
+    "verification/diagnostic_exploration.py": "bf6f3412e3df9f6221e2a83d05de0f9041052a8cd7be1e1dc7d563b624a55976",
+    "verification/language_exploration.py": "7f7211060b0b4cc9e42b606bdfd8099f85ec305a5787810ec1ef5169606f83a4",
+    "verification/performance.py": "2e33b7e810964b441097fcc60c2ac8670314a4ebe63cc8330eb96654e6807677",
+    "verification/policy_enforcement.py": "a983e4d72aa13639d431709977d31a6b1d561f2d4222dd58a7d4fd80e0f740dd",
+    "verification/red_team.py": "c93f923648b2cc190556e4f3b7fce42d4aa48822e4e3e39c412108158c5e9f0a",
+    "verification/resource_enforcement.py": "549acdf3fc85bae1d954ebac8a6ec6d2f822ca3befd2e7eb800d0107d9eb8993",
+    "verification/session_clock.py": "bd599d837bb5925142b9fc5b3d2a37f7793a8bae2cb9c2ce1e75da65820727eb",
+    "verification/startup_installation.py": "8b3f742bd25580852da9414058c51f64bbac9b43ef393e4b6e015c1dbf589fd4",
+    "verification/stateful_exploration.py": "ce322a2a639c05577794e0a5befb6b785e0b415ad5e7b61d368187ea4d77d04b",
+    "verification/transaction_faults.py": "739be3a3f29e6b4e314673e50d6c0355659614361e269551ac788ed453dc73c6",
+    "verification/transport_exploration.py": "da5d3595c6fa05079b0bfa3c1ec7abfdc54f073c176d2a8d5dec5b41e116b0ee",
+    "verification/web_enforcement.py": "092d2b58cdf3ef1a1d4d1e43f45000e9b0e8e9be2b7d4232733ed273cb9027d8",
+    "verification/web_one.py": "f63af54992594f0ccaa3210e6d4cdeb0d11789015c6ff0fdc6f7e79938dceca7",
+    "verification/session_clock.rs": "b256d825d3d5a2881ca9499767ca6c7475c0e1d92a8d27fe6f04572a0f87f265",
+    "verification/session_lifecycle.rs": "b7b567fc5275c52e972efcdb7b681541bf17ee850e78d1d46271f2391ace9df5",
+    "verification/process_pause.c": "8b5fe278b5298b221540ef6986895afb200c7947f0d1970c77c1a128f6a2a6b8",
+    "verification/red_team_lstat_pause.c": "7ad6c3d733f9e90c3607a4f6bc4ffb85c1e6a6eec2e291c5447b38ad5a3a1cff",
+    "verification/session_clock.c": "cd23398dfd1ffca5afa6150d70e0e76c3882d4ced87099ce79c56b0d0f1142a6",
+    "verification/transaction_fault.c": "2839f85ea3480e9c00b8a0527ec0959b8c30a9a30eb16c57c97f2f577369b6da",
+    "verification/regressions/README.md": "eea9a49be074565dfb57198adfb570cb5e6497bb85a35309b1a60c6f0a0f872a",
+    "verification/regressions/caught_transaction_failure.dia": "2579fee88d4c9c118dae883c53f043e618f380338a4b9b677c25d6bb2887aeea",
+    "verification/regressions/cp4_compiler/bad_form.dia": "c165806a0403c8bcea076faa561bf5d2be6565d5bc15eb62ca716a7e1cad0724",
+    "verification/regressions/cp4_compiler/bad_schema.dia": "15a4cabda1b59815ac5017e02f02c817b87ef504f55f72d0d50639e7b29f1b69",
+    "verification/regressions/cp4_compiler/case_columns.dia": "80e20ea4abb1f59ff49ce12d275e0a747df246256316b9cab60a0a5b93769aa2",
+    "verification/regressions/cp4_compiler/created_by_form.dia": "020bed64835eca02430bb1ae2ec180c73b4bc3fb129a4f3b562beecc643d6c33",
+    "verification/regressions/cp4_compiler/csrf_form.dia": "4c0fda700cb56a2d54e87bb3b21f688f7d06a18898142da53c299f36d34b5cbf",
+    "verification/regressions/cp4_compiler/derived_id.dia": "cf60b42d5ab3892927ebe6252f93816e3b6b117747612e87815fb2a6896c649b",
+    "verification/regressions/cp4_compiler/nested_call.dia": "1d91dfb5edac1b55ca8a88ff1687c330930b8ac842bb7587e4639e8463db7364",
+    "verification/regressions/cp4_compiler/nested_direct.dia": "1b4d210d63ae0765e7c16eeba5a38e2d388fbf851404f1cb9b6cf832a602f08d",
+    "verification/regressions/cp4_compiler/nested_recursive.dia": "c53a1031bc912b762bc037227788556fe29174e493c71c028e8ea221e93ce178",
+    "verification/regressions/cp4_compiler/no_database.dia": "d27f407e0a0ce1bf015de17f370c9707238e2fb16d78f315534c00eed9a09d5a",
+    "verification/regressions/cp4_policy/caught_invalid_selection.dia": "05df223949d7d54dcd5b2b444707cff0dba069f45152220c1a1e815824417670",
+    "verification/regressions/cp4_policy/invalid_stored_http.dia": "c577edb4bcf6b603038804ffee6b844e1928c970ba88076ebaee08c6585648b0",
+    "verification/regressions/cp4_policy/invalid_stored_id.dia": "4d00ffdb7cffe1bfee413a54aaf84761366eb1c2c6bc9a6d0cb4bc3ffc93a2ba",
+    "verification/regressions/cp4_policy/invalid_stored_selection.dia": "aa49d92d416f8ec5ec1a3d7abdfca8b5ff6ff36deaea778c8bb39b9f20abd63f",
+    "verification/regressions/cp4_web/explicit_head.dia": "e300282fcae14145766ff40d927d314464045b30a90ea1ab343e53e1b678fdb7",
+    "verification/regressions/cp4_web/undeclared_database.dia": "5113c5886fd22814194e55db95e31531cbdd36fbb2e257bc18d377ad559eb4a9",
+    "verification/regressions/cp5_language/README.md": "534d73e8a9215dbc890470cbad7b35e32c2f4dc6ef4ac53cf5cc87246176dbc8",
+    "verification/regressions/cp5_language/record_clone.dia": "b1550a56522b89e1e1f6d94cce1a5175299237ff1a20dd5399a802f6ba3c2272",
+    "verification/regressions/cp5_language/record_clone_before.json": "3911e369fa3405eddfbf31037ca883f9211a1be4e941d6a6fa027ba8812ff789",
+    "verification/regressions/cp5_resource/README.md": "84d33fde0484f10d594e37a25c82122c6316b90054f1f2f34f0322fd349e162e",
+    "verification/regressions/cp5_resource/focused_receipt.json": "8081b99ca20ed33479d498c39d1617e3ce3dfa9cf663b256927b4a14dff42316",
+    "verification/regressions/cp5_resource/recursive_record.dia": "22c68b578654bf76ead78e11aca3d251a0b41dc34a2e2c1792962bf42422b881",
+    "verification/regressions/cp5_session_clock_before.json": "c8b44fffd6b00f33070250ddc02c47dbddc2764c7daeb2132d61a33d4a6a1d11",
+    "verification/regressions/cp5_transport/early_authority_reset.json": "84a8d0b3a6610173a6ef63433ee0c902fe9ca5c1a898339c667abde586694b94",
+    "verification/regressions/cp5_transport/forms.dia": "34b61e82d543c8f3eb3d3ae67c9807f33c44556ef8d8e0252acd7ebd4f9734f0",
+    "verification/regressions/cp5_transport/invalid_id_form.json": "f16473fc80d08107b47c196239f4e713dbd44f7391e77d87cc7b7ff976644859",
+    "verification/regressions/cp5_transport/oversize_body_reset.json": "6a945d648713f8ad71ca25fa040d3c5713ea565326753e4630660aceb2f94eb9",
+    "verification/regressions/cp6_diagnostics_before.json": "fb9e3211d967f1fc74ba76829ac1633c4084de527585ce227239b2f4e39f2e45",
+    "verification/regressions/red_team_account_fifo_before.json": "1d582f702fc927ab75690757c6615a51bd547ea34d46bf60768d9e7acc1275c1",
+    "verification/regressions/red_team_account_replacement_before.json": "79e0be0757d7770a0b271450a3e39fafa70f2a60a8a9df1f21ab790d806609f6",
+    "verification/regressions/red_team_anonymous_capacity_before.json": "09d54374c411f03d2f8b4aa5e06c235adc2ccb0882b67cc8a827ceb79e2dfaca",
+    "verification/regressions/red_team_call_graph_before.json": "c7729f8020b9f83f9ec6265c393b78cf44a71158ff11e5054e9936ff31b98212",
+    "verification/regressions/red_team_cli_terminal_before.json": "ba76f6e643232a0cdfd1c2a681c6c908d44541f911f13e63c65ad91ccb28c754",
+    "verification/regressions/red_team_corrupt_hash_oracle_before.json": "36dddeb8a6d54cf616711552511965944dd50d0317f1757b9432ac7c41486bc3",
+    "verification/regressions/red_team_nested_error_terminal_before.json": "f76875fe7dd94b3eec17810ca5e65ae270094218d0062a6416a94eb87a3a7f38",
+    "verification/regressions/red_team_source_fifo_before.json": "e9aa1af81791a9fa94ab77f42cf7c6e98be81557adfce08891e794b501fcbcbe",
+    "verification/regressions/red_team_source_read_before.json": "9c8df23f9ef3cbee8f95d8647a1814f339e307a8a1cebace2500bf622c1d2c20",
+    "verification/regressions/request_shadow.dia": "11b2616b8403bd6075ceadd90949cb60879653cae4b83d16e1c0883c9b0ddda7",
+    "verification/regressions/returned_transaction_error.dia": "c33dcbd0dea23d8eda6f950f830519616ae29b5e89fe074b1d292b41a8e7ff1c",
+    "verification/regressions/w1_resolution/baseline_observations.json": "dca924661304ce094db5a41f08b6d9736991b5ac6278b6c7903eb092f1b06f8f",
+    "verification/regressions/w1_resolution/current-mangled-missing-direct-import/bridge.dia": "e80def7f0216924c497d16f1b1d0af73cc2c9209d6a48301dcfa9c6d9b18b2cc",
+    "verification/regressions/w1_resolution/current-mangled-missing-direct-import/diamond.toml": "6a9a4b424bb83ec0b0f49c95d2c5e3896f52065ab73710cbd6dab29e28495d56",
+    "verification/regressions/w1_resolution/current-mangled-missing-direct-import/server.dia": "28af99d4426450ef2f07f46b2b64222240599db651cc6cfb6e859266c3569099",
+    "verification/regressions/w1_resolution/current-mangled-missing-direct-import/shared.dia": "0cdecdfb800aae4f5350b755ad7d4f3335757529d0c13031e3f810f5b32ef2b9",
+    "verification/regressions/w1_resolution/current-mangled-missing-direct-import/ui.dia": "c963d740a83a4285a2b41b2758a0e8baccbb6305113ff6f27790490fa041989f",
+    "verification/regressions/w1_resolution/current-mangled-private-browser/diamond.toml": "27ed75a5af22c6cd9c5f42eddada55c497f33421cfaf064fa05961f1dc67b11c",
+    "verification/regressions/w1_resolution/current-mangled-private-browser/server.dia": "605faa0520e65fcc2a956ec7bacd8f36ee19a9214b9e8f0489a3d015adeb6a7c",
+    "verification/regressions/w1_resolution/current-mangled-private-browser/shared.dia": "0cdecdfb800aae4f5350b755ad7d4f3335757529d0c13031e3f810f5b32ef2b9",
+    "verification/regressions/w1_resolution/current-mangled-private-browser/ui.dia": "02cd333c5670e6b7e1308823162b8ef97a616f8f26b3962f136ad76a136a9a91",
+    "verification/regressions/w1_resolution/current-mangled-private-server/diamond.toml": "27ed75a5af22c6cd9c5f42eddada55c497f33421cfaf064fa05961f1dc67b11c",
+    "verification/regressions/w1_resolution/current-mangled-private-server/server.dia": "f5373ee242f22298bd8bfd6eb99a78821a28b226c790a704884e0899a9891145",
+    "verification/regressions/w1_resolution/current-mangled-private-server/shared.dia": "0cdecdfb800aae4f5350b755ad7d4f3335757529d0c13031e3f810f5b32ef2b9",
+    "verification/regressions/w1_resolution/current-mangled-private-server/ui.dia": "c963d740a83a4285a2b41b2758a0e8baccbb6305113ff6f27790490fa041989f",
+    "verification/regressions/w1_resolution/mangled-missing-direct-import/bridge.dia": "e80def7f0216924c497d16f1b1d0af73cc2c9209d6a48301dcfa9c6d9b18b2cc",
+    "verification/regressions/w1_resolution/mangled-missing-direct-import/diamond.toml": "6a9a4b424bb83ec0b0f49c95d2c5e3896f52065ab73710cbd6dab29e28495d56",
+    "verification/regressions/w1_resolution/mangled-missing-direct-import/server.dia": "fafb7a27f4ec9f242b9d0f87111b6fb8bd83b16a5642232778cb8c49e73248d5",
+    "verification/regressions/w1_resolution/mangled-missing-direct-import/shared.dia": "0cdecdfb800aae4f5350b755ad7d4f3335757529d0c13031e3f810f5b32ef2b9",
+    "verification/regressions/w1_resolution/mangled-missing-direct-import/ui.dia": "c963d740a83a4285a2b41b2758a0e8baccbb6305113ff6f27790490fa041989f",
+    "verification/regressions/w1_resolution/mangled-private-browser/diamond.toml": "27ed75a5af22c6cd9c5f42eddada55c497f33421cfaf064fa05961f1dc67b11c",
+    "verification/regressions/w1_resolution/mangled-private-browser/server.dia": "605faa0520e65fcc2a956ec7bacd8f36ee19a9214b9e8f0489a3d015adeb6a7c",
+    "verification/regressions/w1_resolution/mangled-private-browser/shared.dia": "0cdecdfb800aae4f5350b755ad7d4f3335757529d0c13031e3f810f5b32ef2b9",
+    "verification/regressions/w1_resolution/mangled-private-browser/ui.dia": "aac9a9f699cd97177c068c3fafbe278b16682d52ba7dac707e39983bddb2f624",
+    "verification/regressions/w1_resolution/mangled-private-server/diamond.toml": "27ed75a5af22c6cd9c5f42eddada55c497f33421cfaf064fa05961f1dc67b11c",
+    "verification/regressions/w1_resolution/mangled-private-server/server.dia": "e291abe6e650e9978fd659c8f25e34b11db0307b4da031f5bbc8569dda22436d",
+    "verification/regressions/w1_resolution/mangled-private-server/shared.dia": "0cdecdfb800aae4f5350b755ad7d4f3335757529d0c13031e3f810f5b32ef2b9",
+    "verification/regressions/w1_resolution/mangled-private-server/ui.dia": "c963d740a83a4285a2b41b2758a0e8baccbb6305113ff6f27790490fa041989f",
+    "verification/regressions/w1_resolution/observations.json": "33d9ecb5278029457d57bd1cf7ac5b72f45c53bc46f98191d39d89ff442bd0f4",
+    "verification/regressions/w1_resolution/qualified-name-collision/a.dia": "9dea68989480e0a784cb8b8fa6a9d3a667bfa7c0940075eac3ca57575f2b6024",
+    "verification/regressions/w1_resolution/qualified-name-collision/a_b.dia": "de042877f1e8623793949aa1748e4de98392928e79c0516437f00706bf73fd95",
+    "verification/regressions/w1_resolution/qualified-name-collision/diamond.toml": "a6509fe909be62a23bc909e2b9695270f89195f397288fa38b51a466d3e42ae4",
+    "verification/regressions/w1_resolution/qualified-name-collision/server.dia": "3807d2491b2c117a43454b4004a4681afa62a1c21c7d430a738035b1d824c995",
+    "verification/regressions/w1_resolution/qualified-name-collision/ui.dia": "64ecbffaad0af06ad5cbd95335facd9dc37555bdb341bff87f5e5362c3303af2",
+    "verification/regressions/w1_resolution/replay.py": "2af147c44e49bc464b898dbfef6db43d972b0acc5eebc0baff19d41a64e49e41"
+  },
+  "commands": [
+    {
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--check"
+      ],
+      "cwd": "/home/doll/diamond",
+      "environment_overrides": {},
+      "exit": 0,
+      "seconds": 0.086,
+      "stdout": "",
+      "stderr": "",
+      "accepted": true
+    },
+    {
+      "command": [
+        "rustfmt",
+        "--check",
+        "--edition",
+        "2024",
+        "verification/session_lifecycle.rs",
+        "verification/session_clock.rs"
+      ],
+      "cwd": "/home/doll/diamond",
+      "environment_overrides": {},
+      "exit": 0,
+      "seconds": 0.011,
+      "stdout": "",
+      "stderr": "",
+      "accepted": true
+    },
+    {
+      "command": [
+        "cargo",
+        "build",
+        "--locked"
+      ],
+      "cwd": "/home/doll/diamond",
+      "environment_overrides": {},
+      "exit": 0,
+      "seconds": 0.054,
+      "stdout": "",
+      "stderr": "    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.04s\n",
+      "accepted": true
+    },
+    {
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--all-targets",
+        "--all-features",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "cwd": "/home/doll/diamond",
+      "environment_overrides": {},
+      "exit": 0,
+      "seconds": 0.091,
+      "stdout": "",
+      "stderr": "    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.06s\n",
+      "accepted": true
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "--locked"
+      ],
+      "cwd": "/home/doll/diamond",
+      "environment_overrides": {},
+      "exit": 0,
+      "seconds": 0.802,
+      "stdout": "\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 15 tests\ntest src/project/mod.rs - project::CheckedProject::build (line 197) - compile ... ok\ntest src/project/mod.rs - project::CheckedProject::summary (line 135) - compile ... ok\ntest src/project/mod.rs - project::CheckedProject::serve (line 212) - compile ... ok\ntest src/project/mod.rs - project::load_project_build (line 123) - compile ... ok\ntest src/lib.rs - CheckedProgram::serve_with_auth (line 153) - compile ... ok\ntest src/project/mod.rs - project::compile_project (line 88) - compile ... ok\ntest src/project/mod.rs - project::CheckedProject::evaluate (line 159) - compile ... ok\ntest src/project/mod.rs - project::CheckedProject (line 68) - compile ... ok\ntest src/auth.rs - auth::SessionStore (line 44) ... ok\ntest src/hir.rs - hir::CheckedProgram (line 58) ... ok\ntest src/lib.rs - compile (line 45) ... ok\ntest src/lib.rs - CheckedProgram::evaluate (line 86) ... ok\ntest src/lib.rs - compile (line 50) ... ok\ntest src/value.rs - value::Value (line 70) ... ok\ntest src/lib.rs - add_local_user (line 66) ... ok\n\ntest result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.41s\n\nall doctests ran in 0.64s; merged doctests compilation took 0.23s\n",
+      "stderr": "    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.06s\n     Running unittests src/lib.rs (target/debug/deps/diamond-3d826b28f6101b83)\n     Running unittests src/main.rs (target/debug/deps/diamond-d3426aa72f4a6d68)\n   Doc-tests diamond\n",
+      "accepted": true
+    },
+    {
+      "command": [
+        "cargo",
+        "doc",
+        "--locked",
+        "--no-deps"
+      ],
+      "cwd": "/home/doll/diamond",
+      "environment_overrides": {
+        "RUSTDOCFLAGS": "-D warnings"
+      },
+      "exit": 0,
+      "seconds": 0.058,
+      "stdout": "",
+      "stderr": "    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.04s\n   Generated /home/doll/diamond/target/doc/diamond/index.html\n",
+      "accepted": true
+    },
+    {
+      "command": [
+        "cargo",
+        "run",
+        "--locked",
+        "--example",
+        "embedding"
+      ],
+      "cwd": "/home/doll/diamond",
+      "environment_overrides": {},
+      "exit": 0,
+      "seconds": 0.059,
+      "stdout": "embedding: diagnostic spans, checked evaluation, session issuance, CSRF binding, redaction, revocation, and expiration passed\n",
+      "stderr": "    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.04s\n     Running `target/debug/examples/embedding`\n",
+      "accepted": true
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "verification/checkpoint_one.py"
+      ],
+      "cwd": "/home/doll/diamond",
+      "environment_overrides": {},
+      "exit": 0,
+      "seconds": 0.138,
+      "stdout": "{\n  \"status\": \"PASS\",\n  \"seed\": 858637,\n  \"observations\": {\n    \"example checks\": 5,\n    \"CLI evaluations\": 36,\n    \"compile rejections\": 22,\n    \"runtime rejections\": 2,\n    \"database state checks\": 10,\n    \"HTTP requests\": 29\n  }\n}\n",
+      "stderr": "",
+      "observations": {
+        "status": "PASS",
+        "seed": 858637,
+        "observations": {
+          "example checks": 5,
+          "CLI evaluations": 36,
+          "compile rejections": 22,
+          "runtime rejections": 2,
+          "database state checks": 10,
+          "HTTP requests": 29
+        }
+      },
+      "accepted": true
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "verification/checkpoint_two.py"
+      ],
+      "cwd": "/home/doll/diamond",
+      "environment_overrides": {},
+      "exit": 0,
+      "seconds": 2.326,
+      "stdout": "{\n  \"status\": \"PASS\",\n  \"seed\": 858626,\n  \"observations\": {\n    \"provisioning state checks\": 3,\n    \"generated post journeys\": 3,\n    \"rejected mutations\": 12,\n    \"restart journeys\": 1,\n    \"HTTP requests\": 56\n  }\n}\n",
+      "stderr": "",
+      "observations": {
+        "status": "PASS",
+        "seed": 858626,
+        "observations": {
+          "provisioning state checks": 3,
+          "generated post journeys": 3,
+          "rejected mutations": 12,
+          "restart journeys": 1,
+          "HTTP requests": 56
+        }
+      },
+      "accepted": true
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "verification/checkpoint_three.py"
+      ],
+      "cwd": "/home/doll/diamond",
+      "environment_overrides": {},
+      "exit": 0,
+      "seconds": 1.622,
+      "stdout": "{\n  \"status\": \"PASS\",\n  \"seed\": 858627,\n  \"observations\": {\n    \"direct language journeys\": 8,\n    \"generated language journeys\": 24,\n    \"language compile rejections\": 15,\n    \"generated authorized selections\": 24,\n    \"selection compile rejections\": 4,\n    \"selection runtime rejections\": 4,\n    \"transaction rollback replays\": 2,\n    \"transaction commit readbacks\": 1,\n    \"nullable authorized selections\": 2,\n    \"rejected cross-user mutations\": 3,\n    \"complete board journeys\": 1,\n    \"board HTTP requests\": 38\n  }\n}\n",
+      "stderr": "",
+      "observations": {
+        "status": "PASS",
+        "seed": 858627,
+        "observations": {
+          "direct language journeys": 8,
+          "generated language journeys": 24,
+          "language compile rejections": 15,
+          "generated authorized selections": 24,
+          "selection compile rejections": 4,
+          "selection runtime rejections": 4,
+          "transaction rollback replays": 2,
+          "transaction commit readbacks": 1,
+          "nullable authorized selections": 2,
+          "rejected cross-user mutations": 3,
+          "complete board journeys": 1,
+          "board HTTP requests": 38
+        }
+      },
+      "accepted": true
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "verification/compiler_enforcement.py"
+      ],
+      "cwd": "/home/doll/diamond",
+      "environment_overrides": {},
+      "exit": 0,
+      "seconds": 0.509,
+      "stdout": "{\n  \"status\": \"PASS\",\n  \"seed\": 858628,\n  \"binary_sha256\": \"399a7b34c016bbed78c7870b6ca7f6ff1ff0300b48f3f2790e1f2c4281ff3ff0\",\n  \"compiler_source_sha256\": {\n    \"src/checker.rs\": \"ce83485ae3e26574b63d4e318f44134518536f61099b7fd49a04a32ab349f1d5\",\n    \"src/hir.rs\": \"9a30cf53df882395b8983b39a976e54cfec3b446d33ba584656a885d498003cc\",\n    \"verification/compiler_enforcement.py\": \"96cf9d44773b206ad9a96df7f3d6367b04c8dc40b2d81ddcbc9dda68d2cdb80f\"\n  },\n  \"observations\": {\n    \"saved compile regressions\": 10,\n    \"expression and route authority checks\": 120,\n    \"permitted read-only expression contexts\": 20,\n    \"transaction expression context checks\": 20,\n    \"permitted read-only routes\": 2,\n    \"CRUD operation authority checks\": 60,\n    \"generated transitive call graph checks\": 96,\n    \"scope and restricted sink checks\": 12,\n    \"schema and form shape checks\": 10,\n    \"permitted ordinary values\": 1,\n    \"permitted form shapes\": 1,\n    \"generated transaction graph checks\": 32,\n    \"real transaction readbacks\": 4,\n    \"host authority rejection\": 2,\n    \"existing example compile checks\": 5\n  },\n  \"total_cli_invocations\": 395\n}\n",
+      "stderr": "",
+      "observations": {
+        "status": "PASS",
+        "seed": 858628,
+        "binary_sha256": "399a7b34c016bbed78c7870b6ca7f6ff1ff0300b48f3f2790e1f2c4281ff3ff0",
+        "compiler_source_sha256": {
+          "src/checker.rs": "ce83485ae3e26574b63d4e318f44134518536f61099b7fd49a04a32ab349f1d5",
+          "src/hir.rs": "9a30cf53df882395b8983b39a976e54cfec3b446d33ba584656a885d498003cc",
+          "verification/compiler_enforcement.py": "96cf9d44773b206ad9a96df7f3d6367b04c8dc40b2d81ddcbc9dda68d2cdb80f"
+        },
+        "observations": {
+          "saved compile regressions": 10,
+          "expression and route authority checks": 120,
+          "permitted read-only expression contexts": 20,
+          "transaction expression context checks": 20,
+          "permitted read-only routes": 2,
+          "CRUD operation authority checks": 60,
+          "generated transitive call graph checks": 96,
+          "scope and restricted sink checks": 12,
+          "schema and form shape checks": 10,
+          "permitted ordinary values": 1,
+          "permitted form shapes": 1,
+          "generated transaction graph checks": 32,
+          "real transaction readbacks": 4,
+          "host authority rejection": 2,
+          "existing example compile checks": 5
+        },
+        "total_cli_invocations": 395
+      },
+      "accepted": true
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "verification/web_enforcement.py"
+      ],
+      "cwd": "/home/doll/diamond",
+      "environment_overrides": {},
+      "exit": 0,
+      "seconds": 0.483,
+      "stdout": "{\n  \"private HEAD status\": 401,\n  \"public HEAD status\": 200,\n  \"undeclared DB server started\": false,\n  \"undeclared DB file created\": false,\n  \"anonymous error session transported\": true\n}\n",
+      "stderr": "",
+      "observations": {
+        "private HEAD status": 401,
+        "public HEAD status": 200,
+        "undeclared DB server started": false,
+        "undeclared DB file created": false,
+        "anonymous error session transported": true
+      },
+      "accepted": true
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "verification/policy_enforcement.py"
+      ],
+      "cwd": "/home/doll/diamond",
+      "environment_overrides": {},
+      "exit": 0,
+      "seconds": 4.104,
+      "stdout": "{\n  \"status\": \"PASS\",\n  \"seed\": 858628,\n  \"binary_sha256\": \"399a7b34c016bbed78c7870b6ca7f6ff1ff0300b48f3f2790e1f2c4281ff3ff0\",\n  \"observations\": {\n    \"malformed stored selection failures\": 5,\n    \"malformed stored ID failures\": 5,\n    \"malformed stored optional ID failures\": 1,\n    \"malformed stored primary ID failures\": 1,\n    \"selection budget boundary successes\": 1,\n    \"selection budget failures\": 1,\n    \"caught invalid selection rollback journeys\": 1,\n    \"selection preserves explicit transaction rollback journeys\": 1,\n    \"sanitized stored-data HTTP failures\": 3,\n    \"same-process read recovery journeys\": 2,\n    \"HTTP requests\": 624,\n    \"missing action compile rejections\": 5,\n    \"returned row read-policy rejections\": 2,\n    \"direct delete without read journeys\": 1,\n    \"unsupported policy compile rejections\": 3,\n    \"unsupported query compile rejections\": 3,\n    \"reference get comparisons\": 162,\n    \"reference select comparisons\": 108,\n    \"reference create comparisons\": 36,\n    \"returned mutation read-denial rollbacks\": 14,\n    \"reference update comparisons\": 120,\n    \"reference delete comparisons\": 108\n  }\n}\n",
+      "stderr": "",
+      "observations": {
+        "status": "PASS",
+        "seed": 858628,
+        "binary_sha256": "399a7b34c016bbed78c7870b6ca7f6ff1ff0300b48f3f2790e1f2c4281ff3ff0",
+        "observations": {
+          "malformed stored selection failures": 5,
+          "malformed stored ID failures": 5,
+          "malformed stored optional ID failures": 1,
+          "malformed stored primary ID failures": 1,
+          "selection budget boundary successes": 1,
+          "selection budget failures": 1,
+          "caught invalid selection rollback journeys": 1,
+          "selection preserves explicit transaction rollback journeys": 1,
+          "sanitized stored-data HTTP failures": 3,
+          "same-process read recovery journeys": 2,
+          "HTTP requests": 624,
+          "missing action compile rejections": 5,
+          "returned row read-policy rejections": 2,
+          "direct delete without read journeys": 1,
+          "unsupported policy compile rejections": 3,
+          "unsupported query compile rejections": 3,
+          "reference get comparisons": 162,
+          "reference select comparisons": 108,
+          "reference create comparisons": 36,
+          "returned mutation read-denial rollbacks": 14,
+          "reference update comparisons": 120,
+          "reference delete comparisons": 108
+        }
+      },
+      "accepted": true
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "verification/transaction_faults.py",
+        "--report",
+        "verification/web_one_compatibility/checkpoint_six_transactions.json"
+      ],
+      "cwd": "/home/doll/diamond",
+      "environment_overrides": {},
+      "exit": 0,
+      "seconds": 16.423,
+      "stdout": "{\n  \"binary\": \"/home/doll/diamond/target/debug/diamond\",\n  \"binary_sha256\": \"399a7b34c016bbed78c7870b6ca7f6ff1ff0300b48f3f2790e1f2c4281ff3ff0\",\n  \"driver_sha256\": \"739be3a3f29e6b4e314673e50d6c0355659614361e269551ac788ed453dc73c6\",\n  \"shim_sha256\": \"2839f85ea3480e9c00b8a0527ec0959b8c30a9a30eb16c57c97f2f577369b6da\",\n  \"seed\": 858628,\n  \"rounds\": 2,\n  \"elapsed_seconds\": 16.33,\n  \"passed\": 24,\n  \"failed\": 0,\n  \"temporary_resources_removed\": true,\n  \"requests\": 40,\n  \"failures\": []\n}\n",
+      "stderr": "",
+      "observations": {
+        "binary": "/home/doll/diamond/target/debug/diamond",
+        "binary_sha256": "399a7b34c016bbed78c7870b6ca7f6ff1ff0300b48f3f2790e1f2c4281ff3ff0",
+        "driver_sha256": "739be3a3f29e6b4e314673e50d6c0355659614361e269551ac788ed453dc73c6",
+        "shim_sha256": "2839f85ea3480e9c00b8a0527ec0959b8c30a9a30eb16c57c97f2f577369b6da",
+        "seed": 858628,
+        "rounds": 2,
+        "elapsed_seconds": 16.33,
+        "passed": 24,
+        "failed": 0,
+        "temporary_resources_removed": true,
+        "requests": 40,
+        "failures": []
+      },
+      "accepted": true
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "verification/language_exploration.py",
+        "--replay-resource-regression"
+      ],
+      "cwd": "/home/doll/diamond",
+      "environment_overrides": {},
+      "exit": 0,
+      "seconds": 0.96,
+      "stdout": "{\n  \"status\": \"PASS\",\n  \"seed\": 858629,\n  \"binary_sha256\": \"399a7b34c016bbed78c7870b6ca7f6ff1ff0300b48f3f2790e1f2c4281ff3ff0\",\n  \"driver_sha256\": \"7f7211060b0b4cc9e42b606bdfd8099f85ec305a5787810ec1ef5169606f83a4\",\n  \"generated_inputs_sha256\": \"f4c07eb104d75eb54ea9d604dbcc3a0b9fd3b0ee402d0e31be8056df121f2a12\",\n  \"observations\": {\n    \"signed arithmetic\": 34,\n    \"arithmetic failure boundaries\": 6,\n    \"Boolean acceptance\": 5,\n    \"Boolean required evaluation\": 2,\n    \"record enum Option Result compositions\": 18,\n    \"list iteration HTML compositions\": 6,\n    \"typed HTML and Unicode\": 10,\n    \"internal URL acceptance\": 4,\n    \"structured source rejections\": 25,\n    \"documented resource boundaries\": 14,\n    \"saved resource regression replay\": 1\n  },\n  \"native\": {\n    \"status\": \"PASS\",\n    \"invalid_identity_cases\": 14,\n    \"invalid_lifetimes\": 3,\n    \"malformed_token_families\": 6,\n    \"session_capacity\": 4096,\n    \"real_expiry_checks\": 2,\n    \"typed_route_urls\": 1,\n    \"source_sha256\": \"b7b567fc5275c52e972efcdb7b681541bf17ee850e78d1d46271f2391ace9df5\",\n    \"library_sha256\": \"e76b882b77cff06153a96ffc7a6ce0fff70cdf94db0d762823ec930888d58cf4\",\n    \"consumer_sha256\": \"2bf9e1190cf50b5d56070cdb58391c9474f07531800532ed60437f649ca9d41f\"\n  },\n  \"child_limits\": {\n    \"address_space_bytes\": 536870912,\n    \"cpu_seconds\": 5,\n    \"wall_seconds\": 8,\n    \"core_bytes\": 0\n  }\n}\n",
+      "stderr": "",
+      "observations": {
+        "status": "PASS",
+        "seed": 858629,
+        "binary_sha256": "399a7b34c016bbed78c7870b6ca7f6ff1ff0300b48f3f2790e1f2c4281ff3ff0",
+        "driver_sha256": "7f7211060b0b4cc9e42b606bdfd8099f85ec305a5787810ec1ef5169606f83a4",
+        "generated_inputs_sha256": "f4c07eb104d75eb54ea9d604dbcc3a0b9fd3b0ee402d0e31be8056df121f2a12",
+        "observations": {
+          "signed arithmetic": 34,
+          "arithmetic failure boundaries": 6,
+          "Boolean acceptance": 5,
+          "Boolean required evaluation": 2,
+          "record enum Option Result compositions": 18,
+          "list iteration HTML compositions": 6,
+          "typed HTML and Unicode": 10,
+          "internal URL acceptance": 4,
+          "structured source rejections": 25,
+          "documented resource boundaries": 14,
+          "saved resource regression replay": 1
+        },
+        "native": {
+          "status": "PASS",
+          "invalid_identity_cases": 14,
+          "invalid_lifetimes": 3,
+          "malformed_token_families": 6,
+          "session_capacity": 4096,
+          "real_expiry_checks": 2,
+          "typed_route_urls": 1,
+          "source_sha256": "b7b567fc5275c52e972efcdb7b681541bf17ee850e78d1d46271f2391ace9df5",
+          "library_sha256": "e76b882b77cff06153a96ffc7a6ce0fff70cdf94db0d762823ec930888d58cf4",
+          "consumer_sha256": "2bf9e1190cf50b5d56070cdb58391c9474f07531800532ed60437f649ca9d41f"
+        },
+        "child_limits": {
+          "address_space_bytes": 536870912,
+          "cpu_seconds": 5,
+          "wall_seconds": 8,
+          "core_bytes": 0
+        }
+      },
+      "accepted": true
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "verification/language_exploration.py",
+        "--seed",
+        "858630"
+      ],
+      "cwd": "/home/doll/diamond",
+      "environment_overrides": {},
+      "exit": 0,
+      "seconds": 0.9,
+      "stdout": "{\n  \"status\": \"PASS\",\n  \"seed\": 858630,\n  \"binary_sha256\": \"399a7b34c016bbed78c7870b6ca7f6ff1ff0300b48f3f2790e1f2c4281ff3ff0\",\n  \"driver_sha256\": \"7f7211060b0b4cc9e42b606bdfd8099f85ec305a5787810ec1ef5169606f83a4\",\n  \"generated_inputs_sha256\": \"e7be452591b0a1669ce878839da8c282686e5485911f67dc5d1d803894164b34\",\n  \"observations\": {\n    \"signed arithmetic\": 34,\n    \"arithmetic failure boundaries\": 6,\n    \"Boolean acceptance\": 5,\n    \"Boolean required evaluation\": 2,\n    \"record enum Option Result compositions\": 18,\n    \"list iteration HTML compositions\": 6,\n    \"typed HTML and Unicode\": 10,\n    \"internal URL acceptance\": 4,\n    \"structured source rejections\": 25,\n    \"documented resource boundaries\": 14\n  },\n  \"native\": {\n    \"status\": \"PASS\",\n    \"invalid_identity_cases\": 14,\n    \"invalid_lifetimes\": 3,\n    \"malformed_token_families\": 6,\n    \"session_capacity\": 4096,\n    \"real_expiry_checks\": 2,\n    \"typed_route_urls\": 1,\n    \"source_sha256\": \"b7b567fc5275c52e972efcdb7b681541bf17ee850e78d1d46271f2391ace9df5\",\n    \"library_sha256\": \"e76b882b77cff06153a96ffc7a6ce0fff70cdf94db0d762823ec930888d58cf4\",\n    \"consumer_sha256\": \"2bf9e1190cf50b5d56070cdb58391c9474f07531800532ed60437f649ca9d41f\"\n  },\n  \"child_limits\": {\n    \"address_space_bytes\": 536870912,\n    \"cpu_seconds\": 5,\n    \"wall_seconds\": 8,\n    \"core_bytes\": 0\n  }\n}\n",
+      "stderr": "",
+      "observations": {
+        "status": "PASS",
+        "seed": 858630,
+        "binary_sha256": "399a7b34c016bbed78c7870b6ca7f6ff1ff0300b48f3f2790e1f2c4281ff3ff0",
+        "driver_sha256": "7f7211060b0b4cc9e42b606bdfd8099f85ec305a5787810ec1ef5169606f83a4",
+        "generated_inputs_sha256": "e7be452591b0a1669ce878839da8c282686e5485911f67dc5d1d803894164b34",
+        "observations": {
+          "signed arithmetic": 34,
+          "arithmetic failure boundaries": 6,
+          "Boolean acceptance": 5,
+          "Boolean required evaluation": 2,
+          "record enum Option Result compositions": 18,
+          "list iteration HTML compositions": 6,
+          "typed HTML and Unicode": 10,
+          "internal URL acceptance": 4,
+          "structured source rejections": 25,
+          "documented resource boundaries": 14
+        },
+        "native": {
+          "status": "PASS",
+          "invalid_identity_cases": 14,
+          "invalid_lifetimes": 3,
+          "malformed_token_families": 6,
+          "session_capacity": 4096,
+          "real_expiry_checks": 2,
+          "typed_route_urls": 1,
+          "source_sha256": "b7b567fc5275c52e972efcdb7b681541bf17ee850e78d1d46271f2391ace9df5",
+          "library_sha256": "e76b882b77cff06153a96ffc7a6ce0fff70cdf94db0d762823ec930888d58cf4",
+          "consumer_sha256": "2bf9e1190cf50b5d56070cdb58391c9474f07531800532ed60437f649ca9d41f"
+        },
+        "child_limits": {
+          "address_space_bytes": 536870912,
+          "cpu_seconds": 5,
+          "wall_seconds": 8,
+          "core_bytes": 0
+        }
+      },
+      "accepted": true
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "verification/resource_enforcement.py"
+      ],
+      "cwd": "/home/doll/diamond",
+      "environment_overrides": {},
+      "exit": 0,
+      "seconds": 0.669,
+      "stdout": "{\n  \"seed\": 858629,\n  \"binary_sha256\": \"399a7b34c016bbed78c7870b6ca7f6ff1ff0300b48f3f2790e1f2c4281ff3ff0\",\n  \"cli_checks\": 43,\n  \"sqlite_checks\": 10,\n  \"http_requests\": 8,\n  \"generated_and_regression_cases\": [\n    \"tree-3\",\n    \"tree-12\",\n    \"tree-10\",\n    \"tree-2\",\n    \"tree-7\",\n    \"tree-4\",\n    \"tree-6\",\n    \"tree-8\",\n    \"tree-1\",\n    \"tree-5\",\n    \"tree-9\",\n    \"tree-11\",\n    \"recursive-record-regression\",\n    \"linear-depth-32\",\n    \"linear-depth-33\",\n    \"list-payload-0\",\n    \"list-payload-1\",\n    \"list-payload-3\",\n    \"list-payload-7\",\n    \"list-payload-8\",\n    \"iteration-scope-copy-work\",\n    \"parameter-and-scope-copy-work\",\n    \"branch-scope-copy-work\",\n    \"result-cannot-catch-resource-limit\",\n    \"owned-option-patterns\",\n    \"owned-enum-patterns\",\n    \"ordinary-result-remains-catchable\",\n    \"selection-aggregate-size\",\n    \"selection-modest-readback\",\n    \"stored-row-size-preflight\",\n    \"created-row-size-before-commit\",\n    \"updated-row-size-before-commit\",\n    \"stored-relation-materialization-work\",\n    \"committed-state-fresh-process\"\n  ],\n  \"compile_pass_then_runtime_work_limit\": [\n    \"iteration-scope-copy-work\",\n    \"parameter-and-scope-copy-work\",\n    \"branch-scope-copy-work\"\n  ],\n  \"bounds\": {\n    \"child_address_space_mib\": 512,\n    \"child_cpu_seconds\": 5,\n    \"managed_value_mib\": 4,\n    \"managed_depth\": 64,\n    \"evaluation_value_work_mib\": 64\n  }\n}\n",
+      "stderr": "",
+      "observations": {
+        "seed": 858629,
+        "binary_sha256": "399a7b34c016bbed78c7870b6ca7f6ff1ff0300b48f3f2790e1f2c4281ff3ff0",
+        "cli_checks": 43,
+        "sqlite_checks": 10,
+        "http_requests": 8,
+        "generated_and_regression_cases": [
+          "tree-3",
+          "tree-12",
+          "tree-10",
+          "tree-2",
+          "tree-7",
+          "tree-4",
+          "tree-6",
+          "tree-8",
+          "tree-1",
+          "tree-5",
+          "tree-9",
+          "tree-11",
+          "recursive-record-regression",
+          "linear-depth-32",
+          "linear-depth-33",
+          "list-payload-0",
+          "list-payload-1",
+          "list-payload-3",
+          "list-payload-7",
+          "list-payload-8",
+          "iteration-scope-copy-work",
+          "parameter-and-scope-copy-work",
+          "branch-scope-copy-work",
+          "result-cannot-catch-resource-limit",
+          "owned-option-patterns",
+          "owned-enum-patterns",
+          "ordinary-result-remains-catchable",
+          "selection-aggregate-size",
+          "selection-modest-readback",
+          "stored-row-size-preflight",
+          "created-row-size-before-commit",
+          "updated-row-size-before-commit",
+          "stored-relation-materialization-work",
+          "committed-state-fresh-process"
+        ],
+        "compile_pass_then_runtime_work_limit": [
+          "iteration-scope-copy-work",
+          "parameter-and-scope-copy-work",
+          "branch-scope-copy-work"
+        ],
+        "bounds": {
+          "child_address_space_mib": 512,
+          "child_cpu_seconds": 5,
+          "managed_value_mib": 4,
+          "managed_depth": 64,
+          "evaluation_value_work_mib": 64
+        }
+      },
+      "accepted": true
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "verification/stateful_exploration.py"
+      ],
+      "cwd": "/home/doll/diamond",
+      "environment_overrides": {},
+      "exit": 0,
+      "seconds": 12.753,
+      "stdout": "{\n  \"result\": \"PASS\",\n  \"seed\": 858629,\n  \"binary_sha256\": \"399a7b34c016bbed78c7870b6ca7f6ff1ff0300b48f3f2790e1f2c4281ff3ff0\",\n  \"observations\": {\n    \"accepted creations\": 11,\n    \"independent state and list checks\": 150,\n    \"modeled mutation denials\": 55,\n    \"generated actions\": 144,\n    \"login transitions\": 12,\n    \"accepted updates and deletions\": 5,\n    \"logout transitions\": 12,\n    \"validation boundary rejections\": 12,\n    \"cross-session CSRF rejections\": 12,\n    \"modeled record reads\": 12,\n    \"restart and stale-session transitions\": 12,\n    \"unauthenticated mutation rejections\": 7,\n    \"HTTP requests\": 756,\n    \"generated sequences\": 3\n  }\n}\n",
+      "stderr": "",
+      "observations": {
+        "result": "PASS",
+        "seed": 858629,
+        "binary_sha256": "399a7b34c016bbed78c7870b6ca7f6ff1ff0300b48f3f2790e1f2c4281ff3ff0",
+        "observations": {
+          "accepted creations": 11,
+          "independent state and list checks": 150,
+          "modeled mutation denials": 55,
+          "generated actions": 144,
+          "login transitions": 12,
+          "accepted updates and deletions": 5,
+          "logout transitions": 12,
+          "validation boundary rejections": 12,
+          "cross-session CSRF rejections": 12,
+          "modeled record reads": 12,
+          "restart and stale-session transitions": 12,
+          "unauthenticated mutation rejections": 7,
+          "HTTP requests": 756,
+          "generated sequences": 3
+        }
+      },
+      "accepted": true
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "verification/stateful_exploration.py",
+        "--seed",
+        "858630"
+      ],
+      "cwd": "/home/doll/diamond",
+      "environment_overrides": {},
+      "exit": 0,
+      "seconds": 11.344,
+      "stdout": "{\n  \"result\": \"PASS\",\n  \"seed\": 858630,\n  \"binary_sha256\": \"399a7b34c016bbed78c7870b6ca7f6ff1ff0300b48f3f2790e1f2c4281ff3ff0\",\n  \"observations\": {\n    \"accepted creations\": 13,\n    \"independent state and list checks\": 150,\n    \"validation boundary rejections\": 12,\n    \"generated actions\": 144,\n    \"modeled mutation denials\": 52,\n    \"cross-session CSRF rejections\": 12,\n    \"login transitions\": 12,\n    \"logout transitions\": 12,\n    \"modeled record reads\": 12,\n    \"restart and stale-session transitions\": 12,\n    \"unauthenticated mutation rejections\": 5,\n    \"accepted updates and deletions\": 8,\n    \"HTTP requests\": 741,\n    \"generated sequences\": 3\n  }\n}\n",
+      "stderr": "",
+      "observations": {
+        "result": "PASS",
+        "seed": 858630,
+        "binary_sha256": "399a7b34c016bbed78c7870b6ca7f6ff1ff0300b48f3f2790e1f2c4281ff3ff0",
+        "observations": {
+          "accepted creations": 13,
+          "independent state and list checks": 150,
+          "validation boundary rejections": 12,
+          "generated actions": 144,
+          "modeled mutation denials": 52,
+          "cross-session CSRF rejections": 12,
+          "login transitions": 12,
+          "logout transitions": 12,
+          "modeled record reads": 12,
+          "restart and stale-session transitions": 12,
+          "unauthenticated mutation rejections": 5,
+          "accepted updates and deletions": 8,
+          "HTTP requests": 741,
+          "generated sequences": 3
+        }
+      },
+      "accepted": true
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "verification/transport_exploration.py",
+        "--wait-window"
+      ],
+      "cwd": "/home/doll/diamond",
+      "environment_overrides": {},
+      "exit": 0,
+      "seconds": 75.339,
+      "stdout": "{\n  \"status\": \"PASS\",\n  \"seed\": 858629,\n  \"generator\": 1,\n  \"binary SHA256\": \"399a7b34c016bbed78c7870b6ca7f6ff1ff0300b48f3f2790e1f2c4281ff3ff0\",\n  \"observations\": {\n    \"oversize rejection responses\": {\n      \"ordinary statuses\": [\n        413,\n        413,\n        413,\n        413,\n        413,\n        413,\n        413,\n        413,\n        413,\n        413\n      ],\n      \"near-boundary responses\": [\n        {\n          \"declared bytes\": 65537,\n          \"fragmented\": false,\n          \"status\": 413,\n          \"complete response\": true\n        },\n        {\n          \"declared bytes\": 65537,\n          \"fragmented\": true,\n          \"status\": 413,\n          \"complete response\": true\n        },\n        {\n          \"declared bytes\": 66560,\n          \"fragmented\": false,\n          \"status\": 413,\n          \"complete response\": true\n        },\n        {\n          \"declared bytes\": 66560,\n          \"fragmented\": true,\n          \"status\": 413,\n          \"complete response\": true\n        }\n      ],\n      \"large incomplete release\": {\n        \"declared bytes\": 1000000,\n        \"supplied body bytes\": 1024,\n        \"elapsed seconds\": 5.056,\n        \"connection outcome\": \"EOF\",\n        \"status if received\": 500\n      }\n    },\n    \"authority rejection responses\": [\n      {\n        \"authority\": \"Origin\",\n        \"fragmented\": false,\n        \"status\": 404,\n        \"complete response\": true\n      },\n      {\n        \"authority\": \"Origin\",\n        \"fragmented\": true,\n        \"status\": 404,\n        \"complete response\": true\n      },\n      {\n        \"authority\": \"Host\",\n        \"fragmented\": false,\n        \"status\": 400,\n        \"complete response\": true\n      },\n      {\n        \"authority\": \"Host\",\n        \"fragmented\": true,\n        \"status\": 400,\n        \"complete response\": true\n      }\n    ],\n    \"incomplete request deadline\": {\n      \"status\": 500,\n      \"elapsed seconds\": 5.445\n    },\n    \"invalid Id form statuses\": {\n      \"invalid Id\": 400,\n      \"unicode Id\": 400,\n      \"overlong Id\": 400\n    },\n    \"matched Id validation results\": [\n      {\n        \"field\": \"reference\",\n        \"status\": 400,\n        \"application validation page\": true\n      },\n      {\n        \"field\": \"optional\",\n        \"status\": 400,\n        \"application validation page\": true\n      }\n    ],\n    \"pipelined mutation outcomes\": [\n      {\n        \"status\": 400,\n        \"committed rows\": 0\n      },\n      {\n        \"status\": 303,\n        \"committed rows\": 1\n      }\n    ],\n    \"rate boundary elapsed seconds\": 12.73,\n    \"cases\": {\n      \"account rejection cases\": 10,\n      \"account positive boundaries\": 3,\n      \"browser account startup rejections\": 5,\n      \"bounded corrupted account hash cases\": 5,\n      \"malformed transport cases\": 33,\n      \"fragmented valid requests\": 12,\n      \"typed path boundary cases\": 7,\n      \"exact transport limit cases\": 4,\n      \"ordinary oversized body submissions\": 10,\n      \"whole and fragmented near-boundary rejections\": 4,\n      \"large incomplete bounded release\": 1,\n      \"complete rejected authority responses\": 4,\n      \"typed fragmented form positive cases\": 4,\n      \"rejected typed form cases\": 25,\n      \"Id and Option Id validation feedback journeys\": 3,\n      \"unsupported form content types\": 4,\n      \"session bound rejected mutations\": 5,\n      \"canceled partial forms\": 3,\n      \"pipelined mutation streams\": 2,\n      \"rotation revocation logout journeys\": 1,\n      \"rate limit individual attempts\": 65,\n      \"actual rate window recovery\": 1,\n      \"HTTP requests\": 307\n    }\n  }\n}\n",
+      "stderr": "Waiting 48.3s for the documented login window, disposable loopback server only\n",
+      "observations": {
+        "status": "PASS",
+        "seed": 858629,
+        "generator": 1,
+        "binary SHA256": "399a7b34c016bbed78c7870b6ca7f6ff1ff0300b48f3f2790e1f2c4281ff3ff0",
+        "observations": {
+          "oversize rejection responses": {
+            "ordinary statuses": [
+              413,
+              413,
+              413,
+              413,
+              413,
+              413,
+              413,
+              413,
+              413,
+              413
+            ],
+            "near-boundary responses": [
+              {
+                "declared bytes": 65537,
+                "fragmented": false,
+                "status": 413,
+                "complete response": true
+              },
+              {
+                "declared bytes": 65537,
+                "fragmented": true,
+                "status": 413,
+                "complete response": true
+              },
+              {
+                "declared bytes": 66560,
+                "fragmented": false,
+                "status": 413,
+                "complete response": true
+              },
+              {
+                "declared bytes": 66560,
+                "fragmented": true,
+                "status": 413,
+                "complete response": true
+              }
+            ],
+            "large incomplete release": {
+              "declared bytes": 1000000,
+              "supplied body bytes": 1024,
+              "elapsed seconds": 5.056,
+              "connection outcome": "EOF",
+              "status if received": 500
+            }
+          },
+          "authority rejection responses": [
+            {
+              "authority": "Origin",
+              "fragmented": false,
+              "status": 404,
+              "complete response": true
+            },
+            {
+              "authority": "Origin",
+              "fragmented": true,
+              "status": 404,
+              "complete response": true
+            },
+            {
+              "authority": "Host",
+              "fragmented": false,
+              "status": 400,
+              "complete response": true
+            },
+            {
+              "authority": "Host",
+              "fragmented": true,
+              "status": 400,
+              "complete response": true
+            }
+          ],
+          "incomplete request deadline": {
+            "status": 500,
+            "elapsed seconds": 5.445
+          },
+          "invalid Id form statuses": {
+            "invalid Id": 400,
+            "unicode Id": 400,
+            "overlong Id": 400
+          },
+          "matched Id validation results": [
+            {
+              "field": "reference",
+              "status": 400,
+              "application validation page": true
+            },
+            {
+              "field": "optional",
+              "status": 400,
+              "application validation page": true
+            }
+          ],
+          "pipelined mutation outcomes": [
+            {
+              "status": 400,
+              "committed rows": 0
+            },
+            {
+              "status": 303,
+              "committed rows": 1
+            }
+          ],
+          "rate boundary elapsed seconds": 12.73,
+          "cases": {
+            "account rejection cases": 10,
+            "account positive boundaries": 3,
+            "browser account startup rejections": 5,
+            "bounded corrupted account hash cases": 5,
+            "malformed transport cases": 33,
+            "fragmented valid requests": 12,
+            "typed path boundary cases": 7,
+            "exact transport limit cases": 4,
+            "ordinary oversized body submissions": 10,
+            "whole and fragmented near-boundary rejections": 4,
+            "large incomplete bounded release": 1,
+            "complete rejected authority responses": 4,
+            "typed fragmented form positive cases": 4,
+            "rejected typed form cases": 25,
+            "Id and Option Id validation feedback journeys": 3,
+            "unsupported form content types": 4,
+            "session bound rejected mutations": 5,
+            "canceled partial forms": 3,
+            "pipelined mutation streams": 2,
+            "rotation revocation logout journeys": 1,
+            "rate limit individual attempts": 65,
+            "actual rate window recovery": 1,
+            "HTTP requests": 307
+          }
+        }
+      },
+      "accepted": true
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "verification/cancellation_recovery.py",
+        "--report",
+        "verification/web_one_compatibility/checkpoint_six_cancellation.json"
+      ],
+      "cwd": "/home/doll/diamond",
+      "environment_overrides": {},
+      "exit": 0,
+      "seconds": 0.449,
+      "stdout": "{\n  \"binary_sha256\": \"399a7b34c016bbed78c7870b6ca7f6ff1ff0300b48f3f2790e1f2c4281ff3ff0\",\n  \"seed\": 858629,\n  \"result\": \"PASS\",\n  \"case_count\": 20,\n  \"temporary_resources_removed\": true\n}\n",
+      "stderr": "",
+      "observations": {
+        "binary_sha256": "399a7b34c016bbed78c7870b6ca7f6ff1ff0300b48f3f2790e1f2c4281ff3ff0",
+        "seed": 858629,
+        "result": "PASS",
+        "case_count": 20,
+        "temporary_resources_removed": true
+      },
+      "accepted": true
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "verification/session_clock.py"
+      ],
+      "cwd": "/home/doll/diamond",
+      "environment_overrides": {},
+      "exit": 0,
+      "seconds": 0.394,
+      "stdout": "{\n  \"status\": \"PASS\",\n  \"observations\": {\n    \"forward\": {\n      \"issued_valid\": true,\n      \"before_fault_valid\": true,\n      \"after_fault_valid\": true,\n      \"after_fault_csrf\": true,\n      \"wall_elapsed_seconds\": 3600.000094242,\n      \"monotonic_elapsed_seconds\": 9.2738e-05,\n      \"fault_active\": true,\n      \"valid_timing\": true,\n      \"expected_valid\": true,\n      \"passed\": true\n    },\n    \"backward\": {\n      \"issued_valid\": true,\n      \"before_fault_valid\": false,\n      \"after_fault_valid\": false,\n      \"after_fault_csrf\": false,\n      \"wall_elapsed_seconds\": -3599.879826069,\n      \"monotonic_elapsed_seconds\": 0.12017715,\n      \"fault_active\": true,\n      \"valid_timing\": true,\n      \"expected_valid\": false,\n      \"passed\": true\n    }\n  },\n  \"library_sha256\": \"e76b882b77cff06153a96ffc7a6ce0fff70cdf94db0d762823ec930888d58cf4\",\n  \"rust_source_sha256\": \"b256d825d3d5a2881ca9499767ca6c7475c0e1d92a8d27fe6f04572a0f87f265\",\n  \"c_source_sha256\": \"cd23398dfd1ffca5afa6150d70e0e76c3882d4ced87099ce79c56b0d0f1142a6\",\n  \"consumer_sha256\": \"17aa9b5f565a605b1ae101de1fcf197fd35a1c45a850f88c819389a98c317930\",\n  \"shim_sha256\": \"4b7d0eb208badb507606419f3e3dbbc1cda995902920617b28588a7afb919926\",\n  \"driver_sha256\": \"bd599d837bb5925142b9fc5b3d2a37f7793a8bae2cb9c2ce1e75da65820727eb\",\n  \"child_limits\": {\n    \"address_space_bytes\": 536870912,\n    \"cpu_seconds\": 3,\n    \"wall_seconds\": 5,\n    \"core_bytes\": 0\n  }\n}\n",
+      "stderr": "",
+      "observations": {
+        "status": "PASS",
+        "observations": {
+          "forward": {
+            "issued_valid": true,
+            "before_fault_valid": true,
+            "after_fault_valid": true,
+            "after_fault_csrf": true,
+            "wall_elapsed_seconds": 3600.000094242,
+            "monotonic_elapsed_seconds": 9.2738e-05,
+            "fault_active": true,
+            "valid_timing": true,
+            "expected_valid": true,
+            "passed": true
+          },
+          "backward": {
+            "issued_valid": true,
+            "before_fault_valid": false,
+            "after_fault_valid": false,
+            "after_fault_csrf": false,
+            "wall_elapsed_seconds": -3599.879826069,
+            "monotonic_elapsed_seconds": 0.12017715,
+            "fault_active": true,
+            "valid_timing": true,
+            "expected_valid": false,
+            "passed": true
+          }
+        },
+        "library_sha256": "e76b882b77cff06153a96ffc7a6ce0fff70cdf94db0d762823ec930888d58cf4",
+        "rust_source_sha256": "b256d825d3d5a2881ca9499767ca6c7475c0e1d92a8d27fe6f04572a0f87f265",
+        "c_source_sha256": "cd23398dfd1ffca5afa6150d70e0e76c3882d4ced87099ce79c56b0d0f1142a6",
+        "consumer_sha256": "17aa9b5f565a605b1ae101de1fcf197fd35a1c45a850f88c819389a98c317930",
+        "shim_sha256": "4b7d0eb208badb507606419f3e3dbbc1cda995902920617b28588a7afb919926",
+        "driver_sha256": "bd599d837bb5925142b9fc5b3d2a37f7793a8bae2cb9c2ce1e75da65820727eb",
+        "child_limits": {
+          "address_space_bytes": 536870912,
+          "cpu_seconds": 3,
+          "wall_seconds": 5,
+          "core_bytes": 0
+        }
+      },
+      "accepted": true
+    }
+  ],
+  "rustc": "rustc 1.96.0 (ac68faa20 2026-05-25)\nbinary: rustc\ncommit-hash: ac68faa20c58cbccd01ee7208bf3b6e93a7d7f96\ncommit-date: 2026-05-25\nhost: x86_64-unknown-linux-gnu\nrelease: 1.96.0\nLLVM version: 22.1.2",
+  "cargo": "cargo 1.96.0 (30a34c682 2026-05-25)",
+  "python": "3.14.8 (main, Oct  1 2026, 00:00:00) [GCC 16.2.1 20260819 (Red Hat 16.2.1-2)]",
+  "cc": "cc (GCC) 16.2.1 20260819 (Red Hat 16.2.1-2)",
+  "library_sha256": "e76b882b77cff06153a96ffc7a6ce0fff70cdf94db0d762823ec930888d58cf4",
+  "result": "PASS",
+  "binary_sha256": "399a7b34c016bbed78c7870b6ca7f6ff1ff0300b48f3f2790e1f2c4281ff3ff0",
+  "finished_utc": "2026-10-21T23:32:45.190751+00:00"
+}

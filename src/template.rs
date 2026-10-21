@@ -9,8 +9,20 @@ pub(crate) fn parse(source: &str, location: Location) -> Result<Vec<HtmlNode>> {
         cursor: 0,
         location,
         nodes: 0,
+        browser: false,
     };
     parser.children(None, 0)
+}
+
+pub(crate) fn parse_browser(source: &str, location: Location) -> Result<Vec<HtmlNode>> {
+    Template {
+        source,
+        cursor: 0,
+        location,
+        nodes: 0,
+        browser: true,
+    }
+    .children(None, 0)
 }
 
 struct Template<'a> {
@@ -18,6 +30,7 @@ struct Template<'a> {
     cursor: usize,
     location: Location,
     nodes: usize,
+    browser: bool,
 }
 
 impl Template<'_> {
@@ -131,7 +144,7 @@ impl Template<'_> {
                 break;
             }
             let name = self.name()?;
-            if ![
+            if !([
                 "id",
                 "class",
                 "title",
@@ -147,6 +160,7 @@ impl Template<'_> {
                 "aria-label",
             ]
             .contains(&name.as_str())
+                || self.browser && name == "on-click")
             {
                 return Err(Error::unsupported(
                     self.location(),

@@ -55,6 +55,9 @@ diagnostics. HTTP adapters return sanitized responses for those failures.
 | D204 | Policy-controlled mutation |
 | D301 | Missing application effect |
 | D302 | Invalid transaction |
+| D310 | Invalid registered host operation or signature |
+| D320 | Reserved compiler symbol in source |
+| D330 | Invalid browser component type or scope |
 | D401 | Route conflict |
 | D402 | Invalid route path |
 | D403 | Route parameter mismatch |

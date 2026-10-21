@@ -1,0 +1,6 @@
+export component Counter:
+  state count: Int = __diamond_fn_6_shared_private_value()
+  on increment:
+    count = amount(count)
+  html:
+    <main><strong>{count}</strong><button type="button" on-click={increment}>Add</button></main>

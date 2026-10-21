@@ -9,6 +9,21 @@ pub(crate) struct Explanation {
 
 const EXPLANATIONS: &[Explanation] = &[
     Explanation {
+        code: "D310",
+        title: "host operation signature",
+        remedy: "Call a registered host operation with its exact argument types and declare its module/application capability budget.",
+    },
+    Explanation {
+        code: "D320",
+        title: "reserved compiler symbol",
+        remedy: "Use source-level exported names through a declared module import; names beginning __diamond_ are reserved.",
+    },
+    Explanation {
+        code: "D330",
+        title: "browser component type or scope",
+        remedy: "Use typed scalar state, a declared click event, and pure imported functions in the W1 component subset.",
+    },
+    Explanation {
         code: "D001",
         title: "tab character",
         remedy: "Replace the tab with spaces; Diamond source uses space indentation.",

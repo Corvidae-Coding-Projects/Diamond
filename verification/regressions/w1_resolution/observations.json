@@ -1,0 +1,187 @@
+{
+  "baseline_binary_sha256": "ef5505c8a689ce6d156c69933d3cf4fdf068941cb998530561db0b76b32804e8",
+  "observations": [
+    {
+      "label": "mangled-private-server",
+      "expected_success": false,
+      "pass_": false,
+      "returncode": 0,
+      "stdout": "project Verify: 3 modules; server server; browser ui / Counter; capabilities {}\n",
+      "stderr": "",
+      "command": [
+        "/tmp/diamond-w1-independent-20261021/diamond-baseline",
+        "check",
+        "/tmp/diamond-w1-independent-20261021/mangled-private-server/diamond.toml"
+      ],
+      "binary_sha256": "ef5505c8a689ce6d156c69933d3cf4fdf068941cb998530561db0b76b32804e8"
+    },
+    {
+      "label": "mangled-private-server",
+      "expected_success": false,
+      "pass_": false,
+      "returncode": 0,
+      "stdout": "99183\n",
+      "stderr": "",
+      "command": [
+        "/tmp/diamond-w1-independent-20261021/diamond-baseline",
+        "run",
+        "/tmp/diamond-w1-independent-20261021/mangled-private-server/diamond.toml"
+      ],
+      "binary_sha256": "ef5505c8a689ce6d156c69933d3cf4fdf068941cb998530561db0b76b32804e8"
+    },
+    {
+      "label": "mangled-private-browser",
+      "expected_success": false,
+      "pass_": false,
+      "returncode": 0,
+      "stdout": "project Verify: 3 modules; server server; browser ui / Counter; capabilities {}\n",
+      "stderr": "",
+      "command": [
+        "/tmp/diamond-w1-independent-20261021/diamond-baseline",
+        "check",
+        "/tmp/diamond-w1-independent-20261021/mangled-private-browser/diamond.toml"
+      ],
+      "binary_sha256": "ef5505c8a689ce6d156c69933d3cf4fdf068941cb998530561db0b76b32804e8"
+    },
+    {
+      "label": "qualified-name-collision",
+      "command": [
+        "/tmp/diamond-w1-independent-20261021/diamond-fixed",
+        "check",
+        "/tmp/diamond-w1-independent-20261021/qualified-name-collision/diamond.toml"
+      ],
+      "expected_success": true,
+      "pass_": true,
+      "returncode": 0,
+      "stdout": "project Verify: 4 modules; server server; browser ui / Counter; capabilities {}\n",
+      "stderr": "",
+      "binary_sha256": "6736f42b6a65ea3a6b967845fcff9693968c7a8e5f9723794cab9c456da7531c"
+    },
+    {
+      "label": "mangled-private-server",
+      "command": [
+        "/tmp/diamond-w1-independent-20261021/diamond-fixed",
+        "check",
+        "/tmp/diamond-w1-independent-20261021/mangled-private-server/diamond.toml"
+      ],
+      "expected_success": false,
+      "pass_": true,
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: D320 at 2:3: compiler-generated names are reserved and cannot be referenced by source\n",
+      "binary_sha256": "6736f42b6a65ea3a6b967845fcff9693968c7a8e5f9723794cab9c456da7531c"
+    },
+    {
+      "label": "mangled-private-server",
+      "command": [
+        "/tmp/diamond-w1-independent-20261021/diamond-fixed",
+        "run",
+        "/tmp/diamond-w1-independent-20261021/mangled-private-server/diamond.toml"
+      ],
+      "expected_success": false,
+      "pass_": true,
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: D320 at 2:3: compiler-generated names are reserved and cannot be referenced by source\n",
+      "binary_sha256": "6736f42b6a65ea3a6b967845fcff9693968c7a8e5f9723794cab9c456da7531c"
+    },
+    {
+      "label": "mangled-private-browser",
+      "command": [
+        "/tmp/diamond-w1-independent-20261021/diamond-fixed",
+        "check",
+        "/tmp/diamond-w1-independent-20261021/mangled-private-browser/diamond.toml"
+      ],
+      "expected_success": false,
+      "pass_": true,
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: D320 at 2097156:22: compiler-generated names are reserved and cannot be referenced by source\n",
+      "binary_sha256": "6736f42b6a65ea3a6b967845fcff9693968c7a8e5f9723794cab9c456da7531c"
+    },
+    {
+      "label": "current-mangled-private-server",
+      "command": [
+        "/tmp/diamond-w1-independent-20261021/diamond-fixed",
+        "check",
+        "/tmp/diamond-w1-independent-20261021/current-mangled-private-server/diamond.toml"
+      ],
+      "expected_success": false,
+      "pass_": true,
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: D320 at 2:3: compiler-generated names are reserved and cannot be referenced by source\n",
+      "binary_sha256": "6736f42b6a65ea3a6b967845fcff9693968c7a8e5f9723794cab9c456da7531c"
+    },
+    {
+      "label": "current-mangled-private-server",
+      "command": [
+        "/tmp/diamond-w1-independent-20261021/diamond-fixed",
+        "run",
+        "/tmp/diamond-w1-independent-20261021/current-mangled-private-server/diamond.toml"
+      ],
+      "expected_success": false,
+      "pass_": true,
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: D320 at 2:3: compiler-generated names are reserved and cannot be referenced by source\n",
+      "binary_sha256": "6736f42b6a65ea3a6b967845fcff9693968c7a8e5f9723794cab9c456da7531c"
+    },
+    {
+      "label": "current-mangled-private-browser",
+      "command": [
+        "/tmp/diamond-w1-independent-20261021/diamond-fixed",
+        "check",
+        "/tmp/diamond-w1-independent-20261021/current-mangled-private-browser/diamond.toml"
+      ],
+      "expected_success": false,
+      "pass_": true,
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: D320 at 2097156:22: compiler-generated names are reserved and cannot be referenced by source\n",
+      "binary_sha256": "6736f42b6a65ea3a6b967845fcff9693968c7a8e5f9723794cab9c456da7531c"
+    },
+    {
+      "label": "current-mangled-missing-direct-import",
+      "command": [
+        "/tmp/diamond-w1-independent-20261021/diamond-fixed",
+        "check",
+        "/tmp/diamond-w1-independent-20261021/current-mangled-missing-direct-import/diamond.toml"
+      ],
+      "expected_success": false,
+      "pass_": true,
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: D320 at 1048579:3: compiler-generated names are reserved and cannot be referenced by source\n",
+      "binary_sha256": "6736f42b6a65ea3a6b967845fcff9693968c7a8e5f9723794cab9c456da7531c"
+    },
+    {
+      "label": "current-mangled-missing-direct-import",
+      "command": [
+        "/tmp/diamond-w1-independent-20261021/diamond-fixed",
+        "run",
+        "/tmp/diamond-w1-independent-20261021/current-mangled-missing-direct-import/diamond.toml"
+      ],
+      "expected_success": false,
+      "pass_": true,
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "error: D320 at 1048579:3: compiler-generated names are reserved and cannot be referenced by source\n",
+      "binary_sha256": "6736f42b6a65ea3a6b967845fcff9693968c7a8e5f9723794cab9c456da7531c"
+    },
+    {
+      "label": "qualified-name-collision-run",
+      "command": [
+        "/tmp/diamond-w1-independent-20261021/diamond-fixed",
+        "run",
+        "/tmp/diamond-w1-independent-20261021/qualified-name-collision/diamond.toml"
+      ],
+      "expected_stdout": "117\n",
+      "pass_": true,
+      "returncode": 0,
+      "stdout": "117\n",
+      "stderr": "",
+      "binary_sha256": "6736f42b6a65ea3a6b967845fcff9693968c7a8e5f9723794cab9c456da7531c"
+    }
+  ]
+}

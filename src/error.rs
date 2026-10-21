@@ -32,6 +32,15 @@ impl fmt::Display for Location {
 /// A compiler or execution error. HTTP adapters sanitize internal failures.
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
+    /// A project-module failure with its originating source path.
+    #[error("{path}: {source}")]
+    Source {
+        /// Project-relative source path.
+        path: String,
+        /// Underlying source diagnostic or failure.
+        #[source]
+        source: Box<Self>,
+    },
     /// Invalid source, a type mismatch, or an undeclared effect.
     #[error("{code} at {location}: {message}")]
     Diagnostic {

@@ -1,0 +1,2 @@
+export fn b_c(value: Int) -> Int:
+  value + 7

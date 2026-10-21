@@ -1,0 +1,325 @@
+{
+  "status": "PASS",
+  "seed": 3516952873,
+  "binary_sha256": "399a7b34c016bbed78c7870b6ca7f6ff1ff0300b48f3f2790e1f2c4281ff3ff0",
+  "scope": "frozen local executable, disposable files/SQLite, and loopback only",
+  "objectives": {
+    "source_and_compiler": {
+      "terminal_cases": 4,
+      "malformed_source_cases": 48,
+      "fifo_rejection_seconds": 0.002,
+      "oversize_rejection_seconds": 0.002,
+      "maximum_call_graph_functions": 4094,
+      "maximum_call_graph_seconds": 0.049
+    },
+    "html_redirect_and_headers": {
+      "escaped_html_payloads": 32,
+      "rejected_redirects": 4
+    },
+    "login_response_uniformity": {
+      "comparisons": 16,
+      "response_bodies": 1,
+      "response_header_shapes": 1,
+      "known_wrong_median_ms": 200.502,
+      "unknown_median_ms": 201.918
+    },
+    "session_capacity_resilience": {
+      "anonymous_requests": 8194,
+      "login_after_first_flood": 303,
+      "authenticated_session_after_second_flood": 200,
+      "total_http_requests": 8197
+    },
+    "account_path_replacement": {
+      "exit": 1,
+      "injected_account_present": false,
+      "replacement_users": [
+        "victim-owner"
+      ],
+      "original_users": [
+        "candidate-owner"
+      ]
+    },
+    "corrupted_hash_startup": {
+      "exit": 1,
+      "application_database_created": false
+    },
+    "native_and_dependency_security": {
+      "database": {
+        "advisory-count": 1348,
+        "last-commit": null,
+        "last-updated": null
+      },
+      "dependency_count": 147,
+      "vulnerabilities": 0,
+      "warnings": {}
+    }
+  },
+  "subcampaigns": [
+    {
+      "command": [
+        "/usr/bin/python3",
+        "verification/language_exploration.py",
+        "--binary",
+        "/tmp/diamond-red-team-d1a07129-o_5_1qcb/diamond",
+        "--library",
+        "/home/doll/diamond/target/debug/libdiamond.rlib",
+        "--seed",
+        "0xd1a07129"
+      ],
+      "seconds": 0.934,
+      "receipt": {
+        "status": "PASS",
+        "seed": 3516952873,
+        "binary_sha256": "399a7b34c016bbed78c7870b6ca7f6ff1ff0300b48f3f2790e1f2c4281ff3ff0",
+        "driver_sha256": "7f7211060b0b4cc9e42b606bdfd8099f85ec305a5787810ec1ef5169606f83a4",
+        "generated_inputs_sha256": "aea4cbfd41b63bec745dd0014a4a782d2760dc0eff8edbfad07f11fc085cf4ef",
+        "observations": {
+          "signed arithmetic": 34,
+          "arithmetic failure boundaries": 6,
+          "Boolean acceptance": 5,
+          "Boolean required evaluation": 2,
+          "record enum Option Result compositions": 18,
+          "list iteration HTML compositions": 6,
+          "typed HTML and Unicode": 10,
+          "internal URL acceptance": 4,
+          "structured source rejections": 25,
+          "documented resource boundaries": 14
+        },
+        "native": {
+          "status": "PASS",
+          "invalid_identity_cases": 14,
+          "invalid_lifetimes": 3,
+          "malformed_token_families": 6,
+          "session_capacity": 4096,
+          "real_expiry_checks": 2,
+          "typed_route_urls": 1,
+          "source_sha256": "b7b567fc5275c52e972efcdb7b681541bf17ee850e78d1d46271f2391ace9df5",
+          "library_sha256": "e76b882b77cff06153a96ffc7a6ce0fff70cdf94db0d762823ec930888d58cf4",
+          "consumer_sha256": "2bf9e1190cf50b5d56070cdb58391c9474f07531800532ed60437f649ca9d41f"
+        },
+        "child_limits": {
+          "address_space_bytes": 536870912,
+          "cpu_seconds": 5,
+          "wall_seconds": 8,
+          "core_bytes": 0
+        }
+      }
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "verification/stateful_exploration.py",
+        "--binary",
+        "/tmp/diamond-red-team-d1a07129-o_5_1qcb/diamond",
+        "--seed",
+        "0xd1f1d6c6"
+      ],
+      "seconds": 12.485,
+      "receipt": {
+        "result": "PASS",
+        "seed": 3522287302,
+        "binary_sha256": "399a7b34c016bbed78c7870b6ca7f6ff1ff0300b48f3f2790e1f2c4281ff3ff0",
+        "observations": {
+          "accepted creations": 12,
+          "independent state and list checks": 150,
+          "generated actions": 144,
+          "modeled mutation denials": 53,
+          "login transitions": 12,
+          "validation boundary rejections": 12,
+          "restart and stale-session transitions": 12,
+          "modeled record reads": 12,
+          "logout transitions": 12,
+          "cross-session CSRF rejections": 12,
+          "accepted updates and deletions": 7,
+          "unauthenticated mutation rejections": 6,
+          "HTTP requests": 753,
+          "generated sequences": 3
+        }
+      }
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "verification/transport_exploration.py",
+        "--binary",
+        "/tmp/diamond-red-team-d1a07129-o_5_1qcb/diamond",
+        "--seed",
+        "0xabe5e18e"
+      ],
+      "seconds": 27.078,
+      "receipt": {
+        "status": "PASS",
+        "seed": 2883969422,
+        "generator": 1,
+        "binary SHA256": "399a7b34c016bbed78c7870b6ca7f6ff1ff0300b48f3f2790e1f2c4281ff3ff0",
+        "observations": {
+          "oversize rejection responses": {
+            "ordinary statuses": [
+              413,
+              413,
+              413,
+              413,
+              413,
+              413,
+              413,
+              413,
+              413,
+              413
+            ],
+            "near-boundary responses": [
+              {
+                "declared bytes": 65537,
+                "fragmented": false,
+                "status": 413,
+                "complete response": true
+              },
+              {
+                "declared bytes": 65537,
+                "fragmented": true,
+                "status": 413,
+                "complete response": true
+              },
+              {
+                "declared bytes": 66560,
+                "fragmented": false,
+                "status": 413,
+                "complete response": true
+              },
+              {
+                "declared bytes": 66560,
+                "fragmented": true,
+                "status": 413,
+                "complete response": true
+              }
+            ],
+            "large incomplete release": {
+              "declared bytes": 1000000,
+              "supplied body bytes": 1024,
+              "elapsed seconds": 5.015,
+              "connection outcome": "EOF",
+              "status if received": 500
+            }
+          },
+          "authority rejection responses": [
+            {
+              "authority": "Origin",
+              "fragmented": false,
+              "status": 404,
+              "complete response": true
+            },
+            {
+              "authority": "Origin",
+              "fragmented": true,
+              "status": 404,
+              "complete response": true
+            },
+            {
+              "authority": "Host",
+              "fragmented": false,
+              "status": 400,
+              "complete response": true
+            },
+            {
+              "authority": "Host",
+              "fragmented": true,
+              "status": 400,
+              "complete response": true
+            }
+          ],
+          "incomplete request deadline": {
+            "status": 500,
+            "elapsed seconds": 5.455
+          },
+          "invalid Id form statuses": {
+            "invalid Id": 400,
+            "unicode Id": 400,
+            "overlong Id": 400
+          },
+          "matched Id validation results": [
+            {
+              "field": "reference",
+              "status": 400,
+              "application validation page": true
+            },
+            {
+              "field": "optional",
+              "status": 400,
+              "application validation page": true
+            }
+          ],
+          "pipelined mutation outcomes": [
+            {
+              "status": 400,
+              "committed rows": 0
+            },
+            {
+              "status": 303,
+              "committed rows": 1
+            }
+          ],
+          "rate boundary elapsed seconds": 12.947,
+          "actual rate window recovery": "not requested; replay with --wait-window",
+          "cases": {
+            "account rejection cases": 10,
+            "account positive boundaries": 3,
+            "browser account startup rejections": 5,
+            "bounded corrupted account hash cases": 5,
+            "malformed transport cases": 33,
+            "fragmented valid requests": 12,
+            "typed path boundary cases": 7,
+            "exact transport limit cases": 4,
+            "ordinary oversized body submissions": 10,
+            "whole and fragmented near-boundary rejections": 4,
+            "large incomplete bounded release": 1,
+            "complete rejected authority responses": 4,
+            "typed fragmented form positive cases": 4,
+            "rejected typed form cases": 25,
+            "Id and Option Id validation feedback journeys": 3,
+            "unsupported form content types": 4,
+            "session bound rejected mutations": 5,
+            "canceled partial forms": 3,
+            "pipelined mutation streams": 2,
+            "rotation revocation logout journeys": 1,
+            "rate limit individual attempts": 65,
+            "HTTP requests": 306
+          }
+        }
+      }
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "verification/compiler_enforcement.py"
+      ],
+      "seconds": 1.138,
+      "receipt": {
+        "status": "PASS",
+        "seed": 858628,
+        "binary_sha256": "399a7b34c016bbed78c7870b6ca7f6ff1ff0300b48f3f2790e1f2c4281ff3ff0",
+        "compiler_source_sha256": {
+          "src/checker.rs": "ce83485ae3e26574b63d4e318f44134518536f61099b7fd49a04a32ab349f1d5",
+          "src/hir.rs": "9a30cf53df882395b8983b39a976e54cfec3b446d33ba584656a885d498003cc",
+          "verification/compiler_enforcement.py": "96cf9d44773b206ad9a96df7f3d6367b04c8dc40b2d81ddcbc9dda68d2cdb80f"
+        },
+        "observations": {
+          "saved compile regressions": 10,
+          "expression and route authority checks": 120,
+          "permitted read-only expression contexts": 20,
+          "transaction expression context checks": 20,
+          "permitted read-only routes": 2,
+          "CRUD operation authority checks": 60,
+          "generated transitive call graph checks": 96,
+          "scope and restricted sink checks": 12,
+          "schema and form shape checks": 10,
+          "permitted ordinary values": 1,
+          "permitted form shapes": 1,
+          "generated transaction graph checks": 32,
+          "real transaction readbacks": 4,
+          "host authority rejection": 2,
+          "existing example compile checks": 5
+        },
+        "total_cli_invocations": 395
+      }
+    }
+  ]
+}

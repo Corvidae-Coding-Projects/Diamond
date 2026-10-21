@@ -79,6 +79,7 @@ pub(crate) struct Request<'a> {
 }
 
 pub(crate) struct Interpreter<'a, 'scope> {
+    host: Option<&'a mut crate::host::HostRuntime>,
     program: &'a CheckedProgram,
     scope: &'a Scope<'scope>,
     database: Option<&'a mut Database>,
@@ -96,6 +97,7 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
         request: Option<Request<'a>>,
     ) -> Self {
         Self {
+            host: None,
             program,
             scope,
             database,
@@ -104,6 +106,11 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
             call_depth: 0,
             values: ValueBudget::new(),
         }
+    }
+
+    pub fn with_host(mut self, host: &'a mut crate::host::HostRuntime) -> Self {
+        self.host = Some(host);
+        self
     }
 
     fn step(&mut self) -> Result<()> {
@@ -412,6 +419,20 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
         if let ExprKind::Field(base, method) = &callee.kind
             && let ExprKind::Name(name) = &base.kind
         {
+            if name == "host" && !locals.contains_key(name) {
+                let operation = crate::host::operation(method).ok_or(Error::Denied)?;
+                self.scope
+                    .require(&crate::authority::Effect::Host(operation.capability.into()))?;
+                let values = arguments
+                    .iter()
+                    .map(|(_, value)| self.expr(value, locals))
+                    .collect::<Result<Vec<_>>>()?;
+                return self
+                    .host
+                    .as_deref_mut()
+                    .ok_or(Error::Denied)?
+                    .call(method, &values);
+            }
             if name == "request" && method == "is_user" && !locals.contains_key(name) {
                 let value = self.expr(&arguments.first().ok_or(Error::Denied)?.1, locals)?;
                 let ValueKind::Id(_, id) = value.0 else {

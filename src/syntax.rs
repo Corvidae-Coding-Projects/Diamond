@@ -1,6 +1,23 @@
 //! Unchecked syntax. Only the checker can produce an executable program.
 
 use crate::error::Location;
+use std::collections::BTreeSet;
+
+#[derive(Clone, Debug, Default)]
+pub(crate) struct ProjectModule {
+    pub program: Program,
+    pub components: Vec<Component>,
+    pub exports: BTreeSet<String>,
+}
+
+#[derive(Clone, Debug)]
+pub(crate) struct Component {
+    pub name: String,
+    pub states: Vec<(String, TypeName, Expr)>,
+    pub events: Vec<(String, Vec<(String, Expr)>)>,
+    pub template: Vec<HtmlNode>,
+    pub location: Location,
+}
 
 #[derive(Clone, Debug, Default)]
 pub(crate) struct Program {

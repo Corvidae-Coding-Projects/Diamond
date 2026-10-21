@@ -62,6 +62,7 @@ pub(crate) struct Route {
 /// ```
 #[derive(Clone, Debug)]
 pub struct CheckedProgram {
+    pub(crate) host_operations: bool,
     pub(crate) app: Option<App>,
     pub(crate) aliases: BTreeMap<String, Type>,
     pub(crate) records: BTreeMap<String, Record>,

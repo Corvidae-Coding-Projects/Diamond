@@ -1,0 +1,21 @@
+schema_version = 1
+name = "Foundations"
+server = "server"
+browser = "counter"
+component = "Counter"
+provides = ["PostgresRead"]
+
+[modules.shared]
+path = "shared.dia"
+target = "shared"
+
+[modules.server]
+path = "server.dia"
+target = "server"
+imports = ["shared"]
+provides = ["PostgresRead"]
+
+[modules.counter]
+path = "counter.dia"
+target = "browser"
+imports = ["shared"]

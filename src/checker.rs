@@ -12,7 +12,20 @@ use crate::value::{Type, Value, ValueKind};
 use std::collections::{BTreeMap, BTreeSet, VecDeque};
 
 pub(crate) fn check(source: &syntax::Program) -> Result<CheckedProgram> {
+    check_inner(source, Effects::new(), false)
+}
+
+pub(crate) fn check_project(source: &syntax::Program, grants: Effects) -> Result<CheckedProgram> {
+    check_inner(source, grants, true)
+}
+
+fn check_inner(
+    source: &syntax::Program,
+    grants: Effects,
+    host_operations: bool,
+) -> Result<CheckedProgram> {
     let mut program = CheckedProgram {
+        host_operations,
         app: None,
         aliases: BTreeMap::new(),
         records: BTreeMap::new(),
@@ -21,7 +34,7 @@ pub(crate) fn check(source: &syntax::Program) -> Result<CheckedProgram> {
         functions: BTreeMap::new(),
         routes: Vec::new(),
         policies: BTreeMap::new(),
-        grants: Effects::new(),
+        grants,
     };
     let aliases = declare_types(source, &mut program)?;
     for declaration in &source.declarations {
@@ -564,7 +577,11 @@ fn check_budget(program: &CheckedProgram, effects: &Effects, location: Location)
             format!("effects {effects:?} exceed the application's declared authority"),
         ));
     }
-    if !effects.is_empty() && !program.app.as_ref().is_some_and(|app| app.database) {
+    if effects
+        .iter()
+        .any(|effect| matches!(effect, Effect::Read(_) | Effect::Write(_)))
+        && !program.app.as_ref().is_some_and(|app| app.database)
+    {
         return Err(Error::diagnostic(
             "D301",
             location,
@@ -1163,6 +1180,9 @@ impl<'a> Checker<'a> {
         if let ExprKind::Field(base, method) = &callee.kind
             && let ExprKind::Name(name) = &base.kind
         {
+            if name == "host" && !self.locals.contains_key(name) {
+                return self.host_call(method, args, types, location);
+            }
             if name == "request"
                 && method == "is_user"
                 && self.route
@@ -1210,6 +1230,49 @@ impl<'a> Checker<'a> {
             location,
             "dynamic calls, closures, or this method; callable authority cannot be erased",
         ))
+    }
+
+    fn host_call(
+        &mut self,
+        method: &str,
+        args: &[(Option<String>, Expr)],
+        types: &[TypeName],
+        location: Location,
+    ) -> Result<Type> {
+        if !self.program.host_operations {
+            return Err(Error::unsupported(
+                location,
+                "host operations require a server project module",
+            ));
+        }
+        let operation = crate::host::operation(method).ok_or_else(|| {
+            Error::diagnostic("D310", location, "unknown registered host operation")
+        })?;
+        if !types.is_empty()
+            || args.len() != operation.arguments.len()
+            || args.iter().any(|(name, _)| name.is_some())
+        {
+            return Err(Error::diagnostic(
+                "D310",
+                location,
+                "host arguments must match the registered positional signature",
+            ));
+        }
+        if matches!(self.transaction_context, TransactionContext::Inside) {
+            return Err(Error::unsupported(
+                location,
+                "this host operation cannot execute inside a database transaction",
+            ));
+        }
+        for ((_, expression), expected) in args.iter().zip(&operation.arguments) {
+            let actual = self.expr(expression)?;
+            if !expected.accepts(&actual) {
+                return Err(mismatch(expression.location, expected, &actual));
+            }
+        }
+        self.effects
+            .insert(Effect::Host(operation.capability.into()));
+        Ok(operation.result)
     }
 
     fn named_call(
@@ -1736,4 +1799,14 @@ fn one(args: &[(Option<String>, Expr)], location: Location) -> Result<&Expr> {
             "expected one positional argument",
         ))
     }
+}
+
+pub(crate) fn expression_type(
+    program: &CheckedProgram,
+    locals: BTreeMap<String, Type>,
+    expression: &Expr,
+) -> Result<Type> {
+    let mut checker = Checker::new(program, false, false);
+    checker.locals = locals;
+    checker.expr(expression)
 }

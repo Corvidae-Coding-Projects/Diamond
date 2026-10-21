@@ -41,7 +41,8 @@ def inputs() -> dict[str, str]:
         ("verification", "*.c"),
         ("verification", "*.md"),
     ]:
-        paths += sorted((ROOT / directory).glob(pattern))
+        paths += sorted((ROOT / directory).rglob(pattern))
+    paths += sorted((ROOT / ".design").glob("general-web-apps*"))
     paths += sorted((ROOT / "verification/regressions").rglob("*"))
     return {str(path.relative_to(ROOT)): digest(path) for path in paths if path.is_file()}
 
@@ -61,7 +62,7 @@ def documentation_audit() -> dict[str, object]:
             linked = (document.parent / path_text).resolve()
             if not linked.exists():
                 missing.append(f"{document.relative_to(ROOT)} -> {target}")
-    source = "\n".join(path.read_text() for path in sorted((ROOT / "src").glob("*.rs")))
+    source = "\n".join(path.read_text() for path in sorted((ROOT / "src").rglob("*.rs")))
     authored_unsafe = re.findall(r"\bunsafe\s+(?:fn|impl|trait|extern)|\bunsafe\s*\{", source)
     lint_suppressions = re.findall(r"#\s*!?\s*\[\s*allow\s*\(", source)
     return {
@@ -77,12 +78,17 @@ def documentation_audit() -> dict[str, object]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--full", action="store_true")
+    parser.add_argument("--output-dir", type=Path, default=ROOT / "verification",
+                        help="Place child receipts here, preserving earlier checkpoint evidence.")
     parser.add_argument(
         "--report",
         type=Path,
         default=ROOT / "verification/checkpoint_six_results.json",
     )
     options = parser.parse_args()
+    options.output_dir.mkdir(parents=True, exist_ok=True)
+    def receipt(name: str) -> str:
+        return str(options.output_dir / name)
     report: dict[str, object] = {
         "schema": 1,
         "started_utc": datetime.now(timezone.utc).isoformat(),
@@ -109,17 +115,17 @@ def main() -> int:
                 "verification/checkpoint_five.py",
                 "--full",
                 "--report",
-                "verification/checkpoint_six_checkpoint_five.json",
+                receipt("checkpoint_six_checkpoint_five.json"),
                 "--transaction-report",
-                "verification/checkpoint_six_transactions.json",
+                receipt("checkpoint_six_transactions.json"),
                 "--cancellation-report",
-                "verification/checkpoint_six_cancellation.json",
+                receipt("checkpoint_six_cancellation.json"),
             ], {}, 1_800),
         ]
     commands += [
-        ([sys.executable, "verification/diagnostic_exploration.py", "--report", "verification/checkpoint_six_diagnostics.json"], {}, 300),
-        ([sys.executable, "verification/startup_installation.py", "--report", "verification/checkpoint_six_startup_installation.json"], {}, 600),
-        ([sys.executable, "verification/performance.py", "--report", "verification/checkpoint_six_performance.json"], {}, 300),
+        ([sys.executable, "verification/diagnostic_exploration.py", "--report", receipt("checkpoint_six_diagnostics.json")], {}, 300),
+        ([sys.executable, "verification/startup_installation.py", "--report", receipt("checkpoint_six_startup_installation.json")], {}, 600),
+        ([sys.executable, "verification/performance.py", "--report", receipt("checkpoint_six_performance.json")], {}, 300),
     ]
 
     result = 0

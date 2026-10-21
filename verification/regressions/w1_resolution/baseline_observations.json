@@ -1,0 +1,49 @@
+{
+  "binary_sha256": "ef5505c8a689ce6d156c69933d3cf4fdf068941cb998530561db0b76b32804e8",
+  "observations": [
+    {
+      "fixture": "qualified-name-collision",
+      "command": [
+        "run",
+        "verification/regressions/w1_resolution/qualified-name-collision/diamond.toml"
+      ],
+      "expected": "117\n",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: a_b.dia: D101 at 1:1: duplicate declaration __diamond_fn_a_b_c\n"
+    },
+    {
+      "fixture": "mangled-private-server",
+      "command": [
+        "run",
+        "verification/regressions/w1_resolution/mangled-private-server/diamond.toml"
+      ],
+      "expected": "reject reserved source name",
+      "exit": 0,
+      "stdout": "99183\n",
+      "stderr": ""
+    },
+    {
+      "fixture": "mangled-private-browser",
+      "command": [
+        "check",
+        "verification/regressions/w1_resolution/mangled-private-browser/diamond.toml"
+      ],
+      "expected": "reject reserved source name",
+      "exit": 0,
+      "stdout": "project Verify: 3 modules; server server; browser ui / Counter; capabilities {}\n",
+      "stderr": ""
+    },
+    {
+      "fixture": "mangled-missing-direct-import",
+      "command": [
+        "run",
+        "verification/regressions/w1_resolution/mangled-missing-direct-import/diamond.toml"
+      ],
+      "expected": "reject reserved source name",
+      "exit": 0,
+      "stdout": "17\n",
+      "stderr": ""
+    }
+  ]
+}

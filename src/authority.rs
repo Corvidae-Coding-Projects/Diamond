@@ -7,6 +7,7 @@ use std::collections::BTreeSet;
 pub(crate) enum Effect {
     Read(String),
     Write(String),
+    Host(String),
 }
 
 pub(crate) type Effects = BTreeSet<Effect>;

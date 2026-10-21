@@ -17,6 +17,13 @@ Run these examples in order when learning the interpreted MVP:
 6. `embedding.rs` — a native Rust consumer of compilation, evaluation, sessions,
    CSRF binding, revocation, and expiry. Run with
    `cargo run --locked --example embedding`.
+7. `foundations/diamond.toml` — a three-module W1 project with a shared scalar
+   function, a generated reactive browser component, and explicitly granted
+   read-only PostgreSQL host calls. Follow the [project guide](../docs/projects.md).
+8. `project_embedding.rs` — a real native consumer of project checking, artifact
+   builds/loading, and explicit host grants. Run with
+   `cargo run --locked --example project_embedding`; set
+   `DIAMOND_EXAMPLE_POSTGRES` only for an explicit local PostgreSQL grant.
 
 Use `diamond check FILE` first when reading or changing any `.dia` example. It
 does not open a database, start a listener, or execute `main`.

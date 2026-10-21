@@ -1,0 +1,257 @@
+{
+  "status": "PASS",
+  "binary_sha256": "399a7b34c016bbed78c7870b6ca7f6ff1ff0300b48f3f2790e1f2c4281ff3ff0",
+  "browser": "actual Chrome via cua_repl, tab 2141263354",
+  "url": "http://127.0.0.1:39172/",
+  "generator": "python3 verification/web_one.py --browser-fixture NEW_DIRECTORY",
+  "seed": 3516952833,
+  "initial_values": [
+    {
+      "state": "case0",
+      "expected": "152201475",
+      "browser": "152201475",
+      "native": "152201475",
+      "pass": true
+    },
+    {
+      "state": "case1",
+      "expected": "156855182",
+      "browser": "156855182",
+      "native": "156855182",
+      "pass": true
+    },
+    {
+      "state": "case2",
+      "expected": "706559403",
+      "browser": "706559403",
+      "native": "706559403",
+      "pass": true
+    },
+    {
+      "state": "case3",
+      "expected": "-407936042",
+      "browser": "-407936042",
+      "native": "-407936042",
+      "pass": true
+    },
+    {
+      "state": "case4",
+      "expected": "40407135",
+      "browser": "40407135",
+      "native": "40407135",
+      "pass": true
+    },
+    {
+      "state": "case5",
+      "expected": "-607503940",
+      "browser": "-607503940",
+      "native": "-607503940",
+      "pass": true
+    },
+    {
+      "state": "case6",
+      "expected": "-280142982",
+      "browser": "-280142982",
+      "native": "-280142982",
+      "pass": true
+    },
+    {
+      "state": "case7",
+      "expected": "-1784284",
+      "browser": "-1784284",
+      "native": "-1784284",
+      "pass": true
+    },
+    {
+      "state": "case8",
+      "expected": "-256117357",
+      "browser": "-256117357",
+      "native": "-256117357",
+      "pass": true
+    },
+    {
+      "state": "case9",
+      "expected": "-45890497",
+      "browser": "-45890497",
+      "native": "-45890497",
+      "pass": true
+    },
+    {
+      "state": "case10",
+      "expected": "-89033885",
+      "browser": "-89033885",
+      "native": "-89033885",
+      "pass": true
+    },
+    {
+      "state": "case11",
+      "expected": "1861449561",
+      "browser": "1861449561",
+      "native": "1861449561",
+      "pass": true
+    },
+    {
+      "state": "case12",
+      "expected": "-44064806",
+      "browser": "-44064806",
+      "native": "-44064806",
+      "pass": true
+    },
+    {
+      "state": "case13",
+      "expected": "32371543",
+      "browser": "32371543",
+      "native": "32371543",
+      "pass": true
+    },
+    {
+      "state": "case14",
+      "expected": "-35991021",
+      "browser": "-35991021",
+      "native": "-35991021",
+      "pass": true
+    },
+    {
+      "state": "case15",
+      "expected": "285893757",
+      "browser": "285893757",
+      "native": "285893757",
+      "pass": true
+    },
+    {
+      "state": "case16",
+      "expected": "1739828498",
+      "browser": "1739828498",
+      "native": "1739828498",
+      "pass": true
+    },
+    {
+      "state": "case17",
+      "expected": "-414037277",
+      "browser": "-414037277",
+      "native": "-414037277",
+      "pass": true
+    },
+    {
+      "state": "case18",
+      "expected": "1171579626",
+      "browser": "1171579626",
+      "native": "1171579626",
+      "pass": true
+    },
+    {
+      "state": "case19",
+      "expected": "-1712262450",
+      "browser": "-1712262450",
+      "native": "-1712262450",
+      "pass": true
+    },
+    {
+      "state": "case20",
+      "expected": "-1363810429",
+      "browser": "-1363810429",
+      "native": "-1363810429",
+      "pass": true
+    },
+    {
+      "state": "case21",
+      "expected": "-1222612879",
+      "browser": "-1222612879",
+      "native": "-1222612879",
+      "pass": true
+    },
+    {
+      "state": "case22",
+      "expected": "-13657828",
+      "browser": "-13657828",
+      "native": "-13657828",
+      "pass": true
+    },
+    {
+      "state": "case23",
+      "expected": "137942949",
+      "browser": "137942949",
+      "native": "137942949",
+      "pass": true
+    },
+    {
+      "state": "large",
+      "expected": "9007199254741004",
+      "browser": "9007199254741004",
+      "native": "9007199254741004",
+      "pass": true
+    },
+    {
+      "state": "negative_division",
+      "expected": "-4",
+      "browser": "-4",
+      "native": "-4",
+      "pass": true
+    },
+    {
+      "state": "unicode_length",
+      "expected": "7",
+      "browser": "7",
+      "native": "7",
+      "pass": true
+    },
+    {
+      "state": "unicode_order",
+      "expected": "true",
+      "browser": "true",
+      "native": "true",
+      "pass": true
+    },
+    {
+      "state": "lazy_and",
+      "expected": "false",
+      "browser": "false",
+      "native": "false",
+      "pass": true
+    },
+    {
+      "state": "lazy_or",
+      "expected": "true",
+      "browser": "true",
+      "native": "true",
+      "pass": true
+    },
+    {
+      "state": "class",
+      "expected": "10",
+      "browser": "10",
+      "native": "10",
+      "pass": true
+    },
+    {
+      "state": "__proto__",
+      "expected": "<script>literal & text</script>",
+      "browser": "<script>literal & text</script>",
+      "native": "<script>literal & text</script>",
+      "pass": true
+    },
+    {
+      "state": "count",
+      "expected": "2",
+      "browser": "2",
+      "native": "2",
+      "pass": true
+    }
+  ],
+  "events": [
+    {
+      "action": "Try overflow",
+      "observed_count": "2",
+      "error_visible": true
+    },
+    {
+      "action": "Add three",
+      "observed_count": "5",
+      "error_visible": false
+    }
+  ],
+  "console_errors_and_warnings": [],
+  "asset_hashes": {
+    "0d0b3213ca3aca3de4eea1f2799ac4677a283d26c94adc2151ff1b4cf44a91eb.js": "0d0b3213ca3aca3de4eea1f2799ac4677a283d26c94adc2151ff1b4cf44a91eb"
+  }
+}

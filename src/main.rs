@@ -60,7 +60,10 @@ fn try_main() -> Result<()> {
         return Ok(());
     }
     if command == "--version" {
-        println!("diamond {} (checkpoint six)", env!("CARGO_PKG_VERSION"));
+        println!(
+            "diamond {} (W1 foundations; checkpoint six compatibility)",
+            env!("CARGO_PKG_VERSION")
+        );
         return Ok(());
     }
     if command == "explain" {
@@ -68,6 +71,17 @@ fn try_main() -> Result<()> {
     }
     if command == "user-add" {
         return user_add(&arguments[1..]);
+    }
+    if ["build", "serve"].contains(&command.as_str())
+        || (["check", "run"].contains(&command.as_str())
+            && arguments.get(1).is_some_and(|path| {
+                Path::new(path)
+                    .extension()
+                    .is_some_and(|extension| extension == "toml")
+                    || Path::new(path).is_dir()
+            }))
+    {
+        return project_command(command, &arguments[1..]);
     }
     if !["check", "run", "db-init"].contains(&command.as_str()) {
         bail!("unsupported command {}; use --help", safe_text(command));
@@ -108,6 +122,75 @@ fn try_main() -> Result<()> {
         }
         "run" => run(&program, &options)?,
         _ => bail!("unsupported command"),
+    }
+    Ok(())
+}
+
+fn project_command(command: &str, arguments: &[String]) -> Result<()> {
+    let path = arguments
+        .first()
+        .context("a project manifest or build directory is required")?;
+    let mut output = None;
+    let mut listen = "127.0.0.1:3000".to_owned();
+    let mut postgres_env = None;
+    let mut options = BTreeSet::new();
+    let mut remaining = arguments[1..].chunks_exact(2);
+    for pair in &mut remaining {
+        let (option, value) = (&pair[0], &pair[1]);
+        if !options.insert(option) {
+            bail!("repeated project option {}", safe_text(option));
+        }
+        match (command, option.as_str()) {
+            ("build", "--out") => output = Some(PathBuf::from(value)),
+            ("serve", "--listen") => listen.clone_from(value),
+            ("run", "--postgres-env") => {
+                if value.is_empty()
+                    || value.len() > 128
+                    || !value
+                        .bytes()
+                        .all(|byte| byte.is_ascii_alphanumeric() || byte == b'_')
+                {
+                    bail!("invalid PostgreSQL environment variable name");
+                }
+                postgres_env = Some(value);
+            }
+            _ => bail!("unsupported project option {}", safe_text(option)),
+        }
+    }
+    if !remaining.remainder().is_empty() {
+        bail!("project option requires a value");
+    }
+    let path = Path::new(path);
+    let project = if path.is_dir() {
+        diamond::load_project_build(path)
+    } else {
+        diamond::compile_project(path)
+    }
+    .map_err(|error| anyhow::Error::msg(safe_text(&error.to_string())))?;
+    match command {
+        "check" => print!("{}", project.summary()),
+        "build" => {
+            let output = output.context("build requires --out PATH naming a new directory")?;
+            project.build(&output)?;
+            println!("built project at {}", safe_text(&output.to_string_lossy()));
+        }
+        "run" => {
+            let configuration = postgres_env
+                .map(|name| {
+                    std::env::var(name).map(Zeroizing::new).map_err(|_| {
+                        anyhow::Error::msg(
+                            "PostgreSQL grant environment variable is missing or invalid UTF-8",
+                        )
+                    })
+                })
+                .transpose()?;
+            let value = project
+                .evaluate(configuration.as_deref().map(String::as_str))?
+                .into_result()?;
+            println!("{}", safe_text(&value.display_text()?));
+        }
+        "serve" => project.serve(listen.parse().context("invalid project listener address")?)?,
+        _ => bail!("unsupported project command"),
     }
     Ok(())
 }
@@ -371,7 +454,7 @@ fn user_add(arguments: &[String]) -> Result<()> {
 
 fn help() {
     println!(
-        "Diamond {} — checkpoint-six interpreted MVP\n\n  diamond check FILE\n  diamond run FILE [--database PATH] [--auth PATH] [--listen 127.0.0.1:PORT] [--max-requests N]\n  diamond db-init FILE --database PATH\n  diamond user-add --auth PATH --user USERNAME [--password-stdin]\n  diamond explain CODE\n\nOpen http://localhost:PORT for browser secure-cookie support.\nSee README.md for installation, examples, supported language, and limits.",
+        "Diamond {} — W1 project foundations and interpreted MVP\n\n  diamond check FILE_OR_PROJECT\n  diamond build PROJECT --out NEW_DIRECTORY\n  diamond serve PROJECT_OR_BUILD [--listen 127.0.0.1:PORT]\n  diamond run PROJECT_OR_BUILD [--postgres-env VARIABLE]\n  diamond run FILE [--database PATH] [--auth PATH] [--listen 127.0.0.1:PORT] [--max-requests N]\n  diamond db-init FILE --database PATH\n  diamond user-add --auth PATH --user USERNAME [--password-stdin]\n  diamond explain CODE\n\nOpen http://localhost:PORT for browser secure-cookie support.\nSee README.md for installation, examples, supported language, and limits.",
         env!("CARGO_PKG_VERSION")
     );
 }

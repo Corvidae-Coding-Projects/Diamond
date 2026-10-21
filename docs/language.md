@@ -1,6 +1,8 @@
 # Diamond interpreted MVP language guide
 
-This guide describes the implemented 0.6.0 interpreter. The repository's
+This guide describes the single-file interpreter, retaining its 0.6.0 language
+surface in 0.7.0. The [project guide](projects.md) describes the W1 project/browser
+subset separately. The repository's
 [architectural design](../design.md) is a proposal with a broader surface, while
 the [README limits](../README.md#explicit-limits) define the boundary of this MVP.
 

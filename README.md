@@ -1,9 +1,11 @@
-# Diamond — checkpoint six
+# Diamond
 
-Diamond is a restricted interpreted language prototype implemented in Rust. This
-repository connects its compiler, checked evaluator, policy engine, SQLite
-adapter, typed forms and HTML, sessions, loopback development server, native API,
-and CLI. The complete message-board example keeps its business journey in Diamond.
+Diamond 0.7.0 is a language prototype implemented in Rust. Its existing
+single-file interpreter connects checked evaluation, policies, SQLite, forms,
+typed HTML, local accounts, and sessions. The W1 expansion adds multi-file
+projects, checked server/browser boundaries, a first reactive component compiled
+to JavaScript, explicit PostgreSQL host operations, versioned artifacts, and a
+concurrent loopback project server.
 
 Checkpoint six completes the accepted MVP passes with source-span diagnostics,
 parser edge handling, a checked installation and startup path, focused guides,
@@ -14,8 +16,23 @@ guarantees or production readiness.
 The next phase is described in the [general web application expansion plan](.design/general-web-apps.md).
 It targets a reactive frontend written in Diamond, PostgreSQL and multiple
 application servers, shared identity and permissions, typed APIs, uploads,
-external integrations, and durable jobs. Its ten checkpoints (W1–W10) are
-planned work; the current executable remains the interpreted MVP described below.
+external integrations, and durable jobs. W1 supplies the initial foundations;
+W2–W10 remain planned work. Production deployment, project CRUD, shared accounts,
+RPC, full frontend semantics, and other later capabilities are not implied.
+
+Start the new project example with:
+
+```sh
+cargo build --locked
+target/debug/diamond check examples/foundations/diamond.toml
+target/debug/diamond build examples/foundations/diamond.toml --out .diamond/first-build
+target/debug/diamond serve .diamond/first-build --listen 127.0.0.1:3000
+```
+
+Open http://127.0.0.1:3000 and click **Add three**. The component starts at 2
+and displays 5. See the [project guide](docs/projects.md) for the exact W1 subset,
+build contracts, PostgreSQL grants, and compatibility boundaries. Build output
+must be a new directory; an existing destination is never silently replaced.
 
 The project is published at https://github.com/Corvidae-Coding-Projects/Diamond
 under the [MIT license](LICENSE).
@@ -52,6 +69,10 @@ single-connection development adapter, restricted to loopback. Stop it with Ctrl
 | --- | --- |
 | `diamond check FILE` | Parse and check without executing, opening a database, or serving HTTP. |
 | `diamond run FILE [OPTIONS]` | Evaluate `main` or serve declared routes on loopback. |
+| `diamond check PROJECT.toml` / `diamond check BUILD_DIRECTORY` | Check a module graph or recheck and verify an artifact build. |
+| `diamond build PROJECT.toml --out NEW_DIRECTORY` | Emit versioned server, browser, page, and contract artifacts. |
+| `diamond serve PROJECT_OR_BUILD --listen ADDRESS` | Serve the checked browser asset on loopback with concurrent HTTP handling. |
+| `diamond run PROJECT_OR_BUILD [--postgres-env NAME]` | Evaluate the server entry with an optional explicit local PostgreSQL grant. |
 | `diamond db-init FILE --database PATH` | Initialize the exact checked SQLite schema. |
 | `diamond user-add --auth PATH --user NAME` | Provision a local development account; prompts without echo. |
 | `diamond explain CODE` | Explain a diagnostic category, for example `D204`. |

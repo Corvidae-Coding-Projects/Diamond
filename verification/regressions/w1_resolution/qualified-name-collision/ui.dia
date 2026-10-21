@@ -1,0 +1,6 @@
+export component Counter:
+  state count: Int = b_c(2)
+  on increment:
+    count = b_c(count)
+  html:
+    <main><strong>{count}</strong><button type="button" on-click={increment}>Add</button></main>

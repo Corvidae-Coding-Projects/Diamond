@@ -1,0 +1,5 @@
+export fn main() -> Int:
+  b_c(10) + c(10)
+
+fn server_secret() -> Text:
+  "INDEPENDENT_SERVER_CANARY_34282"

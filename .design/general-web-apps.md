@@ -4,7 +4,7 @@
 
 Expand Diamond's completed 0.6.0 interpreted MVP into a platform for general web applications with a reactive frontend authored in Diamond, PostgreSQL, and multiple application servers. Deliver working breadth first, connect a real application early, then complete semantics, exercise failures, and finish developer experience and performance.
 
-**Status:** implementation plan, 21 October 2026. No expansion checkpoint is complete. This document plans work; it does not upgrade the current implementation's capability or security claims.
+**Status:** W1 complete, 21 October 2026; W2–W10 remain planned. Diamond 0.7.0 implements the bounded W1 subset described in the [project guide](../docs/projects.md), with [recorded verification](../verification/web_one_results.md). The unchecked acceptance criteria below remain full-release gates; W1 does not satisfy them in full or imply production readiness.
 
 The user selected all three release targets: a full reactive Diamond frontend; PostgreSQL and multiple application servers from the first release; and accounts, permissions, APIs, uploads, outbound HTTP, and durable jobs. The user also selected MIT licensing and publication at https://github.com/Corvidae-Coding-Projects/Diamond using SSH. Publication of this plan does not authorize deploying infrastructure or beginning implementation automatically.
 
@@ -62,7 +62,7 @@ These are future release gates, not reports of passing tests. Each gate records 
 
 ### Current implementation and changes
 
-The baseline is a synchronous Rust interpreter with owned immutable values and a sealed `CheckedProgram`. It has no browser compiler, module system, PostgreSQL adapter, shared session service, uploads, network client, or job system. The current route server is sequential and loopback-only. These are actual implementation boundaries, not optional configuration flags.
+The 0.6.0 baseline is a synchronous Rust interpreter with owned immutable values and a sealed `CheckedProgram`. At that baseline it has no browser compiler, module system, PostgreSQL adapter, shared session service, uploads, network client, or job system; its route server is sequential and loopback-only. W1 adds the initial project/compiler/host/asset-server path alongside this compatibility profile. The project guide states its precise current limits.
 
 | Existing files | Current boundary | Expansion responsibility |
 | --- | --- | --- |
@@ -110,7 +110,7 @@ Every checkpoint delivers runnable work, preserves previous behavior, and includ
 
 | Checkpoint | Work | Required demonstration | Gate coverage |
 | --- | --- | --- | --- |
-| **W1 — broad foundations** | Project manifests/modules, typed IR and target separation, initial component-to-JS path, host-service operation descriptors, PostgreSQL connection path, artifact/contract versions, minimal concurrent server skeleton. Specify scope/error/cancellation contracts before enabling operations. | One multi-file project checks and builds; a Diamond component updates in a browser; a checked PostgreSQL operation works; a browser import of server authority and an undeclared host call fail. All existing examples still work. | AC-1/2/4/5/6/7/16 incrementally |
+| **W1 — broad foundations (complete)** | Project manifests/modules, typed IR and target separation, initial component-to-JS path, host-service operation descriptors, PostgreSQL connection path, artifact/contract versions, minimal concurrent server skeleton. Specify scope/error/cancellation contracts before enabling operations. | One multi-file project checks and builds; a Diamond component updates in a browser; a checked PostgreSQL operation works; a browser import of server authority and an undeclared host call fail. All existing examples still work. See the W1 evidence linked above. | AC-1/2/4/5/6/7/16 incrementally |
 | **W2 — connected distributed application** | Wire minimal shared login/session storage, generated RPC, real PostgreSQL CRUD and ownership policies into a minimal reactive workspace tracker. Run two application instances behind a local proxy. | Sign in through A, create through B, view/edit through A, restart B, retrieve the same record, and reject another user's access. Browser UI and business handlers are Diamond. No sticky sessions or mocked persistence. | AC-3/5/6/7/10/19 initial vertical slice |
 | **W3 — complete language and frontend slice** | Component lifecycle, state/derived values, keyed lists, forms, routing, loading/error states, SSR/hydration, CSS/assets, shared types, typed errors, time/decimal/text/list utilities, source maps. | A real multi-page application hydrates and navigates, handles stale asynchronous replies and invalid inputs, and passes cross-target semantics tests. | AC-2/3/4/5/11 |
 | **W4 — data and authorization** | PostgreSQL query plans, indexes/constraints, relationships, scoped roles, authorized joins/counts, pagination, isolation rules, migrations and resumable backfills. Add explicit storage-contract versioning. | A populated multi-workspace application filters/pages/counts correctly, denies cross-workspace paths, survives concurrent edits/revocations, and upgrades while old/new servers coexist. | AC-7/8/9 |

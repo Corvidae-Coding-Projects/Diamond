@@ -16,6 +16,15 @@ pub(crate) fn parse(source: &str) -> Result<Program> {
     .program()
 }
 
+pub(crate) fn project_module(source: &str) -> Result<crate::syntax::ProjectModule> {
+    Parser {
+        tokens: lex(source)?,
+        cursor: 0,
+        expression_depth: 0,
+    }
+    .module()
+}
+
 pub(crate) fn expression(source: &str, location: Location) -> Result<Expr> {
     let mut tokens = lex(source)?;
     for token in &mut tokens {
@@ -45,6 +54,119 @@ struct Parser {
 }
 
 impl Parser {
+    fn module(&mut self) -> Result<crate::syntax::ProjectModule> {
+        let mut module = crate::syntax::ProjectModule::default();
+        let mut names = std::collections::BTreeSet::new();
+        while !self.at(&Kind::End) {
+            let location = self.token().location;
+            let exported = self.is_name("export");
+            if exported {
+                self.take();
+            }
+            let keyword = self.name()?;
+            let name = match keyword.as_str() {
+                "fn" => {
+                    let function = self.function(location)?;
+                    let name = function.name.clone();
+                    module
+                        .program
+                        .declarations
+                        .push(Declaration::Function(function));
+                    name
+                }
+                "component" => {
+                    let component = self.component(location)?;
+                    let name = component.name.clone();
+                    module.components.push(component);
+                    name
+                }
+                _ => {
+                    return Err(Error::unsupported(
+                        location,
+                        "W1 project modules support functions and browser components; use the legacy single-file entry for other declarations",
+                    ));
+                }
+            };
+            if !names.insert(name.clone()) {
+                return Err(self.error("duplicate module declaration"));
+            }
+            if exported {
+                module.exports.insert(name);
+            }
+            if names.len() > 4096 {
+                return Err(Error::Limit("module declarations"));
+            }
+        }
+        if names.is_empty() {
+            return Err(self.error("project module is empty"));
+        }
+        Ok(module)
+    }
+
+    fn component(&mut self, location: Location) -> Result<crate::syntax::Component> {
+        let mut component = crate::syntax::Component {
+            name: self.name()?,
+            states: Vec::new(),
+            events: Vec::new(),
+            template: Vec::new(),
+            location,
+        };
+        self.block_start()?;
+        let mut has_template = false;
+        while !self.at(&Kind::Dedent) && !self.at(&Kind::End) {
+            if has_template {
+                return Err(self.error("html must end a component"));
+            }
+            if let Kind::Html(source) = self.token().kind.clone() {
+                let here = self.take().location;
+                component.template = crate::template::parse_browser(&source, here)?;
+                has_template = true;
+                self.newline()?;
+            } else if self.is_name("state") {
+                if !component.events.is_empty() {
+                    return Err(self.error("state declarations precede event handlers"));
+                }
+                self.take();
+                let name = self.name()?;
+                self.symbol(":")?;
+                let ty = self.ty(0)?;
+                self.symbol("=")?;
+                let value = self.expr(0)?;
+                self.newline()?;
+                component.states.push((name, ty, value));
+            } else if self.is_name("on") {
+                self.take();
+                let name = self.name()?;
+                self.block_start()?;
+                let mut assignments = Vec::new();
+                while !self.at(&Kind::Dedent) && !self.at(&Kind::End) {
+                    let state = self.name()?;
+                    self.symbol("=")?;
+                    assignments.push((state, self.expr(0)?));
+                    self.newline()?;
+                    if assignments.len() > 256 {
+                        return Err(Error::Limit("event assignments"));
+                    }
+                }
+                self.expect(&Kind::Dedent)?;
+                if assignments.is_empty() {
+                    return Err(self.error("event handler must update state"));
+                }
+                component.events.push((name, assignments));
+            } else {
+                return Err(self.error("expected state, on event, or html in component"));
+            }
+            if component.states.len() > 64 || component.events.len() > 64 {
+                return Err(Error::Limit("component state/events"));
+            }
+        }
+        self.expect(&Kind::Dedent)?;
+        if !has_template {
+            return Err(self.error("component requires a typed html template"));
+        }
+        Ok(component)
+    }
+
     fn token(&self) -> &Token {
         &self.tokens[self.cursor.min(self.tokens.len() - 1)]
     }

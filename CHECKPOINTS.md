@@ -586,3 +586,23 @@ and documentation rather than browser behavior. No checkpoint remains after
 this one. The explicit README limits and every earlier evidence boundary still
 apply: this is a complete interpreted MVP pass, not a production-readiness,
 security, dependency, cross-platform, or physical-durability proof.
+
+## General-web expansion W1 — complete
+
+Diamond 0.7.0 completes W1 of the separate ten-checkpoint
+[general-web plan](.design/general-web-apps.md). The new path supports bounded
+multi-file projects, explicit module targets/exports/effect budgets, typed scalar
+browser lowering and generated JavaScript, a reactive component, deterministic
+versioned artifacts with rechecked loading, two explicitly granted read-only
+PostgreSQL operations, and a concurrent loopback asset server. The existing
+single-file interpreter remains available.
+
+The [W1 evidence record](verification/web_one_results.md) includes actual Chrome
+clicks and scalar semantics, isolated PostgreSQL parameter binding/deadlines,
+concurrent HTTP requests, module/artifact boundary exploration, repaired resolver
+failures, and compatibility/red-team replay receipts. The
+[project guide](docs/projects.md) documents the supported subset and commands.
+
+Nine expansion checkpoints remain, W2–W10. W2 connects shared identity, generated
+RPC, protected PostgreSQL CRUD and a Diamond application across two servers.
+W1 is a foundation, not the complete general-web release or production profile.

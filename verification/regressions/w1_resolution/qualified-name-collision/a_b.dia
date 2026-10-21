@@ -1,0 +1,2 @@
+export fn c(value: Int) -> Int:
+  value + 90
