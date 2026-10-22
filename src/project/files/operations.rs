@@ -69,6 +69,11 @@ impl Access<'_> {
         )
     }
     pub fn begin(&self, body: &[u8]) -> Result<Json> {
+        self.server
+            .objects
+            .as_ref()
+            .ok_or(Error::Denied)?
+            .verify_root()?;
         let b: Begin = super::super::wire::strict_from_slice(body)
             .map_err(|_| input("invalid upload reservation"))?;
         let length: i64 = b

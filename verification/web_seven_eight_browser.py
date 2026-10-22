@@ -33,6 +33,13 @@ def main():
             request=json.loads(line)
             if request.get('command')=='stop':break
             if request.get('command')=='rpc':print(json.dumps({'value':rpc(request['name'],*request.get('arguments',[]))}),flush=True)
+            if request.get('command')=='restart_A':
+                before=__import__('time').monotonic();s.stop_node('A',kill=True);s.start_node('A')
+                result={'restarted':'A','seconds':round(__import__('time').monotonic()-before,3)};report['observations'].append(result);path.write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(result),flush=True)
+            if request.get('command')=='logout_all':
+                result=c.account('logout_all',{});report['observations'].append({'logout_all_status':result[0]});path.write_text(json.dumps(report,indent=2)+'\n');print(json.dumps({'status':result[0]}),flush=True)
+            if request.get('command')=='relogin_fixture':
+                result=c.login('alice',PASSWORD);print(json.dumps({'status':result[0]}),flush=True)
             if request.get('command')=='note':report['observations'].append(request['observation']);path.write_text(json.dumps(report,indent=2)+'\n');print('{"noted":true}',flush=True)
             if request.get('command')=='observe':
                 app=hashlib.sha256(('LiveWorkspace' if options.app=='live-workspace' else 'PublishingCatalog').encode()).hexdigest()
@@ -41,5 +48,8 @@ def main():
     finally:
         if s:s.close();report['shutdowns']=s.shutdowns;report['cleanup_errors']=s.cleanup_errors
         if receiver:report['receiver']=receiver.snapshot();receiver.close()
-        shutil.rmtree(root);report['temporary_root_removed']=True;path.write_text(json.dumps(report,indent=2)+'\n')
+        shutil.rmtree(root);report['temporary_root_removed']=True
+        verdicts=[row['status'] for row in report['observations'] if 'status' in row]
+        report['status']='PASS' if verdicts and all(status=='PASS' for status in verdicts) and not report.get('cleanup_errors') else 'FAIL'
+        path.write_text(json.dumps(report,indent=2)+'\n')
 if __name__=='__main__':main()

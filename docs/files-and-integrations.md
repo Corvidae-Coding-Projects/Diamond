@@ -1,9 +1,9 @@
 # Private files and outbound integrations (W6)
 
-Diamond 0.12.0 adds a private shared-filesystem attachment adapter, typed outbound
-JSON HTTP, and opaque destination credentials. The connected server remains a
-loopback development server. Production ingress, remote PostgreSQL TLS, durable
-jobs, and object-store replication are later checkpoints.
+Diamond 0.15.0 provides a private shared-filesystem attachment adapter, typed
+outbound JSON HTTP, and opaque destination credentials. The connected server
+remains loopback-only behind the W8 proxy profile. Remote PostgreSQL TLS and
+object-store replication remain operator responsibilities.
 
 Use [files-workspace](../examples/files-workspace/diamond.toml) for a complete
 Diamond frontend over the existing account/workspace example. Application handlers
@@ -46,10 +46,15 @@ mount, outside public content. All nodes for an application must access the same
 bytes and marker. The adapter does not provision NFS, replicate local disks, or
 supply a production storage service. Its owner and mount administrator are trusted.
 A different marker fails closed. Copying a marker does not create shared storage.
+The marker is an operator binding, not proof that two paths share a mount; an
+administrator who copies it can make separate local directories appear bound.
 Regular-file SHA-256 verification detects missing, truncated and same-length
 corruption; it does not defend against a malicious administrator rewriting both
 PostgreSQL and storage. Filesystem service availability remains an operator concern:
 a deadline cannot cancel an indefinitely blocked kernel filesystem operation.
+Each running server revalidates its bound marker before every new reservation and
+physical path resolution. Removing or replacing the root therefore fails file
+operations as well as readiness until the original store identity is restored.
 
 ```sh
 # Set DIAMOND_POSTGRES, DIAMOND_RUNTIME, and referenced credential variables

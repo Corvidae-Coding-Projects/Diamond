@@ -1,0 +1,22 @@
+{
+  "status": "FAIL",
+  "classification": "confirmed product defect",
+  "binary_sha256": "06fe2a881ec4d60a564f87e2c380abe698c1fc4196d9618a0240d208a9e3c5f3",
+  "interface": "real Chrome, two tabs, generated LiveWorkspace client",
+  "schedule": [
+    "sign in as synthetic alice in both tabs",
+    "load the same private issue in both tabs",
+    "deliver a hostile-text comment over both live subscriptions",
+    "restart node A and reload authenticated private data",
+    "invoke logout_all from an independent authenticated client"
+  ],
+  "observed": {
+    "logout_all_status": 200,
+    "live_sockets_lost_authorization": true,
+    "private_issue_remained_visible_in_both_tabs": true,
+    "private_live_comment_remained_visible_in_both_tabs": true,
+    "client_alert": "Diamond component update failed; previous local state was preserved."
+  },
+  "expected": "Out-of-band identity loss clears private component fields and results in every stale tab while a transient node close retains valid state for bounded reconnect.",
+  "evidence_note": "Recorded from the Chrome DOM and visual state during the W9 baseline run before the disposable fixture was removed. The final replay is retained in ../live-workspace_browser_results.json."
+}

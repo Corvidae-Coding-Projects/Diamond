@@ -1,0 +1,155 @@
+{
+  "status": "PASS",
+  "binary_sha256": "4281f59a9eebda6db8dfa9169a88b6b568898474d194ce599ff1c7a75017a57d",
+  "error": null,
+  "results": [
+    {
+      "name": "verified-tls-cookie-login",
+      "status": "PASS",
+      "observed": {
+        "session_status": 200,
+        "tls_versions": [
+          "TLSv1.3"
+        ]
+      },
+      "expected": "ordinary session/login traverses actual Caddy TLS using explicit trusted fixture CA and hostname verification"
+    },
+    {
+      "name": "actual-round-robin-rpc-without-affinity",
+      "status": "PASS",
+      "observed": {
+        "A": 10,
+        "B": 10
+      },
+      "expected": "twenty authenticated TLS requests reach each real upstream ten times using shared sessions"
+    },
+    {
+      "name": "browser-page-and-assets-through-tls",
+      "status": "PASS",
+      "observed": {
+        "/assets/5e04328fd18532a49f8d03a757e515db51af816715d74dc2dd55d4b375b16fbe.css": 200,
+        "/assets/c782e45b07d7a734652110b06d2d1f35b9b90b330eb57325951d35237b2aafdd.js": 200
+      },
+      "expected": "actual compiled SSR and content-addressed assets load through TLS proxy"
+    },
+    {
+      "name": "binary-stream-round-trip-through-tls",
+      "status": "PASS",
+      "observed": {
+        "put": 200,
+        "finish": 200,
+        "download": 200,
+        "bytes": 131108,
+        "sha256": "cae3589f1af9e31db3bc243d8e20b068062a6941a742bd80612a2e8d84bd5de6"
+      },
+      "expected": "native HTTPS client uploads/finalizes/downloads exact streamed synthetic attachment"
+    },
+    {
+      "name": "websocket-upgrade-and-event-through-verified-tls",
+      "status": "PASS",
+      "observed": {
+        "upgrade": 101,
+        "message": {
+          "cursor": "1",
+          "value": "actual verified WSS typed event \u96ea"
+        }
+      },
+      "expected": "real Caddy forwards WebSocket upgrade and authorized typed event over CA-verified TLS"
+    },
+    {
+      "name": "edge-strips-untrusted-forwarding-headers",
+      "status": "PASS",
+      "observed": {
+        "through_edge": 200,
+        "direct": 400
+      },
+      "expected": "configured trusted edge removes forged forwarding headers and native direct profile rejects them"
+    },
+    {
+      "name": "tls-submission-real-workers",
+      "status": "PASS",
+      "observed": {
+        "attempts": [
+          {
+            "path": "/v1/dedup/6fbfb91ba19152199cdee1dedd92917fbfaddac29a103a5d7dd8998592ff5c52",
+            "key": "6fbfb91ba19152199cdee1dedd92917fbfaddac29a103a5d7dd8998592ff5c52",
+            "body_sha256": "503cbe51f708bcef3d129afd6cc224ae0ef2ba07d0de6e75fcca9fc25ed44da9",
+            "bytes": 25
+          }
+        ],
+        "effect_keys": [
+          "6fbfb91ba19152199cdee1dedd92917fbfaddac29a103a5d7dd8998592ff5c52"
+        ],
+        "effects": 1,
+        "counts": {
+          "/v1/dedup/6fbfb91ba19152199cdee1dedd92917fbfaddac29a103a5d7dd8998592ff5c52": 1
+        }
+      },
+      "expected": "two owned worker processes service work submitted through TLS edge"
+    },
+    {
+      "name": "active-health-routes-to-surviving-node",
+      "status": "PASS",
+      "observed": {
+        "statuses": [
+          200,
+          200,
+          200,
+          200,
+          200,
+          200,
+          200,
+          200,
+          200,
+          200
+        ]
+      },
+      "expected": "after real health detection, canonical TLS endpoint continues on remaining upstream"
+    }
+  ],
+  "shutdowns": [
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "worker": "one",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "worker": "two",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "http_requests": 47,
+  "elapsed_seconds": 3.869120659001055,
+  "temporary_root": "/tmp/diamond-w8-tls-proxy-qlo5whaz",
+  "caddy_sha256": "678ade3bfc088749c81a681adc603333ee0bb023b6a6cfe3c0f58bef8ff854e9",
+  "caddy_exit": 0,
+  "caddyfile": "{\n    admin off\n    persist_config off\n    auto_https off\n    storage file_system {\n        root /tmp/diamond-w8-tls-proxy-qlo5whaz/caddy-data\n    }\n    servers {\n        protocols h1 h2\n    }\n}\nhttps://localhost:57399 {\n    bind 127.0.0.1\n    tls /tmp/diamond-w8-tls-proxy-qlo5whaz/certificates/localhost.pem /tmp/diamond-w8-tls-proxy-qlo5whaz/certificates/localhost.key\n    reverse_proxy 127.0.0.1:58133 127.0.0.1:40815 {\n        lb_policy round_robin\n        header_up Host {http.request.hostport}\n        header_up -Forwarded\n        header_up -X-Forwarded-*\n        health_uri /_diamond/health/ready\n        health_headers {\n            Host localhost:57399\n        }\n        health_interval 1s\n    }\n}\n",
+  "references": [
+    "https://caddyserver.com/docs/caddyfile/directives/reverse_proxy",
+    "https://caddyserver.com/docs/caddyfile/options"
+  ],
+  "coverage_gaps": [
+    "Native HTTPS/WSS clients only here; actual browser UI journeys recorded separately.",
+    "Fixture CA supplied only to test clients; no operating-system trust installation or public deployment."
+  ]
+}

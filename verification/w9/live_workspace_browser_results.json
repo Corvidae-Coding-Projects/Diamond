@@ -1,0 +1,72 @@
+{
+  "app": "live-workspace",
+  "status": "PASS",
+  "observations": [
+    {
+      "logout_all_status": 200
+    },
+    {
+      "restarted": "A",
+      "seconds": 0.258
+    },
+    {
+      "status": "PASS",
+      "flow": "Final 0.15.0 Chrome two-tab stale-session replay",
+      "binary_sha256": "4281f59a9eebda6db8dfa9169a88b6b568898474d194ce599ff1c7a75017a57d",
+      "observed": "Both tabs received literal hostile live text without injected SVG, logout_all cleared every private field/result in both tabs with Session ended, re-login succeeded, and a node A restart retained state and delivered a later live event.",
+      "expected": "Authority loss clears stale private state; transient node loss reconnects without clearing valid state."
+    }
+  ],
+  "binary_sha256": "4281f59a9eebda6db8dfa9169a88b6b568898474d194ce599ff1c7a75017a57d",
+  "workspace": "a9caac2bb3f0dccdbac9f5b3131a2082f1e8a59142751efd374a53222d82d19e",
+  "project": "e3f1d4a649f23cd8e0cf0a80cf9adde0e04e8842979e45af69ad82b12efb3cfd",
+  "issue": "72a41570a6ba1f9beaa7e7a18c5cba0713b18151dc666e629444bf878520bb44",
+  "root": "/tmp/diamond-w7-w8-browser-hse4yzu8",
+  "origin": "http://127.0.0.1:39171",
+  "node_B_port": 58293,
+  "shutdowns": [
+    {
+      "node": "A",
+      "exit": -9,
+      "expected_exit": -9,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "worker": "one",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "worker": "two",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "receiver": {
+    "attempts": [],
+    "effect_keys": [],
+    "effects": 0,
+    "counts": {}
+  },
+  "temporary_root_removed": true
+}

@@ -1,0 +1,53 @@
+{
+  "status": "PASS",
+  "binary_sha256": "4281f59a9eebda6db8dfa9169a88b6b568898474d194ce599ff1c7a75017a57d",
+  "error": null,
+  "results": [
+    {
+      "name": "replacement-makes-readiness-fail",
+      "status": "PASS",
+      "observed": {
+        "status": 403
+      },
+      "expected": "replacing the bound shared root makes readiness fail immediately"
+    },
+    {
+      "name": "live-root-replacement-fails-closed",
+      "status": "PASS",
+      "observed": {
+        "begin": [
+          503,
+          {
+            "error": "unavailable"
+          }
+        ],
+        "put_status": 0,
+        "finish": [
+          0,
+          null
+        ],
+        "replacement_files": []
+      },
+      "expected": "no reservation, bytes, or ready metadata may be created through a server whose bound object root was replaced"
+    }
+  ],
+  "shutdowns": [
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "temporary_root_removed": true,
+  "oracle": "ORACLES.md F1/R1"
+}

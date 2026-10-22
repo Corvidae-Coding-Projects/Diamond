@@ -88,6 +88,7 @@ pub(super) fn schema(store: &mut PostgresStore, config: &Config, initialize: boo
 #[derive(Debug)]
 pub(super) struct Store {
     directory: PathBuf,
+    identity: String,
     app: String,
 }
 impl Store {
@@ -112,14 +113,7 @@ impl Store {
             file.sync_all()?;
             File::open(&directory)?.sync_all()?;
         }
-        let mut file = options().read(true).open(&marker)?;
-        let mut identity = String::new();
-        Read::by_ref(&mut file)
-            .take(65)
-            .read_to_string(&mut identity)?;
-        if !identifier(&identity) {
-            return Err(Error::Denied);
-        }
+        let identity = store_identity(&marker)?;
         let mut db = PostgresStore::open(project, configuration, false)?;
         if initialize {
             db.connection.query(
@@ -142,9 +136,22 @@ impl Store {
         }
         let app = db.app.clone();
         db.finish_request(Ok(()))?;
-        Ok(Some(Self { directory, app }))
+        Ok(Some(Self {
+            directory,
+            identity,
+            app,
+        }))
+    }
+    fn verify_root(&self) -> Result<()> {
+        private_directory(&self.directory)?;
+        let identity = store_identity(&self.directory.join(".diamond-shared-store"))?;
+        if identity != self.identity {
+            return Err(input("shared object store identity changed"));
+        }
+        Ok(())
     }
     fn path(&self, id: &str, staged: bool) -> Result<PathBuf> {
+        self.verify_root()?;
         if !identifier(id) {
             return Err(Error::Denied);
         }
@@ -165,6 +172,17 @@ impl Store {
         File::open(&self.directory)?.sync_all()?;
         Ok(())
     }
+}
+fn store_identity(marker: &Path) -> Result<String> {
+    let mut file = options().read(true).open(marker)?;
+    let mut identity = String::new();
+    Read::by_ref(&mut file)
+        .take(65)
+        .read_to_string(&mut identity)?;
+    if !identifier(&identity) {
+        return Err(Error::Denied);
+    }
+    Ok(identity)
 }
 fn private_directory(path: &Path) -> Result<()> {
     let metadata = fs::symlink_metadata(path)?;

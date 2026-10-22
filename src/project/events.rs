@@ -15,7 +15,7 @@ use crate::{
 use axum::{
     extract::{
         FromRequestParts, Request,
-        ws::{Message, WebSocket, WebSocketUpgrade},
+        ws::{CloseFrame, Message, WebSocket, WebSocketUpgrade},
     },
     response::{IntoResponse, Response},
 };
@@ -243,8 +243,31 @@ async fn stream(
         let s = Arc::clone(&server);
         let t = token.clone();
         let read = tokio::task::spawn_blocking(move || read(&s, &t, &p[0], &p[1], cursor));
-        let Ok(Ok(batch)) = read.await else {
-            break;
+        let batch = match read.await {
+            Ok(Ok(batch)) => batch,
+            Ok(Err(Error::Unauthenticated)) => {
+                let _sent = tokio::time::timeout(
+                    Duration::from_secs(1),
+                    socket.send(Message::Close(Some(CloseFrame {
+                        code: 4001,
+                        reason: "authentication_required".into(),
+                    }))),
+                )
+                .await;
+                return;
+            }
+            Ok(Err(Error::Denied)) => {
+                let _sent = tokio::time::timeout(
+                    Duration::from_secs(1),
+                    socket.send(Message::Close(Some(CloseFrame {
+                        code: 4003,
+                        reason: "access_changed".into(),
+                    }))),
+                )
+                .await;
+                return;
+            }
+            Ok(Err(_)) | Err(_) => break,
         };
         for event in batch {
             if authorized_before.elapsed() >= Duration::from_secs(3) {

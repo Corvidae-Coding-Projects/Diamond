@@ -1,0 +1,175 @@
+{
+  "status": "PASS",
+  "binary_sha256": "3d58bff2d28ce47bad5196cc22f3b9bbcd6acae39ee6680bd7195dfc9328a32d",
+  "error": null,
+  "results": [
+    {
+      "name": "encrypted-restore-explicit-cancel-fences-pending-and-running",
+      "status": "PASS",
+      "observed": {
+        "source_before_snapshot": {
+          "2410517b16d5fc11bfd53b4f794326f4979b97683cf1d346a9f474a37405c8b9": {
+            "id": "2410517b16d5fc11bfd53b4f794326f4979b97683cf1d346a9f474a37405c8b9",
+            "state": "running",
+            "attempts": 1,
+            "fence": 1,
+            "lease": "2026-10-22 14:55:48.172616-05",
+            "outcome": ""
+          },
+          "965651d990fff4192889da38d446e3ade606be0f76de83353f0fb3e64e7aab44": {
+            "id": "965651d990fff4192889da38d446e3ade606be0f76de83353f0fb3e64e7aab44",
+            "state": "pending",
+            "attempts": 0,
+            "fence": 0,
+            "lease": null,
+            "outcome": ""
+          }
+        },
+        "restored_before_recovery": {
+          "2410517b16d5fc11bfd53b4f794326f4979b97683cf1d346a9f474a37405c8b9": {
+            "id": "2410517b16d5fc11bfd53b4f794326f4979b97683cf1d346a9f474a37405c8b9",
+            "state": "running",
+            "attempts": 1,
+            "fence": 1,
+            "lease": "2026-10-22 14:55:48.172616-05",
+            "outcome": ""
+          },
+          "965651d990fff4192889da38d446e3ade606be0f76de83353f0fb3e64e7aab44": {
+            "id": "965651d990fff4192889da38d446e3ade606be0f76de83353f0fb3e64e7aab44",
+            "state": "pending",
+            "attempts": 0,
+            "fence": 0,
+            "lease": null,
+            "outcome": ""
+          }
+        },
+        "cancelled": {
+          "2410517b16d5fc11bfd53b4f794326f4979b97683cf1d346a9f474a37405c8b9": {
+            "id": "2410517b16d5fc11bfd53b4f794326f4979b97683cf1d346a9f474a37405c8b9",
+            "state": "cancelled",
+            "attempts": 1,
+            "fence": 2,
+            "lease": "2026-10-22 14:55:48.172616-05",
+            "outcome": "restore_cancelled"
+          },
+          "965651d990fff4192889da38d446e3ade606be0f76de83353f0fb3e64e7aab44": {
+            "id": "965651d990fff4192889da38d446e3ade606be0f76de83353f0fb3e64e7aab44",
+            "state": "cancelled",
+            "attempts": 0,
+            "fence": 1,
+            "lease": null,
+            "outcome": "restore_cancelled"
+          }
+        },
+        "paused_before": "t",
+        "paused_after": "f",
+        "backup": {
+          "consistency": "quiesced",
+          "credentials_recovery": "sessions,API credentials,challenges revoked",
+          "elapsed_ms": 683,
+          "files": 2,
+          "jobs_recovery": "paused until explicit resume or cancel",
+          "snapshot": "encrypted"
+        },
+        "restore": {
+          "credentials_revoked": true,
+          "data_loss_window": "changes since quiesced snapshot",
+          "elapsed_ms": 317,
+          "files_verified": 2,
+          "jobs_paused": true,
+          "restored": true,
+          "snapshot_unix_seconds": 1792698918
+        }
+      },
+      "expected": "a real encrypted restore is paused with pending/running rows; the named cancel policy increments each fence, records restore_cancelled, and explicitly unpauses"
+    },
+    {
+      "name": "cancelled-restored-jobs-remain-inert-and-visible",
+      "status": "PASS",
+      "observed": {
+        "after_workers": {
+          "2410517b16d5fc11bfd53b4f794326f4979b97683cf1d346a9f474a37405c8b9": {
+            "id": "2410517b16d5fc11bfd53b4f794326f4979b97683cf1d346a9f474a37405c8b9",
+            "state": "cancelled",
+            "attempts": 1,
+            "fence": 2,
+            "lease": "2026-10-22 14:55:48.172616-05",
+            "outcome": "restore_cancelled"
+          },
+          "965651d990fff4192889da38d446e3ade606be0f76de83353f0fb3e64e7aab44": {
+            "id": "965651d990fff4192889da38d446e3ade606be0f76de83353f0fb3e64e7aab44",
+            "state": "cancelled",
+            "attempts": 0,
+            "fence": 1,
+            "lease": null,
+            "outcome": "restore_cancelled"
+          }
+        },
+        "receiver_attempts_before": 1,
+        "receiver_attempts_after": 1,
+        "visible": {
+          "2410517b16d5fc11bfd53b4f794326f4979b97683cf1d346a9f474a37405c8b9": {
+            "status": 200,
+            "value": {
+              "attempts": 1,
+              "outcome": "restore_cancelled",
+              "state": "cancelled"
+            }
+          },
+          "965651d990fff4192889da38d446e3ade606be0f76de83353f0fb3e64e7aab44": {
+            "status": 200,
+            "value": {
+              "attempts": 0,
+              "outcome": "restore_cancelled",
+              "state": "cancelled"
+            }
+          }
+        }
+      },
+      "expected": "two actual workers dispatch no cancelled recovery work and a fresh restored login observes the explicit terminal outcome"
+    }
+  ],
+  "shutdowns": [
+    {
+      "worker": "victim",
+      "exit": -9,
+      "expected_exit": -9,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "worker": "one",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "worker": "two",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "http_requests": 5,
+  "elapsed_seconds": 5.285164891000022,
+  "command": "python3 verification/w9_independent/recover_cancel.py --binary /tmp/diamond-w9-baseline-b60441f",
+  "oracle": "ORACLES.md J2 D2",
+  "temporary_root_removed": true
+}

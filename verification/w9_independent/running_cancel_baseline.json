@@ -1,0 +1,122 @@
+{
+  "status": "FAIL",
+  "binary_sha256": "3d58bff2d28ce47bad5196cc22f3b9bbcd6acae39ee6680bd7195dfc9328a32d",
+  "error": null,
+  "results": [
+    {
+      "name": "running-job-cancellation-fences-current-attempt",
+      "status": "FAIL",
+      "observed": {
+        "cancel_status": 503,
+        "cancel_body": {
+          "error": "unavailable"
+        },
+        "elapsed_seconds": 2.0068804930051556,
+        "before": {
+          "id": "f69dff9ce637d459787734c860d5f5060d06e4d4313d4a561509ca3d1bd5f89e",
+          "state": "running",
+          "attempts": 1,
+          "fence": 1,
+          "lease": "2026-10-22 14:50:46.821391-05",
+          "outcome": ""
+        },
+        "after": {
+          "id": "f69dff9ce637d459787734c860d5f5060d06e4d4313d4a561509ca3d1bd5f89e",
+          "state": "running",
+          "attempts": 1,
+          "fence": 1,
+          "lease": "2026-10-22 14:50:46.821391-05",
+          "outcome": ""
+        },
+        "receiver": {
+          "attempts": [
+            {
+              "path": "/v1/dedup/f69dff9ce637d459787734c860d5f5060d06e4d4313d4a561509ca3d1bd5f89e",
+              "key": "f69dff9ce637d459787734c860d5f5060d06e4d4313d4a561509ca3d1bd5f89e",
+              "body_sha256": "fa2092976626de1336e9b9fab00fd79e4e7d6748a33c1572a1fccb069bcd85d0",
+              "bytes": 21
+            }
+          ],
+          "effect_keys": [
+            "f69dff9ce637d459787734c860d5f5060d06e4d4313d4a561509ca3d1bd5f89e"
+          ],
+          "effects": 1,
+          "counts": {
+            "/v1/dedup/f69dff9ce637d459787734c860d5f5060d06e4d4313d4a561509ca3d1bd5f89e": 1
+          }
+        }
+      },
+      "expected": "a current owner can cancel an in-flight job; the cancellation transaction commits a higher fence and cancelled state"
+    },
+    {
+      "name": "failed-or-successful-cancel-has-coherent-terminal-effect",
+      "status": "PASS",
+      "observed": {
+        "cancel_status": 503,
+        "state_after_cancel": {
+          "id": "f69dff9ce637d459787734c860d5f5060d06e4d4313d4a561509ca3d1bd5f89e",
+          "state": "running",
+          "attempts": 1,
+          "fence": 1,
+          "lease": "2026-10-22 14:50:46.821391-05",
+          "outcome": ""
+        },
+        "final": {
+          "id": "f69dff9ce637d459787734c860d5f5060d06e4d4313d4a561509ca3d1bd5f89e",
+          "state": "done",
+          "attempts": 1,
+          "fence": 1,
+          "lease": null,
+          "outcome": "completed"
+        },
+        "receiver": {
+          "attempts": [
+            {
+              "path": "/v1/dedup/f69dff9ce637d459787734c860d5f5060d06e4d4313d4a561509ca3d1bd5f89e",
+              "key": "f69dff9ce637d459787734c860d5f5060d06e4d4313d4a561509ca3d1bd5f89e",
+              "body_sha256": "fa2092976626de1336e9b9fab00fd79e4e7d6748a33c1572a1fccb069bcd85d0",
+              "bytes": 21
+            }
+          ],
+          "effect_keys": [
+            "f69dff9ce637d459787734c860d5f5060d06e4d4313d4a561509ca3d1bd5f89e"
+          ],
+          "effects": 1,
+          "counts": {
+            "/v1/dedup/f69dff9ce637d459787734c860d5f5060d06e4d4313d4a561509ca3d1bd5f89e": 1
+          }
+        }
+      },
+      "expected": "a committed cancellation remains inert; if cancellation itself was rejected, the original at-least-once attempt may continue"
+    }
+  ],
+  "shutdowns": [
+    {
+      "worker": "held",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "http_requests": 6,
+  "elapsed_seconds": 4.556307309001568,
+  "command": "python3 verification/w9_independent/running_cancel.py --binary /tmp/diamond-w9-baseline-b60441f",
+  "oracle": "ORACLES.md J2",
+  "temporary_root_removed": true
+}

@@ -1,0 +1,51 @@
+{
+  "status": "PASS",
+  "binary_sha256": "4281f59a9eebda6db8dfa9169a88b6b568898474d194ce599ff1c7a75017a57d",
+  "error": null,
+  "results": [
+    {
+      "name": "resolver-stall-request-deadline",
+      "status": "PASS",
+      "observed": {
+        "rpc": [
+          503,
+          {
+            "error": "unavailable"
+          }
+        ],
+        "elapsed_seconds": 0.003292328998213634,
+        "grant_timeout_ms": 1000,
+        "injected_delay_seconds": 8,
+        "getaddrinfo_calls": 0,
+        "expected_getaddrinfo_calls": 0,
+        "owned_dns_queries": 0
+      },
+      "expected": "1-second operation deadline must bound real response and cleanup despite a delayed resolver; asynchronous operations must not invoke blocking getaddrinfo"
+    },
+    {
+      "name": "resolver-stall-followup-health",
+      "status": "PASS",
+      "observed": [
+        200,
+        {
+          "value": "0"
+        }
+      ],
+      "expected": "fresh ordinary same-process request remains healthy after resolver cancellation"
+    }
+  ],
+  "shutdowns": [
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "http_requests": 5,
+  "temporary_root": "/tmp/diamond-w6-independent-dns-lc9tl15u",
+  "shim_source_sha256": "b8bd49cad56ab90e22a4bf6bbdb80630df1cc2c362ce8969dcb33f5c93f6362a",
+  "shim_sha256": "a1103cd118e036f3fc1de987ba789f1663a426b09f7441a94e2965431b9679cf"
+}

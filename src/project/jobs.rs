@@ -193,6 +193,27 @@ impl PostgresStore {
                 "SELECT pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended($1,7))",
                 &[&self.app],
             )?;
+            let restrictions =
+                serde_json::to_string(&scope.restrictions()).map_err(|_| Error::Denied)?;
+            let shape = self.job_version.clone();
+            let existing = self.connection.query(
+                "SELECT id,parent,payload,version,restrictions,unscoped FROM diamond_w7.jobs WHERE app=$1 AND binding=$2 AND owner=$3 AND dedup=$4",
+                &[&self.app, &binding, &owner, &dedup],
+            )?;
+            if let Some(row) = existing.first() {
+                let same = row.try_get::<_, String>(1).map_err(|_| Error::Denied)? == parent_or_id
+                    && row.try_get::<_, String>(2).map_err(|_| Error::Denied)? == payload
+                    && row.try_get::<_, String>(3).map_err(|_| Error::Denied)? == shape
+                    && row.try_get::<_, String>(4).map_err(|_| Error::Denied)? == restrictions
+                    && row.try_get::<_, bool>(5).map_err(|_| Error::Denied)?
+                        == scope.allows_unscoped();
+                if !same {
+                    return Err(Error::Conflict);
+                }
+                return Ok(Value(ValueKind::Text(
+                    row.try_get(0).map_err(|_| Error::Denied)?,
+                )));
+            }
             let count = self.connection.query(
                 "SELECT COUNT(*) FROM diamond_w7.jobs WHERE app=$1",
                 &[&self.app],
@@ -204,10 +225,7 @@ impl PostgresStore {
                     "job quota; archive terminal jobs administratively",
                 ));
             }
-            let restrictions =
-                serde_json::to_string(&scope.restrictions()).map_err(|_| Error::Denied)?;
             let id = crate::authority::random_hex()?;
-            let shape = self.job_version.clone();
             let rows=self.connection.query("INSERT INTO diamond_w7.jobs(app,id,binding,version,parent,owner,payload,dedup,restrictions,unscoped,state) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,'pending') ON CONFLICT(app,binding,owner,dedup) DO UPDATE SET dedup=EXCLUDED.dedup WHERE diamond_w7.jobs.parent=EXCLUDED.parent AND diamond_w7.jobs.payload=EXCLUDED.payload AND diamond_w7.jobs.version=EXCLUDED.version AND diamond_w7.jobs.restrictions=EXCLUDED.restrictions AND diamond_w7.jobs.unscoped=EXCLUDED.unscoped RETURNING id", &[&self.app,&id,&binding,&shape,&parent_or_id,&owner,&payload,&dedup,&restrictions,&scope.allows_unscoped()])?;
             return Ok(Value(ValueKind::Text(
                 rows.first()

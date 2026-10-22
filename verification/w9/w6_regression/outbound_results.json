@@ -1,0 +1,857 @@
+{
+  "status": "PASS",
+  "binary_sha256": "4281f59a9eebda6db8dfa9169a88b6b568898474d194ce599ff1c7a75017a57d",
+  "error": null,
+  "results": [
+    {
+      "name": "trusted-local-ca-typed-get-A",
+      "status": "PASS",
+      "observed": [
+        200,
+        {
+          "value": "external exact \u96ea\u0000"
+        }
+      ],
+      "expected": "actual TLS certificate/hostname and wire Text decode succeed"
+    },
+    {
+      "name": "trusted-local-ca-typed-get-B",
+      "status": "PASS",
+      "observed": [
+        200,
+        {
+          "value": "external exact \u96ea\u0000"
+        }
+      ],
+      "expected": "actual TLS certificate/hostname and wire Text decode succeed"
+    },
+    {
+      "name": "typed-post-real-receiver",
+      "status": "PASS",
+      "observed": {
+        "rpc": [
+          200,
+          {
+            "value": "typed post \u96ea\u0000"
+          }
+        ],
+        "receiver": {
+          "method": "POST",
+          "path": "/v1/echo",
+          "body_sha256": "6efabe6844635cb02034080d8bc4b2a3c6d91eeee7145909e463f2a8f2717769",
+          "body_bytes": 22,
+          "authorization_sha256": "a939a425645f116a7cdcddfa9d30697339d404a9b14bce3583a6e4c2d777d22c",
+          "expected_authorization": true,
+          "accept_encoding": "identity",
+          "peer": "127.0.0.1"
+        }
+      },
+      "expected": "exact typed JSON body and native-only bearer credential reach the declared destination"
+    },
+    {
+      "name": "parent-denial-before-outbound",
+      "status": "PASS",
+      "observed": {
+        "rpc": [
+          403,
+          {
+            "error": "denied"
+          }
+        ],
+        "new_calls": 0
+      },
+      "expected": "failed current parent read policy sends no external request"
+    },
+    {
+      "name": "read-snapshot-before-outbound",
+      "status": "PASS",
+      "observed": [
+        200,
+        {
+          "value": "external exact \u96ea\u0000"
+        }
+      ],
+      "expected": "authorized read-only snapshot may precede the call"
+    },
+    {
+      "name": "path-authority-https://attacker.invalid/v1/ok",
+      "status": "PASS",
+      "observed": {
+        "status": 403,
+        "new_calls": 0
+      },
+      "expected": "path input cannot escape the native destination/segment prefix"
+    },
+    {
+      "name": "path-authority-//localhost/v1/ok",
+      "status": "PASS",
+      "observed": {
+        "status": 403,
+        "new_calls": 0
+      },
+      "expected": "path input cannot escape the native destination/segment prefix"
+    },
+    {
+      "name": "path-authority-/v10/ok",
+      "status": "PASS",
+      "observed": {
+        "status": 403,
+        "new_calls": 0
+      },
+      "expected": "path input cannot escape the native destination/segment prefix"
+    },
+    {
+      "name": "path-authority-/v1evil",
+      "status": "PASS",
+      "observed": {
+        "status": 403,
+        "new_calls": 0
+      },
+      "expected": "path input cannot escape the native destination/segment prefix"
+    },
+    {
+      "name": "path-authority-/v1/../not-granted",
+      "status": "PASS",
+      "observed": {
+        "status": 403,
+        "new_calls": 0
+      },
+      "expected": "path input cannot escape the native destination/segment prefix"
+    },
+    {
+      "name": "path-authority-/v1/%2e%2e/not-granted",
+      "status": "PASS",
+      "observed": {
+        "status": 403,
+        "new_calls": 0
+      },
+      "expected": "path input cannot escape the native destination/segment prefix"
+    },
+    {
+      "name": "path-authority-/v1\\..\\not-granted",
+      "status": "PASS",
+      "observed": {
+        "status": 403,
+        "new_calls": 0
+      },
+      "expected": "path input cannot escape the native destination/segment prefix"
+    },
+    {
+      "name": "path-authority-/v1/#fragment",
+      "status": "PASS",
+      "observed": {
+        "status": 403,
+        "new_calls": 0
+      },
+      "expected": "path input cannot escape the native destination/segment prefix"
+    },
+    {
+      "name": "two-same-origin-redirects",
+      "status": "PASS",
+      "observed": [
+        200,
+        {
+          "value": "external exact \u96ea\u0000"
+        }
+      ],
+      "expected": "at most two allowed GET redirects work"
+    },
+    {
+      "name": "redirect-budget",
+      "status": "PASS",
+      "observed": {
+        "rpc": [
+          403,
+          {
+            "error": "denied"
+          }
+        ],
+        "new_final_target_calls": 0
+      },
+      "expected": "a third redirect is not followed"
+    },
+    {
+      "name": "redirect-authority-/v1/cross",
+      "status": "PASS",
+      "observed": {
+        "rpc": [
+          403,
+          {
+            "error": "denied"
+          }
+        ],
+        "target_delta": 0
+      },
+      "expected": "each redirect must stay within the original origin and path prefix"
+    },
+    {
+      "name": "redirect-authority-/v1/outside",
+      "status": "PASS",
+      "observed": {
+        "rpc": [
+          403,
+          {
+            "error": "denied"
+          }
+        ],
+        "target_delta": 0
+      },
+      "expected": "each redirect must stay within the original origin and path prefix"
+    },
+    {
+      "name": "response-boundary-malformed",
+      "status": "PASS",
+      "observed": {
+        "rpc": [
+          503,
+          {
+            "error": "unavailable"
+          }
+        ],
+        "elapsed_seconds": 0.06016790900321212
+      },
+      "expected": "strict typed/size/encoding/secret/deadline rejection with safe errors"
+    },
+    {
+      "name": "response-boundary-wrong_type",
+      "status": "PASS",
+      "observed": {
+        "rpc": [
+          503,
+          {
+            "error": "unavailable"
+          }
+        ],
+        "elapsed_seconds": 0.06207299599191174
+      },
+      "expected": "strict typed/size/encoding/secret/deadline rejection with safe errors"
+    },
+    {
+      "name": "response-boundary-oversize",
+      "status": "PASS",
+      "observed": {
+        "rpc": [
+          503,
+          {
+            "error": "unavailable"
+          }
+        ],
+        "elapsed_seconds": 0.020997284998884425
+      },
+      "expected": "strict typed/size/encoding/secret/deadline rejection with safe errors"
+    },
+    {
+      "name": "response-boundary-gzip",
+      "status": "PASS",
+      "observed": {
+        "rpc": [
+          503,
+          {
+            "error": "unavailable"
+          }
+        ],
+        "elapsed_seconds": 0.06319671799428761
+      },
+      "expected": "strict typed/size/encoding/secret/deadline rejection with safe errors"
+    },
+    {
+      "name": "response-boundary-secret",
+      "status": "PASS",
+      "observed": {
+        "rpc": [
+          503,
+          {
+            "error": "unavailable"
+          }
+        ],
+        "elapsed_seconds": 0.06341374199837446
+      },
+      "expected": "strict typed/size/encoding/secret/deadline rejection with safe errors"
+    },
+    {
+      "name": "response-boundary-escaped_secret",
+      "status": "PASS",
+      "observed": {
+        "rpc": [
+          503,
+          {
+            "error": "unavailable"
+          }
+        ],
+        "elapsed_seconds": 0.06162158299412113
+      },
+      "expected": "strict typed/size/encoding/secret/deadline rejection with safe errors"
+    },
+    {
+      "name": "response-boundary-slow",
+      "status": "PASS",
+      "observed": {
+        "rpc": [
+          503,
+          {
+            "error": "unavailable"
+          }
+        ],
+        "elapsed_seconds": 1.005325192003511
+      },
+      "expected": "strict typed/size/encoding/secret/deadline rejection with safe errors"
+    },
+    {
+      "name": "post-delivery-unknown-no-adapter-replay",
+      "status": "PASS",
+      "observed": {
+        "rpc": [
+          503,
+          {
+            "error": "outcome_unknown"
+          }
+        ],
+        "actual_post_count": 1
+      },
+      "expected": "receiving fixture observes one real POST; lost reply is unknown, never rollback or automatic retry"
+    },
+    {
+      "name": "post-never-follows-redirect",
+      "status": "PASS",
+      "observed": {
+        "rpc": [
+          503,
+          {
+            "error": "outcome_unknown"
+          }
+        ],
+        "new_target_posts": 0
+      },
+      "expected": "POST redirect cannot replay the side effect at another path"
+    },
+    {
+      "name": "fresh-call-after-cancellation",
+      "status": "PASS",
+      "observed": [
+        200,
+        {
+          "value": "external exact \u96ea\u0000"
+        }
+      ],
+      "expected": "fresh work recovers after limits/deadlines/disconnected upstream"
+    },
+    {
+      "name": "downstream-disconnect-bounded-resources",
+      "status": "PASS",
+      "observed": {
+        "upstream_calls": 9,
+        "fds_serial_then_three_concurrency_batches": [
+          25,
+          35,
+          35,
+          35
+        ],
+        "batches": [
+          {
+            "fds": 35,
+            "fresh": [
+              200,
+              {
+                "value": "external exact \u96ea\u0000"
+              }
+            ],
+            "upstream_active": 0
+          },
+          {
+            "fds": 35,
+            "fresh": [
+              200,
+              {
+                "value": "external exact \u96ea\u0000"
+              }
+            ],
+            "upstream_active": 0
+          },
+          {
+            "fds": 35,
+            "fresh": [
+              200,
+              {
+                "value": "external exact \u96ea\u0000"
+              }
+            ],
+            "upstream_active": 0
+          }
+        ]
+      },
+      "expected": "three repeated concurrent batches reach actual upstream once each, drain work and stabilize descriptors after bounded pool warmup"
+    },
+    {
+      "name": "native-authority-public-denies-loopback",
+      "status": "PASS",
+      "observed": {
+        "rpc": [
+          403,
+          {
+            "error": "denied"
+          }
+        ],
+        "actual_http_calls": 0
+      },
+      "expected": "native network, trust, hostname or method authority rejects before an HTTP request"
+    },
+    {
+      "name": "native-authority-untrusted-ca",
+      "status": "PASS",
+      "observed": {
+        "rpc": [
+          503,
+          {
+            "error": "unavailable"
+          }
+        ],
+        "actual_http_calls": 0
+      },
+      "expected": "native network, trust, hostname or method authority rejects before an HTTP request"
+    },
+    {
+      "name": "native-authority-hostname-mismatch",
+      "status": "PASS",
+      "observed": {
+        "rpc": [
+          503,
+          {
+            "error": "unavailable"
+          }
+        ],
+        "actual_http_calls": 0
+      },
+      "expected": "native network, trust, hostname or method authority rejects before an HTTP request"
+    },
+    {
+      "name": "native-authority-method-denied",
+      "status": "PASS",
+      "observed": {
+        "rpc": [
+          403,
+          {
+            "error": "denied"
+          }
+        ],
+        "actual_http_calls": 0
+      },
+      "expected": "native network, trust, hostname or method authority rejects before an HTTP request"
+    },
+    {
+      "name": "ambient-proxies-unused",
+      "status": "PASS",
+      "observed": {
+        "proxy_requests": []
+      },
+      "expected": "ambient HTTP/HTTPS/ALL proxy settings do not redirect credentials or requests"
+    },
+    {
+      "name": "native-secret-not-artifact-or-log",
+      "status": "PASS",
+      "observed": {
+        "leaked_artifacts": [],
+        "log_secret_present": false
+      },
+      "expected": "native env credential is absent from source/browser artifacts and actual server logs"
+    }
+  ],
+  "shutdowns": [
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "http_requests": 44,
+  "temporary_root": "/tmp/diamond-w6-independent-http-oo1r0st8",
+  "external_events": [
+    [
+      {
+        "method": "GET",
+        "path": "/v1/ok",
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "body_bytes": 0,
+        "authorization_sha256": "a939a425645f116a7cdcddfa9d30697339d404a9b14bce3583a6e4c2d777d22c",
+        "expected_authorization": true,
+        "accept_encoding": "identity",
+        "peer": "127.0.0.1"
+      },
+      {
+        "method": "GET",
+        "path": "/v1/ok",
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "body_bytes": 0,
+        "authorization_sha256": "a939a425645f116a7cdcddfa9d30697339d404a9b14bce3583a6e4c2d777d22c",
+        "expected_authorization": true,
+        "accept_encoding": "identity",
+        "peer": "127.0.0.1"
+      },
+      {
+        "method": "POST",
+        "path": "/v1/echo",
+        "body_sha256": "6efabe6844635cb02034080d8bc4b2a3c6d91eeee7145909e463f2a8f2717769",
+        "body_bytes": 22,
+        "authorization_sha256": "a939a425645f116a7cdcddfa9d30697339d404a9b14bce3583a6e4c2d777d22c",
+        "expected_authorization": true,
+        "accept_encoding": "identity",
+        "peer": "127.0.0.1"
+      },
+      {
+        "method": "GET",
+        "path": "/v1/ok",
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "body_bytes": 0,
+        "authorization_sha256": "a939a425645f116a7cdcddfa9d30697339d404a9b14bce3583a6e4c2d777d22c",
+        "expected_authorization": true,
+        "accept_encoding": "identity",
+        "peer": "127.0.0.1"
+      },
+      {
+        "method": "GET",
+        "path": "/v1/redirect/2",
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "body_bytes": 0,
+        "authorization_sha256": "a939a425645f116a7cdcddfa9d30697339d404a9b14bce3583a6e4c2d777d22c",
+        "expected_authorization": true,
+        "accept_encoding": "identity",
+        "peer": "127.0.0.1"
+      },
+      {
+        "method": "GET",
+        "path": "/v1/redirect/1",
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "body_bytes": 0,
+        "authorization_sha256": "a939a425645f116a7cdcddfa9d30697339d404a9b14bce3583a6e4c2d777d22c",
+        "expected_authorization": true,
+        "accept_encoding": "identity",
+        "peer": "127.0.0.1"
+      },
+      {
+        "method": "GET",
+        "path": "/v1/redirect/0",
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "body_bytes": 0,
+        "authorization_sha256": "a939a425645f116a7cdcddfa9d30697339d404a9b14bce3583a6e4c2d777d22c",
+        "expected_authorization": true,
+        "accept_encoding": "identity",
+        "peer": "127.0.0.1"
+      },
+      {
+        "method": "GET",
+        "path": "/v1/redirect/3",
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "body_bytes": 0,
+        "authorization_sha256": "a939a425645f116a7cdcddfa9d30697339d404a9b14bce3583a6e4c2d777d22c",
+        "expected_authorization": true,
+        "accept_encoding": "identity",
+        "peer": "127.0.0.1"
+      },
+      {
+        "method": "GET",
+        "path": "/v1/redirect/2",
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "body_bytes": 0,
+        "authorization_sha256": "a939a425645f116a7cdcddfa9d30697339d404a9b14bce3583a6e4c2d777d22c",
+        "expected_authorization": true,
+        "accept_encoding": "identity",
+        "peer": "127.0.0.1"
+      },
+      {
+        "method": "GET",
+        "path": "/v1/redirect/1",
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "body_bytes": 0,
+        "authorization_sha256": "a939a425645f116a7cdcddfa9d30697339d404a9b14bce3583a6e4c2d777d22c",
+        "expected_authorization": true,
+        "accept_encoding": "identity",
+        "peer": "127.0.0.1"
+      },
+      {
+        "method": "GET",
+        "path": "/v1/cross",
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "body_bytes": 0,
+        "authorization_sha256": "a939a425645f116a7cdcddfa9d30697339d404a9b14bce3583a6e4c2d777d22c",
+        "expected_authorization": true,
+        "accept_encoding": "identity",
+        "peer": "127.0.0.1"
+      },
+      {
+        "method": "GET",
+        "path": "/v1/outside",
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "body_bytes": 0,
+        "authorization_sha256": "a939a425645f116a7cdcddfa9d30697339d404a9b14bce3583a6e4c2d777d22c",
+        "expected_authorization": true,
+        "accept_encoding": "identity",
+        "peer": "127.0.0.1"
+      },
+      {
+        "method": "GET",
+        "path": "/v1/malformed",
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "body_bytes": 0,
+        "authorization_sha256": "a939a425645f116a7cdcddfa9d30697339d404a9b14bce3583a6e4c2d777d22c",
+        "expected_authorization": true,
+        "accept_encoding": "identity",
+        "peer": "127.0.0.1"
+      },
+      {
+        "method": "GET",
+        "path": "/v1/wrong_type",
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "body_bytes": 0,
+        "authorization_sha256": "a939a425645f116a7cdcddfa9d30697339d404a9b14bce3583a6e4c2d777d22c",
+        "expected_authorization": true,
+        "accept_encoding": "identity",
+        "peer": "127.0.0.1"
+      },
+      {
+        "method": "GET",
+        "path": "/v1/oversize",
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "body_bytes": 0,
+        "authorization_sha256": "a939a425645f116a7cdcddfa9d30697339d404a9b14bce3583a6e4c2d777d22c",
+        "expected_authorization": true,
+        "accept_encoding": "identity",
+        "peer": "127.0.0.1"
+      },
+      {
+        "method": "GET",
+        "path": "/v1/gzip",
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "body_bytes": 0,
+        "authorization_sha256": "a939a425645f116a7cdcddfa9d30697339d404a9b14bce3583a6e4c2d777d22c",
+        "expected_authorization": true,
+        "accept_encoding": "identity",
+        "peer": "127.0.0.1"
+      },
+      {
+        "method": "GET",
+        "path": "/v1/secret",
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "body_bytes": 0,
+        "authorization_sha256": "a939a425645f116a7cdcddfa9d30697339d404a9b14bce3583a6e4c2d777d22c",
+        "expected_authorization": true,
+        "accept_encoding": "identity",
+        "peer": "127.0.0.1"
+      },
+      {
+        "method": "GET",
+        "path": "/v1/escaped_secret",
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "body_bytes": 0,
+        "authorization_sha256": "a939a425645f116a7cdcddfa9d30697339d404a9b14bce3583a6e4c2d777d22c",
+        "expected_authorization": true,
+        "accept_encoding": "identity",
+        "peer": "127.0.0.1"
+      },
+      {
+        "method": "GET",
+        "path": "/v1/slow",
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "body_bytes": 0,
+        "authorization_sha256": "a939a425645f116a7cdcddfa9d30697339d404a9b14bce3583a6e4c2d777d22c",
+        "expected_authorization": true,
+        "accept_encoding": "identity",
+        "peer": "127.0.0.1"
+      },
+      {
+        "method": "POST",
+        "path": "/v1/drop",
+        "body_sha256": "6529cb0cadb71eec7b1730caee3a218288fc45030a35195e65289f67e606893b",
+        "body_bytes": 13,
+        "authorization_sha256": "a939a425645f116a7cdcddfa9d30697339d404a9b14bce3583a6e4c2d777d22c",
+        "expected_authorization": true,
+        "accept_encoding": "identity",
+        "peer": "127.0.0.1"
+      },
+      {
+        "method": "POST",
+        "path": "/v1/post_redirect",
+        "body_sha256": "72f3a2d74bffa476171c3f025f7a413e502a6a0d331ffa1a6a6dba0e82a1d534",
+        "body_bytes": 17,
+        "authorization_sha256": "a939a425645f116a7cdcddfa9d30697339d404a9b14bce3583a6e4c2d777d22c",
+        "expected_authorization": true,
+        "accept_encoding": "identity",
+        "peer": "127.0.0.1"
+      },
+      {
+        "method": "GET",
+        "path": "/v1/ok",
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "body_bytes": 0,
+        "authorization_sha256": "a939a425645f116a7cdcddfa9d30697339d404a9b14bce3583a6e4c2d777d22c",
+        "expected_authorization": true,
+        "accept_encoding": "identity",
+        "peer": "127.0.0.1"
+      },
+      {
+        "method": "GET",
+        "path": "/v1/slow",
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "body_bytes": 0,
+        "authorization_sha256": "a939a425645f116a7cdcddfa9d30697339d404a9b14bce3583a6e4c2d777d22c",
+        "expected_authorization": true,
+        "accept_encoding": "identity",
+        "peer": "127.0.0.1"
+      },
+      {
+        "method": "GET",
+        "path": "/v1/slow",
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "body_bytes": 0,
+        "authorization_sha256": "a939a425645f116a7cdcddfa9d30697339d404a9b14bce3583a6e4c2d777d22c",
+        "expected_authorization": true,
+        "accept_encoding": "identity",
+        "peer": "127.0.0.1"
+      },
+      {
+        "method": "GET",
+        "path": "/v1/slow",
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "body_bytes": 0,
+        "authorization_sha256": "a939a425645f116a7cdcddfa9d30697339d404a9b14bce3583a6e4c2d777d22c",
+        "expected_authorization": true,
+        "accept_encoding": "identity",
+        "peer": "127.0.0.1"
+      },
+      {
+        "method": "GET",
+        "path": "/v1/ok",
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "body_bytes": 0,
+        "authorization_sha256": "a939a425645f116a7cdcddfa9d30697339d404a9b14bce3583a6e4c2d777d22c",
+        "expected_authorization": true,
+        "accept_encoding": "identity",
+        "peer": "127.0.0.1"
+      },
+      {
+        "method": "GET",
+        "path": "/v1/slow",
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "body_bytes": 0,
+        "authorization_sha256": "a939a425645f116a7cdcddfa9d30697339d404a9b14bce3583a6e4c2d777d22c",
+        "expected_authorization": true,
+        "accept_encoding": "identity",
+        "peer": "127.0.0.1"
+      },
+      {
+        "method": "GET",
+        "path": "/v1/slow",
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "body_bytes": 0,
+        "authorization_sha256": "a939a425645f116a7cdcddfa9d30697339d404a9b14bce3583a6e4c2d777d22c",
+        "expected_authorization": true,
+        "accept_encoding": "identity",
+        "peer": "127.0.0.1"
+      },
+      {
+        "method": "GET",
+        "path": "/v1/slow",
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "body_bytes": 0,
+        "authorization_sha256": "a939a425645f116a7cdcddfa9d30697339d404a9b14bce3583a6e4c2d777d22c",
+        "expected_authorization": true,
+        "accept_encoding": "identity",
+        "peer": "127.0.0.1"
+      },
+      {
+        "method": "GET",
+        "path": "/v1/ok",
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "body_bytes": 0,
+        "authorization_sha256": "a939a425645f116a7cdcddfa9d30697339d404a9b14bce3583a6e4c2d777d22c",
+        "expected_authorization": true,
+        "accept_encoding": "identity",
+        "peer": "127.0.0.1"
+      },
+      {
+        "method": "GET",
+        "path": "/v1/slow",
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "body_bytes": 0,
+        "authorization_sha256": "a939a425645f116a7cdcddfa9d30697339d404a9b14bce3583a6e4c2d777d22c",
+        "expected_authorization": true,
+        "accept_encoding": "identity",
+        "peer": "127.0.0.1"
+      },
+      {
+        "method": "GET",
+        "path": "/v1/slow",
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "body_bytes": 0,
+        "authorization_sha256": "a939a425645f116a7cdcddfa9d30697339d404a9b14bce3583a6e4c2d777d22c",
+        "expected_authorization": true,
+        "accept_encoding": "identity",
+        "peer": "127.0.0.1"
+      },
+      {
+        "method": "GET",
+        "path": "/v1/slow",
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "body_bytes": 0,
+        "authorization_sha256": "a939a425645f116a7cdcddfa9d30697339d404a9b14bce3583a6e4c2d777d22c",
+        "expected_authorization": true,
+        "accept_encoding": "identity",
+        "peer": "127.0.0.1"
+      },
+      {
+        "method": "GET",
+        "path": "/v1/ok",
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "body_bytes": 0,
+        "authorization_sha256": "a939a425645f116a7cdcddfa9d30697339d404a9b14bce3583a6e4c2d777d22c",
+        "expected_authorization": true,
+        "accept_encoding": "identity",
+        "peer": "127.0.0.1"
+      }
+    ],
+    [],
+    []
+  ],
+  "external_transport_closes": [
+    11,
+    0,
+    0
+  ],
+  "scope": "actual local TLS/HTTP destinations, native grants, strict typed calls and delivery faults; dynamic DNS rebinding/public Internet and browser separate"
+}

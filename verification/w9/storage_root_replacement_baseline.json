@@ -1,0 +1,60 @@
+{
+  "status": "FAIL",
+  "binary_sha256": "3d58bff2d28ce47bad5196cc22f3b9bbcd6acae39ee6680bd7195dfc9328a32d",
+  "error": null,
+  "results": [
+    {
+      "name": "replacement-makes-readiness-fail",
+      "status": "PASS",
+      "observed": {
+        "status": 403
+      },
+      "expected": "replacing the bound shared root makes readiness fail immediately"
+    },
+    {
+      "name": "live-root-replacement-fails-closed",
+      "status": "FAIL",
+      "observed": {
+        "begin": [
+          200,
+          {
+            "id": "f9970acdf6503d60c943dd30929f87b990c08c83e6a4b51cf6a7581569840a7a",
+            "state": "reserved",
+            "upload": "a7bda12f3f834747b4257139497ced42854a82cedd8bafc56666814cd880e861"
+          }
+        ],
+        "put_status": 200,
+        "finish": [
+          200,
+          {
+            "id": "f9970acdf6503d60c943dd30929f87b990c08c83e6a4b51cf6a7581569840a7a",
+            "state": "ready"
+          }
+        ],
+        "replacement_files": [
+          "45792abffaa8e959578cd42f7939aefd9c13102740aa75a54889ae56b705aee7-f9970acdf6503d60c943dd30929f87b990c08c83e6a4b51cf6a7581569840a7a.blob"
+        ]
+      },
+      "expected": "no reservation, bytes, or ready metadata may be created through a server whose bound object root was replaced"
+    }
+  ],
+  "shutdowns": [
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "temporary_root_removed": true,
+  "oracle": "ORACLES.md F1/R1"
+}

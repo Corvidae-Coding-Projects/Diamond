@@ -1,0 +1,31 @@
+{
+  "status": "FAIL",
+  "binary_sha256": "68626f52ce0b9ec7be4ee9db334df27520140bba36dc754209dc7afbd14b7084",
+  "error": "AssertionError(('startup exited', 'A', 'error: serve connected project: access denied or resource not found\\n'))",
+  "results": [],
+  "shutdowns": [
+    {
+      "node": "A",
+      "exit": 1,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [
+    {
+      "node": "A",
+      "exit": 1,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false,
+      "log": "/tmp/diamond-w9-storage-loss-_z6syrbq/A-111147141095769.log",
+      "log_content": "error: serve connected project: access denied or resource not found\n"
+    }
+  ],
+  "http_requests": 0,
+  "elapsed_seconds": 1.0066826900001615,
+  "command": "python3 verification/w9_independent/storage_loss.py --binary /tmp/diamond-w9-independent-final-68626f52",
+  "oracle": "ORACLES.md F1",
+  "temporary_root_removed": true
+}

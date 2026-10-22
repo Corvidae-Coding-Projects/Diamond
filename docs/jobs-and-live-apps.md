@@ -1,6 +1,6 @@
 # Durable jobs and live applications (W7)
 
-Diamond 0.14.0 adds a PostgreSQL transactional outbox, bounded workers, typed durable
+Diamond 0.15.0 provides a PostgreSQL transactional outbox, bounded workers, typed durable
 server events and generated browser subscriptions. This is a Linux, accounts-v1,
 relational-v1 profile. It does not provide detached Diamond tasks or exactly-once
 external execution. See [deployment and recovery](deployment.md).
@@ -45,10 +45,12 @@ redacted outcome. `host.job_cancel(binding, id)` cancels pending/running work an
 increments its fence. Status/cancel require the submitting owner and current
 parent authorization; possession of a job ID grants nothing. The deduplication key
 is 1..160 bytes, unique per app/binding/owner; a repeated identical submission
-returns the original job. Reusing it for another payload, parent, version or API
-scope fails. Submissions, events and application mutations share the request
-transaction. A propagated error rolls them all back; no worker can see an
-uncommitted outbox entry. A caught adapter failure still poisons its transaction.
+returns the original job, including when retained jobs have filled the application
+quota. Quota checks apply only to new keys. Reusing a key for another payload,
+parent, version or API scope fails. Submissions, events and application mutations
+share the request transaction. A propagated error rolls them all back; no worker
+can see an uncommitted outbox entry. A caught adapter failure still poisons its
+transaction.
 
 Initialize with the ordinary `project-init`. Start two workers using the same
 checked build and explicit runtime grants:
@@ -65,9 +67,12 @@ parent under current policy. Cookie sessions' absence of API restrictions stays
 distinct from an empty restrictive API scope. Handlers do not capture request
 capabilities or trust identity fields in their payload.
 
-A handler holds its fenced job row during its bounded database evaluation.
-Application writes, event publication and the successful completion marker commit
-atomically. Obsolete or expired completion fails. Transient failure retries after
+A handler validates its current fence without holding the job row across its
+bounded evaluation, so cancellation and lease recovery can advance the fence
+while an attempt is in flight. Application writes, event publication and the
+conditional successful completion marker still commit atomically; losing the
+fence race rolls those database changes back. Obsolete or expired completion
+fails. Transient failure retries after
 1, 2, 4, ... seconds (at most 60), with 1..8 configured attempts. Exhaustion and
 current authorization denial become visible dead letters. A killed worker leaves
 a lease for another worker to recover. Cancellation cannot undo bytes already sent
@@ -124,10 +129,14 @@ The watch owns one bounded latest-value subscription. It updates typed state and
 cursor together, holds at most one latest message while a component event is
 pending, and discards stale callbacks after identity/parent/component changes.
 Unmount, navigation, page suspension and identity changes close owned sockets.
-Reconnect is bounded to three attempts. A closed/revoked/resync subscription shows
-a visible error; it does not silently grant access. Applications clear private
-form/results on identity change; both examples demonstrate this. Initialize/reset
-the cursor deliberately when changing the selected resource.
+Reconnect is bounded to three attempts. The server sends distinct close codes when
+its periodic recheck observes session invalidation or lost parent access. The
+generated runtime then clears component state in that stale tab immediately;
+transient node or network closes retain state while reconnecting. A closed or
+resync subscription shows a visible error and does not silently grant access.
+Applications also clear private form/results on local identity change; both examples
+demonstrate this. Initialize/reset the cursor deliberately when changing the
+selected resource.
 
 The server polls durable state every 500 ms, revalidating session expiry and current
 parent permissions. A batch is no older than three seconds when a delivery starts;

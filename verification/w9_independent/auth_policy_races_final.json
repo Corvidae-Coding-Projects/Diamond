@@ -1,0 +1,137 @@
+{
+  "status": "PASS",
+  "binary_sha256": "4281f59a9eebda6db8dfa9169a88b6b568898474d194ce599ff1c7a75017a57d",
+  "error": null,
+  "results": [
+    {
+      "name": "logout-all-cross-node-revokes-sessions-but-retains-api-credential",
+      "status": "PASS",
+      "observed": {
+        "api_before": 200,
+        "logout": [
+          200,
+          {
+            "value": ""
+          }
+        ],
+        "stale_session_A": [
+          401,
+          {
+            "error": "authentication_required"
+          }
+        ],
+        "stale_session_B": [
+          401,
+          {
+            "error": "authentication_required"
+          }
+        ],
+        "api_after": 200
+      },
+      "expected": "a committed logout-all is immediately shared by both nodes, while separately managed API credentials intentionally survive"
+    },
+    {
+      "name": "account-disable-closes-live-socket-and-revokes-cookie-token-on-both-nodes",
+      "status": "PASS",
+      "observed": {
+        "disable": [
+          200,
+          {
+            "value": ""
+          }
+        ],
+        "old_socket": {
+          "kind": "close",
+          "code": 4001,
+          "reason": "authentication_required"
+        },
+        "reconnect": 403,
+        "cookie": [
+          401,
+          401
+        ],
+        "api": [
+          401,
+          401
+        ]
+      },
+      "expected": "after disable commits, both servers deny old cookie/API authority and the already-open socket closes on fresh reauthorization"
+    },
+    {
+      "name": "queued-job-rechecks-disabled-owner-before-external-effect",
+      "status": "PASS",
+      "observed": {
+        "job": {
+          "id": "c8ba5d4039c70132bf7c14cd0a7fa8e0843b7095177778ab6f4a6b076a09194d",
+          "state": "dead",
+          "attempts": 1,
+          "fence": 1,
+          "outcome": "denied_or_exhausted"
+        },
+        "receiver_attempts_before": 0,
+        "receiver_attempts_after": 0
+      },
+      "expected": "workers reconstruct current account authority and dead-letter disabled-owner work before the controlled external destination sees bytes"
+    },
+    {
+      "name": "reenable-does-not-resurrect-old-authority-or-dead-job",
+      "status": "PASS",
+      "observed": {
+        "enable": [
+          200,
+          {
+            "value": ""
+          }
+        ],
+        "old_cookie": 401,
+        "old_token": 401,
+        "fresh_login": 200,
+        "fresh_read": 200,
+        "job": {
+          "id": "c8ba5d4039c70132bf7c14cd0a7fa8e0843b7095177778ab6f4a6b076a09194d",
+          "state": "dead",
+          "attempts": 1,
+          "fence": 1,
+          "outcome": "denied_or_exhausted"
+        }
+      },
+      "expected": "account epoch advancement prevents old sessions/tokens from resurrecting after re-enable; a fresh password login works and dead work remains explicit"
+    }
+  ],
+  "shutdowns": [
+    {
+      "worker": "one",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "worker": "two",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "http_requests": 30,
+  "elapsed_seconds": 3.611670651996974,
+  "command": "python3 verification/w9_independent/auth_policy_races.py --binary /tmp/diamond-w9-final-4281f59a",
+  "oracle": "ORACLES.md P1 P2",
+  "temporary_root_removed": true
+}

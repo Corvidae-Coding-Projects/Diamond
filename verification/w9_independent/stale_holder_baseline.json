@@ -1,0 +1,124 @@
+{
+  "status": "PASS",
+  "binary_sha256": "3d58bff2d28ce47bad5196cc22f3b9bbcd6acae39ee6680bd7195dfc9328a32d",
+  "error": null,
+  "results": [
+    {
+      "name": "live-stale-holder-lease-and-fence-race",
+      "status": "PASS",
+      "observed": {
+        "first_claim": {
+          "id": "c92bf89f7dee4e243d582ce2f1aec463e17b6f3616c43594e0d903c7480ebb58",
+          "state": "running",
+          "attempts": 1,
+          "fence": 1,
+          "lease": "2026-10-22 14:54:07.666695-05",
+          "expired": false,
+          "outcome": ""
+        },
+        "expired": {
+          "id": "c92bf89f7dee4e243d582ce2f1aec463e17b6f3616c43594e0d903c7480ebb58",
+          "state": "running",
+          "attempts": 1,
+          "fence": 1,
+          "lease": "2026-10-22 14:54:07.666695-05",
+          "expired": true,
+          "outcome": ""
+        },
+        "second_reached_receiver_before_first_release": true,
+        "before_release": {
+          "id": "c92bf89f7dee4e243d582ce2f1aec463e17b6f3616c43594e0d903c7480ebb58",
+          "state": "running",
+          "attempts": 2,
+          "fence": 2,
+          "lease": "2026-10-22 14:54:37.71206-05",
+          "expired": false,
+          "outcome": ""
+        },
+        "final": {
+          "id": "c92bf89f7dee4e243d582ce2f1aec463e17b6f3616c43594e0d903c7480ebb58",
+          "state": "done",
+          "attempts": 2,
+          "fence": 2,
+          "lease": null,
+          "expired": null,
+          "outcome": "completed"
+        },
+        "receiver": {
+          "attempts": [
+            {
+              "path": "/v1/dedup/c92bf89f7dee4e243d582ce2f1aec463e17b6f3616c43594e0d903c7480ebb58",
+              "key": "c92bf89f7dee4e243d582ce2f1aec463e17b6f3616c43594e0d903c7480ebb58",
+              "body_sha256": "c094775e4c5c6effa69d8343e07e82d8355e3c2ca311a60678195e8bb35a605c",
+              "bytes": 22
+            },
+            {
+              "path": "/v1/dedup/c92bf89f7dee4e243d582ce2f1aec463e17b6f3616c43594e0d903c7480ebb58",
+              "key": "c92bf89f7dee4e243d582ce2f1aec463e17b6f3616c43594e0d903c7480ebb58",
+              "body_sha256": "c094775e4c5c6effa69d8343e07e82d8355e3c2ca311a60678195e8bb35a605c",
+              "bytes": 22
+            }
+          ],
+          "attempt_count": 2,
+          "effect_keys": [
+            "c92bf89f7dee4e243d582ce2f1aec463e17b6f3616c43594e0d903c7480ebb58"
+          ],
+          "effects": 1,
+          "counts": {
+            "/v1/dedup/c92bf89f7dee4e243d582ce2f1aec463e17b6f3616c43594e0d903c7480ebb58": 2
+          }
+        },
+        "lease_wait_seconds": 30.052554494992364
+      },
+      "expected": "after a process is stopped beyond its real lease, only the current fence completes; the stable key/body may repeat but receiver dedup records one business effect"
+    },
+    {
+      "name": "stale-holder-final-state-visible-through-owner-api",
+      "status": "PASS",
+      "observed": {
+        "rpc": [
+          200,
+          {
+            "value": "{\"attempts\":2,\"outcome\":\"completed\",\"state\":\"done\"}"
+          }
+        ],
+        "parsed": {
+          "attempts": 2,
+          "outcome": "completed",
+          "state": "done"
+        }
+      },
+      "expected": "the owner-visible status reports the current two-attempt completion rather than an obsolete holder outcome"
+    }
+  ],
+  "shutdowns": [
+    {
+      "worker": "first",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "worker": "second",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "http_requests": 5,
+  "elapsed_seconds": 31.87711204199877,
+  "command": "python3 verification/w9_independent/stale_holder.py --binary /tmp/diamond-w9-baseline-b60441f",
+  "oracle": "ORACLES.md J1",
+  "injected_schedule": "SIGSTOP first worker after receiver effect; wait actual DB lease expiry; start second; release receiver; SIGCONT first",
+  "temporary_root_removed": true
+}

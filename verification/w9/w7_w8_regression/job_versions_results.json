@@ -1,0 +1,161 @@
+{
+  "status": "PASS",
+  "binary_sha256": "4281f59a9eebda6db8dfa9169a88b6b568898474d194ce599ff1c7a75017a57d",
+  "error": null,
+  "results": [
+    {
+      "name": "browser-edit-retains-durable-handler-version",
+      "status": "PASS",
+      "observed": {
+        "row": {
+          "id": "10116619b8708533da9a398b00852ee2c2c58b6efda7ff2f19b3dfa3a6d2c1ea",
+          "state": "done",
+          "attempts": 1,
+          "version": "5851f3f69efd869399d3f88a511e2c513dde0790cb7308847c66a60b5133247e"
+        },
+        "old_contract": "830d93be8cc816748dfe00b486df3431d7aad04eb6f7264e4df30bcb1b2c5053",
+        "new_contract": "d4826fda7937ce0c281abc373313a6b13e161acd4127c5b085933310f522627f"
+      },
+      "expected": "browser source replacement changes browser contract while existing current handler remains able to execute its queued payload"
+    },
+    {
+      "name": "changed-handler-does-not-claim-old-version",
+      "status": "PASS",
+      "observed": {
+        "old": {
+          "id": "5d084a86ce4f7f3d078d196402536f9361ce5795ae301ef8808f808aa141a4cb",
+          "state": "pending",
+          "attempts": 0,
+          "version": "5851f3f69efd869399d3f88a511e2c513dde0790cb7308847c66a60b5133247e"
+        },
+        "new": {
+          "id": "e97a6b284aacb95d736dafc10e309b554db2e4a88e94c6a24ccb8ed56c0f6704",
+          "state": "done",
+          "attempts": 1,
+          "version": "fc9295fb31debc01a1278dea1c1bfbfdbcf384f12b491fe5009ec9fe4f7263c7"
+        },
+        "receiver": {
+          "attempts": [
+            {
+              "path": "/v1/dedup/10116619b8708533da9a398b00852ee2c2c58b6efda7ff2f19b3dfa3a6d2c1ea",
+              "key": "10116619b8708533da9a398b00852ee2c2c58b6efda7ff2f19b3dfa3a6d2c1ea",
+              "body_sha256": "75dc1aa8b81882a8a60fcf1182e3c40e29e8a762b4fb6c5fc27a4ff0b3b5aa6c",
+              "bytes": 28
+            },
+            {
+              "path": "/v1/dedup/e97a6b284aacb95d736dafc10e309b554db2e4a88e94c6a24ccb8ed56c0f6704",
+              "key": "e97a6b284aacb95d736dafc10e309b554db2e4a88e94c6a24ccb8ed56c0f6704",
+              "body_sha256": "09a12ce281ca5c7a764efecaae73fe1aebfb2328e11b9fe2768cf1dfd1245442",
+              "bytes": 26
+            }
+          ],
+          "effect_keys": [
+            "10116619b8708533da9a398b00852ee2c2c58b6efda7ff2f19b3dfa3a6d2c1ea",
+            "e97a6b284aacb95d736dafc10e309b554db2e4a88e94c6a24ccb8ed56c0f6704"
+          ],
+          "effects": 2,
+          "counts": {
+            "/v1/dedup/10116619b8708533da9a398b00852ee2c2c58b6efda7ff2f19b3dfa3a6d2c1ea": 1,
+            "/v1/dedup/e97a6b284aacb95d736dafc10e309b554db2e4a88e94c6a24ccb8ed56c0f6704": 1
+          }
+        }
+      },
+      "expected": "current worker leaves incompatible queued implementation version untouched while processing newly checked work"
+    },
+    {
+      "name": "old-version-requires-explicit-cancellation",
+      "status": "PASS",
+      "observed": {
+        "rpc": [
+          200,
+          {
+            "value": "{\"attempts\":0,\"outcome\":\"cancelled\",\"state\":\"cancelled\"}"
+          }
+        ],
+        "row": {
+          "id": "5d084a86ce4f7f3d078d196402536f9361ce5795ae301ef8808f808aa141a4cb",
+          "state": "cancelled",
+          "attempts": 0,
+          "version": "5851f3f69efd869399d3f88a511e2c513dde0790cb7308847c66a60b5133247e"
+        }
+      },
+      "expected": "owner explicitly cancels old pending work rather than implicit replay under changed handler"
+    }
+  ],
+  "shutdowns": [
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "worker": "one",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "worker": "two",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "worker": "new-one",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "worker": "new-two",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "http_requests": 16,
+  "elapsed_seconds": 4.02312776701001,
+  "temporary_root": "/tmp/diamond-w8-job-versions-25hkvg2g"
+}

@@ -1,0 +1,648 @@
+{
+  "binary_sha256": "4281f59a9eebda6db8dfa9169a88b6b568898474d194ce599ff1c7a75017a57d",
+  "cleanup": {
+    "exists_after_removal": false,
+    "exists_before_removal": true,
+    "root": "/tmp/diamond-w9-transport-_i3vqlcf",
+    "service_errors": []
+  },
+  "failures": [],
+  "observations": 52,
+  "results": [
+    {
+      "expected": "real server liveness returns 200 before hostile traffic",
+      "name": "baseline-live",
+      "observed": 200,
+      "status": "PASS"
+    },
+    {
+      "expected": "ambiguous/hostile request is bounded and rejected before protected dispatch",
+      "name": "absolute-form",
+      "observed": {
+        "bytes": 458,
+        "elapsed_ms": 0.192,
+        "error": null,
+        "head_sha256": "945419abdd250a1ed0e72df59017a19655517042f4e54e000a245f1a37840597",
+        "statuses": [
+          400
+        ]
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "server remains live after hostile request",
+      "name": "absolute-form-survives",
+      "observed": 200,
+      "status": "PASS"
+    },
+    {
+      "expected": "ambiguous/hostile request is bounded and rejected before protected dispatch",
+      "name": "double-slash",
+      "observed": {
+        "bytes": 458,
+        "elapsed_ms": 0.168,
+        "error": null,
+        "head_sha256": "945419abdd250a1ed0e72df59017a19655517042f4e54e000a245f1a37840597",
+        "statuses": [
+          400
+        ]
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "server remains live after hostile request",
+      "name": "double-slash-survives",
+      "observed": 200,
+      "status": "PASS"
+    },
+    {
+      "expected": "ambiguous/hostile request is bounded and rejected before protected dispatch",
+      "name": "percent-path",
+      "observed": {
+        "bytes": 458,
+        "elapsed_ms": 0.15,
+        "error": null,
+        "head_sha256": "945419abdd250a1ed0e72df59017a19655517042f4e54e000a245f1a37840597",
+        "statuses": [
+          400
+        ]
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "server remains live after hostile request",
+      "name": "percent-path-survives",
+      "observed": 200,
+      "status": "PASS"
+    },
+    {
+      "expected": "ambiguous/hostile request is bounded and rejected before protected dispatch",
+      "name": "backslash-path",
+      "observed": {
+        "bytes": 458,
+        "elapsed_ms": 0.155,
+        "error": null,
+        "head_sha256": "945419abdd250a1ed0e72df59017a19655517042f4e54e000a245f1a37840597",
+        "statuses": [
+          400
+        ]
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "server remains live after hostile request",
+      "name": "backslash-path-survives",
+      "observed": 200,
+      "status": "PASS"
+    },
+    {
+      "expected": "ambiguous/hostile request is bounded and rejected before protected dispatch",
+      "name": "query-string",
+      "observed": {
+        "bytes": 458,
+        "elapsed_ms": 0.143,
+        "error": null,
+        "head_sha256": "945419abdd250a1ed0e72df59017a19655517042f4e54e000a245f1a37840597",
+        "statuses": [
+          400
+        ]
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "server remains live after hostile request",
+      "name": "query-string-survives",
+      "observed": 200,
+      "status": "PASS"
+    },
+    {
+      "expected": "ambiguous/hostile request is bounded and rejected before protected dispatch",
+      "name": "duplicate-host",
+      "observed": {
+        "bytes": 439,
+        "elapsed_ms": 4004.37,
+        "error": "TimeoutError",
+        "head_sha256": "48b67883601a94962a9ecf52284f924186797e4b61ba70eadf016a9ebd91aa6b",
+        "statuses": [
+          400
+        ]
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "server remains live after hostile request",
+      "name": "duplicate-host-survives",
+      "observed": 200,
+      "status": "PASS"
+    },
+    {
+      "expected": "ambiguous/hostile request is bounded and rejected before protected dispatch",
+      "name": "host-comma-list",
+      "observed": {
+        "bytes": 439,
+        "elapsed_ms": 4004.02,
+        "error": "TimeoutError",
+        "head_sha256": "6fbd64372fdeabea3fca9489952e2d5663b56ad563dedf08b0523a22737755d4",
+        "statuses": [
+          400
+        ]
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "server remains live after hostile request",
+      "name": "host-comma-list-survives",
+      "observed": 200,
+      "status": "PASS"
+    },
+    {
+      "expected": "ambiguous/hostile request is bounded and rejected before protected dispatch",
+      "name": "forwarded",
+      "observed": {
+        "bytes": 458,
+        "elapsed_ms": 0.54,
+        "error": null,
+        "head_sha256": "a5f4c569ef4976f330ad07fc95aede355195746436dbd9ab4dae8815f021a20f",
+        "statuses": [
+          400
+        ]
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "server remains live after hostile request",
+      "name": "forwarded-survives",
+      "observed": 200,
+      "status": "PASS"
+    },
+    {
+      "expected": "ambiguous/hostile request is bounded and rejected before protected dispatch",
+      "name": "x-forwarded-host",
+      "observed": {
+        "bytes": 458,
+        "elapsed_ms": 0.437,
+        "error": null,
+        "head_sha256": "a5f4c569ef4976f330ad07fc95aede355195746436dbd9ab4dae8815f021a20f",
+        "statuses": [
+          400
+        ]
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "server remains live after hostile request",
+      "name": "x-forwarded-host-survives",
+      "observed": 200,
+      "status": "PASS"
+    },
+    {
+      "expected": "ambiguous/hostile request is bounded and rejected before protected dispatch",
+      "name": "transfer-encoding",
+      "observed": {
+        "bytes": 458,
+        "elapsed_ms": 0.19,
+        "error": null,
+        "head_sha256": "a5f4c569ef4976f330ad07fc95aede355195746436dbd9ab4dae8815f021a20f",
+        "statuses": [
+          400
+        ]
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "server remains live after hostile request",
+      "name": "transfer-encoding-survives",
+      "observed": 200,
+      "status": "PASS"
+    },
+    {
+      "expected": "ambiguous/hostile request is bounded and rejected before protected dispatch",
+      "name": "te-and-cl",
+      "observed": {
+        "bytes": 458,
+        "elapsed_ms": 0.368,
+        "error": null,
+        "head_sha256": "a5f4c569ef4976f330ad07fc95aede355195746436dbd9ab4dae8815f021a20f",
+        "statuses": [
+          400
+        ]
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "server remains live after hostile request",
+      "name": "te-and-cl-survives",
+      "observed": 200,
+      "status": "PASS"
+    },
+    {
+      "expected": "ambiguous/hostile request is bounded and rejected before protected dispatch",
+      "name": "conflicting-content-length",
+      "observed": {
+        "bytes": 103,
+        "elapsed_ms": 0.104,
+        "error": null,
+        "head_sha256": "97a0154d003ae5f06b1aecee45c5630d48d08db2117f46adbf596da059b1908c",
+        "statuses": [
+          400
+        ]
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "server remains live after hostile request",
+      "name": "conflicting-content-length-survives",
+      "observed": 200,
+      "status": "PASS"
+    },
+    {
+      "expected": "ambiguous/hostile request is bounded and rejected before protected dispatch",
+      "name": "oversize-content-length",
+      "observed": {
+        "bytes": 458,
+        "elapsed_ms": 0.32,
+        "error": null,
+        "head_sha256": "a5f4c569ef4976f330ad07fc95aede355195746436dbd9ab4dae8815f021a20f",
+        "statuses": [
+          400
+        ]
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "server remains live after hostile request",
+      "name": "oversize-content-length-survives",
+      "observed": 200,
+      "status": "PASS"
+    },
+    {
+      "expected": "ambiguous/hostile request is bounded and rejected before protected dispatch",
+      "name": "unsupported-connect",
+      "observed": {
+        "bytes": 458,
+        "elapsed_ms": 0.15,
+        "error": null,
+        "head_sha256": "a5f4c569ef4976f330ad07fc95aede355195746436dbd9ab4dae8815f021a20f",
+        "statuses": [
+          400
+        ]
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "server remains live after hostile request",
+      "name": "unsupported-connect-survives",
+      "observed": 200,
+      "status": "PASS"
+    },
+    {
+      "expected": "ambiguous/hostile request is bounded and rejected before protected dispatch",
+      "name": "asterisk-form",
+      "observed": {
+        "bytes": 456,
+        "elapsed_ms": 0.149,
+        "error": null,
+        "head_sha256": "bbcaa1d107b3bbb658508f022a7673010c4704f74b6ebf53b679e165f0badd96",
+        "statuses": [
+          405
+        ]
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "server remains live after hostile request",
+      "name": "asterisk-form-survives",
+      "observed": 200,
+      "status": "PASS"
+    },
+    {
+      "expected": "ambiguous/hostile request is bounded and rejected before protected dispatch",
+      "name": "cross-site-fetch",
+      "observed": {
+        "bytes": 458,
+        "elapsed_ms": 0.144,
+        "error": null,
+        "head_sha256": "a5f4c569ef4976f330ad07fc95aede355195746436dbd9ab4dae8815f021a20f",
+        "statuses": [
+          400
+        ]
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "server remains live after hostile request",
+      "name": "cross-site-fetch-survives",
+      "observed": 200,
+      "status": "PASS"
+    },
+    {
+      "expected": "ambiguous/hostile request is bounded and rejected before protected dispatch",
+      "name": "hostile-origin-asset",
+      "observed": {
+        "bytes": 458,
+        "elapsed_ms": 0.143,
+        "error": null,
+        "head_sha256": "a5f4c569ef4976f330ad07fc95aede355195746436dbd9ab4dae8815f021a20f",
+        "statuses": [
+          400
+        ]
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "server remains live after hostile request",
+      "name": "hostile-origin-asset-survives",
+      "observed": 200,
+      "status": "PASS"
+    },
+    {
+      "expected": "ambiguous/hostile request is bounded and rejected before protected dispatch",
+      "name": "authorization-on-cookie-surface",
+      "observed": {
+        "bytes": 447,
+        "elapsed_ms": 0.147,
+        "error": null,
+        "head_sha256": "f70225b5dbb5f494bc40c3ad6b1e694bc79b486f0004a478bd0d2549db84ff5e",
+        "statuses": [
+          403
+        ]
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "server remains live after hostile request",
+      "name": "authorization-on-cookie-surface-survives",
+      "observed": 200,
+      "status": "PASS"
+    },
+    {
+      "expected": "independent raw request reaches exactly one declared protected operation",
+      "name": "raw-valid-control",
+      "observed": {
+        "events_after": 1,
+        "events_before": 0,
+        "response": {
+          "bytes": 435,
+          "elapsed_ms": 5.978,
+          "error": null,
+          "head_sha256": "49bde7947bc2b88f36bb2a3ef5a13f7279685a4252d6ff558dcb47b1aff2916f",
+          "statuses": [
+            200
+          ]
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "duplicate/forged authority input is denied with no event side effect",
+      "name": "duplicate-origin",
+      "observed": {
+        "events_after": 1,
+        "events_before": 1,
+        "response": {
+          "bytes": 458,
+          "elapsed_ms": 0.662,
+          "error": null,
+          "head_sha256": "a5f4c569ef4976f330ad07fc95aede355195746436dbd9ab4dae8815f021a20f",
+          "statuses": [
+            400
+          ]
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "duplicate/forged authority input is denied with no event side effect",
+      "name": "duplicate-cookie-header",
+      "observed": {
+        "events_after": 1,
+        "events_before": 1,
+        "response": {
+          "bytes": 447,
+          "elapsed_ms": 0.604,
+          "error": null,
+          "head_sha256": "f70225b5dbb5f494bc40c3ad6b1e694bc79b486f0004a478bd0d2549db84ff5e",
+          "statuses": [
+            403
+          ]
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "duplicate/forged authority input is denied with no event side effect",
+      "name": "duplicate-csrf",
+      "observed": {
+        "events_after": 1,
+        "events_before": 1,
+        "response": {
+          "bytes": 447,
+          "elapsed_ms": 5.725,
+          "error": null,
+          "head_sha256": "f70225b5dbb5f494bc40c3ad6b1e694bc79b486f0004a478bd0d2549db84ff5e",
+          "statuses": [
+            403
+          ]
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "duplicate/forged authority input is denied with no event side effect",
+      "name": "hostile-origin",
+      "observed": {
+        "events_after": 1,
+        "events_before": 1,
+        "response": {
+          "bytes": 458,
+          "elapsed_ms": 0.662,
+          "error": null,
+          "head_sha256": "a5f4c569ef4976f330ad07fc95aede355195746436dbd9ab4dae8815f021a20f",
+          "statuses": [
+            400
+          ]
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "duplicate/forged authority input is denied with no event side effect",
+      "name": "forged-cookie",
+      "observed": {
+        "events_after": 1,
+        "events_before": 1,
+        "response": {
+          "bytes": 509,
+          "elapsed_ms": 3.195,
+          "error": null,
+          "head_sha256": "3f91ae274b04b977ed128f06205b220a4267be4d69eddd2c2df3dfd6d577fe73",
+          "statuses": [
+            401
+          ]
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "duplicate/forged authority input is denied with no event side effect",
+      "name": "missing-origin",
+      "observed": {
+        "events_after": 1,
+        "events_before": 1,
+        "response": {
+          "bytes": 447,
+          "elapsed_ms": 0.673,
+          "error": null,
+          "head_sha256": "eaa6664c45cdbb38a7b49f9d952042e5447c48375d2a6c4e99a6adaa959e020c",
+          "statuses": [
+            403
+          ]
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "duplicate/forged authority input is denied with no event side effect",
+      "name": "cookie-plus-authorization",
+      "observed": {
+        "events_after": 1,
+        "events_before": 1,
+        "response": {
+          "bytes": 447,
+          "elapsed_ms": 0.476,
+          "error": null,
+          "head_sha256": "f70225b5dbb5f494bc40c3ad6b1e694bc79b486f0004a478bd0d2549db84ff5e",
+          "statuses": [
+            403
+          ]
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "strict bounded JSON rejects malformed shape without protected side effect",
+      "name": "duplicate-envelope-key",
+      "observed": {
+        "events_after": 1,
+        "events_before": 1,
+        "response": {
+          "bytes": 456,
+          "elapsed_ms": 0.728,
+          "error": null,
+          "head_sha256": "4c74c0f85685135824191084727aa6e78969c8a6563f88677ccbfdbf12d6f308",
+          "statuses": [
+            400
+          ]
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "strict bounded JSON rejects malformed shape without protected side effect",
+      "name": "extra-envelope-key",
+      "observed": {
+        "events_after": 1,
+        "events_before": 1,
+        "response": {
+          "bytes": 456,
+          "elapsed_ms": 1.08,
+          "error": null,
+          "head_sha256": "4c74c0f85685135824191084727aa6e78969c8a6563f88677ccbfdbf12d6f308",
+          "statuses": [
+            400
+          ]
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "strict bounded JSON rejects malformed shape without protected side effect",
+      "name": "trailing-json",
+      "observed": {
+        "events_after": 1,
+        "events_before": 1,
+        "response": {
+          "bytes": 456,
+          "elapsed_ms": 1.007,
+          "error": null,
+          "head_sha256": "4c74c0f85685135824191084727aa6e78969c8a6563f88677ccbfdbf12d6f308",
+          "statuses": [
+            400
+          ]
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "strict bounded JSON rejects malformed shape without protected side effect",
+      "name": "deep-json",
+      "observed": {
+        "events_after": 1,
+        "events_before": 1,
+        "response": {
+          "bytes": 456,
+          "elapsed_ms": 1.077,
+          "error": null,
+          "head_sha256": "4c74c0f85685135824191084727aa6e78969c8a6563f88677ccbfdbf12d6f308",
+          "statuses": [
+            400
+          ]
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "strict bounded JSON rejects malformed shape without protected side effect",
+      "name": "invalid-utf8-json",
+      "observed": {
+        "events_after": 1,
+        "events_before": 1,
+        "response": {
+          "bytes": 456,
+          "elapsed_ms": 1.087,
+          "error": null,
+          "head_sha256": "4c74c0f85685135824191084727aa6e78969c8a6563f88677ccbfdbf12d6f308",
+          "statuses": [
+            400
+          ]
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "HTTP stack frames at most the two explicit requests without an injected protected dispatch",
+      "name": "pipelined-independent-framing",
+      "observed": {
+        "bytes": 1168,
+        "elapsed_ms": 0.884,
+        "error": null,
+        "head_sha256": "c3285bed198f47e19a1b8884a50591ec66141d5d66711709547ea7f3856d559f",
+        "statuses": [
+          200
+        ]
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "server logs contain only request classes/statuses and no password, CSRF, or session token",
+      "name": "logs-redact-credentials",
+      "observed": {
+        "credential_canaries_found": [],
+        "log_bytes": 3145
+      },
+      "status": "PASS"
+    }
+  ],
+  "scope": "actual connected Diamond process, PostgreSQL, raw HTTP sockets, authenticated RPC and independent database side-effect readback",
+  "shutdowns": [
+    {
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "node": "A",
+      "panic": false
+    }
+  ],
+  "source_sha256": "5af76ee10df527bcd64c5837e86f364303cb75b1584b3766b953f62c660e91f2",
+  "status": "PASS"
+}

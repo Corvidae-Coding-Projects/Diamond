@@ -1,13 +1,14 @@
 # Operable deployment and recovery (W8)
 
-Diamond 0.14.0 provides a current-version Linux profile: two loopback application
+Diamond 0.15.0 provides a current-version Linux profile: two loopback application
 servers and two workers, one dedicated PostgreSQL database per application, a
 private shared filesystem for attachments, an explicit private account mail spool,
 and a maintained HTTPS proxy. It includes deployment validation and encrypted
 quiesced snapshots with isolated restore. No infrastructure is deployed by these
-commands. W9 adversarial/distributed qualification and W10 final release gates
-remain separate. This profile does not supply remote/TLS PostgreSQL connections,
-SMTP delivery, object-store replication, online backups, or mixed-version upgrades.
+commands. Retained W9 adversarial/distributed evidence is recorded separately;
+W10 still owns final release gates. This profile does not supply remote/TLS
+PostgreSQL connections, SMTP delivery, object-store replication, online backups,
+or mixed-version upgrades.
 The example service units and edge configuration require operator installation;
 this work does not install them or open a public listener.
 
@@ -124,6 +125,11 @@ Internal operational endpoints, requiring canonical Host:
 | `/_diamond/health/live` | Process is serving. |
 | `/_diamond/health/ready` | Not draining; current schema and configured object store are available. |
 | `/_diamond/health/metrics` | Request count, active ordinary requests, active sockets and draining flag; no identities, bodies or secrets. |
+
+Health endpoints use two dedicated admission permits. Ordinary request or stream
+backpressure therefore does not make a live node appear dead, while health traffic
+itself remains bounded; excess simultaneous probes receive the normal capacity
+response.
 
 Servers emit redacted structured `request_complete` events with request class and
 status. Workers emit redacted failure classes. Application payloads, cookies,

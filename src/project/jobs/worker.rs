@@ -52,7 +52,13 @@ fn execute(
     job: &Claim,
 ) -> Result<()> {
     let mut db = PostgresStore::open_with(project, configuration, false, None)?;
-    let rows=db.connection.query("SELECT id FROM diamond_w7.jobs WHERE app=$1 AND id=$2 AND fence=$3 AND state='running' AND lease>clock_timestamp() FOR UPDATE", &[&db.app,&job.id,&job.fence])?;
+    // Do not lock the job row across handler execution. Cancellation and lease
+    // recovery must be able to advance the fence while an attempt is in flight;
+    // the conditional completion update below then makes this transaction lose
+    // its serialization race and rolls back any database changes. External
+    // bytes may already have been sent and retain the documented at-least-once
+    // contract.
+    let rows=db.connection.query("SELECT id FROM diamond_w7.jobs WHERE app=$1 AND id=$2 AND fence=$3 AND state='running' AND lease>clock_timestamp()", &[&db.app,&job.id,&job.fence])?;
     if rows.is_empty() {
         return Err(Error::Conflict);
     }

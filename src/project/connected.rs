@@ -42,6 +42,7 @@ pub(super) struct Server {
     pub(super) cookie: String,
     pub(super) secrets: Arc<Secrets>,
     pub(super) permits: Arc<Semaphore>,
+    pub(super) health_permits: Arc<Semaphore>,
     pub(super) pool: Option<Arc<crate::relational::Pool>>,
     pub(super) mailbox: Option<super::accounts::Mailbox>,
     pub(super) runtime: crate::RuntimeGrants,
@@ -159,6 +160,7 @@ pub(super) fn serve_runtime(
         ),
         secrets,
         permits: Arc::new(Semaphore::new(16)),
+        health_permits: Arc::new(Semaphore::new(2)),
         pool: project
             .server
             .storage
@@ -241,9 +243,6 @@ async fn handler_inner(
     ConnectInfo(peer): ConnectInfo<SocketAddr>,
     request: Request,
 ) -> Response {
-    let Ok(permit) = Arc::clone(&server.permits).try_acquire_owned() else {
-        return failure(&Error::Limit("request capacity"));
-    };
     if !valid_request(&server, &request) {
         return json_response(StatusCode::BAD_REQUEST, &json!({"error":"invalid_request"}));
     }
@@ -251,8 +250,14 @@ async fn handler_inner(
         .requests
         .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
     if request.uri().path().starts_with("/_diamond/health") {
+        let Ok(_permit) = Arc::clone(&server.health_permits).try_acquire_owned() else {
+            return failure(&Error::Limit("health capacity"));
+        };
         return super::deployment::health(server, request).await;
     }
+    let Ok(permit) = Arc::clone(&server.permits).try_acquire_owned() else {
+        return failure(&Error::Limit("request capacity"));
+    };
     if server.draining.load(std::sync::atomic::Ordering::Relaxed) {
         return failure(&Error::Limit("server draining"));
     }

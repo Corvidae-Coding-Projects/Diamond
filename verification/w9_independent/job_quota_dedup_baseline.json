@@ -1,0 +1,95 @@
+{
+  "status": "FAIL",
+  "binary_sha256": "3d58bff2d28ce47bad5196cc22f3b9bbcd6acae39ee6680bd7195dfc9328a32d",
+  "error": null,
+  "results": [
+    {
+      "name": "identical-stable-key-retry-survives-full-row-quota",
+      "status": "FAIL",
+      "observed": {
+        "count_before": 10000,
+        "retry": [
+          503,
+          {
+            "error": "unavailable"
+          }
+        ],
+        "count_after": 10000,
+        "original_unchanged": true,
+        "job": {
+          "id": "d6d83550f449f892cf57776b49bbb25d03759d4bd35445a9318ac33f2fa95300",
+          "binding": "notify",
+          "parent": "fac280971928856f9d18e3e9bda7d5b364a1bec6ef6840f6ff26e1bb1e5c98fe",
+          "owner": "alice",
+          "payload": "\"quota-stable-payload\"",
+          "dedup": "quota-stable-key",
+          "state": "pending",
+          "attempts": 0,
+          "fence": 0,
+          "outcome": ""
+        }
+      },
+      "expected": "an identical submission at the application row cap returns its existing opaque ID without consuming capacity or mutating the original"
+    },
+    {
+      "name": "conflicting-stable-key-retry-remains-conflict-at-full-quota",
+      "status": "FAIL",
+      "observed": {
+        "count_before": 10000,
+        "retry": [
+          503,
+          {
+            "error": "unavailable"
+          }
+        ],
+        "count_after": 10000,
+        "original_unchanged": true
+      },
+      "expected": "a changed payload under an existing owner/binding/key remains a confirmed conflict at quota rather than being misclassified as capacity loss"
+    },
+    {
+      "name": "quota-rejection-or-dedup-does-not-poison-server",
+      "status": "PASS",
+      "observed": {
+        "read": [
+          200,
+          {
+            "value": {
+              "id": {
+                "tag": "issue",
+                "value": "fac280971928856f9d18e3e9bda7d5b364a1bec6ef6840f6ff26e1bb1e5c98fe"
+              },
+              "project": {
+                "tag": "project",
+                "value": "210f269b1b9f82ef1a01b4f568bf530bd9504235825f44ac54253d67dd5848a9"
+              },
+              "rank": "11",
+              "title": "red exact \u96ea",
+              "workspace": {
+                "tag": "workspace",
+                "value": "4e2d7c125c1399cd1436002baf5a5bc4ab981a4eeb6d567c809af3727d6c6566"
+              }
+            }
+          }
+        ],
+        "job_count": 10000
+      },
+      "expected": "the quota-edge transaction leaves the node and durable registry usable"
+    }
+  ],
+  "shutdowns": [
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "http_requests": 7,
+  "elapsed_seconds": 1.6165942660009023,
+  "command": "python3 verification/w9_independent/job_quota_dedup.py --binary /tmp/diamond-w9-baseline-b60441f",
+  "oracle": "ORACLES.md J3",
+  "temporary_root_removed": true
+}

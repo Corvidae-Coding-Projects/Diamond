@@ -1,0 +1,76 @@
+{
+  "status": "PASS",
+  "binary_sha256": "4281f59a9eebda6db8dfa9169a88b6b568898474d194ce599ff1c7a75017a57d",
+  "error": null,
+  "observations": [
+    {
+      "name": "server-source-canary-confined-to-private-artifact",
+      "status": "PASS",
+      "observed": {
+        "private_server_sha256": "28bcd74807d55ad7b814dd329c8d573f93b7f6e5a6d8db5a3c287b1ca2ba6dbc",
+        "public_file_count": 5,
+        "public_canary_hits": []
+      },
+      "expected": "the planted implementation canary exists in the private server artifact and in no browser asset, page, map or public contract"
+    },
+    {
+      "name": "private-build-inputs-not-served-or-dispatched",
+      "status": "PASS",
+      "observed": {
+        "paths": {
+          "/server.json": {
+            "status": 404,
+            "bytes": 21,
+            "sha256": "d2dfdc9511fbeaa0701d1f8730f4989313b062ca1b61a2bd8bed8f4f5d654b5d"
+          },
+          "/server.dia": {
+            "status": 404,
+            "bytes": 21,
+            "sha256": "d2dfdc9511fbeaa0701d1f8730f4989313b062ca1b61a2bd8bed8f4f5d654b5d"
+          },
+          "/diamond.toml": {
+            "status": 404,
+            "bytes": 21,
+            "sha256": "d2dfdc9511fbeaa0701d1f8730f4989313b062ca1b61a2bd8bed8f4f5d654b5d"
+          },
+          "/contract.json": {
+            "status": 404,
+            "bytes": 21,
+            "sha256": "d2dfdc9511fbeaa0701d1f8730f4989313b062ca1b61a2bd8bed8f4f5d654b5d"
+          },
+          "/assets/../server.json": {
+            "status": 404,
+            "bytes": 21,
+            "sha256": "d2dfdc9511fbeaa0701d1f8730f4989313b062ca1b61a2bd8bed8f4f5d654b5d"
+          }
+        },
+        "api_contract_status": 404,
+        "hidden_status": 404,
+        "canary_in_response": false
+      },
+      "expected": "guessed private artifact/source paths, the absent API profile, and undeclared server functions disclose no implementation text"
+    },
+    {
+      "name": "runtime-credentials-absent-from-logs-and-browser-artifacts",
+      "status": "PASS",
+      "observed": {
+        "log_bytes": 629,
+        "log_secret_indexes": [],
+        "browser_artifact_hits": []
+      },
+      "expected": "synthetic password, CSRF and session values do not enter request logs or compiled browser material"
+    }
+  ],
+  "shutdowns": [
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "scope": "real build plus one real connected node; direct artifact-byte inspection and actual HTTP/RPC reachability checks",
+  "temporary_root_removed": true
+}
