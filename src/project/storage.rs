@@ -31,6 +31,11 @@ pub(crate) struct PostgresStore {
     pub(super) app: String,
     pub(super) program: CheckedProgram,
     pub(super) identity: Option<super::accounts::Config>,
+    pub(super) jobs: std::collections::BTreeMap<String, super::jobs::Binding>,
+    pub(super) events: std::collections::BTreeMap<String, super::events::Binding>,
+    pub(super) event_types: std::collections::BTreeMap<String, Type>,
+    pub(super) job_version: String,
+    pub(super) job_operations: std::collections::BTreeMap<String, super::rpc::Operation>,
     active: bool,
     nested: bool,
     failure: TransactionFailure,
@@ -60,6 +65,47 @@ impl PostgresStore {
     ) -> Result<Self> {
         Self::open_mode(project, configuration, false, pool, false)
     }
+    fn connect(
+        project: &CheckedProject,
+        configuration: &str,
+        pool: Option<&std::sync::Arc<crate::relational::Pool>>,
+    ) -> Result<Self> {
+        let connection = if let Some(pool) = pool {
+            pool.acquire()?
+        } else {
+            crate::relational::Connection::Direct(HostRuntime::connect_worker(configuration)?)
+        };
+        Ok(Self {
+            connection,
+            app: artifact::hash(project.manifest.name.as_bytes()),
+            program: project.server.clone(),
+            identity: project.manifest.identity.clone(),
+            jobs: project.manifest.jobs.clone(),
+            events: project.manifest.events.clone(),
+            event_types: project
+                .manifest
+                .events
+                .iter()
+                .map(|(n, b)| {
+                    Ok((
+                        n.clone(),
+                        super::events::payload(
+                            b,
+                            &project.modules,
+                            &project.manifest,
+                            &project.server,
+                        )?,
+                    ))
+                })
+                .collect::<Result<_>>()?,
+            job_operations: project.jobs.clone(),
+            job_version: super::jobs::version(project)?,
+            active: false,
+            nested: false,
+            failure: TransactionFailure::Clean,
+            operation_id: random_hex()?,
+        })
+    }
     fn open_mode(
         project: &CheckedProject,
         configuration: &str,
@@ -67,21 +113,7 @@ impl PostgresStore {
         pool: Option<&std::sync::Arc<crate::relational::Pool>>,
         serializable: bool,
     ) -> Result<Self> {
-        let connection = if let Some(pool) = pool {
-            pool.acquire()?
-        } else {
-            crate::relational::Connection::Direct(HostRuntime::connect_worker(configuration)?)
-        };
-        let mut store = Self {
-            connection,
-            app: artifact::hash(project.manifest.name.as_bytes()),
-            program: project.server.clone(),
-            identity: project.manifest.identity.clone(),
-            active: false,
-            nested: false,
-            failure: TransactionFailure::Clean,
-            operation_id: random_hex()?,
-        };
+        let mut store = Self::connect(project, configuration, pool)?;
         if store.program.storage.is_some() {
             store.connection.runtime()?.enable_relational();
             store
@@ -119,6 +151,9 @@ impl PostgresStore {
             }
             if let Some(config) = &project.manifest.files {
                 super::files::schema(&mut store, config, initialize)?;
+            }
+            if !store.jobs.is_empty() || !store.events.is_empty() {
+                super::jobs::schema(&mut store, project, initialize)?;
             }
             return Ok(store);
         }

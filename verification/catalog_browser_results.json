@@ -1,0 +1,99 @@
+{
+  "app": "catalog",
+  "observations": [
+    {
+      "jobs": [
+        {
+          "id": "ae073752ee77caa715500bc03f14f504d2d728a8d7945dee2a66725022f7fe84",
+          "binding": "notify",
+          "parent": "f0deafdaa48268be0db01f0e62c8671b93804bf8fd7e8ef982b8b9b16900f6ed",
+          "owner": "alice",
+          "state": "done",
+          "attempts": 1,
+          "fence": 1,
+          "outcome": "completed"
+        }
+      ],
+      "receiver": {
+        "attempts": [
+          {
+            "path": "/v1/dedup/ae073752ee77caa715500bc03f14f504d2d728a8d7945dee2a66725022f7fe84",
+            "key": "ae073752ee77caa715500bc03f14f504d2d728a8d7945dee2a66725022f7fe84",
+            "body_sha256": "f75c932eb59b5293855ddd8a2cf6cf76959b7f07ef5c5f64c483b6d221071843",
+            "bytes": 31
+          }
+        ],
+        "effect_keys": [
+          "ae073752ee77caa715500bc03f14f504d2d728a8d7945dee2a66725022f7fe84"
+        ],
+        "effects": 1,
+        "counts": {
+          "/v1/dedup/ae073752ee77caa715500bc03f14f504d2d728a8d7945dee2a66725022f7fe84": 1
+        }
+      }
+    },
+    {
+      "status": "PASS",
+      "flow": "Final Chrome anonymous draft denial and empty public listing; owner reads/edits; publish queues actual external notification; live Published message; completed job; logout clears title/body/live/job; anonymous public listing after publication",
+      "article": "f0deafdaa48268be0db01f0e62c8671b93804bf8fd7e8ef982b8b9b16900f6ed",
+      "job": "ae073752ee77caa715500bc03f14f504d2d728a8d7945dee2a66725022f7fe84",
+      "literal_hostile_text": true,
+      "injected_images": 0,
+      "script_elements": 1
+    }
+  ],
+  "binary_sha256": "3d58bff2d28ce47bad5196cc22f3b9bbcd6acae39ee6680bd7195dfc9328a32d",
+  "article": "f0deafdaa48268be0db01f0e62c8671b93804bf8fd7e8ef982b8b9b16900f6ed",
+  "root": "/tmp/diamond-w7-w8-browser-b9zs17u0",
+  "origin": "http://127.0.0.1:39171",
+  "node_B_port": 53061,
+  "shutdowns": [
+    {
+      "worker": "one",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "worker": "two",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "receiver": {
+    "attempts": [
+      {
+        "path": "/v1/dedup/ae073752ee77caa715500bc03f14f504d2d728a8d7945dee2a66725022f7fe84",
+        "key": "ae073752ee77caa715500bc03f14f504d2d728a8d7945dee2a66725022f7fe84",
+        "body_sha256": "f75c932eb59b5293855ddd8a2cf6cf76959b7f07ef5c5f64c483b6d221071843",
+        "bytes": 31
+      }
+    ],
+    "effect_keys": [
+      "ae073752ee77caa715500bc03f14f504d2d728a8d7945dee2a66725022f7fe84"
+    ],
+    "effects": 1,
+    "counts": {
+      "/v1/dedup/ae073752ee77caa715500bc03f14f504d2d728a8d7945dee2a66725022f7fe84": 1
+    }
+  },
+  "temporary_root_removed": true
+}

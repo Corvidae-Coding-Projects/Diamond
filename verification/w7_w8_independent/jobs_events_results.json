@@ -1,0 +1,1051 @@
+{
+  "status": "PASS",
+  "binary_sha256": "3d58bff2d28ce47bad5196cc22f3b9bbcd6acae39ee6680bd7195dfc9328a32d",
+  "error": null,
+  "results": [
+    {
+      "name": "transaction-abort-has-no-record-or-outbox",
+      "status": "PASS",
+      "observed": {
+        "rpc": [
+          400,
+          {
+            "error": "invalid_input"
+          }
+        ],
+        "rank": 11,
+        "job_count": 0
+      },
+      "expected": "propagated failing protected get rolls back both earlier rank edit and outbox entry"
+    },
+    {
+      "name": "submit-fresh-scope-and-wire-shape",
+      "status": "PASS",
+      "observed": {
+        "cross_workspace": [
+          403,
+          {
+            "error": "denied"
+          }
+        ],
+        "read_only": [
+          403,
+          {
+            "error": "denied"
+          }
+        ],
+        "malformed": [
+          400,
+          {
+            "error": "invalid_input"
+          }
+        ],
+        "jobs": 0
+      },
+      "expected": "cross-workspace, reader-only and malformed payload calls enqueue no work"
+    },
+    {
+      "name": "committed-outbox-and-deduplicated-submission",
+      "status": "PASS",
+      "observed": {
+        "rank": 12,
+        "id": "2d6abc2ab849cd3344ab7d31bfb1f5685a2193aa104c27b1ccdc166af5e5c08c",
+        "same_id": "2d6abc2ab849cd3344ab7d31bfb1f5685a2193aa104c27b1ccdc166af5e5c08c",
+        "row": {
+          "app": "45792abffaa8e959578cd42f7939aefd9c13102740aa75a54889ae56b705aee7",
+          "id": "2d6abc2ab849cd3344ab7d31bfb1f5685a2193aa104c27b1ccdc166af5e5c08c",
+          "binding": "notify",
+          "version": "5851f3f69efd869399d3f88a511e2c513dde0790cb7308847c66a60b5133247e",
+          "parent": "issue-red-one",
+          "owner": "alice",
+          "payload": "\"committed exact \u96ea\"",
+          "dedup": "commit-key",
+          "restrictions": "null",
+          "unscoped": true,
+          "state": "pending",
+          "attempts": 0,
+          "fence": 0,
+          "lease": null,
+          "due": "2026-10-22T14:20:52.909629-05:00",
+          "outcome": ""
+        }
+      },
+      "expected": "record edit and durable pending outbox commit together; same owner binding/key identifies one job"
+    },
+    {
+      "name": "cancel-queued-across-node",
+      "status": "PASS",
+      "observed": {
+        "rpc": [
+          200,
+          {
+            "value": "{\"attempts\":0,\"outcome\":\"cancelled\",\"state\":\"cancelled\"}"
+          }
+        ],
+        "row": {
+          "app": "45792abffaa8e959578cd42f7939aefd9c13102740aa75a54889ae56b705aee7",
+          "id": "2d6abc2ab849cd3344ab7d31bfb1f5685a2193aa104c27b1ccdc166af5e5c08c",
+          "binding": "notify",
+          "version": "5851f3f69efd869399d3f88a511e2c513dde0790cb7308847c66a60b5133247e",
+          "parent": "issue-red-one",
+          "owner": "alice",
+          "payload": "\"committed exact \u96ea\"",
+          "dedup": "commit-key",
+          "restrictions": "null",
+          "unscoped": true,
+          "state": "cancelled",
+          "attempts": 0,
+          "fence": 1,
+          "lease": null,
+          "due": "2026-10-22T14:20:52.909629-05:00",
+          "outcome": "cancelled"
+        }
+      },
+      "expected": "current editor cancels pending work through other node"
+    },
+    {
+      "name": "two-real-websocket-upgrades",
+      "status": "PASS",
+      "observed": {
+        "A": 101,
+        "B": 101
+      },
+      "expected": "authenticated exact-origin sockets upgrade on both nodes"
+    },
+    {
+      "name": "typed-durable-cross-node-event",
+      "status": "PASS",
+      "observed": {
+        "emit": "1",
+        "A": {
+          "cursor": "1",
+          "value": "typed cross-node event \u96ea <script> remains text"
+        },
+        "B": {
+          "cursor": "1",
+          "value": "typed cross-node event \u96ea <script> remains text"
+        }
+      },
+      "expected": "each authorized client receives identical typed data and authoritative decimal-string durable cursor"
+    },
+    {
+      "name": "websocket-denial-missing-origin",
+      "status": "PASS",
+      "observed": {
+        "status": 403
+      },
+      "expected": "handshake discloses no protected event"
+    },
+    {
+      "name": "websocket-denial-hostile-origin",
+      "status": "PASS",
+      "observed": {
+        "status": 400
+      },
+      "expected": "handshake discloses no protected event"
+    },
+    {
+      "name": "websocket-denial-anonymous",
+      "status": "PASS",
+      "observed": {
+        "status": 401
+      },
+      "expected": "handshake discloses no protected event"
+    },
+    {
+      "name": "websocket-denial-cross-workspace",
+      "status": "PASS",
+      "observed": {
+        "status": 403
+      },
+      "expected": "handshake discloses no protected event"
+    },
+    {
+      "name": "read-only-cannot-publish-protected-event",
+      "status": "PASS",
+      "observed": [
+        403,
+        {
+          "error": "denied"
+        }
+      ],
+      "expected": "parent read permission alone cannot publish mutation/event"
+    },
+    {
+      "name": "reconnect-replays-missed-durable-event",
+      "status": "PASS",
+      "observed": {
+        "cursor": "2",
+        "value": "missed durable event, reconnect"
+      },
+      "expected": "durable cursor replay bridges disconnected delivery"
+    },
+    {
+      "name": "ahead-cursor-resynchronizes",
+      "status": "PASS",
+      "observed": {
+        "cursor": "2",
+        "resync": true
+      },
+      "expected": "cursor beyond authoritative store requests explicit resynchronization"
+    },
+    {
+      "name": "live-membership-revocation-bound",
+      "status": "PASS",
+      "observed": {
+        "elapsed_seconds": 5.112138363998383,
+        "message": {
+          "kind": "close",
+          "code": null,
+          "reason": ""
+        }
+      },
+      "expected": "after five-second bound revoked member receives no subsequent protected event"
+    },
+    {
+      "name": "scoped-api-job-admission-and-parent-move",
+      "status": "PASS",
+      "observed": {
+        "forbidden_scope": [
+          403,
+          {
+            "error": "denied"
+          }
+        ],
+        "restricted_row": {
+          "app": "45792abffaa8e959578cd42f7939aefd9c13102740aa75a54889ae56b705aee7",
+          "id": "96cc297ec98ba935b32222cc282db44dd3c9b81eb68997cc6036f0261ff1940d",
+          "binding": "notify",
+          "version": "5851f3f69efd869399d3f88a511e2c513dde0790cb7308847c66a60b5133247e",
+          "parent": "issue-red-two",
+          "owner": "alice",
+          "payload": "\"restricted scope durable payload\"",
+          "dedup": "restricted-scope-key",
+          "restrictions": "{\"workspace\":[\"red\"]}",
+          "unscoped": false,
+          "state": "pending",
+          "attempts": 0,
+          "fence": 0,
+          "lease": null,
+          "due": "2026-10-22T14:20:58.644112-05:00",
+          "outcome": ""
+        },
+        "moved": [
+          200,
+          {
+            "value": {
+              "id": {
+                "tag": "issue",
+                "value": "issue-red-two"
+              },
+              "project": {
+                "tag": "project",
+                "value": "project-blue-visible"
+              },
+              "rank": "12",
+              "title": "red hidden parent",
+              "workspace": {
+                "tag": "workspace",
+                "value": "blue"
+              }
+            }
+          }
+        ]
+      },
+      "expected": "token restricted to red cannot submit blue; authorized owner may separately move admitted parent to blue before execution"
+    },
+    {
+      "name": "worker-preserves-captured-api-restrictions",
+      "status": "PASS",
+      "observed": {
+        "row": {
+          "app": "45792abffaa8e959578cd42f7939aefd9c13102740aa75a54889ae56b705aee7",
+          "id": "96cc297ec98ba935b32222cc282db44dd3c9b81eb68997cc6036f0261ff1940d",
+          "binding": "notify",
+          "version": "5851f3f69efd869399d3f88a511e2c513dde0790cb7308847c66a60b5133247e",
+          "parent": "issue-red-two",
+          "owner": "alice",
+          "payload": "\"restricted scope durable payload\"",
+          "dedup": "restricted-scope-key",
+          "restrictions": "{\"workspace\":[\"red\"]}",
+          "unscoped": false,
+          "state": "dead",
+          "attempts": 1,
+          "fence": 1,
+          "lease": null,
+          "due": "2026-10-22T14:20:59.684219-05:00",
+          "outcome": "denied_or_exhausted"
+        },
+        "receiver": {
+          "attempts": [],
+          "effect_keys": [],
+          "effects": 0,
+          "counts": {}
+        }
+      },
+      "expected": "fresh principal still has blue membership but captured red-only scope prevents disclosure/effect after parent move"
+    },
+    {
+      "name": "transactional-worker-record-and-event-completion",
+      "status": "PASS",
+      "observed": {
+        "rank_before": 12,
+        "rank_after": 15,
+        "rows": [
+          {
+            "app": "45792abffaa8e959578cd42f7939aefd9c13102740aa75a54889ae56b705aee7",
+            "id": "d89da271cb98248a604a8452d062d71cea8b98a97317c73b64f296d9fee4c679",
+            "binding": "change",
+            "version": "5851f3f69efd869399d3f88a511e2c513dde0790cb7308847c66a60b5133247e",
+            "parent": "issue-red-one",
+            "owner": "alice",
+            "payload": "\"transactional-change-0\"",
+            "dedup": "change-0",
+            "restrictions": "null",
+            "unscoped": true,
+            "state": "done",
+            "attempts": 1,
+            "fence": 1,
+            "lease": null,
+            "due": "2026-10-22T14:20:58.714297-05:00",
+            "outcome": "completed"
+          },
+          {
+            "app": "45792abffaa8e959578cd42f7939aefd9c13102740aa75a54889ae56b705aee7",
+            "id": "8fdf34bc17d5bc89de605cbaf4bdc11c3fc1e7749579e28be5ba7e984b565db5",
+            "binding": "change",
+            "version": "5851f3f69efd869399d3f88a511e2c513dde0790cb7308847c66a60b5133247e",
+            "parent": "issue-red-one",
+            "owner": "alice",
+            "payload": "\"transactional-change-1\"",
+            "dedup": "change-1",
+            "restrictions": "null",
+            "unscoped": true,
+            "state": "done",
+            "attempts": 2,
+            "fence": 2,
+            "lease": null,
+            "due": "2026-10-22T14:20:59.954481-05:00",
+            "outcome": "completed"
+          },
+          {
+            "app": "45792abffaa8e959578cd42f7939aefd9c13102740aa75a54889ae56b705aee7",
+            "id": "384470773b0706163a0815b6a518d53dbb6b043f09c8d865c9be92641b95d582",
+            "binding": "change",
+            "version": "5851f3f69efd869399d3f88a511e2c513dde0790cb7308847c66a60b5133247e",
+            "parent": "issue-red-one",
+            "owner": "alice",
+            "payload": "\"transactional-change-2\"",
+            "dedup": "change-2",
+            "restrictions": "null",
+            "unscoped": true,
+            "state": "done",
+            "attempts": 1,
+            "fence": 1,
+            "lease": null,
+            "due": "2026-10-22T14:20:58.722407-05:00",
+            "outcome": "completed"
+          }
+        ],
+        "messages": [
+          {
+            "cursor": "5",
+            "value": "transactional-change-0"
+          },
+          {
+            "cursor": "6",
+            "value": "transactional-change-2"
+          },
+          {
+            "cursor": "7",
+            "value": "transactional-change-1"
+          }
+        ]
+      },
+      "expected": "database-only checked handlers commit each rank edit/event with durable done outcome"
+    },
+    {
+      "name": "failed-worker-handler-rolls-back-record-and-event",
+      "status": "PASS",
+      "observed": {
+        "rank_before": 15,
+        "rank_after": 15,
+        "row": {
+          "app": "45792abffaa8e959578cd42f7939aefd9c13102740aa75a54889ae56b705aee7",
+          "id": "7e54fa25275b0805eacf9b0a20106afea42944ce546aab2984ed1eadc7481c59",
+          "binding": "abort_change",
+          "version": "5851f3f69efd869399d3f88a511e2c513dde0790cb7308847c66a60b5133247e",
+          "parent": "issue-red-one",
+          "owner": "alice",
+          "payload": "\"aborted change must never emit\"",
+          "dedup": "aborted-change",
+          "restrictions": "null",
+          "unscoped": true,
+          "state": "dead",
+          "attempts": 3,
+          "fence": 3,
+          "lease": null,
+          "due": "2026-10-22T14:21:07.622712-05:00",
+          "outcome": "denied_or_exhausted"
+        },
+        "message": null
+      },
+      "expected": "each propagated failure rolls back protected edit/event; bounded job outcome remains visible"
+    },
+    {
+      "name": "two-workers-execute-concurrently",
+      "status": "PASS",
+      "observed": {
+        "rows": [
+          {
+            "app": "45792abffaa8e959578cd42f7939aefd9c13102740aa75a54889ae56b705aee7",
+            "id": "4e07100724a9eb3d6028da9c3b9de6528093ceb07e764708dcf88199a11fea36",
+            "binding": "notify",
+            "version": "5851f3f69efd869399d3f88a511e2c513dde0790cb7308847c66a60b5133247e",
+            "parent": "issue-red-one",
+            "owner": "alice",
+            "payload": "\"parallel independent issue-red-one\"",
+            "dedup": "parallel-issue-red-one",
+            "restrictions": "null",
+            "unscoped": true,
+            "state": "running",
+            "attempts": 1,
+            "fence": 1,
+            "lease": "2026-10-22T14:21:34.899619-05:00",
+            "due": "2026-10-22T14:21:04.662615-05:00",
+            "outcome": ""
+          },
+          {
+            "app": "45792abffaa8e959578cd42f7939aefd9c13102740aa75a54889ae56b705aee7",
+            "id": "2b63bb318c465800871d5fc49e0b26afa830b8fcda160d1c8919269e00095fc9",
+            "binding": "notify",
+            "version": "5851f3f69efd869399d3f88a511e2c513dde0790cb7308847c66a60b5133247e",
+            "parent": "issue-blue-one",
+            "owner": "alice",
+            "payload": "\"parallel independent issue-blue-one\"",
+            "dedup": "parallel-issue-blue-one",
+            "restrictions": "null",
+            "unscoped": true,
+            "state": "running",
+            "attempts": 1,
+            "fence": 1,
+            "lease": "2026-10-22T14:21:34.911622-05:00",
+            "due": "2026-10-22T14:21:04.66681-05:00",
+            "outcome": ""
+          }
+        ],
+        "receiver": {
+          "attempts": [
+            {
+              "path": "/v1/dedup/4e07100724a9eb3d6028da9c3b9de6528093ceb07e764708dcf88199a11fea36",
+              "key": "4e07100724a9eb3d6028da9c3b9de6528093ceb07e764708dcf88199a11fea36",
+              "body_sha256": "14f3ea866c170f8c56b38a443bfd50bb586407a16cb6ba909d5a280edf86a9fa",
+              "bytes": 36
+            },
+            {
+              "path": "/v1/dedup/2b63bb318c465800871d5fc49e0b26afa830b8fcda160d1c8919269e00095fc9",
+              "key": "2b63bb318c465800871d5fc49e0b26afa830b8fcda160d1c8919269e00095fc9",
+              "body_sha256": "bed0f21497e2aeaf2eabdaa55ee49648084df1f819d6d3e34af2f03b26910384",
+              "bytes": 37
+            }
+          ],
+          "effect_keys": [
+            "2b63bb318c465800871d5fc49e0b26afa830b8fcda160d1c8919269e00095fc9",
+            "4e07100724a9eb3d6028da9c3b9de6528093ceb07e764708dcf88199a11fea36"
+          ],
+          "effects": 2,
+          "counts": {
+            "/v1/dedup/4e07100724a9eb3d6028da9c3b9de6528093ceb07e764708dcf88199a11fea36": 1,
+            "/v1/dedup/2b63bb318c465800871d5fc49e0b26afa830b8fcda160d1c8919269e00095fc9": 1
+          }
+        }
+      },
+      "expected": "two processes each execute one job while both actual external acknowledgments are withheld"
+    },
+    {
+      "name": "two-workers-complete-and-cancel-remains-inert",
+      "status": "PASS",
+      "observed": {
+        "rows": [
+          {
+            "app": "45792abffaa8e959578cd42f7939aefd9c13102740aa75a54889ae56b705aee7",
+            "id": "63face49ed475ec5d18b1cf0e05f8170378491870cac534f702dff94914c272f",
+            "binding": "notify",
+            "version": "5851f3f69efd869399d3f88a511e2c513dde0790cb7308847c66a60b5133247e",
+            "parent": "issue-red-one",
+            "owner": "alice",
+            "payload": "\"normal-0-\u96ea\"",
+            "dedup": "normal-0",
+            "restrictions": "null",
+            "unscoped": true,
+            "state": "done",
+            "attempts": 1,
+            "fence": 1,
+            "lease": null,
+            "due": "2026-10-22T14:21:06.049878-05:00",
+            "outcome": "completed"
+          },
+          {
+            "app": "45792abffaa8e959578cd42f7939aefd9c13102740aa75a54889ae56b705aee7",
+            "id": "11b52e0bc2911ad71e4eed5fde7af15f465f3fe0237f62a9b9066a6677c2f68c",
+            "binding": "notify",
+            "version": "5851f3f69efd869399d3f88a511e2c513dde0790cb7308847c66a60b5133247e",
+            "parent": "issue-red-one",
+            "owner": "alice",
+            "payload": "\"normal-1-\u96ea\"",
+            "dedup": "normal-1",
+            "restrictions": "null",
+            "unscoped": true,
+            "state": "done",
+            "attempts": 2,
+            "fence": 2,
+            "lease": null,
+            "due": "2026-10-22T14:21:07.308557-05:00",
+            "outcome": "completed"
+          },
+          {
+            "app": "45792abffaa8e959578cd42f7939aefd9c13102740aa75a54889ae56b705aee7",
+            "id": "8bf0ad86b7c2ff0c44fc2c2e68a22c65fdaff566fe2f4bc59a98bd565ce72001",
+            "binding": "notify",
+            "version": "5851f3f69efd869399d3f88a511e2c513dde0790cb7308847c66a60b5133247e",
+            "parent": "issue-red-one",
+            "owner": "alice",
+            "payload": "\"normal-2-\u96ea\"",
+            "dedup": "normal-2",
+            "restrictions": "null",
+            "unscoped": true,
+            "state": "done",
+            "attempts": 1,
+            "fence": 1,
+            "lease": null,
+            "due": "2026-10-22T14:21:06.060695-05:00",
+            "outcome": "completed"
+          },
+          {
+            "app": "45792abffaa8e959578cd42f7939aefd9c13102740aa75a54889ae56b705aee7",
+            "id": "c97c9363423ae5943830e3c3b629d188a20309ea3619a9f481f6f1b72a6f8c5b",
+            "binding": "notify",
+            "version": "5851f3f69efd869399d3f88a511e2c513dde0790cb7308847c66a60b5133247e",
+            "parent": "issue-red-one",
+            "owner": "alice",
+            "payload": "\"normal-3-\u96ea\"",
+            "dedup": "normal-3",
+            "restrictions": "null",
+            "unscoped": true,
+            "state": "done",
+            "attempts": 2,
+            "fence": 2,
+            "lease": null,
+            "due": "2026-10-22T14:21:07.595444-05:00",
+            "outcome": "completed"
+          },
+          {
+            "app": "45792abffaa8e959578cd42f7939aefd9c13102740aa75a54889ae56b705aee7",
+            "id": "972f89a24756cdfd319ab5c231b3bcfb0be3652cf4f2b2d66ad787824022cf74",
+            "binding": "notify",
+            "version": "5851f3f69efd869399d3f88a511e2c513dde0790cb7308847c66a60b5133247e",
+            "parent": "issue-red-one",
+            "owner": "alice",
+            "payload": "\"normal-4-\u96ea\"",
+            "dedup": "normal-4",
+            "restrictions": "null",
+            "unscoped": true,
+            "state": "done",
+            "attempts": 1,
+            "fence": 1,
+            "lease": null,
+            "due": "2026-10-22T14:21:06.070194-05:00",
+            "outcome": "completed"
+          }
+        ],
+        "receiver": {
+          "attempts": [
+            {
+              "path": "/v1/dedup/4e07100724a9eb3d6028da9c3b9de6528093ceb07e764708dcf88199a11fea36",
+              "key": "4e07100724a9eb3d6028da9c3b9de6528093ceb07e764708dcf88199a11fea36",
+              "body_sha256": "14f3ea866c170f8c56b38a443bfd50bb586407a16cb6ba909d5a280edf86a9fa",
+              "bytes": 36
+            },
+            {
+              "path": "/v1/dedup/2b63bb318c465800871d5fc49e0b26afa830b8fcda160d1c8919269e00095fc9",
+              "key": "2b63bb318c465800871d5fc49e0b26afa830b8fcda160d1c8919269e00095fc9",
+              "body_sha256": "bed0f21497e2aeaf2eabdaa55ee49648084df1f819d6d3e34af2f03b26910384",
+              "bytes": 37
+            },
+            {
+              "path": "/v1/dedup/4e07100724a9eb3d6028da9c3b9de6528093ceb07e764708dcf88199a11fea36",
+              "key": "4e07100724a9eb3d6028da9c3b9de6528093ceb07e764708dcf88199a11fea36",
+              "body_sha256": "14f3ea866c170f8c56b38a443bfd50bb586407a16cb6ba909d5a280edf86a9fa",
+              "bytes": 36
+            },
+            {
+              "path": "/v1/dedup/63face49ed475ec5d18b1cf0e05f8170378491870cac534f702dff94914c272f",
+              "key": "63face49ed475ec5d18b1cf0e05f8170378491870cac534f702dff94914c272f",
+              "body_sha256": "9ee4147d158ce4d3f95634b3618527a8668227de000f91e661428090be4926ac",
+              "bytes": 14
+            },
+            {
+              "path": "/v1/dedup/11b52e0bc2911ad71e4eed5fde7af15f465f3fe0237f62a9b9066a6677c2f68c",
+              "key": "11b52e0bc2911ad71e4eed5fde7af15f465f3fe0237f62a9b9066a6677c2f68c",
+              "body_sha256": "feec32d4e2381fe60ce5ef90acf82efb93f41654081dcffd088594434a10625f",
+              "bytes": 14
+            },
+            {
+              "path": "/v1/dedup/8bf0ad86b7c2ff0c44fc2c2e68a22c65fdaff566fe2f4bc59a98bd565ce72001",
+              "key": "8bf0ad86b7c2ff0c44fc2c2e68a22c65fdaff566fe2f4bc59a98bd565ce72001",
+              "body_sha256": "e3462d80166b82d722a1b509347f5cd2e47549e922101c96995f3fdd6df92388",
+              "bytes": 14
+            },
+            {
+              "path": "/v1/dedup/c97c9363423ae5943830e3c3b629d188a20309ea3619a9f481f6f1b72a6f8c5b",
+              "key": "c97c9363423ae5943830e3c3b629d188a20309ea3619a9f481f6f1b72a6f8c5b",
+              "body_sha256": "db817067d8bc9401cdfa247a1fb2acd861bdb88df225e2369c747791ffb26efa",
+              "bytes": 14
+            },
+            {
+              "path": "/v1/dedup/972f89a24756cdfd319ab5c231b3bcfb0be3652cf4f2b2d66ad787824022cf74",
+              "key": "972f89a24756cdfd319ab5c231b3bcfb0be3652cf4f2b2d66ad787824022cf74",
+              "body_sha256": "e82ca11299f2452d271ebd75ff93476c7c66226e718489805c0d4fbf12aa6dff",
+              "bytes": 14
+            },
+            {
+              "path": "/v1/dedup/11b52e0bc2911ad71e4eed5fde7af15f465f3fe0237f62a9b9066a6677c2f68c",
+              "key": "11b52e0bc2911ad71e4eed5fde7af15f465f3fe0237f62a9b9066a6677c2f68c",
+              "body_sha256": "feec32d4e2381fe60ce5ef90acf82efb93f41654081dcffd088594434a10625f",
+              "bytes": 14
+            },
+            {
+              "path": "/v1/dedup/c97c9363423ae5943830e3c3b629d188a20309ea3619a9f481f6f1b72a6f8c5b",
+              "key": "c97c9363423ae5943830e3c3b629d188a20309ea3619a9f481f6f1b72a6f8c5b",
+              "body_sha256": "db817067d8bc9401cdfa247a1fb2acd861bdb88df225e2369c747791ffb26efa",
+              "bytes": 14
+            }
+          ],
+          "effect_keys": [
+            "11b52e0bc2911ad71e4eed5fde7af15f465f3fe0237f62a9b9066a6677c2f68c",
+            "2b63bb318c465800871d5fc49e0b26afa830b8fcda160d1c8919269e00095fc9",
+            "4e07100724a9eb3d6028da9c3b9de6528093ceb07e764708dcf88199a11fea36",
+            "63face49ed475ec5d18b1cf0e05f8170378491870cac534f702dff94914c272f",
+            "8bf0ad86b7c2ff0c44fc2c2e68a22c65fdaff566fe2f4bc59a98bd565ce72001",
+            "972f89a24756cdfd319ab5c231b3bcfb0be3652cf4f2b2d66ad787824022cf74",
+            "c97c9363423ae5943830e3c3b629d188a20309ea3619a9f481f6f1b72a6f8c5b"
+          ],
+          "effects": 7,
+          "counts": {
+            "/v1/dedup/4e07100724a9eb3d6028da9c3b9de6528093ceb07e764708dcf88199a11fea36": 2,
+            "/v1/dedup/2b63bb318c465800871d5fc49e0b26afa830b8fcda160d1c8919269e00095fc9": 1,
+            "/v1/dedup/63face49ed475ec5d18b1cf0e05f8170378491870cac534f702dff94914c272f": 1,
+            "/v1/dedup/11b52e0bc2911ad71e4eed5fde7af15f465f3fe0237f62a9b9066a6677c2f68c": 2,
+            "/v1/dedup/8bf0ad86b7c2ff0c44fc2c2e68a22c65fdaff566fe2f4bc59a98bd565ce72001": 1,
+            "/v1/dedup/c97c9363423ae5943830e3c3b629d188a20309ea3619a9f481f6f1b72a6f8c5b": 2,
+            "/v1/dedup/972f89a24756cdfd319ab5c231b3bcfb0be3652cf4f2b2d66ad787824022cf74": 1
+          }
+        }
+      },
+      "expected": "two actual worker processes complete bounded at-least-once delivery with stable payload/key and one receiver business effect; cancelled job never dispatches"
+    },
+    {
+      "name": "real-effect-precedes-unacknowledged-crash",
+      "status": "PASS",
+      "observed": {
+        "row": {
+          "app": "45792abffaa8e959578cd42f7939aefd9c13102740aa75a54889ae56b705aee7",
+          "id": "96c92b211556f2dadf77578020a049fa88014bcf33a8b4a535db76b3f28de949",
+          "binding": "notify",
+          "version": "5851f3f69efd869399d3f88a511e2c513dde0790cb7308847c66a60b5133247e",
+          "parent": "issue-red-one",
+          "owner": "alice",
+          "payload": "\"effect received before worker death\"",
+          "dedup": "after-effect-crash",
+          "restrictions": "null",
+          "unscoped": true,
+          "state": "running",
+          "attempts": 1,
+          "fence": 1,
+          "lease": "2026-10-22T14:21:37.904766-05:00",
+          "due": "2026-10-22T14:21:07.739473-05:00",
+          "outcome": ""
+        },
+        "receiver": {
+          "attempts": [
+            {
+              "path": "/v1/dedup/4e07100724a9eb3d6028da9c3b9de6528093ceb07e764708dcf88199a11fea36",
+              "key": "4e07100724a9eb3d6028da9c3b9de6528093ceb07e764708dcf88199a11fea36",
+              "body_sha256": "14f3ea866c170f8c56b38a443bfd50bb586407a16cb6ba909d5a280edf86a9fa",
+              "bytes": 36
+            },
+            {
+              "path": "/v1/dedup/2b63bb318c465800871d5fc49e0b26afa830b8fcda160d1c8919269e00095fc9",
+              "key": "2b63bb318c465800871d5fc49e0b26afa830b8fcda160d1c8919269e00095fc9",
+              "body_sha256": "bed0f21497e2aeaf2eabdaa55ee49648084df1f819d6d3e34af2f03b26910384",
+              "bytes": 37
+            },
+            {
+              "path": "/v1/dedup/4e07100724a9eb3d6028da9c3b9de6528093ceb07e764708dcf88199a11fea36",
+              "key": "4e07100724a9eb3d6028da9c3b9de6528093ceb07e764708dcf88199a11fea36",
+              "body_sha256": "14f3ea866c170f8c56b38a443bfd50bb586407a16cb6ba909d5a280edf86a9fa",
+              "bytes": 36
+            },
+            {
+              "path": "/v1/dedup/63face49ed475ec5d18b1cf0e05f8170378491870cac534f702dff94914c272f",
+              "key": "63face49ed475ec5d18b1cf0e05f8170378491870cac534f702dff94914c272f",
+              "body_sha256": "9ee4147d158ce4d3f95634b3618527a8668227de000f91e661428090be4926ac",
+              "bytes": 14
+            },
+            {
+              "path": "/v1/dedup/11b52e0bc2911ad71e4eed5fde7af15f465f3fe0237f62a9b9066a6677c2f68c",
+              "key": "11b52e0bc2911ad71e4eed5fde7af15f465f3fe0237f62a9b9066a6677c2f68c",
+              "body_sha256": "feec32d4e2381fe60ce5ef90acf82efb93f41654081dcffd088594434a10625f",
+              "bytes": 14
+            },
+            {
+              "path": "/v1/dedup/8bf0ad86b7c2ff0c44fc2c2e68a22c65fdaff566fe2f4bc59a98bd565ce72001",
+              "key": "8bf0ad86b7c2ff0c44fc2c2e68a22c65fdaff566fe2f4bc59a98bd565ce72001",
+              "body_sha256": "e3462d80166b82d722a1b509347f5cd2e47549e922101c96995f3fdd6df92388",
+              "bytes": 14
+            },
+            {
+              "path": "/v1/dedup/c97c9363423ae5943830e3c3b629d188a20309ea3619a9f481f6f1b72a6f8c5b",
+              "key": "c97c9363423ae5943830e3c3b629d188a20309ea3619a9f481f6f1b72a6f8c5b",
+              "body_sha256": "db817067d8bc9401cdfa247a1fb2acd861bdb88df225e2369c747791ffb26efa",
+              "bytes": 14
+            },
+            {
+              "path": "/v1/dedup/972f89a24756cdfd319ab5c231b3bcfb0be3652cf4f2b2d66ad787824022cf74",
+              "key": "972f89a24756cdfd319ab5c231b3bcfb0be3652cf4f2b2d66ad787824022cf74",
+              "body_sha256": "e82ca11299f2452d271ebd75ff93476c7c66226e718489805c0d4fbf12aa6dff",
+              "bytes": 14
+            },
+            {
+              "path": "/v1/dedup/11b52e0bc2911ad71e4eed5fde7af15f465f3fe0237f62a9b9066a6677c2f68c",
+              "key": "11b52e0bc2911ad71e4eed5fde7af15f465f3fe0237f62a9b9066a6677c2f68c",
+              "body_sha256": "feec32d4e2381fe60ce5ef90acf82efb93f41654081dcffd088594434a10625f",
+              "bytes": 14
+            },
+            {
+              "path": "/v1/dedup/c97c9363423ae5943830e3c3b629d188a20309ea3619a9f481f6f1b72a6f8c5b",
+              "key": "c97c9363423ae5943830e3c3b629d188a20309ea3619a9f481f6f1b72a6f8c5b",
+              "body_sha256": "db817067d8bc9401cdfa247a1fb2acd861bdb88df225e2369c747791ffb26efa",
+              "bytes": 14
+            },
+            {
+              "path": "/v1/dedup/96c92b211556f2dadf77578020a049fa88014bcf33a8b4a535db76b3f28de949",
+              "key": "96c92b211556f2dadf77578020a049fa88014bcf33a8b4a535db76b3f28de949",
+              "body_sha256": "e32bb5696d2ae26124230e11cd4b2893bf36f7202273297822949107c9a419af",
+              "bytes": 37
+            }
+          ],
+          "effect_keys": [
+            "11b52e0bc2911ad71e4eed5fde7af15f465f3fe0237f62a9b9066a6677c2f68c",
+            "2b63bb318c465800871d5fc49e0b26afa830b8fcda160d1c8919269e00095fc9",
+            "4e07100724a9eb3d6028da9c3b9de6528093ceb07e764708dcf88199a11fea36",
+            "63face49ed475ec5d18b1cf0e05f8170378491870cac534f702dff94914c272f",
+            "8bf0ad86b7c2ff0c44fc2c2e68a22c65fdaff566fe2f4bc59a98bd565ce72001",
+            "96c92b211556f2dadf77578020a049fa88014bcf33a8b4a535db76b3f28de949",
+            "972f89a24756cdfd319ab5c231b3bcfb0be3652cf4f2b2d66ad787824022cf74",
+            "c97c9363423ae5943830e3c3b629d188a20309ea3619a9f481f6f1b72a6f8c5b"
+          ],
+          "effects": 8,
+          "counts": {
+            "/v1/dedup/4e07100724a9eb3d6028da9c3b9de6528093ceb07e764708dcf88199a11fea36": 2,
+            "/v1/dedup/2b63bb318c465800871d5fc49e0b26afa830b8fcda160d1c8919269e00095fc9": 1,
+            "/v1/dedup/63face49ed475ec5d18b1cf0e05f8170378491870cac534f702dff94914c272f": 1,
+            "/v1/dedup/11b52e0bc2911ad71e4eed5fde7af15f465f3fe0237f62a9b9066a6677c2f68c": 2,
+            "/v1/dedup/8bf0ad86b7c2ff0c44fc2c2e68a22c65fdaff566fe2f4bc59a98bd565ce72001": 1,
+            "/v1/dedup/c97c9363423ae5943830e3c3b629d188a20309ea3619a9f481f6f1b72a6f8c5b": 2,
+            "/v1/dedup/972f89a24756cdfd319ab5c231b3bcfb0be3652cf4f2b2d66ad787824022cf74": 1,
+            "/v1/dedup/96c92b211556f2dadf77578020a049fa88014bcf33a8b4a535db76b3f28de949": 1
+          }
+        }
+      },
+      "expected": "receiver independently commits destination effect while worker is blocked before HTTP acknowledgment"
+    },
+    {
+      "name": "lease-recovery-destination-dedup-and-atomic-completion",
+      "status": "PASS",
+      "observed": {
+        "row": {
+          "app": "45792abffaa8e959578cd42f7939aefd9c13102740aa75a54889ae56b705aee7",
+          "id": "96c92b211556f2dadf77578020a049fa88014bcf33a8b4a535db76b3f28de949",
+          "binding": "notify",
+          "version": "5851f3f69efd869399d3f88a511e2c513dde0790cb7308847c66a60b5133247e",
+          "parent": "issue-red-one",
+          "owner": "alice",
+          "payload": "\"effect received before worker death\"",
+          "dedup": "after-effect-crash",
+          "restrictions": "null",
+          "unscoped": true,
+          "state": "done",
+          "attempts": 2,
+          "fence": 2,
+          "lease": null,
+          "due": "2026-10-22T14:21:07.739473-05:00",
+          "outcome": "completed"
+        },
+        "receiver_attempts": [
+          {
+            "path": "/v1/dedup/96c92b211556f2dadf77578020a049fa88014bcf33a8b4a535db76b3f28de949",
+            "key": "96c92b211556f2dadf77578020a049fa88014bcf33a8b4a535db76b3f28de949",
+            "body_sha256": "e32bb5696d2ae26124230e11cd4b2893bf36f7202273297822949107c9a419af",
+            "bytes": 37
+          },
+          {
+            "path": "/v1/dedup/96c92b211556f2dadf77578020a049fa88014bcf33a8b4a535db76b3f28de949",
+            "key": "96c92b211556f2dadf77578020a049fa88014bcf33a8b4a535db76b3f28de949",
+            "body_sha256": "e32bb5696d2ae26124230e11cd4b2893bf36f7202273297822949107c9a419af",
+            "bytes": 37
+          }
+        ],
+        "business_effects_for_key": 1,
+        "rank": 15,
+        "before_rank": 15,
+        "recovery_seconds": 30.257133248000173
+      },
+      "expected": "lost acknowledgment yields repeated actual delivery with stable key and one receiver effect; external-only handler makes no application write"
+    },
+    {
+      "name": "bounded-retry-visible-dead-letter",
+      "status": "PASS",
+      "observed": {
+        "row": {
+          "app": "45792abffaa8e959578cd42f7939aefd9c13102740aa75a54889ae56b705aee7",
+          "id": "1fe25a8b063ac199e7e2157a053e2c91f8dfba8399c871ded443d888d3417eaa",
+          "binding": "notify",
+          "version": "5851f3f69efd869399d3f88a511e2c513dde0790cb7308847c66a60b5133247e",
+          "parent": "issue-red-one",
+          "owner": "alice",
+          "payload": "\"destination failure payload\"",
+          "dedup": "bounded-failure",
+          "restrictions": "null",
+          "unscoped": true,
+          "state": "dead",
+          "attempts": 3,
+          "fence": 3,
+          "lease": null,
+          "due": "2026-10-22T14:21:45.598144-05:00",
+          "outcome": "denied_or_exhausted"
+        },
+        "actual_receiver_attempts": 3
+      },
+      "expected": "declared three-attempt bound becomes operator-visible dead state; failing destination records no business effect"
+    },
+    {
+      "name": "worker-uses-fresh-restricted-authority",
+      "status": "PASS",
+      "observed": {
+        "row": {
+          "app": "45792abffaa8e959578cd42f7939aefd9c13102740aa75a54889ae56b705aee7",
+          "id": "726837a2c0620d0f83e37da75486492a351c6486cb70cd24797b25633ae13175",
+          "binding": "notify",
+          "version": "5851f3f69efd869399d3f88a511e2c513dde0790cb7308847c66a60b5133247e",
+          "parent": "issue-blue-one",
+          "owner": "alice",
+          "payload": "\"revoked owner must not dispatch\"",
+          "dedup": "revoke-before-work",
+          "restrictions": "null",
+          "unscoped": true,
+          "state": "dead",
+          "attempts": 1,
+          "fence": 1,
+          "lease": null,
+          "due": "2026-10-22T14:21:42.671571-05:00",
+          "outcome": "denied_or_exhausted"
+        },
+        "receiver_has_effect": false
+      },
+      "expected": "revoking owner membership after submission prevents later protected job execution and outbound effect"
+    },
+    {
+      "name": "cross-node-operator-status",
+      "status": "PASS",
+      "observed": [
+        200,
+        {
+          "value": "{\"attempts\":3,\"outcome\":\"denied_or_exhausted\",\"state\":\"dead\"}"
+        }
+      ],
+      "expected": "declared status operation exposes bounded failed outcome across application nodes"
+    }
+  ],
+  "shutdowns": [
+    {
+      "worker": "one",
+      "exit": -9,
+      "expected_exit": -9,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "worker": "two",
+      "exit": -9,
+      "expected_exit": -9,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "worker": "survivor",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "worker": "restricted",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "http_requests": 41,
+  "elapsed_seconds": 52.062049359999946,
+  "temporary_root": "/tmp/diamond-w7-independent-yrdm53km",
+  "receiver": {
+    "attempts": [
+      {
+        "path": "/v1/dedup/4e07100724a9eb3d6028da9c3b9de6528093ceb07e764708dcf88199a11fea36",
+        "key": "4e07100724a9eb3d6028da9c3b9de6528093ceb07e764708dcf88199a11fea36",
+        "body_sha256": "14f3ea866c170f8c56b38a443bfd50bb586407a16cb6ba909d5a280edf86a9fa",
+        "bytes": 36
+      },
+      {
+        "path": "/v1/dedup/2b63bb318c465800871d5fc49e0b26afa830b8fcda160d1c8919269e00095fc9",
+        "key": "2b63bb318c465800871d5fc49e0b26afa830b8fcda160d1c8919269e00095fc9",
+        "body_sha256": "bed0f21497e2aeaf2eabdaa55ee49648084df1f819d6d3e34af2f03b26910384",
+        "bytes": 37
+      },
+      {
+        "path": "/v1/dedup/4e07100724a9eb3d6028da9c3b9de6528093ceb07e764708dcf88199a11fea36",
+        "key": "4e07100724a9eb3d6028da9c3b9de6528093ceb07e764708dcf88199a11fea36",
+        "body_sha256": "14f3ea866c170f8c56b38a443bfd50bb586407a16cb6ba909d5a280edf86a9fa",
+        "bytes": 36
+      },
+      {
+        "path": "/v1/dedup/63face49ed475ec5d18b1cf0e05f8170378491870cac534f702dff94914c272f",
+        "key": "63face49ed475ec5d18b1cf0e05f8170378491870cac534f702dff94914c272f",
+        "body_sha256": "9ee4147d158ce4d3f95634b3618527a8668227de000f91e661428090be4926ac",
+        "bytes": 14
+      },
+      {
+        "path": "/v1/dedup/11b52e0bc2911ad71e4eed5fde7af15f465f3fe0237f62a9b9066a6677c2f68c",
+        "key": "11b52e0bc2911ad71e4eed5fde7af15f465f3fe0237f62a9b9066a6677c2f68c",
+        "body_sha256": "feec32d4e2381fe60ce5ef90acf82efb93f41654081dcffd088594434a10625f",
+        "bytes": 14
+      },
+      {
+        "path": "/v1/dedup/8bf0ad86b7c2ff0c44fc2c2e68a22c65fdaff566fe2f4bc59a98bd565ce72001",
+        "key": "8bf0ad86b7c2ff0c44fc2c2e68a22c65fdaff566fe2f4bc59a98bd565ce72001",
+        "body_sha256": "e3462d80166b82d722a1b509347f5cd2e47549e922101c96995f3fdd6df92388",
+        "bytes": 14
+      },
+      {
+        "path": "/v1/dedup/c97c9363423ae5943830e3c3b629d188a20309ea3619a9f481f6f1b72a6f8c5b",
+        "key": "c97c9363423ae5943830e3c3b629d188a20309ea3619a9f481f6f1b72a6f8c5b",
+        "body_sha256": "db817067d8bc9401cdfa247a1fb2acd861bdb88df225e2369c747791ffb26efa",
+        "bytes": 14
+      },
+      {
+        "path": "/v1/dedup/972f89a24756cdfd319ab5c231b3bcfb0be3652cf4f2b2d66ad787824022cf74",
+        "key": "972f89a24756cdfd319ab5c231b3bcfb0be3652cf4f2b2d66ad787824022cf74",
+        "body_sha256": "e82ca11299f2452d271ebd75ff93476c7c66226e718489805c0d4fbf12aa6dff",
+        "bytes": 14
+      },
+      {
+        "path": "/v1/dedup/11b52e0bc2911ad71e4eed5fde7af15f465f3fe0237f62a9b9066a6677c2f68c",
+        "key": "11b52e0bc2911ad71e4eed5fde7af15f465f3fe0237f62a9b9066a6677c2f68c",
+        "body_sha256": "feec32d4e2381fe60ce5ef90acf82efb93f41654081dcffd088594434a10625f",
+        "bytes": 14
+      },
+      {
+        "path": "/v1/dedup/c97c9363423ae5943830e3c3b629d188a20309ea3619a9f481f6f1b72a6f8c5b",
+        "key": "c97c9363423ae5943830e3c3b629d188a20309ea3619a9f481f6f1b72a6f8c5b",
+        "body_sha256": "db817067d8bc9401cdfa247a1fb2acd861bdb88df225e2369c747791ffb26efa",
+        "bytes": 14
+      },
+      {
+        "path": "/v1/dedup/96c92b211556f2dadf77578020a049fa88014bcf33a8b4a535db76b3f28de949",
+        "key": "96c92b211556f2dadf77578020a049fa88014bcf33a8b4a535db76b3f28de949",
+        "body_sha256": "e32bb5696d2ae26124230e11cd4b2893bf36f7202273297822949107c9a419af",
+        "bytes": 37
+      },
+      {
+        "path": "/v1/dedup/96c92b211556f2dadf77578020a049fa88014bcf33a8b4a535db76b3f28de949",
+        "key": "96c92b211556f2dadf77578020a049fa88014bcf33a8b4a535db76b3f28de949",
+        "body_sha256": "e32bb5696d2ae26124230e11cd4b2893bf36f7202273297822949107c9a419af",
+        "bytes": 37
+      },
+      {
+        "path": "/v1/dedup/1fe25a8b063ac199e7e2157a053e2c91f8dfba8399c871ded443d888d3417eaa",
+        "key": "1fe25a8b063ac199e7e2157a053e2c91f8dfba8399c871ded443d888d3417eaa",
+        "body_sha256": "20535faddd0404618dc1ebad5e567819a504fab10fb510dd6aeaf4c6769375cc",
+        "bytes": 29
+      },
+      {
+        "path": "/v1/dedup/1fe25a8b063ac199e7e2157a053e2c91f8dfba8399c871ded443d888d3417eaa",
+        "key": "1fe25a8b063ac199e7e2157a053e2c91f8dfba8399c871ded443d888d3417eaa",
+        "body_sha256": "20535faddd0404618dc1ebad5e567819a504fab10fb510dd6aeaf4c6769375cc",
+        "bytes": 29
+      },
+      {
+        "path": "/v1/dedup/1fe25a8b063ac199e7e2157a053e2c91f8dfba8399c871ded443d888d3417eaa",
+        "key": "1fe25a8b063ac199e7e2157a053e2c91f8dfba8399c871ded443d888d3417eaa",
+        "body_sha256": "20535faddd0404618dc1ebad5e567819a504fab10fb510dd6aeaf4c6769375cc",
+        "bytes": 29
+      }
+    ],
+    "effect_keys": [
+      "11b52e0bc2911ad71e4eed5fde7af15f465f3fe0237f62a9b9066a6677c2f68c",
+      "2b63bb318c465800871d5fc49e0b26afa830b8fcda160d1c8919269e00095fc9",
+      "4e07100724a9eb3d6028da9c3b9de6528093ceb07e764708dcf88199a11fea36",
+      "63face49ed475ec5d18b1cf0e05f8170378491870cac534f702dff94914c272f",
+      "8bf0ad86b7c2ff0c44fc2c2e68a22c65fdaff566fe2f4bc59a98bd565ce72001",
+      "96c92b211556f2dadf77578020a049fa88014bcf33a8b4a535db76b3f28de949",
+      "972f89a24756cdfd319ab5c231b3bcfb0be3652cf4f2b2d66ad787824022cf74",
+      "c97c9363423ae5943830e3c3b629d188a20309ea3619a9f481f6f1b72a6f8c5b"
+    ],
+    "effects": 8,
+    "counts": {
+      "/v1/dedup/4e07100724a9eb3d6028da9c3b9de6528093ceb07e764708dcf88199a11fea36": 2,
+      "/v1/dedup/2b63bb318c465800871d5fc49e0b26afa830b8fcda160d1c8919269e00095fc9": 1,
+      "/v1/dedup/63face49ed475ec5d18b1cf0e05f8170378491870cac534f702dff94914c272f": 1,
+      "/v1/dedup/11b52e0bc2911ad71e4eed5fde7af15f465f3fe0237f62a9b9066a6677c2f68c": 2,
+      "/v1/dedup/8bf0ad86b7c2ff0c44fc2c2e68a22c65fdaff566fe2f4bc59a98bd565ce72001": 1,
+      "/v1/dedup/c97c9363423ae5943830e3c3b629d188a20309ea3619a9f481f6f1b72a6f8c5b": 2,
+      "/v1/dedup/972f89a24756cdfd319ab5c231b3bcfb0be3652cf4f2b2d66ad787824022cf74": 1,
+      "/v1/dedup/96c92b211556f2dadf77578020a049fa88014bcf33a8b4a535db76b3f28de949": 2,
+      "/v1/dedup/1fe25a8b063ac199e7e2157a053e2c91f8dfba8399c871ded443d888d3417eaa": 3
+    }
+  },
+  "source_sha256": {
+    "checker.py": "fa2af8f0cabf2096639defa2f5a172e18f2d452b88cbed98262def0c4fbcaeea",
+    "deployment.py": "17616123c86c0ff6b61af9c095cfdd6cd41449b36dcd0ee3d556af33ae063149",
+    "events_limits.py": "3385e9b65314fff58893e805289f00653845e5d741356c95ad75417bb240eb1d",
+    "fixture.py": "07c8b348a9ac45afddd358d2faf6d27733f34aa760374384d412909f2b1f75de",
+    "job_versions.py": "899210db36cedb2e763abfa9a058a27f6df7b02f8f3bdcd29e343c0410f864d6",
+    "jobs_events.py": "2e4d738cdd6d82fd68d2a1a59d725515809498d521da919c2f2f80ef4c02f83f",
+    "receiver.py": "0d0a9419b417f0c71eb935a514a2df46d148baa60c568643502d622ec7baa343",
+    "run.py": "efb6028b6f96b6f6e3fc8609d1d416b34465685785de9b192dd85531dbcea54e",
+    "service.py": "e3adf9bb4660131e84479e7cca614f21e69f70a0ec4dffe83c0c5d09f6344e1c",
+    "tls_proxy.py": "46e1b876e09394426722c679d3f794e5c7cf7e22ec8d2452421c7660fee2c6e2",
+    "wire.py": "7aacbb911dc8817ec4de67b889a2f3014002548de218cd7ffc3b1e247f82c91b"
+  },
+  "coverage_gaps": [
+    "No browser component subscription API exercised; raw WebSocket endpoint only.",
+    "No slow-consumer saturation, retention expiration, job payload version mismatch, or live stale-holder acknowledgment schedule yet."
+  ]
+}

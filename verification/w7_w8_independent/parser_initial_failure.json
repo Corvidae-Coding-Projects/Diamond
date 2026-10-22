@@ -1,0 +1,10 @@
+{
+  "status": "FAIL",
+  "phase": "first actual checked fixture command before runtime execution",
+  "command": "target/debug/diamond check /tmp/diamond-w7-check-jnf6nnfu/diamond.toml",
+  "declared_contract": "host.job_submit<Text>(\"notify\", parent, payload, key)",
+  "exit": 1,
+  "stderr": "error: server.dia: D010 at 141:33: expected Symbol(\")\"), found Symbol(\",\")",
+  "expected": "The documented generic job submission call parses and checks in the legal fixture; malformed payload variants are rejected by checking.",
+  "replay": "Generate fixture.py:write into a new directory, then run diamond check against that diamond.toml."
+}

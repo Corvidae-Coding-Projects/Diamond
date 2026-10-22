@@ -1,0 +1,113 @@
+{
+  "status": "PASS",
+  "binary_sha256": "3d58bff2d28ce47bad5196cc22f3b9bbcd6acae39ee6680bd7195dfc9328a32d",
+  "error": null,
+  "results": [
+    {
+      "name": "new-workspace",
+      "status": "PASS",
+      "exit": 0,
+      "stdout": "project LiveWorkspace: 4 modules; server server; browser ui / Tracker; capabilities {\"DbRead<Comments>\", \"DbRead<Issues>\", \"DbRead<Members>\", \"DbRead<Projects>\", \"DbRead<Workspaces>\", \"DbWrite<Comments>\", \"DbWrite<Issues>\", \"DbWrite<Members>\", \"DbWrite<Projects>\", \"DbWrite<Workspaces>\", \"Events\", \"Http<inventory>\", \"Jobs\"}\n",
+      "stderr": ""
+    },
+    {
+      "name": "check-workspace",
+      "status": "PASS",
+      "exit": 0,
+      "stdout": "project LiveWorkspace: 4 modules; server server; browser ui / Tracker; capabilities {\"DbRead<Comments>\", \"DbRead<Issues>\", \"DbRead<Members>\", \"DbRead<Projects>\", \"DbRead<Workspaces>\", \"DbWrite<Comments>\", \"DbWrite<Issues>\", \"DbWrite<Members>\", \"DbWrite<Projects>\", \"DbWrite<Workspaces>\", \"Events\", \"Http<inventory>\", \"Jobs\"}\n",
+      "stderr": ""
+    },
+    {
+      "name": "build-workspace",
+      "status": "PASS",
+      "exit": 0,
+      "stdout": "built project at /tmp/diamond-w8-scaffold-3ha5zp3q/workspace-build\n",
+      "stderr": ""
+    },
+    {
+      "name": "reload-workspace",
+      "status": "PASS",
+      "exit": 0,
+      "stdout": "project LiveWorkspace: 4 modules; server server; browser ui / Tracker; capabilities {\"DbRead<Comments>\", \"DbRead<Issues>\", \"DbRead<Members>\", \"DbRead<Projects>\", \"DbRead<Workspaces>\", \"DbWrite<Comments>\", \"DbWrite<Issues>\", \"DbWrite<Members>\", \"DbWrite<Projects>\", \"DbWrite<Workspaces>\", \"Events\", \"Http<inventory>\", \"Jobs\"}\n",
+      "stderr": ""
+    },
+    {
+      "name": "new-refuses-existing-workspace",
+      "status": "PASS",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: scaffold destination must be new: File exists (os error 17)\n"
+    },
+    {
+      "name": "new-catalog",
+      "status": "PASS",
+      "exit": 0,
+      "stdout": "project PublishingCatalog: 2 modules; server server; browser ui / Catalog; capabilities {\"DbRead<Articles>\", \"DbWrite<Articles>\", \"Events\", \"Http<inventory>\", \"JobKey\", \"Jobs\"}\n",
+      "stderr": ""
+    },
+    {
+      "name": "check-catalog",
+      "status": "PASS",
+      "exit": 0,
+      "stdout": "project PublishingCatalog: 2 modules; server server; browser ui / Catalog; capabilities {\"DbRead<Articles>\", \"DbWrite<Articles>\", \"Events\", \"Http<inventory>\", \"JobKey\", \"Jobs\"}\n",
+      "stderr": ""
+    },
+    {
+      "name": "build-catalog",
+      "status": "PASS",
+      "exit": 0,
+      "stdout": "built project at /tmp/diamond-w8-scaffold-3ha5zp3q/catalog-build\n",
+      "stderr": ""
+    },
+    {
+      "name": "reload-catalog",
+      "status": "PASS",
+      "exit": 0,
+      "stdout": "project PublishingCatalog: 2 modules; server server; browser ui / Catalog; capabilities {\"DbRead<Articles>\", \"DbWrite<Articles>\", \"Events\", \"Http<inventory>\", \"JobKey\", \"Jobs\"}\n",
+      "stderr": ""
+    },
+    {
+      "name": "new-refuses-existing-catalog",
+      "status": "PASS",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: scaffold destination must be new: File exists (os error 17)\n"
+    },
+    {
+      "name": "invalid-template-has-no-output",
+      "status": "PASS",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: unknown template; use workspace or catalog\n"
+    },
+    {
+      "name": "public-write",
+      "status": "PASS",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: public RPC must have only read effects\n"
+    },
+    {
+      "name": "public-host-access",
+      "status": "PASS",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: public RPC must have only read effects\n"
+    },
+    {
+      "name": "public-unknown-operation",
+      "status": "PASS",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: public RPC must be explicitly declared\n"
+    },
+    {
+      "name": "tampered-build-rejected",
+      "status": "PASS",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: build artifact mismatch; rebuild from trusted project sources\n"
+    }
+  ],
+  "temporary_root_removed": true
+}

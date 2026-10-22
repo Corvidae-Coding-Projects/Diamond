@@ -46,6 +46,9 @@ pub(super) struct Server {
     pub(super) mailbox: Option<super::accounts::Mailbox>,
     pub(super) runtime: crate::RuntimeGrants,
     pub(super) objects: Option<super::files::Store>,
+    pub(super) sockets: Arc<Semaphore>,
+    pub(super) draining: std::sync::atomic::AtomicBool,
+    pub(super) requests: std::sync::atomic::AtomicU64,
 }
 
 #[derive(Deserialize)]
@@ -107,6 +110,7 @@ pub(super) fn serve_runtime(
             "call synchronous connected serving outside an async runtime",
         ));
     }
+    let _deployment_guard = super::deployment::guard(project, configuration, false)?;
     let objects = super::files::Store::open(project, configuration, &runtime, false)?;
     let authority = check_origin(origin)?;
     let mailbox = match (&project.manifest.identity, mailbox) {
@@ -129,6 +133,9 @@ pub(super) fn serve_runtime(
     let state = Arc::new(Server {
         runtime,
         objects,
+        sockets: Arc::new(Semaphore::new(32)),
+        draining: std::sync::atomic::AtomicBool::new(false),
+        requests: std::sync::atomic::AtomicU64::new(0),
         mailbox,
         project: project.clone(),
         files: artifact::files(project)?
@@ -158,6 +165,10 @@ pub(super) fn serve_runtime(
             .as_ref()
             .map(|_| crate::relational::Pool::new(configuration)),
     });
+    run(state, address)
+}
+
+fn run(state: Arc<Server>, address: SocketAddr) -> Result<()> {
     let runtime = tokio::runtime::Builder::new_multi_thread()
         .worker_threads(2)
         .max_blocking_threads(4)
@@ -168,19 +179,28 @@ pub(super) fn serve_runtime(
         let app = Router::new()
             .fallback(handler)
             .with_state(Arc::clone(&state));
-        eprintln!("Diamond connected development server: {origin}");
+        eprintln!("Diamond connected server: {}", state.origin);
         let (stop, cleaner) = super::files::cleaner(Arc::clone(&state));
+        let draining_state = Arc::clone(&state);
         let result = axum::serve(
             listener,
             app.into_make_service_with_connect_info::<SocketAddr>(),
         )
-        .with_graceful_shutdown(async {
+        .with_graceful_shutdown(async move {
             let _signal = tokio::signal::ctrl_c().await;
+            draining_state
+                .draining
+                .store(true, std::sync::atomic::Ordering::Relaxed);
         })
         .await
         .map_err(Error::Io);
         let _sent = stop.send(());
         let _joined = cleaner.await;
+        let _sockets = tokio::time::timeout(
+            Duration::from_secs(5),
+            Arc::clone(&state.sockets).acquire_many_owned(32),
+        )
+        .await;
         result
     });
     // Retain the pool until the outer runtime has joined all owned blocking work.
@@ -191,6 +211,32 @@ pub(super) fn serve_runtime(
 }
 
 async fn handler(
+    state: State<Arc<Server>>,
+    peer: ConnectInfo<SocketAddr>,
+    request: Request,
+) -> Response {
+    let class = if request.uri().path().starts_with("/api/") {
+        "api"
+    } else if request.uri().path().starts_with("/_diamond/rpc/") {
+        "rpc"
+    } else if request.uri().path().starts_with("/_diamond/files/") {
+        "files"
+    } else if request.uri().path().starts_with("/_diamond/events/") {
+        "events"
+    } else if request.uri().path().starts_with("/_diamond/") {
+        "control"
+    } else {
+        "asset"
+    };
+    let response = handler_inner(state, peer, request).await;
+    eprintln!(
+        "{}",
+        serde_json::json!({"event":"request_complete","class":class,"status":response.status().as_u16()})
+    );
+    response
+}
+
+async fn handler_inner(
     State(server): State<Arc<Server>>,
     ConnectInfo(peer): ConnectInfo<SocketAddr>,
     request: Request,
@@ -200,6 +246,22 @@ async fn handler(
     };
     if !valid_request(&server, &request) {
         return json_response(StatusCode::BAD_REQUEST, &json!({"error":"invalid_request"}));
+    }
+    server
+        .requests
+        .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    if request.uri().path().starts_with("/_diamond/health") {
+        return super::deployment::health(server, request).await;
+    }
+    if server.draining.load(std::sync::atomic::Ordering::Relaxed) {
+        return failure(&Error::Limit("server draining"));
+    }
+    if request.uri().path().starts_with("/_diamond/events/") {
+        drop(permit);
+        let Ok(socket_permit) = Arc::clone(&server.sockets).try_acquire_owned() else {
+            return failure(&Error::Limit("socket capacity"));
+        };
+        return super::events::request(server, request, socket_permit).await;
     }
     let peer = peer.ip().to_string();
     let path = request.uri().path().to_owned();
@@ -212,6 +274,16 @@ async fn handler(
     if path.starts_with("/_diamond/files/") {
         return super::files::request(server, request, permit).await;
     }
+    request_body(server, request, peer, permit).await
+}
+
+async fn request_body(
+    server: Arc<Server>,
+    request: Request,
+    peer: String,
+    permit: tokio::sync::OwnedSemaphorePermit,
+) -> Response {
+    let path = request.uri().path().to_owned();
     if request.method() == "GET" || request.method() == "HEAD" {
         if path != "/_diamond/session" {
             let key = server
@@ -415,10 +487,10 @@ fn work(
         ));
     }
     let principal = store.principal(token, csrf)?;
-    if principal.id().is_none() {
+    let name = path.strip_prefix("/_diamond/rpc/").ok_or(Error::Denied)?;
+    if principal.id().is_none() && !server.project.manifest.public_rpc.contains(name) {
         return Err(Error::Denied);
     }
-    let name = path.strip_prefix("/_diamond/rpc/").ok_or(Error::Denied)?;
     let op = &server.project.rpc[name];
     let grants = &server.project.server.functions[&op.function].effects;
     let scope = Scope::new(&principal, grants);
@@ -454,7 +526,8 @@ fn valid_request(server: &Server, request: &Request) -> bool {
         && !request.uri().path().contains(['%', '\\'])
         && !request.uri().path().starts_with("//")
         && !request.headers().contains_key(header::TRANSFER_ENCODING)
-        && !request.headers().contains_key(header::UPGRADE)
+        && (!request.headers().contains_key(header::UPGRADE)
+            || request.uri().path().starts_with("/_diamond/events/"))
         && (!request.headers().contains_key(header::ORIGIN)
             || one_header(request, "origin") == Some(server.origin.as_str()))
         && one_header(request, "sec-fetch-site") != Some("cross-site")
@@ -555,6 +628,10 @@ pub(super) fn failure(error: &Error) -> Response {
 }
 
 fn check_origin(origin: &str) -> Result<String> {
+    super::deployment::origin(origin)
+}
+
+pub(super) fn development_origin(origin: &str) -> Result<String> {
     let uri: Uri = origin
         .parse()
         .map_err(|_| input("invalid connected public origin"))?;

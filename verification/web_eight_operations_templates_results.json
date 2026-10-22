@@ -1,0 +1,18 @@
+{
+  "caddy_template": {
+    "exit": 0,
+    "stderr": "{\"level\":\"info\",\"ts\":1792697349.372937,\"logger\":\"http.auto_https\",\"msg\":\"enabling automatic HTTP->HTTPS redirects\",\"server_name\":\"srv0\"}\n{\"level\":\"info\",\"ts\":1792697349.3729768,\"logger\":\"tls.cache.maintenance\",\"msg\":\"started background certificate maintenance\",\"cache\":\"0x3eac2ca21b80\"}\n{\"level\":\"info\",\"ts\":1792697349.374234,\"logger\":\"http\",\"msg\":\"servers shutting down with eternal grace period\"}\n{\"level\":\"info\",\"ts\":1792697349.3742876,\"logger\":\"http.handlers.reverse_proxy.health_checker.active\",\"msg\":\"HTTP request failed\",\"host\":\"127.0.0.1:3002\",\"error\":\"Get \\\"http://127.0.0.1:3002/_diamond/health/ready\\\": validation complete\"}\n{\"level\":\"info\",\"ts\":1792697349.3743236,\"logger\":\"http.handlers.reverse_proxy.health_checker.active\",\"msg\":\"HTTP request failed\",\"host\":\"127.0.0.1:3001\",\"error\":\"Get \\\"http://127.0.0.1:3001/_diamond/health/ready\\\": validation complete\"}\n{\"level\":\"info\",\"ts\":1792697349.3743474,\"logger\":\"tls.cache.maintenance\",\"msg\":\"stopped background certificate maintenance\",\"cache\":\"0x3eac2ca21b80\"}\n",
+    "valid_json": true
+  },
+  "diamond-server@.service": {
+    "exit": 0,
+    "stderr": "",
+    "note": "unit syntax verified outside restrictive syscall sandbox with actual binary path; no installation or start"
+  },
+  "diamond-worker@.service": {
+    "exit": 0,
+    "stderr": "",
+    "note": "unit syntax verified outside restrictive syscall sandbox with actual binary path; no installation or start"
+  },
+  "binary_sha256": "3d58bff2d28ce47bad5196cc22f3b9bbcd6acae39ee6680bd7195dfc9328a32d"
+}

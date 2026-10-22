@@ -14,15 +14,16 @@ use crate::value::{Type, Value, ValueKind};
 use std::collections::{BTreeMap, BTreeSet, VecDeque};
 
 pub(crate) fn check(source: &syntax::Program) -> Result<CheckedProgram> {
-    check_inner(source, Effects::new(), false, None)
+    check_inner(source, Effects::new(), false, None, &BTreeMap::new())
 }
 
 pub(crate) fn check_project(
     source: &syntax::Program,
     grants: Effects,
     storage: Option<&crate::relational::Storage>,
+    durable: &BTreeMap<String, (String, String)>,
 ) -> Result<CheckedProgram> {
-    check_inner(source, grants, true, storage)
+    check_inner(source, grants, true, storage, durable)
 }
 
 fn check_inner(
@@ -30,9 +31,11 @@ fn check_inner(
     grants: Effects,
     host_operations: bool,
     storage: Option<&crate::relational::Storage>,
+    durable: &BTreeMap<String, (String, String)>,
 ) -> Result<CheckedProgram> {
     let mut program = CheckedProgram {
         host_operations,
+        durable: BTreeMap::new(),
         storage: storage.cloned(),
         app: None,
         aliases: BTreeMap::new(),
@@ -63,6 +66,7 @@ fn check_inner(
     resolve_enums(source, &mut program)?;
     resolve_resources(source, &mut program)?;
     resolve_functions(source, &mut program)?;
+    resolve_durable(&mut program, durable)?;
     program.storage = storage.map(|s| s.checked(&program)).transpose()?;
     for declaration in &source.declarations {
         if let Declaration::Policy(policy) = declaration {
@@ -107,6 +111,41 @@ fn check_inner(
     check_functions(&mut program)?;
     check_routes(&mut program)?;
     Ok(program)
+}
+
+fn resolve_durable(
+    program: &mut CheckedProgram,
+    durable: &BTreeMap<String, (String, String)>,
+) -> Result<()> {
+    for (binding, (resource, name)) in durable {
+        let ty = if binding.starts_with("jobs/") {
+            program
+                .functions
+                .get(name)
+                .and_then(|f| f.parameters.get(1))
+                .map(|(_, t)| t.clone())
+                .ok_or(Error::Denied)?
+        } else if name == "Text" {
+            Type::Text
+        } else if program.records.contains_key(name) {
+            Type::Record(name.clone())
+        } else if program.enums.contains_key(name) {
+            Type::Enum(name.clone())
+        } else {
+            return Err(Error::Input("unknown event payload type".into()));
+        };
+        if !program.resources.contains_key(resource)
+            || !crate::project::wire::safe_type(&ty, program)
+        {
+            return Err(Error::Input(
+                "invalid durable binding resource or payload type".into(),
+            ));
+        }
+        program
+            .durable
+            .insert(binding.clone(), (resource.clone(), ty));
+    }
+    Ok(())
 }
 
 fn declare_types(
@@ -1360,6 +1399,17 @@ impl<'a> Checker<'a> {
         }
         if matches!(method, "secret" | "http_get" | "http_post") {
             return self.integration_call(method, args, types, location);
+        }
+        if [
+            "job_submit",
+            "job_status",
+            "job_cancel",
+            "event_emit",
+            "job_key",
+        ]
+        .contains(&method)
+        {
+            return self.durable_call(method, args, types, location);
         }
         let operation = crate::host::operation(method).ok_or_else(|| {
             Error::diagnostic("D310", location, "unknown registered host operation")

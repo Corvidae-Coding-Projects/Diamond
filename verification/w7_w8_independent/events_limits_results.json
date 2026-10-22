@@ -1,0 +1,135 @@
+{
+  "status": "PASS",
+  "binary_sha256": "3d58bff2d28ce47bad5196cc22f3b9bbcd6acae39ee6680bd7195dfc9328a32d",
+  "error": null,
+  "results": [
+    {
+      "name": "invalid-cursor--1",
+      "status": "PASS",
+      "observed": {
+        "status": 403
+      },
+      "expected": "invalid/noncanonical cursor cannot select event history"
+    },
+    {
+      "name": "invalid-cursor-01",
+      "status": "PASS",
+      "observed": {
+        "status": 403
+      },
+      "expected": "invalid/noncanonical cursor cannot select event history"
+    },
+    {
+      "name": "invalid-cursor-9223372036854775808",
+      "status": "PASS",
+      "observed": {
+        "status": 403
+      },
+      "expected": "invalid/noncanonical cursor cannot select event history"
+    },
+    {
+      "name": "invalid-cursor-not-a-cursor",
+      "status": "PASS",
+      "observed": {
+        "status": 403
+      },
+      "expected": "invalid/noncanonical cursor cannot select event history"
+    },
+    {
+      "name": "bounded-socket-admission-preserves-http",
+      "status": "PASS",
+      "observed": {
+        "accepted": 32,
+        "excess": 503,
+        "metrics": {
+          "active_requests": 1,
+          "active_sockets": 32,
+          "draining": false,
+          "requests": 43
+        },
+        "ordinary_status": 200
+      },
+      "expected": "32 sockets use separate bounded quota; excess rejected while ordinary serving remains usable"
+    },
+    {
+      "name": "database-clock-session-expiration",
+      "status": "PASS",
+      "observed": {
+        "message": {
+          "kind": "close",
+          "code": null,
+          "reason": ""
+        },
+        "new_handshake": 403,
+        "elapsed_seconds": 0.5083973569999216
+      },
+      "expected": "authoritative expired session closes existing connection within five seconds and cannot reconnect"
+    },
+    {
+      "name": "retained-window-floor-resynchronization",
+      "status": "PASS",
+      "observed": {
+        "cursor": "3",
+        "resync": true
+      },
+      "expected": "a formerly valid cursor below independently advanced retention floor requires explicit resync"
+    },
+    {
+      "name": "unsolicited-inbound-cannot-publish",
+      "status": "PASS",
+      "observed": {
+        "kind": "close",
+        "code": null,
+        "reason": ""
+      },
+      "expected": "outbound-only event endpoint rejects client actions without creating application/event state"
+    },
+    {
+      "name": "real-slow-consumer-disconnect-and-service-recovery",
+      "status": "PASS",
+      "observed": {
+        "published_messages": 320,
+        "payload_bytes_each_at_least": 15800,
+        "last_cursor": "323",
+        "elapsed_seconds": 5.1030024610081455,
+        "metrics": {
+          "active_requests": 1,
+          "active_sockets": 0,
+          "draining": false,
+          "requests": 237
+        },
+        "fresh_rpc_status": 200
+      },
+      "expected": "unread client exhausts bounded transport send time and releases permit; ordinary authenticated work continues"
+    }
+  ],
+  "shutdowns": [
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "http_requests": 519,
+  "elapsed_seconds": 8.615403531002812,
+  "temporary_root": "/tmp/diamond-w7-event-limits-0fcxtw9k",
+  "generated_budget": {
+    "seed": 20261022,
+    "slow_consumer_publications": 320,
+    "accepted_socket_bound": 32
+  },
+  "coverage_gaps": [
+    "Retention floor is advanced as owned database fixture state; the automatic 10000-row trim threshold is not exercised.",
+    "No Internet proxy/TLS edge, thirty-minute wall-clock connection expiry, or arbitrary network failure scheduling."
+  ]
+}

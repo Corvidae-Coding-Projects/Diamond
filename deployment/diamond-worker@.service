@@ -1,0 +1,23 @@
+[Unit]
+Description=Diamond durable worker %i
+After=network.target postgresql.service
+
+[Service]
+User=diamond
+Group=diamond
+EnvironmentFile=/etc/diamond/application.env
+ExecStart=/usr/local/bin/diamond project-work /srv/diamond/current --postgres-env DIAMOND_POSTGRES --runtime-env DIAMOND_RUNTIME
+KillSignal=SIGINT
+TimeoutStopSec=45
+Restart=on-failure
+RestartSec=2
+UMask=0077
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+CapabilityBoundingSet=
+
+[Install]
+WantedBy=multi-user.target

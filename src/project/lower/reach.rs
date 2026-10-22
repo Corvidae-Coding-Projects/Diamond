@@ -174,6 +174,12 @@ impl Reach<'_> {
         for n in nodes {
             match n {
                 Node::Value(e) => self.expression(e),
+                Node::Watch {
+                    parent, payload, ..
+                } => {
+                    self.expression(parent);
+                    self.ty(payload);
+                }
                 Node::When(e, children) => {
                     self.expression(e);
                     self.nodes(children);

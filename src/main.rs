@@ -42,15 +42,19 @@ fn main() {
     }
 }
 
-fn try_main() -> Result<()> {
-    let arguments = std::env::args_os()
+fn command_arguments() -> Result<Vec<String>> {
+    std::env::args_os()
         .skip(1)
         .map(|argument| {
             argument
                 .into_string()
                 .map_err(|_| anyhow::Error::msg("command-line arguments must be valid UTF-8"))
         })
-        .collect::<Result<Vec<_>>>()?;
+        .collect::<Result<Vec<_>>>()
+}
+
+fn try_main() -> Result<()> {
+    let arguments = command_arguments()?;
     let Some(command) = arguments.first() else {
         help();
         return Ok(());
@@ -61,13 +65,16 @@ fn try_main() -> Result<()> {
     }
     if command == "--version" {
         println!(
-            "diamond {} (W6 files and integrations development profile)",
+            "diamond {} (W7 jobs/live apps and W8 operable deployment profile)",
             env!("CARGO_PKG_VERSION")
         );
         return Ok(());
     }
     if command == "explain" {
         return explain(&arguments[1..]);
+    }
+    if command == "new" {
+        return scaffold(&arguments[1..]);
     }
     if command == "user-add" {
         return user_add(&arguments[1..]);
@@ -78,6 +85,11 @@ fn try_main() -> Result<()> {
         "project-init",
         "project-files-init",
         "project-files-clean",
+        "project-work",
+        "project-deploy-check",
+        "project-recover",
+        "project-backup",
+        "project-restore",
         "project-user-add",
         "project-admin-add",
         "project-status",
@@ -151,21 +163,33 @@ struct ProjectOptions<'a> {
     email: Option<&'a str>,
     mailbox: Option<PathBuf>,
     batch: usize,
+    policy: Option<&'a str>,
+    backup_key_env: Option<&'a str>,
+    backup_source: Option<PathBuf>,
+}
+
+impl Default for ProjectOptions<'_> {
+    fn default() -> Self {
+        Self {
+            output: None,
+            listen: "127.0.0.1:3000",
+            origin: None,
+            postgres_env: None,
+            runtime_env: None,
+            username: None,
+            password_stdin: false,
+            email: None,
+            mailbox: None,
+            batch: 100,
+            policy: None,
+            backup_key_env: None,
+            backup_source: None,
+        }
+    }
 }
 
 fn project_options<'a>(command: &str, arguments: &'a [String]) -> Result<ProjectOptions<'a>> {
-    let mut parsed = ProjectOptions {
-        output: None,
-        listen: "127.0.0.1:3000",
-        origin: None,
-        postgres_env: None,
-        runtime_env: None,
-        username: None,
-        password_stdin: false,
-        email: None,
-        mailbox: None,
-        batch: 100,
-    };
+    let mut parsed = ProjectOptions::default();
     let mut seen = BTreeSet::new();
     let mut cursor = 0;
     while cursor < arguments.len() {
@@ -184,7 +208,22 @@ fn project_options<'a>(command: &str, arguments: &'a [String]) -> Result<Project
             .get(cursor + 1)
             .context("project option requires a value")?;
         match (command, option.as_str()) {
-            ("serve" | "project-files-init" | "project-files-clean", "--runtime-env") => {
+            ("project-backup" | "project-restore", "--backup-key-env") => {
+                parsed.backup_key_env = Some(value);
+            }
+            ("project-restore", "--from") => parsed.backup_source = Some(PathBuf::from(value)),
+            ("project-backup" | "build", "--out") => parsed.output = Some(PathBuf::from(value)),
+            ("project-recover", "--policy") => parsed.policy = Some(value),
+            (
+                "serve"
+                | "project-files-init"
+                | "project-files-clean"
+                | "project-work"
+                | "project-deploy-check"
+                | "project-backup"
+                | "project-restore",
+                "--runtime-env",
+            ) => {
                 if value.is_empty()
                     || value.len() > 128
                     || !value
@@ -198,12 +237,14 @@ fn project_options<'a>(command: &str, arguments: &'a [String]) -> Result<Project
             ("project-backfill", "--batch") => {
                 parsed.batch = value.parse().context("invalid backfill batch")?;
             }
-            ("build", "--out") => parsed.output = Some(PathBuf::from(value)),
+
             ("serve", "--listen") => parsed.listen = value,
-            ("serve", "--origin") => parsed.origin = Some(value),
+            ("serve" | "project-deploy-check", "--origin") => parsed.origin = Some(value),
             ("project-user-add" | "project-admin-add", "--user") => parsed.username = Some(value),
             ("project-admin-add", "--email") => parsed.email = Some(value),
-            ("serve", "--identity-mailbox") => parsed.mailbox = Some(PathBuf::from(value)),
+            ("serve" | "project-deploy-check", "--identity-mailbox") => {
+                parsed.mailbox = Some(PathBuf::from(value));
+            }
             (
                 "run"
                 | "serve"
@@ -215,7 +256,12 @@ fn project_options<'a>(command: &str, arguments: &'a [String]) -> Result<Project
                 | "project-status"
                 | "project-migrate"
                 | "project-backfill"
-                | "project-audit",
+                | "project-audit"
+                | "project-work"
+                | "project-deploy-check"
+                | "project-recover"
+                | "project-backup"
+                | "project-restore",
                 "--postgres-env",
             ) => {
                 if value.is_empty()
@@ -248,17 +294,18 @@ fn project_command(command: &str, arguments: &[String]) -> Result<()> {
         diamond::compile_project(path)
     }
     .map_err(|error| anyhow::Error::msg(safe_text(&error.to_string())))?;
-    let configuration = options
-        .postgres_env
-        .map(|name| {
-            std::env::var(name).map(Zeroizing::new).map_err(|_| {
-                anyhow::Error::msg(
-                    "PostgreSQL grant environment variable is missing or invalid UTF-8",
-                )
-            })
-        })
-        .transpose()?;
+    let configuration = project_configuration(&options)?;
     match command {
+        "project-backup"
+        | "project-restore"
+        | "project-work"
+        | "project-deploy-check"
+        | "project-recover" => project_operation(
+            command,
+            &project,
+            &options,
+            configuration.as_deref().map(String::as_str),
+        )?,
         "check" => print!("{}", project.summary()),
         "build" => {
             let output = options
@@ -328,6 +375,110 @@ fn project_command(command: &str, arguments: &[String]) -> Result<()> {
             command == "project-admin-add",
         )?,
         _ => bail!("unsupported project command"),
+    }
+    Ok(())
+}
+
+fn project_configuration(options: &ProjectOptions<'_>) -> Result<Option<Zeroizing<String>>> {
+    options
+        .postgres_env
+        .map(|name| {
+            std::env::var(name).map(Zeroizing::new).map_err(|_| {
+                anyhow::Error::msg(
+                    "PostgreSQL grant environment variable is missing or invalid UTF-8",
+                )
+            })
+        })
+        .transpose()
+}
+
+fn project_operation(
+    command: &str,
+    project: &diamond::CheckedProject,
+    options: &ProjectOptions<'_>,
+    configuration: Option<&str>,
+) -> Result<()> {
+    match command {
+        "project-backup" | "project-restore" => {
+            let config = configuration.context("backup operation requires --postgres-env")?;
+            let runtime = Zeroizing::new(
+                std::env::var(
+                    options
+                        .runtime_env
+                        .context("backup requires --runtime-env")?,
+                )
+                .map_err(|_| anyhow::anyhow!("runtime configuration unavailable"))?,
+            );
+            let runtime = diamond::RuntimeGrants::from_json(&runtime)?;
+            let key = Zeroizing::new(
+                std::env::var(
+                    options
+                        .backup_key_env
+                        .context("backup requires --backup-key-env")?,
+                )
+                .map_err(|_| anyhow::anyhow!("backup passphrase unavailable"))?,
+            );
+            let result = if command == "project-backup" {
+                project.backup_project(
+                    config,
+                    &runtime,
+                    options
+                        .output
+                        .as_deref()
+                        .context("backup requires --out NEWDIR")?,
+                    &key,
+                )?
+            } else {
+                project.restore_project(
+                    config,
+                    &runtime,
+                    options
+                        .backup_source
+                        .as_deref()
+                        .context("restore requires --from DIRECTORY")?,
+                    &key,
+                )?
+            };
+            println!("{result}");
+        }
+        "project-work" | "project-deploy-check" | "project-recover" => {
+            let config = configuration.context("operation requires --postgres-env")?;
+            if command == "project-recover" {
+                project.recover_jobs(
+                    config,
+                    options
+                        .policy
+                        .context("recovery requires --policy resume|cancel")?,
+                )?;
+            } else {
+                let runtime = options
+                    .runtime_env
+                    .map(|name| {
+                        std::env::var(name)
+                            .map_err(|_| anyhow::anyhow!("runtime configuration unavailable"))
+                    })
+                    .transpose()?
+                    .unwrap_or_else(|| "{}".into());
+                let runtime = diamond::RuntimeGrants::from_json(&runtime)?;
+                if command == "project-work" {
+                    project.work_jobs(config, runtime)?;
+                } else {
+                    println!(
+                        "{}",
+                        project.validate_deployment(
+                            config,
+                            options.origin.context("deployment requires --origin")?,
+                            &runtime,
+                            options
+                                .mailbox
+                                .as_deref()
+                                .context("deployment requires --identity-mailbox")?
+                        )?
+                    );
+                }
+            }
+        }
+        _ => bail!("unsupported operational command"),
     }
     Ok(())
 }
@@ -639,7 +790,7 @@ fn read_password(password_stdin: bool) -> Result<Zeroizing<String>> {
 
 fn help() {
     println!(
-        "Diamond {} — W6 private files, integrations and interpreted MVP\n\n  diamond check FILE_OR_PROJECT\n  diamond build PROJECT --out NEW_DIRECTORY\n  diamond serve PROJECT_OR_BUILD [--listen 127.0.0.1:PORT] [--postgres-env VARIABLE --origin http://localhost:PORT] [--identity-mailbox PRIVATE_DIRECTORY] [--runtime-env VARIABLE]\n  diamond run PROJECT_OR_BUILD [--postgres-env VARIABLE]\n  diamond project-init PROJECT --postgres-env VARIABLE\n  diamond project-files-init PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-files-clean PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-user-add PROJECT --postgres-env VARIABLE --user USERNAME [--password-stdin]\n  diamond project-admin-add PROJECT --postgres-env VARIABLE --user USERNAME --email ADDRESS [--password-stdin]\n  diamond project-status PROJECT --postgres-env VARIABLE\n  diamond project-migrate PROJECT --postgres-env VARIABLE\n  diamond project-backfill PROJECT --postgres-env VARIABLE [--batch 100]\n  diamond project-audit PROJECT --postgres-env VARIABLE\n  diamond run FILE [--database PATH] [--auth PATH] [--listen 127.0.0.1:PORT] [--max-requests N]\n  diamond db-init FILE --database PATH\n  diamond user-add --auth PATH --user USERNAME [--password-stdin]\n  diamond explain CODE\n\nOpen http://localhost:PORT for browser secure-cookie support.\nSee README.md for installation, examples, supported language, and limits.",
+        "Diamond {} — W7/W8 jobs, live apps and operable deployment\n\n  diamond new NEW_DIRECTORY [--template workspace|catalog]\n  diamond project-work PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-deploy-check PROJECT --postgres-env VARIABLE --runtime-env VARIABLE --origin https://app.example --identity-mailbox PRIVATE_DIRECTORY\n  diamond project-backup PROJECT --postgres-env VARIABLE --runtime-env VARIABLE --out NEW_DIRECTORY --backup-key-env VARIABLE\n  diamond project-restore PROJECT --postgres-env VARIABLE --runtime-env VARIABLE --from BACKUP_DIRECTORY --backup-key-env VARIABLE\n  diamond project-recover PROJECT --postgres-env VARIABLE --policy resume|cancel\n  diamond check FILE_OR_PROJECT\n  diamond build PROJECT --out NEW_DIRECTORY\n  diamond serve PROJECT_OR_BUILD [--listen 127.0.0.1:PORT] [--postgres-env VARIABLE --origin http://localhost:PORT] [--identity-mailbox PRIVATE_DIRECTORY] [--runtime-env VARIABLE]\n  diamond run PROJECT_OR_BUILD [--postgres-env VARIABLE]\n  diamond project-init PROJECT --postgres-env VARIABLE\n  diamond project-files-init PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-files-clean PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-user-add PROJECT --postgres-env VARIABLE --user USERNAME [--password-stdin]\n  diamond project-admin-add PROJECT --postgres-env VARIABLE --user USERNAME --email ADDRESS [--password-stdin]\n  diamond project-status PROJECT --postgres-env VARIABLE\n  diamond project-migrate PROJECT --postgres-env VARIABLE\n  diamond project-backfill PROJECT --postgres-env VARIABLE [--batch 100]\n  diamond project-audit PROJECT --postgres-env VARIABLE\n  diamond run FILE [--database PATH] [--auth PATH] [--listen 127.0.0.1:PORT] [--max-requests N]\n  diamond db-init FILE --database PATH\n  diamond user-add --auth PATH --user USERNAME [--password-stdin]\n  diamond explain CODE\n\nOpen http://localhost:PORT for browser secure-cookie support.\nSee README.md for installation, examples, supported language, and limits.",
         env!("CARGO_PKG_VERSION")
     );
 }
@@ -673,5 +824,71 @@ fn provision_project_user(
             .context("provision shared project account")?;
     }
     println!("shared project account created");
+    Ok(())
+}
+
+fn scaffold(arguments: &[String]) -> Result<()> {
+    let destination = Path::new(arguments.first().context("new requires a new directory")?);
+    let template = match arguments {
+        [_] => "workspace",
+        [_, option, value] if option == "--template" => value.as_str(),
+        _ => bail!("new accepts DIRECTORY [--template workspace|catalog]"),
+    };
+    let files: &[(&str, &str)] = match template {
+        "workspace" => &[
+            (
+                "diamond.toml",
+                include_str!("../examples/live-workspace/diamond.toml"),
+            ),
+            (
+                "server.dia",
+                include_str!("../examples/live-workspace/server.dia"),
+            ),
+            (
+                "shared.dia",
+                include_str!("../examples/live-workspace/shared.dia"),
+            ),
+            (
+                "cards.dia",
+                include_str!("../examples/live-workspace/cards.dia"),
+            ),
+            (
+                "tracker.dia",
+                include_str!("../examples/live-workspace/tracker.dia"),
+            ),
+            (
+                "tracker.css",
+                include_str!("../examples/live-workspace/tracker.css"),
+            ),
+            (
+                "diamond.svg",
+                include_str!("../examples/live-workspace/diamond.svg"),
+            ),
+            (
+                "README.md",
+                include_str!("../examples/live-workspace/README.md"),
+            ),
+        ],
+        "catalog" => &[
+            (
+                "diamond.toml",
+                include_str!("../examples/catalog/diamond.toml"),
+            ),
+            ("server.dia", include_str!("../examples/catalog/server.dia")),
+            ("ui.dia", include_str!("../examples/catalog/ui.dia")),
+            (
+                "catalog.css",
+                include_str!("../examples/catalog/catalog.css"),
+            ),
+            ("README.md", include_str!("../examples/catalog/README.md")),
+        ],
+        _ => bail!("unknown template; use workspace or catalog"),
+    };
+    std::fs::create_dir(destination).context("scaffold destination must be new")?;
+    for (name, content) in files {
+        std::fs::write(destination.join(name), content).context("write scaffold input")?;
+    }
+    let project = diamond::compile_project(&destination.join("diamond.toml"))?;
+    print!("{}", project.summary());
     Ok(())
 }

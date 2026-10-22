@@ -93,3 +93,100 @@ impl Checker<'_> {
         }
     }
 }
+
+impl Checker<'_> {
+    pub(super) fn durable_call(
+        &mut self,
+        method: &str,
+        args: &[(Option<String>, Expr)],
+        types: &[TypeName],
+        location: Location,
+    ) -> Result<Type> {
+        let generic = matches!(method, "job_submit" | "event_emit");
+        let count = match method {
+            "job_submit" => 4,
+            "event_emit" => 3,
+            "job_key" => 0,
+            _ => 2,
+        };
+        if args.len() != count
+            || types.len() != usize::from(generic)
+            || args.iter().any(|(n, _)| n.is_some())
+        {
+            return Err(Error::diagnostic(
+                "D310",
+                location,
+                "invalid durable operation signature",
+            ));
+        }
+        if count > 0
+            && !matches!(&args[0].1.kind,ExprKind::Text(n) if crate::project::resolve::identifier(n))
+        {
+            return Err(Error::diagnostic(
+                "D310",
+                location,
+                "durable binding requires a static identifier",
+            ));
+        }
+        if let Some((
+            _,
+            Expr {
+                kind: ExprKind::Text(name),
+                ..
+            },
+        )) = args.first()
+        {
+            let namespace = if method == "event_emit" {
+                "events"
+            } else {
+                "jobs"
+            };
+            let (resource, payload) = self
+                .program
+                .durable
+                .get(&format!("{namespace}/{name}"))
+                .cloned()
+                .ok_or_else(|| Error::diagnostic("D310", location, "unknown durable binding"))?;
+            self.effects.insert(Effect::Read(resource.clone()));
+            if method != "job_status" {
+                self.effects.insert(Effect::Write(resource));
+            }
+            if generic && payload != resolve_type(&types[0], self.program, location)? {
+                return Err(Error::diagnostic(
+                    "D310",
+                    location,
+                    "payload type differs from declared binding",
+                ));
+            }
+        }
+        for (i, (_, arg)) in args.iter().enumerate() {
+            let expected = if generic && i == 2 {
+                resolve_type(&types[0], self.program, location)?
+            } else {
+                Type::Text
+            };
+            if !crate::project::wire::safe_type(&expected, self.program)
+                || !expected.accepts(&self.expr(arg)?)
+            {
+                return Err(Error::diagnostic(
+                    "D310",
+                    location,
+                    "durable arguments require declared wire-safe types",
+                ));
+            }
+        }
+        self.effects.insert(Effect::Host(
+            match method {
+                "event_emit" => "Events",
+                "job_key" => "JobKey",
+                _ => "Jobs",
+            }
+            .into(),
+        ));
+        if method == "job_key" {
+            Ok(Type::Text)
+        } else {
+            Ok(Type::Result(Box::new(Type::Text)))
+        }
+    }
+}

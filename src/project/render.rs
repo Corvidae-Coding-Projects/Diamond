@@ -88,6 +88,7 @@ impl Render<'_, '_> {
                 return Err(Error::Limit("render node capacity"));
             }
             match node {
+                Node::Watch { .. } => {}
                 Node::Text(s) => out.push_str(&escape(s)),
                 Node::Value(e) => out.push_str(&escape(&self.value(e, locals)?.display_text()?)),
                 Node::When(e, children) => {

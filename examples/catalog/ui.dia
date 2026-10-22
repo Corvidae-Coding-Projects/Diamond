@@ -1,0 +1,69 @@
+export component Catalog:
+  state username: Text = ""
+  state password: Text = ""
+  state identity: Text = ""
+  state author: Text = ""
+  state selected: Text = ""
+  state title: Text = ""
+  state body: Text = ""
+  state key: Text = "first-publication"
+  state output: Text = "Choose an author to browse public articles."
+  state live: Text = ""
+  state cursor: Text = "0"
+  state job: Text = ""
+  on login:
+    selected = ""
+    title = ""
+    body = ""
+    live = ""
+    cursor = "0"
+    job = ""
+    identity = session.login(username, password)
+    password = ""
+  on logout:
+    selected = ""
+    title = ""
+    body = ""
+    live = ""
+    cursor = "0"
+    job = ""
+    identity = session.logout()
+    selected = ""
+    live = ""
+    cursor = "0"
+    output = "Signed out."
+  on create:
+    selected = rpc.create_article(title, body)
+  on read:
+    output = rpc.read_article(selected)
+  on edit:
+    output = rpc.edit_article(selected, title, body)
+  on publish:
+    job = rpc.publish_article(selected, key)
+  on browse:
+    output = rpc.public_page(author)
+  on check:
+    output = rpc.job_status(job)
+  html:
+    <main>
+      <h1>Publishing catalog</h1>
+      <section><h2>Public articles</h2>
+        <label for="author">Author username</label><input id="author" bind-value={author}>
+        <button on-click={browse}>Browse published articles</button><pre>{output}</pre>
+      </section>
+      <section><h2>Author account</h2>
+        <label for="username">Username</label><input id="username" bind-value={username}>
+        <label for="password">Password</label><input id="password" type="password" bind-value={password}>
+        <button on-click={login}>Sign in</button><button on-click={logout}>Sign out</button><p>{identity}</p>
+      </section>
+      <section><h2>Write and publish</h2>
+        <label for="article">Article ID</label><input id="article" bind-value={selected}>
+        <label for="title">Title</label><input id="title" bind-value={title}>
+        <label for="body">Body</label><textarea id="body" bind-value={body}></textarea>
+        <button on-click={create}>Create draft</button><button on-click={read}>Read article</button><button on-click={edit}>Save article</button>
+        <label for="key">Publication deduplication key</label><input id="key" bind-value={key}>
+        <button on-click={publish}>Publish and notify</button><button on-click={check}>Check notification job</button><p>{job}</p>
+      </section>
+      <when test={identity != ""}><watch channel="article_changes" parent={selected} into="live" cursor="cursor"></watch></when>
+      <p aria-live="polite">{live}</p>
+    </main>

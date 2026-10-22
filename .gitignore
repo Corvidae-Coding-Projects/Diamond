@@ -68,3 +68,8 @@ Thumbs.db
 
 # Cargo.lock, .design/, verification scripts/results, and screenshots are
 # intentionally tracked. Review example environment files before committing.
+
+# Operational encrypted snapshots and native database dumps.
+*.dump
+*.gpg
+*.age

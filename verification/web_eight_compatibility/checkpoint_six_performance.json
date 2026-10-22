@@ -1,0 +1,78 @@
+{
+  "schema": 1,
+  "started_utc": "2026-10-22T19:35:31.459183+00:00",
+  "finished_utc": "2026-10-22T19:35:31.716789+00:00",
+  "host": "Linux-7.2.9-201.fc44.x86_64-x86_64-with-glibc2.43",
+  "python": "3.14.8",
+  "binary_sha256": "3d58bff2d28ce47bad5196cc22f3b9bbcd6acae39ee6680bd7195dfc9328a32d",
+  "thresholds": {
+    "fresh_process_p95_seconds": 1.0,
+    "large_check_seconds": 5.0,
+    "peak_resident_mib": 128
+  },
+  "observations": {
+    "check_hello": {
+      "iterations": 40,
+      "minimum_seconds": 0.001122,
+      "median_seconds": 0.00135,
+      "p95_seconds": 0.001624,
+      "maximum_seconds": 0.002059,
+      "output_hashes": [
+        "a78a7d748c73341b4eade46ea7273b9be89f416ef13cafff61578c4c5e68eea4"
+      ]
+    },
+    "check_message_board": {
+      "iterations": 40,
+      "minimum_seconds": 0.002653,
+      "median_seconds": 0.002868,
+      "p95_seconds": 0.003113,
+      "maximum_seconds": 0.003268,
+      "output_hashes": [
+        "347b7478da022b69c27ea5bacb87e0d61ef20dd171b810c4e12ee2fb1ceca43b"
+      ]
+    },
+    "run_hello": {
+      "iterations": 40,
+      "minimum_seconds": 0.001137,
+      "median_seconds": 0.001343,
+      "p95_seconds": 0.001597,
+      "maximum_seconds": 0.001726,
+      "output_hashes": [
+        "747d36d5a1fb4daf01ea782f192300b72d1bfe382bd7cf7edf8d908ac535b904"
+      ]
+    },
+    "message_board_process": {
+      "arguments": [
+        "check",
+        "examples/message_board.dia"
+      ],
+      "exit": 0,
+      "wall_seconds": 0.011676,
+      "stdout": "checked examples/message_board.dia: 4 functions, 3 records, 1 resources, 9 routes, 1 policies\n  app MessageBoard\n  private GET / {Read(\"Posts\")}\n  public GET /posts {Read(\"Posts\")}\n  public GET /posts/{id:PostId} {Read(\"Posts\")}\n  private POST /posts {Read(\"Posts\"), Write(\"Posts\")}\n  private GET /posts/{id:PostId}/edit {Read(\"Posts\")}\n  private POST /posts/{id:PostId}/edit {Read(\"Posts\"), Write(\"Posts\")}\n  private POST /posts/{id:PostId}/publication {Read(\"Posts\"), Write(\"Posts\")}\n  private POST /posts/{id:PostId}/delete {Write(\"Posts\")}\n  private DELETE /posts/{id:PostId} {Write(\"Posts\")}\n",
+      "stderr": "",
+      "maximum_resident_kib": 17392,
+      "user_seconds": "0.00",
+      "system_seconds": "0.00"
+    },
+    "large_process": {
+      "arguments": [
+        "check",
+        "/tmp/diamond-cp6-performance-gaev2z97/large.dia"
+      ],
+      "exit": 0,
+      "wall_seconds": 0.01915,
+      "stdout": "checked /tmp/diamond-cp6-performance-gaev2z97/large.dia: 1 functions, 0 records, 0 resources, 0 routes, 0 policies\n",
+      "stderr": "",
+      "maximum_resident_kib": 18200,
+      "user_seconds": "0.01",
+      "system_seconds": "0.00"
+    },
+    "large_source": {
+      "bytes": 82892,
+      "declarations": 4000,
+      "sha256": "930158565761ec3692eaa518bcca7dd0cf26d4dc34ac4bd0e23dfb90a712a249"
+    }
+  },
+  "failures": [],
+  "result": "PASS"
+}

@@ -1,0 +1,14 @@
+export fn heading() -> Text:
+  "Files and integrations"
+
+export type CardId = Id<"issue">
+
+export type IssueCard:
+  id: CardId
+  title: Text
+  details: Text
+
+export type IssuePage:
+  cards: List<IssueCard>
+  after: Text
+  total: Int

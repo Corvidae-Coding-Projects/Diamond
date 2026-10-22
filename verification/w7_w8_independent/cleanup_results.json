@@ -1,0 +1,19 @@
+{
+  "status": "PASS",
+  "removed_owned_initial_run_roots": [
+    "diamond-w7-check-jnf6nnfu",
+    "diamond-w7-independent-uo3amrns",
+    "diamond-w7-independent-cnw7ruht",
+    "diamond-w7-independent-5f0_fybf",
+    "diamond-w7-independent-uijuhh0g",
+    "diamond-w7-independent-9wzkhect",
+    "diamond-w8-independent-b5p23i16",
+    "diamond-w8-independent-0p6_dhfs",
+    "diamond-w7-independent-vokjlejm",
+    "diamond-w7-event-limits-1a7n8eq6",
+    "diamond-w8-tls-proxy-k_dmwxh4",
+    "diamond-w8-tls-proxy-vlkqypfo"
+  ],
+  "passing_run_roots": "removed by each driver after its own clean shutdown; aggregate pinned artifact removed by run.py",
+  "preserved": "verification drivers, independent oracles, initial/final receipts and bounded findings"
+}

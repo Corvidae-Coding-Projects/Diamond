@@ -1,0 +1,329 @@
+{
+  "schema": 1,
+  "finished_utc": "2026-10-22T19:31:52.904159+00:00",
+  "binary_sha256": "e928d7fec02991642f24609cf8901b2738f5b823f5eedd68299d16b39f345929",
+  "host_binary_sha256": "3d58bff2d28ce47bad5196cc22f3b9bbcd6acae39ee6680bd7195dfc9328a32d",
+  "install_root_file_count": 3,
+  "cases": [
+    {
+      "name": "cargo_install",
+      "observed": {
+        "exit": 0,
+        "seconds": 25.765742,
+        "stdout": "",
+        "stderr": "  Installing diamond-lang v0.14.0 (/home/doll/diamond)\n    Updating crates.io index\n   Compiling stable_deref_trait v1.2.1\n   Compiling portable-atomic v1.15.0\n   Compiling writeable v0.6.4\n   Compiling critical-section v1.2.0\n   Compiling litemap v0.8.3\n   Compiling icu_properties_data v2.3.0\n   Compiling futures-task v0.3.34\n   Compiling utf8_iter v1.0.4\n   Compiling icu_normalizer_data v2.3.0\n   Compiling slab v0.4.12\n   Compiling zerocopy v0.8.63\n   Compiling ring v0.17.14\n   Compiling getrandom v0.3.4\n   Compiling syn v3.0.9\n   Compiling crypto-common v0.1.7\n   Compiling form_urlencoded v1.2.2\n   Compiling autocfg v1.5.1\n   Compiling rustls-pki-types v1.15.1\n   Compiling getrandom v0.2.17\n   Compiling untrusted v0.9.0\n   Compiling data-encoding v2.11.1\n   Compiling crossbeam-utils v0.8.23\n   Compiling try-lock v0.2.5\n   Compiling sync_wrapper v1.0.2\n   Compiling rustls v0.23.46\n   Compiling either v1.19.0\n   Compiling digest v0.10.7\n   Compiling want v0.3.2\n   Compiling base64 v0.23.1\n   Compiling crossbeam-epoch v0.9.21\n   Compiling openssl-probe v0.2.1\n   Compiling uuid v1.28.0\n   Compiling tagptr v0.2.0\n   Compiling equivalent v1.0.3\n   Compiling futures-io v0.3.34\n   Compiling ryu v1.0.23\n   Compiling axum-core v0.5.6\n   Compiling resolv-conf v0.7.6\n   Compiling num-traits v0.2.19\n   Compiling sha1 v0.10.7\n   Compiling blake2 v0.10.6\n   Compiling rand_core v0.9.5\n   Compiling rustls-native-certs v0.8.5\n   Compiling argon2 v0.5.3\n   Compiling crossbeam-channel v0.5.17\n   Compiling once_cell v1.21.4\n   Compiling tracing-core v0.1.36\n   Compiling moka v0.12.16\n   Compiling tracing v0.1.44\n   Compiling synstructure v0.14.0\n   Compiling zerofrom-derive v0.1.8\n   Compiling yoke-derive v0.8.4\n   Compiling zerovec-derive v0.11.6\n   Compiling displaydoc v0.2.7\n   Compiling tokio-macros v2.7.2\n   Compiling futures-macro v0.3.34\n   Compiling serde_derive v1.0.229\n   Compiling thiserror-impl v2.0.21\n   Compiling async-trait v0.1.92\n   Compiling ppv-lite86 v0.2.21\n   Compiling tokio v1.54.1\n   Compiling futures-util v0.3.34\n   Compiling rand_chacha v0.9.0\n   Compiling zerofrom v0.1.8\n   Compiling yoke v0.8.3\n   Compiling thiserror v2.0.21\n   Compiling rand v0.9.5\n   Compiling zerovec v0.11.8\n   Compiling zerotrie v0.2.5\n   Compiling tungstenite v0.29.0\n   Compiling tinystr v0.8.4\n   Compiling potential_utf v0.1.6\n   Compiling icu_collections v2.3.0\n   Compiling icu_locale_core v2.3.0\n   Compiling serde v1.0.229\n   Compiling ipnet v2.12.2\n   Compiling serde_urlencoded v0.7.1\n   Compiling icu_provider v2.3.1\n   Compiling prefix-trie v0.8.4\n   Compiling icu_properties v2.3.0\n   Compiling icu_normalizer v2.3.0\n   Compiling idna_adapter v1.2.2\n   Compiling idna v1.1.0\n   Compiling url v2.5.8\n   Compiling hickory-proto v0.26.3\n   Compiling hyper v1.12.0\n   Compiling tower v0.5.3\n   Compiling tokio-util v0.7.20\n   Compiling tokio-tungstenite v0.29.0\n   Compiling tower-http v0.6.11\n   Compiling tokio-postgres v0.7.18\n   Compiling hyper-util v0.1.21\n   Compiling rustls-webpki v0.103.16\n   Compiling hickory-net v0.26.3\n   Compiling hickory-resolver v0.26.3\n   Compiling axum v0.8.9\n   Compiling tokio-rustls v0.26.6\n   Compiling hyper-rustls v0.27.10\n   Compiling reqwest v0.12.28\n   Compiling diamond-lang v0.14.0 (/home/doll/diamond)\n    Finished `release` profile [optimized] target(s) in 25.73s\n  Installing /tmp/diamond-cp6-install-gvnp0i5e/install/bin/diamond\n   Installed package `diamond-lang v0.14.0 (/home/doll/diamond)` (executable `diamond`)\nwarning: be sure to add `/tmp/diamond-cp6-install-gvnp0i5e/install/bin` to your PATH to be able to run the installed binaries\n",
+        "files": [
+          ".crates.toml",
+          ".crates2.json",
+          "bin/diamond"
+        ]
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "installed_version",
+      "observed": {
+        "arguments": [
+          "--version"
+        ],
+        "cwd": "/tmp/diamond-cp6-install-gvnp0i5e",
+        "exit": 0,
+        "seconds": 0.000921,
+        "stdout": "diamond 0.14.0 (W7 jobs/live apps and W8 operable deployment profile)\n",
+        "stderr": ""
+      },
+      "accepted": false,
+      "failures": [
+        "installed version mismatch"
+      ]
+    },
+    {
+      "name": "installed_help",
+      "observed": {
+        "arguments": [
+          "--help"
+        ],
+        "cwd": "/tmp/diamond-cp6-install-gvnp0i5e",
+        "exit": 0,
+        "seconds": 0.000754,
+        "stdout": "Diamond 0.14.0 — W7/W8 jobs, live apps and operable deployment\n\n  diamond new NEW_DIRECTORY [--template workspace|catalog]\n  diamond project-work PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-deploy-check PROJECT --postgres-env VARIABLE --runtime-env VARIABLE --origin https://app.example --identity-mailbox PRIVATE_DIRECTORY\n  diamond project-backup PROJECT --postgres-env VARIABLE --runtime-env VARIABLE --out NEW_DIRECTORY --backup-key-env VARIABLE\n  diamond project-restore PROJECT --postgres-env VARIABLE --runtime-env VARIABLE --from BACKUP_DIRECTORY --backup-key-env VARIABLE\n  diamond project-recover PROJECT --postgres-env VARIABLE --policy resume|cancel\n  diamond check FILE_OR_PROJECT\n  diamond build PROJECT --out NEW_DIRECTORY\n  diamond serve PROJECT_OR_BUILD [--listen 127.0.0.1:PORT] [--postgres-env VARIABLE --origin http://localhost:PORT] [--identity-mailbox PRIVATE_DIRECTORY] [--runtime-env VARIABLE]\n  diamond run PROJECT_OR_BUILD [--postgres-env VARIABLE]\n  diamond project-init PROJECT --postgres-env VARIABLE\n  diamond project-files-init PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-files-clean PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-user-add PROJECT --postgres-env VARIABLE --user USERNAME [--password-stdin]\n  diamond project-admin-add PROJECT --postgres-env VARIABLE --user USERNAME --email ADDRESS [--password-stdin]\n  diamond project-status PROJECT --postgres-env VARIABLE\n  diamond project-migrate PROJECT --postgres-env VARIABLE\n  diamond project-backfill PROJECT --postgres-env VARIABLE [--batch 100]\n  diamond project-audit PROJECT --postgres-env VARIABLE\n  diamond run FILE [--database PATH] [--auth PATH] [--listen 127.0.0.1:PORT] [--max-requests N]\n  diamond db-init FILE --database PATH\n  diamond user-add --auth PATH --user USERNAME [--password-stdin]\n  diamond explain CODE\n\nOpen http://localhost:PORT for browser secure-cookie support.\nSee README.md for installation, examples, supported language, and limits.\n",
+        "stderr": ""
+      },
+      "accepted": false,
+      "failures": [
+        "checkpoint label mismatch"
+      ]
+    },
+    {
+      "name": "installed_run_outside_tree",
+      "observed": {
+        "arguments": [
+          "run",
+          "hello.dia"
+        ],
+        "cwd": "/tmp/diamond-cp6-install-gvnp0i5e",
+        "exit": 0,
+        "seconds": 0.000882,
+        "stdout": "Hello, Diamond!\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "installed_check_hello",
+      "observed": {
+        "arguments": [
+          "check",
+          "/home/doll/diamond/examples/hello.dia"
+        ],
+        "cwd": "/tmp/diamond-cp6-install-gvnp0i5e",
+        "exit": 0,
+        "seconds": 0.000873,
+        "stdout": "checked /home/doll/diamond/examples/hello.dia: 2 functions, 0 records, 0 resources, 0 routes, 0 policies\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "installed_check_language",
+      "observed": {
+        "arguments": [
+          "check",
+          "/home/doll/diamond/examples/language.dia"
+        ],
+        "cwd": "/tmp/diamond-cp6-install-gvnp0i5e",
+        "exit": 0,
+        "seconds": 0.00083,
+        "stdout": "checked /home/doll/diamond/examples/language.dia: 3 functions, 0 records, 0 resources, 0 routes, 0 policies\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "installed_check_message_board",
+      "observed": {
+        "arguments": [
+          "check",
+          "/home/doll/diamond/examples/message_board.dia"
+        ],
+        "cwd": "/tmp/diamond-cp6-install-gvnp0i5e",
+        "exit": 0,
+        "seconds": 0.001004,
+        "stdout": "checked /home/doll/diamond/examples/message_board.dia: 4 functions, 3 records, 1 resources, 9 routes, 1 policies\n  app MessageBoard\n  private GET / {Read(\"Posts\")}\n  public GET /posts {Read(\"Posts\")}\n  public GET /posts/{id:PostId} {Read(\"Posts\")}\n  private POST /posts {Read(\"Posts\"), Write(\"Posts\")}\n  private GET /posts/{id:PostId}/edit {Read(\"Posts\")}\n  private POST /posts/{id:PostId}/edit {Read(\"Posts\"), Write(\"Posts\")}\n  private POST /posts/{id:PostId}/publication {Read(\"Posts\"), Write(\"Posts\")}\n  private POST /posts/{id:PostId}/delete {Write(\"Posts\")}\n  private DELETE /posts/{id:PostId} {Write(\"Posts\")}\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "installed_check_storage",
+      "observed": {
+        "arguments": [
+          "check",
+          "/home/doll/diamond/examples/storage.dia"
+        ],
+        "cwd": "/tmp/diamond-cp6-install-gvnp0i5e",
+        "exit": 0,
+        "seconds": 0.001078,
+        "stdout": "checked /home/doll/diamond/examples/storage.dia: 1 functions, 2 records, 1 resources, 0 routes, 1 policies\n  app Storage\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "installed_check_web",
+      "observed": {
+        "arguments": [
+          "check",
+          "/home/doll/diamond/examples/web.dia"
+        ],
+        "cwd": "/tmp/diamond-cp6-install-gvnp0i5e",
+        "exit": 0,
+        "seconds": 0.000805,
+        "stdout": "checked /home/doll/diamond/examples/web.dia: 0 functions, 1 records, 0 resources, 5 routes, 0 policies\n  app Preview\n  public GET / {}\n  public GET /notes/{id:NoteId} {}\n  public GET /numbers/{number:Int} {}\n  public POST /echo {}\n  private GET /account {}\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "check_side_effects",
+      "observed": {
+        "command": {
+          "arguments": [
+            "check",
+            "program.dia"
+          ],
+          "cwd": "/tmp/diamond-cp6-install-gvnp0i5e/check-side-effects",
+          "exit": 0,
+          "seconds": 0.000755,
+          "stdout": "checked program.dia: 1 functions, 0 records, 0 resources, 0 routes, 0 policies\n",
+          "stderr": ""
+        },
+        "before": [
+          "program.dia"
+        ],
+        "after": [
+          "program.dia"
+        ]
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "database_initialization",
+      "observed": {
+        "command": {
+          "arguments": [
+            "db-init",
+            "/home/doll/diamond/examples/storage.dia",
+            "--database",
+            "/tmp/diamond-cp6-install-gvnp0i5e/storage.sqlite"
+          ],
+          "cwd": "/tmp/diamond-cp6-install-gvnp0i5e",
+          "exit": 0,
+          "seconds": 0.001399,
+          "stdout": "initialized checked schema\n",
+          "stderr": ""
+        },
+        "tables": [
+          "Notes"
+        ]
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "non_loopback_refusal",
+      "observed": {
+        "arguments": [
+          "run",
+          "/home/doll/diamond/examples/web.dia",
+          "--listen",
+          "0.0.0.0:0",
+          "--max-requests",
+          "1"
+        ],
+        "cwd": "/tmp/diamond-cp6-install-gvnp0i5e",
+        "exit": 1,
+        "seconds": 0.000807,
+        "stdout": "",
+        "stderr": "error: serve checked program: D900 unsupported at 0:0: non-loopback or production serving; TLS, deployment validation, and concurrent serving are not implemented\n"
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "missing_database_grant",
+      "observed": {
+        "command": {
+          "arguments": [
+            "run",
+            "/home/doll/diamond/examples/message_board.dia",
+            "--listen",
+            "127.0.0.1:0",
+            "--max-requests",
+            "1"
+          ],
+          "cwd": "/tmp/diamond-cp6-install-gvnp0i5e",
+          "exit": 1,
+          "seconds": 0.00121,
+          "stdout": "",
+          "stderr": "error: serve checked program: invalid input: database-backed routes require an explicit --database PATH host grant\n"
+        },
+        "database_exists": false
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "conflicting_database_paths",
+      "observed": {
+        "user_add": {
+          "arguments": [
+            "user-add",
+            "--auth",
+            "/tmp/diamond-cp6-install-gvnp0i5e/accounts.sqlite",
+            "--user",
+            "alice",
+            "--password-stdin"
+          ],
+          "cwd": "/tmp/diamond-cp6-install-gvnp0i5e",
+          "exit": 0,
+          "seconds": 0.025056,
+          "stdout": "local account created\n",
+          "stderr": ""
+        },
+        "run": {
+          "arguments": [
+            "run",
+            "/home/doll/diamond/examples/message_board.dia",
+            "--database",
+            "/tmp/diamond-cp6-install-gvnp0i5e/accounts.sqlite",
+            "--auth",
+            "/tmp/diamond-cp6-install-gvnp0i5e/accounts.sqlite",
+            "--listen",
+            "127.0.0.1:0",
+            "--max-requests",
+            "1"
+          ],
+          "cwd": "/tmp/diamond-cp6-install-gvnp0i5e",
+          "exit": 1,
+          "seconds": 0.001599,
+          "stdout": "",
+          "stderr": "error: serve checked program: invalid input: account and application databases must be separate files\n"
+        }
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "occupied_port",
+      "observed": {
+        "command": {
+          "arguments": [
+            "run",
+            "/home/doll/diamond/examples/web.dia",
+            "--listen",
+            "127.0.0.1:35097",
+            "--max-requests",
+            "1"
+          ],
+          "cwd": "/tmp/diamond-cp6-install-gvnp0i5e/occupied",
+          "exit": 1,
+          "seconds": 0.001067,
+          "stdout": "",
+          "stderr": "error: serve checked program: I/O operation failed: Address already in use (os error 98): Address already in use (os error 98)\n"
+        },
+        "files": []
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "loopback_readiness",
+      "observed": {
+        "startup_line": "Diamond checkpoint-six development server: http://localhost:40989 (http://127.0.0.1:40989)\n",
+        "seconds_to_line": 0.002238,
+        "exit": 0,
+        "stdout": "",
+        "stderr": "",
+        "response_sha256": "3e68f15996283651ffbc1153dcef51840f0001ec6f9af6a1b354d22fddf4a946",
+        "response_prefix": "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: 194\r\nConnection: close\r\nCache-Control: no-store\r\nX-Content-Type-Options: nosniff\r\nRefer"
+      },
+      "accepted": true,
+      "failures": []
+    }
+  ],
+  "case_count": 16,
+  "failures": [
+    "installed_version: installed version mismatch",
+    "installed_help: checkpoint label mismatch"
+  ],
+  "result": "FAIL"
+}

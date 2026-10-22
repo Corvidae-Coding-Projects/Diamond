@@ -1,0 +1,59 @@
+{
+  "status": "PASS",
+  "binary_sha256": "3d58bff2d28ce47bad5196cc22f3b9bbcd6acae39ee6680bd7195dfc9328a32d",
+  "error": null,
+  "results": [
+    {
+      "name": "missing-shared-store-removes-readiness-not-liveness",
+      "status": "PASS",
+      "observed": {
+        "A": {
+          "live": 200,
+          "ready": 403,
+          "body": {
+            "error": "denied"
+          }
+        },
+        "B": {
+          "live": 200,
+          "ready": 403,
+          "body": {
+            "error": "denied"
+          }
+        }
+      },
+      "expected": "actual missing shared filesystem root makes both nodes unready without disclosing paths; processes remain live"
+    },
+    {
+      "name": "shared-store-recovery-restores-readiness",
+      "status": "PASS",
+      "observed": {
+        "A": 200,
+        "B": 200
+      },
+      "expected": "restoring the same private store returns both nodes to readiness without process replacement"
+    }
+  ],
+  "shutdowns": [
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "http_requests": 8,
+  "source_sha256": {
+    "readiness_objects.py": "c8dfd26af795ef30c33ca245d23f12fc71aa56d5c5c9deac437d6feb8f18247d"
+  },
+  "temporary_root": "/tmp/diamond-w8-readiness-objects-msg250q1"
+}

@@ -1,0 +1,54 @@
+type UserId = Id<"user">
+type ArticleId = Id<"article">
+type Article:
+  id: ArticleId
+  owner: UserId @created_by_principal
+  title: Text<length: 1..120>
+  body: Text<length: 0..4000>
+  published: Bool
+  rank: Int
+type NewArticle:
+  title: Text<length: 1..120>
+  body: Text<length: 0..4000>
+  published: Bool
+  rank: Int
+type ArticleEdit:
+  title: Text<length: 1..120>
+  body: Text<length: 0..4000>
+  published: Bool
+resource Articles: Article
+policy Articles:
+  read(row, by principal):
+    row.published or principal.is_user(row.owner)
+  create(row, by principal):
+    principal.is_user(row.owner)
+  update(before, after, by principal):
+    before.owner == after.owner and principal.is_user(before.owner)
+export fn main() -> Text:
+  "Publishing catalog"
+export fn create_article(title: Text<length: 1..120>, body: Text<length: 0..4000>) -> Result<Text, DataError>:
+  let row = articles.create(NewArticle(title: title, body: body, published: false, rank: 0))?
+  Ok(id_text(row.id))
+export fn read_article(id: Text) -> Result<Text, DataError>:
+  let row = articles.get(ArticleId(id))?
+  Ok(row.title + "\n" + row.body)
+export fn edit_article(id: Text, title: Text<length: 1..120>, body: Text<length: 0..4000>) -> Result<Text, DataError>:
+  let row = articles.get(ArticleId(id))?
+  let updated = articles.update(row.id, ArticleEdit(title: title, body: body, published: row.published))?
+  let event = host.event_emit<Text>("article_changes", id, updated.title + "\n" + updated.body)?
+  Ok(updated.title)
+export fn publish_article(id: Text, key: Text) -> Result<Text, DataError>:
+  let row = articles.get(ArticleId(id))?
+  let updated = articles.update(row.id, ArticleEdit(title: row.title, body: row.body, published: true))?
+  let event = host.event_emit<Text>("article_changes", id, "Published: " + updated.title)?
+  host.job_submit<Text>("notify", id, updated.title, key)
+export fn public_page(author: Text) -> Result<Text, DataError>:
+  let rows = articles.page(owner: UserId(author), order: "rank", after: "", limit: 20)?
+  let lines = for row in rows:
+    row.title + "\n" + row.body
+  Ok(join_text(lines, "\n\n"))
+export fn job_status(id: Text) -> Result<Text, DataError>:
+  host.job_status("notify", id)
+export fn notify(parent: Text, payload: Text) -> Result<Text, DataError>:
+  let row = articles.get(ArticleId(parent))?
+  host.http_post<Text, Text>("inventory", "/v1/dedup/" + host.job_key(), host.secret("inventory"), payload)

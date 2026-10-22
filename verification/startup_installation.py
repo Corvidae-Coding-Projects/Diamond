@@ -108,7 +108,7 @@ def main() -> int:
             observed,
             [
                 (observed["exit"] == 0, "installed version failed"),
-                (observed["stdout"] == f"diamond {VERSION} (W3 frontend; checkpoint six compatibility)\n", "installed version mismatch"),
+                (observed["stdout"] == f"diamond {VERSION} (W7 jobs/live apps and W8 operable deployment profile)\n", "installed version mismatch"),
             ],
         )
         observed = run(binary, ["--help"], cwd=directory)
@@ -118,10 +118,17 @@ def main() -> int:
             [
                 (observed["exit"] == 0, "installed help failed"),
                 ("diamond explain CODE" in str(observed["stdout"]), "explain absent from help"),
-                ("W3 frontend and interpreted MVP" in str(observed["stdout"]), "checkpoint label mismatch"),
+                ("W7/W8 jobs, live apps and operable deployment" in str(observed["stdout"]), "checkpoint label mismatch"),
                 ("diamond build" in str(observed["stdout"]) and "diamond serve" in str(observed["stdout"]), "project commands absent from help"),
             ],
         )
+
+        for template in ["workspace", "catalog"]:
+            project = directory / ("installed-" + template)
+            observed = run(binary, ["new", str(project), "--template", template], cwd=directory)
+            record("installed_new_" + template, observed, [(observed["exit"] == 0, "installed scaffold failed"), ((project / "diamond.toml").is_file(), "embedded manifest missing")])
+            observed = run(binary, ["build", str(project / "diamond.toml"), "--out", str(directory / (template + "-build"))], cwd=directory)
+            record("installed_build_" + template, observed, [(observed["exit"] == 0, "installed scaffold build failed")])
 
         copied_hello = directory / "hello.dia"
         copied_hello.write_bytes((ROOT / "examples/hello.dia").read_bytes())

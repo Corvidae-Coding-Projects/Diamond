@@ -1,0 +1,83 @@
+{
+  "app": "live-workspace",
+  "observations": [
+    {
+      "jobs": [
+        {
+          "id": "136f87dc25c3027926db11262f7130a6416ddf855e134f47a56e95dd1800a16b",
+          "binding": "summarize",
+          "parent": "352a5ac9e21e034ae7d98ea2cbee7536362786aab424fccb0adc88abc887a770",
+          "owner": "alice",
+          "state": "done",
+          "attempts": 1,
+          "fence": 1,
+          "outcome": "completed"
+        }
+      ],
+      "receiver": {
+        "attempts": [],
+        "effect_keys": [],
+        "effects": 0,
+        "counts": {}
+      }
+    },
+    {
+      "status": "PASS",
+      "flow": "Chrome login, queue background update, automatic WebSocket state update, done status, comment creation and live update",
+      "job": "136f87dc25c3027926db11262f7130a6416ddf855e134f47a56e95dd1800a16b",
+      "literal_hostile_text": true,
+      "injected_images": 0
+    },
+    {
+      "status": "FAIL",
+      "flow": "Sign out after live comment",
+      "observed": "Old live comment remained visible after successful sign out",
+      "expected": "Reference app clears private live, job and comment state"
+    }
+  ],
+  "binary_sha256": "f07971db9dd0087dc14b3f8d798d946c3c396c66c996b7087bc9c82db1fe833e",
+  "workspace": "3c1cc854fd0ad0be36464e06f3a6face60b931b5ce6e67e0adec7f14be732190",
+  "project": "2a925395f190b0070d3046d2ba365cf8847684ecace9c9661b4d93e260c43fbe",
+  "issue": "352a5ac9e21e034ae7d98ea2cbee7536362786aab424fccb0adc88abc887a770",
+  "root": "/tmp/diamond-w7-w8-browser-l5x_9wjf",
+  "origin": "http://127.0.0.1:39171",
+  "node_B_port": 53465,
+  "shutdowns": [
+    {
+      "worker": "one",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "worker": "two",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "receiver": {
+    "attempts": [],
+    "effect_keys": [],
+    "effects": 0,
+    "counts": {}
+  },
+  "temporary_root_removed": true
+}

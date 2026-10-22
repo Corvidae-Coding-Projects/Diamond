@@ -57,6 +57,13 @@ pub(super) enum Node {
         properties: Vec<(String, Expression)>,
     },
     Route(String, Vec<Self>),
+    Watch {
+        channel: String,
+        parent: Expression,
+        into: String,
+        cursor: String,
+        payload: Type,
+    },
 }
 #[derive(Clone, Debug, Serialize)]
 pub(super) enum Attribute {
@@ -89,6 +96,7 @@ pub(super) struct BrowserProgram {
 struct Lower<'a> {
     accounts: bool,
     files: BTreeSet<String>,
+    channels: BTreeMap<String, Type>,
     program: &'a CheckedProgram,
     signatures: BTreeMap<String, Vec<(String, Type)>>,
     routes: BTreeSet<String>,
@@ -100,9 +108,11 @@ pub(super) fn lower(
     rpc: &BTreeMap<String, super::rpc::Operation>,
     accounts: bool,
     files: Option<&super::files::Config>,
+    channels: BTreeMap<String, Type>,
 ) -> Result<BrowserProgram> {
     let mut lower = Lower {
         accounts,
+        channels,
         files: files
             .map(|c| c.bindings.keys().cloned().collect())
             .unwrap_or_default(),
@@ -420,6 +430,14 @@ impl Lower<'_> {
                 let literal=|n:&str|match attrs.get(n) {Some(HtmlAttribute::Literal(s))=>Ok(s.clone()),_=>Err(error(Location::default(),"directive requires a static name/path"))};
                 let expr=|n:&str|match attrs.get(n) {Some(HtmlAttribute::Expression(e))=>Ok((*e).clone()),_=>Err(error(Location::default(),"directive requires an expression"))};
                 match tag.as_str() {
+                    "watch"=>{
+                        if attrs.len()!=4 || !children.iter().all(|n|matches!(n,HtmlNode::Text(t) if t.trim().is_empty())) {return Err(error(Location::default(),"watch requires channel, parent, into, cursor and no content"));}
+                        let channel=literal("channel")?;let into=literal("into")?;let cursor=literal("cursor")?;
+                        let payload=self.channels.get(&channel).ok_or_else(||error(Location::default(),"unknown event channel"))?.clone();
+                        let parent=self.expression(&expr("parent")?,locals)?;
+                        if parent.ty!=Type::Text || !mutable.contains_key(&into) || locals.get(&into)!=Some(&payload) || !mutable.contains_key(&cursor) || locals.get(&cursor)!=Some(&Type::Text) || into==cursor {return Err(error(Location::default(),"watch targets must be distinct mutable payload and Text cursor states; parent must be Text"));}
+                        return Ok(Node::Watch{channel,parent,into,cursor,payload});
+                    },
                     "when"=>{if attrs.len()!=1 {return Err(error(Location::default(),"when requires only test"));}let v=self.expression(&expr("test")?,locals)?;if v.ty!=Type::Bool {return Err(error(v.ast.location,"when test must be Bool"));}return Ok(Node::When(v,self.nodes(children,locals,events,mutable)?));},
                     "each"=>{if attrs.len()!=3 {return Err(error(Location::default(),"each requires items, as and key"));}let items=self.expression(&expr("items")?,locals)?;let Type::List(inner)=&items.ty else {return Err(error(items.ast.location,"each requires a List"));};let binding=literal("as")?;if !super::resolve::identifier(&binding) || locals.contains_key(&binding) {return Err(error(items.ast.location,"each binding must be a fresh local name"));}let mut nested=locals.clone();nested.insert(binding.clone(),(**inner).clone());let key=self.expression(&expr("key")?,&nested)?;if !matches!(key.ty,Type::Int|Type::Text|Type::BoundedText(..)|Type::Id(_)) {return Err(error(key.ast.location,"key requires Int, Text or Id"));}return Ok(Node::Each{items,binding,key,children:self.nodes(children,&nested,events,mutable)?});},
                     "route"=>{if attrs.len()!=1 {return Err(error(Location::default(),"route requires only path"));}let path=literal("path")?;crate::template::validate_internal_url(&path,Location::default())?;if path.contains(['?','#']) || path.starts_with("/_diamond") || path.starts_with("/assets/") {return Err(error(Location::default(),"route path is reserved or not canonical"));}self.routes.insert(path.clone());return Ok(Node::Route(path,self.nodes(children,locals,events,mutable)?));},

@@ -1,0 +1,37 @@
+{
+  "status": "FAIL",
+  "binary_sha256": "e041e5c73e63178fce966d30f66fb08314219b32c230735aae0493e57bdcb6c8",
+  "error": "AssertionError(('bounded fixture schedule not reached', 'real CA-verified Caddy HTTPS listener'))",
+  "results": [],
+  "shutdowns": [
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "http_requests": 2,
+  "elapsed_seconds": 11.733712942994316,
+  "temporary_root": "/tmp/diamond-w8-tls-proxy-k_dmwxh4",
+  "caddy_sha256": "678ade3bfc088749c81a681adc603333ee0bb023b6a6cfe3c0f58bef8ff854e9",
+  "caddy_exit": 0,
+  "caddyfile": "{\n    admin off\n    persist_config off\n    auto_https off\n    storage file_system {\n        root /tmp/diamond-w8-tls-proxy-k_dmwxh4/caddy-data\n    }\n    servers {\n        protocols h1 h2\n    }\n}\nhttps://localhost:37899 {\n    bind 127.0.0.1\n    tls /tmp/diamond-w8-tls-proxy-k_dmwxh4/certificates/localhost.pem /tmp/diamond-w8-tls-proxy-k_dmwxh4/certificates/localhost.key\n    reverse_proxy 127.0.0.1:40871 127.0.0.1:44023 {\n        lb_policy round_robin\n        header_up Host {http.request.host}\n        header_up -Forwarded\n        header_up -X-Forwarded-*\n        health_uri /_diamond/health/ready\n        health_headers {\n            Host localhost:37899\n        }\n        health_interval 1s\n    }\n}\n",
+  "references": [
+    "https://caddyserver.com/docs/caddyfile/directives/reverse_proxy",
+    "https://caddyserver.com/docs/caddyfile/options"
+  ],
+  "coverage_gaps": [
+    "Native HTTPS/WSS clients only here; actual browser UI journeys recorded separately.",
+    "Fixture CA supplied only to test clients; no operating-system trust installation or public deployment."
+  ]
+}

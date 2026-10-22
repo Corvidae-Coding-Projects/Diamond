@@ -207,6 +207,10 @@ impl Template<'_> {
                     "as",
                     "key",
                     "component",
+                    "channel",
+                    "parent",
+                    "into",
+                    "cursor",
                     "path",
                     "src",
                     "alt",
@@ -238,7 +242,10 @@ impl Template<'_> {
         ]
         .contains(&tag)
             || (self.browser
-                && ["when", "each", "use", "route", "img", "select", "option"].contains(&tag)))
+                && [
+                    "when", "each", "use", "route", "img", "select", "option", "watch",
+                ]
+                .contains(&tag)))
         {
             return Err(Error::unsupported(
                 self.location(),

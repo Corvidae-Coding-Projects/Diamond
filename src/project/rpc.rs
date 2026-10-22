@@ -70,7 +70,7 @@ pub(super) fn operations(
             if checked
                 .effects
                 .iter()
-                .any(|effect| matches!(effect, crate::authority::Effect::Host(name) if !name.starts_with("Http<")))
+                .any(|effect| matches!(effect, crate::authority::Effect::Host(name) if !name.starts_with("Http<") && !["Jobs","Events","JobKey"].contains(&name.as_str())))
             {
                 return Err(input("RPC does not dispatch this native host operation"));
             }
@@ -93,6 +93,7 @@ pub(super) fn operations(
 pub(super) fn contracts(
     operations: &BTreeMap<String, Operation>,
     program: &CheckedProgram,
+    public: &std::collections::BTreeSet<String>,
 ) -> BTreeMap<String, Contract> {
     operations
         .iter()
@@ -107,7 +108,7 @@ pub(super) fn contracts(
                         .iter()
                         .map(|v| format!("{v:?}"))
                         .collect(),
-                    authenticated: true,
+                    authenticated: !public.contains(name),
                     replay: "never automatic; failed mutation delivery may have an unknown outcome",
                 },
             )

@@ -32,6 +32,8 @@ struct Contract<'a> {
     integration_operations: serde_json::Value,
     file_operations: serde_json::Value,
     private_files: Option<&'a super::files::Config>,
+    jobs: &'a BTreeMap<String, super::jobs::Binding>,
+    events: &'a BTreeMap<String, super::events::Binding>,
     artifacts: BTreeMap<String, String>,
     rpc: BTreeMap<String, super::rpc::Contract>,
     rpc_id: String,
@@ -108,11 +110,13 @@ pub(super) fn files(project: &CheckedProject) -> Result<BTreeMap<String, String>
         integration_operations: crate::integrations::contracts(),
         file_operations: super::files::contracts(),
         private_files: project.manifest.files.as_ref(),
+        jobs: &project.manifest.jobs,
+        events: &project.manifest.events,
         artifacts: files
             .iter()
             .map(|(path, content)| (path.clone(), hash(content.as_bytes())))
             .collect(),
-        rpc: super::rpc::contracts(&project.rpc, &project.server),
+        rpc: super::rpc::contracts(&project.rpc, &project.server, &project.manifest.public_rpc),
         rpc_id: contract_id(project)?,
         wire_version: 3,
         http_api: project

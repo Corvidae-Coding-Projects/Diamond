@@ -36,3 +36,10 @@ Run these examples in order when learning the interpreted MVP:
 
 Use `diamond check FILE` first when reading or changing any `.dia` example. It
 does not open a database, start a listener, or execute `main`.
+
+11. `live-workspace/diamond.toml` — the W7 tracker with memberships, comments,
+    attachments, durable background edits and reactive live activity.
+12. `catalog/diamond.toml` — the W8 publishing reference app with private drafts,
+    public reads/JSON APIs, live content and deduplicated external notifications.
+    `diamond new DIRECTORY --template workspace|catalog` embeds these complete
+    templates; see [deployment](../docs/deployment.md).

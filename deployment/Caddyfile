@@ -1,0 +1,23 @@
+{
+	admin off
+}
+
+# Set DIAMOND_PUBLIC_ORIGIN, e.g. https://app.example.com.
+# Certificate issuance/DNS and network exposure are operator deployment steps.
+{$DIAMOND_PUBLIC_ORIGIN} {
+	@operations path /_diamond/health/*
+	respond @operations 404
+
+	reverse_proxy 127.0.0.1:3001 127.0.0.1:3002 {
+		lb_policy round_robin
+		header_up Host {http.request.hostport}
+		header_up -Forwarded
+		header_up -X-Forwarded-*
+		health_uri /_diamond/health/ready
+		health_interval 2s
+		health_timeout 2s
+		health_headers {
+			Host {$DIAMOND_PUBLIC_AUTHORITY}
+		}
+	}
+}

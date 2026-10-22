@@ -1,6 +1,6 @@
 # Diamond
 
-Diamond 0.12.0 is a language prototype implemented in Rust. Its existing
+Diamond 0.14.0 is a language prototype implemented in Rust. Its existing
 single-file interpreter connects checked evaluation, policies, SQLite, forms,
 typed HTML, local accounts, and sessions. The W1 expansion adds multi-file
 projects, checked server/browser boundaries, a first reactive component compiled
@@ -18,7 +18,12 @@ versioned JSON operations. W6 adds private shared-file streams, policy-controlle
 attachments, typed outbound HTTP, opaque secrets and explicit runtime grants. See
 the [files/integrations guide](docs/files-and-integrations.md),
 [accounts/API guide](docs/accounts-and-apis.md), [relational app guide](docs/relational-apps.md),
-[reactive app guide](docs/reactive-apps.md) and [connected application guide](docs/connected-apps.md).
+[reactive app guide](docs/reactive-apps.md) and [connected application guide](docs/connected-apps.md). W7 adds a transactional job outbox, restricted fenced workers,
+typed durable events and reactive WebSocket subscriptions. W8 adds scaffolding,
+canonical HTTPS proxy support, deployment validation, operational endpoints,
+graceful draining and encrypted quiesced backup/isolated restore. Both reference
+applications have Diamond business logic; see the [jobs/live guide](docs/jobs-and-live-apps.md)
+and [deployment/recovery guide](docs/deployment.md).
 
 Checkpoint six completes the accepted MVP passes with source-span diagnostics,
 parser edge handling, a checked installation and startup path, focused guides,
@@ -29,11 +34,11 @@ guarantees or production readiness.
 The next phase is described in the [general web application expansion plan](.design/general-web-apps.md).
 It targets a reactive frontend written in Diamond, PostgreSQL and multiple
 application servers, shared identity and permissions, typed APIs, uploads,
-external integrations, and durable jobs. W1–W6 are implemented within their
-documented development profiles; W7–W10 remain planned. Production deployment,
-SMTP, object-store replication and durable jobs remain later work. W4 uses one
+external integrations, and durable jobs. W1–W8 are implemented within their
+documented profiles; W9–W10 remain planned. Public infrastructure installation,
+SMTP and object-store replication remain operator/later work. W4 uses one
 current schema with stopped-server migrations; old/new upgrade compatibility is
-outside the requested scope. See the [W6 evidence](verification/web_six_results.md).
+outside the requested scope. See the [W7/W8 evidence](verification/web_seven_eight_results.md).
 
 Start the new project example with:
 
@@ -94,6 +99,11 @@ single-connection development adapter, restricted to loopback. Stop it with Ctrl
 | `diamond db-init FILE --database PATH` | Initialize the exact checked SQLite schema. |
 | `diamond user-add --auth PATH --user NAME` | Provision a local development account; prompts without echo. |
 | `diamond explain CODE` | Explain a diagnostic category, for example `D204`. |
+| `diamond new DIRECTORY --template workspace\|catalog` | Scaffold a complete checked reference app in a new directory. |
+| `diamond project-work PROJECT --postgres-env NAME --runtime-env NAME` | Run one restricted durable worker; supervise two processes. |
+| `diamond project-deploy-check PROJECT ...` | Validate origin, stores and capability grants without deploying. |
+| `diamond project-backup PROJECT ...` / `project-restore PROJECT ...` | Create an encrypted quiesced snapshot or restore into an isolated empty target. |
+| `diamond project-recover PROJECT --postgres-env NAME --policy resume\|cancel` | Explicitly choose paused-job recovery with actors stopped. |
 | `diamond --help` / `--version` | Show the installed command surface or build version. |
 
 `run` options are `--database PATH`, `--auth PATH`,

@@ -1,0 +1,153 @@
+{
+  "status": "FAIL",
+  "binary_sha256": "859615808af03249ba4b98527ec3a94410f42b3508ce504504461158762c680a",
+  "error": "ValueError('unexpected extension or fragmented server frame')",
+  "results": [
+    {
+      "name": "transaction-abort-has-no-record-or-outbox",
+      "status": "PASS",
+      "observed": {
+        "rpc": [
+          400,
+          {
+            "error": "invalid_input"
+          }
+        ],
+        "rank": 11,
+        "job_count": 0
+      },
+      "expected": "propagated failing protected get rolls back both earlier rank edit and outbox entry"
+    },
+    {
+      "name": "submit-fresh-scope-and-wire-shape",
+      "status": "PASS",
+      "observed": {
+        "cross_workspace": [
+          403,
+          {
+            "error": "denied"
+          }
+        ],
+        "read_only": [
+          403,
+          {
+            "error": "denied"
+          }
+        ],
+        "malformed": [
+          400,
+          {
+            "error": "invalid_input"
+          }
+        ],
+        "jobs": 0
+      },
+      "expected": "cross-workspace, reader-only and malformed payload calls enqueue no work"
+    },
+    {
+      "name": "committed-outbox-and-deduplicated-submission",
+      "status": "PASS",
+      "observed": {
+        "rank": 12,
+        "id": "c0a2333b6c886219826cffe707e97cf45e9d5d574602f7f2be6964ca598006a6",
+        "same_id": "c0a2333b6c886219826cffe707e97cf45e9d5d574602f7f2be6964ca598006a6",
+        "row": {
+          "app": "45792abffaa8e959578cd42f7939aefd9c13102740aa75a54889ae56b705aee7",
+          "id": "c0a2333b6c886219826cffe707e97cf45e9d5d574602f7f2be6964ca598006a6",
+          "binding": "notify",
+          "version": "2491a188aa8f30bda2b6da459a71e2138f87a2eb28b8189a77ed1d63e3a3edf5",
+          "parent": "issue-red-one",
+          "owner": "alice",
+          "payload": "\"committed exact \u96ea\"",
+          "dedup": "commit-key",
+          "restrictions": "{}",
+          "unscoped": true,
+          "state": "pending",
+          "attempts": 0,
+          "fence": 0,
+          "lease": null,
+          "due": "2026-10-22T14:01:30.565418-05:00",
+          "outcome": ""
+        }
+      },
+      "expected": "record edit and durable pending outbox commit together; same owner binding/key identifies one job"
+    },
+    {
+      "name": "cancel-queued-across-node",
+      "status": "PASS",
+      "observed": {
+        "rpc": [
+          200,
+          {
+            "value": "{\"attempts\":0,\"outcome\":\"cancelled\",\"state\":\"cancelled\"}"
+          }
+        ],
+        "row": {
+          "app": "45792abffaa8e959578cd42f7939aefd9c13102740aa75a54889ae56b705aee7",
+          "id": "c0a2333b6c886219826cffe707e97cf45e9d5d574602f7f2be6964ca598006a6",
+          "binding": "notify",
+          "version": "2491a188aa8f30bda2b6da459a71e2138f87a2eb28b8189a77ed1d63e3a3edf5",
+          "parent": "issue-red-one",
+          "owner": "alice",
+          "payload": "\"committed exact \u96ea\"",
+          "dedup": "commit-key",
+          "restrictions": "{}",
+          "unscoped": true,
+          "state": "cancelled",
+          "attempts": 0,
+          "fence": 1,
+          "lease": null,
+          "due": "2026-10-22T14:01:30.565418-05:00",
+          "outcome": "cancelled"
+        }
+      },
+      "expected": "current editor cancels pending work through other node"
+    },
+    {
+      "name": "two-real-websocket-upgrades",
+      "status": "FAIL",
+      "observed": {
+        "A": 403,
+        "B": 403
+      },
+      "expected": "authenticated exact-origin sockets upgrade on both nodes"
+    }
+  ],
+  "shutdowns": [
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "http_requests": 18,
+  "elapsed_seconds": 3.164312658002018,
+  "temporary_root": "/tmp/diamond-w7-independent-5f0_fybf",
+  "receiver": {
+    "attempts": [],
+    "effect_keys": [],
+    "effects": 0,
+    "counts": {}
+  },
+  "source_sha256": {
+    "fixture.py": "67e16977642c118ed7426abf62600b0f6da50fec1a21de43bc2e6486c4c7acf7",
+    "jobs_events.py": "ccca927424f2d089132cc31abccac12b26f4e37b997bb5d0ac0e9744ae258188",
+    "receiver.py": "0d0a9419b417f0c71eb935a514a2df46d148baa60c568643502d622ec7baa343",
+    "service.py": "e3adf9bb4660131e84479e7cca614f21e69f70a0ec4dffe83c0c5d09f6344e1c",
+    "wire.py": "e63d9039bb7098723d1c4905ef3e6f786501d40a47d0668f5e682541e48ff7df"
+  },
+  "coverage_gaps": [
+    "No browser component subscription API exercised; raw WebSocket endpoint only.",
+    "No slow-consumer saturation, retention expiration, job payload version mismatch, or live stale-holder acknowledgment schedule yet."
+  ]
+}

@@ -1,0 +1,24 @@
+[Unit]
+Description=Diamond application server %i
+After=network.target postgresql.service
+
+[Service]
+User=diamond
+Group=diamond
+EnvironmentFile=/etc/diamond/application.env
+ExecStart=/usr/local/bin/diamond serve /srv/diamond/current --listen 127.0.0.1:%i --origin ${DIAMOND_ORIGIN} --postgres-env DIAMOND_POSTGRES --runtime-env DIAMOND_RUNTIME --identity-mailbox /var/lib/diamond/mail
+KillSignal=SIGINT
+TimeoutStopSec=45
+Restart=on-failure
+RestartSec=2
+UMask=0077
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/diamond/objects /var/lib/diamond/mail
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+CapabilityBoundingSet=
+
+[Install]
+WantedBy=multi-user.target

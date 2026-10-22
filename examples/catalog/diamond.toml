@@ -1,0 +1,48 @@
+schema_version = 1
+name = "PublishingCatalog"
+server = "server"
+browser = "ui"
+component = "Catalog"
+styles = ["catalog.css"]
+public_rpc = ["public_page", "read_article"]
+provides = ["Jobs", "JobKey", "Events", "Http<inventory>", "DbRead<Articles>", "DbWrite<Articles>"]
+[modules.server]
+path = "server.dia"
+target = "server"
+provides = ["Jobs", "JobKey", "Events", "Http<inventory>", "DbRead<Articles>", "DbWrite<Articles>"]
+[modules.ui]
+path = "ui.dia"
+target = "browser"
+[rpc]
+create_article = "server.create_article"
+read_article = "server.read_article"
+edit_article = "server.edit_article"
+publish_article = "server.publish_article"
+public_page = "server.public_page"
+job_status = "server.job_status"
+[storage]
+profile = "relational-v1"
+version = 1
+[storage.resources.Articles]
+scope = "owner"
+indexes = [["owner", "rank"]]
+[identity]
+profile = "accounts-v1"
+enrollment = "invite"
+[http_api]
+version = 1
+[http_api.operations.public_page]
+function = "server.public_page"
+auth = "public"
+[http_api.operations.read_article]
+function = "server.read_article"
+auth = "public"
+[jobs.notify]
+function = "server.notify"
+resource = "Articles"
+grants = ["DbRead<Articles>", "DbWrite<Articles>", "Http<inventory>", "JobKey"]
+max_attempts = 3
+delivery = "deduplicated"
+[events.article_changes]
+resource = "Articles"
+payload = "Text"

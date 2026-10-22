@@ -13,12 +13,12 @@ def sha(path):return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--binary',type=Path,required=True);p.add_argument('--library',type=Path,required=True)
-    p.add_argument('--dependencies',type=Path,required=True);p.add_argument('--report',type=Path,default=BASE/'results.json')
-    a=p.parse_args();start=time.monotonic();root=Path(tempfile.mkdtemp(prefix='diamond-w6-independent-run-'))
+    p.add_argument('--output-dir',type=Path);p.add_argument('--dependencies',type=Path,required=True);p.add_argument('--report',type=Path,default=BASE/'results.json')
+    a=p.parse_args();output=(a.output_dir or BASE).resolve();output.mkdir(parents=True,exist_ok=True);start=time.monotonic();root=Path(tempfile.mkdtemp(prefix='diamond-w6-independent-run-'))
     binary=root/'diamond';library=root/'libdiamond.rlib';shutil.copy2(a.binary,binary);shutil.copy2(a.library,library)
     definitions=[('files',[]),('outbound',[]),('limits',[]),('native',['--library',str(library),'--dependencies',str(a.dependencies.resolve())]),('checker',[]),('dns',['--async-resolver','--expect-getaddrinfo','0']),('dns_async',[]),('reserved_ipv6',[])]
     def run(step):
-        name,extra=step;report=BASE/(name+'_results.json')
+        name,extra=step;report=output/(name+'_results.json')
         command=[sys.executable,str(BASE/(name+'.py')),'--binary',str(binary),'--report',str(report),*extra]
         process=subprocess.run(command,cwd=ROOT,capture_output=True,text=True,timeout=180)
         value=json.loads(report.read_text()) if report.exists() else {}

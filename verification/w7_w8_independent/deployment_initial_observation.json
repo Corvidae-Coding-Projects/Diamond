@@ -1,0 +1,204 @@
+{
+  "status": "FAIL",
+  "binary_sha256": "37cd7ca0df36a168ec3c0144dacd384a8123f8e2f1f31c9197455e0e6436eba6",
+  "error": "AssertionError(('bounded fixture schedule not reached', 'pre-backup actual workers complete'))",
+  "results": [
+    {
+      "name": "deployment-capabilities-without-launch",
+      "status": "PASS",
+      "observed": {
+        "authority": "app.example.invalid",
+        "backup": "quiesced encrypted snapshots; isolated restore; jobs paused",
+        "capabilities": [
+          "DbRead<Globals>",
+          "DbRead<Issues>",
+          "DbRead<Projects>",
+          "DbWrite<Issues>",
+          "Events",
+          "Http<inventory>",
+          "JobKey",
+          "Jobs"
+        ],
+        "contract": "587ea42efb07279c887276075b9f9ee10061f9df6b710b5f1a6caf7e9fb3c449",
+        "migration": "stop all instances; current version only",
+        "origin": "https://app.example.invalid",
+        "proxy": "loopback only; preserve Host; strip Forwarded and X-Forwarded-*; TLS at edge",
+        "servers": 2,
+        "valid": true,
+        "workers": 2
+      },
+      "expected": "validator accepts complete explicit authority and creates no listener/worker"
+    },
+    {
+      "name": "unsafe-origin-http://app.example.invalid",
+      "status": "PASS",
+      "observed": {
+        "exit": 1,
+        "stderr": "error: invalid input: W2 requires an exact http://localhost:PORT loopback development origin"
+      },
+      "expected": "unsafe/noncanonical deployment origin is rejected"
+    },
+    {
+      "name": "unsafe-origin-https://app.example.invalid/path",
+      "status": "PASS",
+      "observed": {
+        "exit": 1,
+        "stderr": "error: invalid input: deployment requires an exact HTTPS origin without credentials, path, query or fragment"
+      },
+      "expected": "unsafe/noncanonical deployment origin is rejected"
+    },
+    {
+      "name": "unsafe-origin-https://user:pass@app.example.invalid",
+      "status": "PASS",
+      "observed": {
+        "exit": 1,
+        "stderr": "error: invalid input: deployment requires an exact HTTPS origin without credentials, path, query or fragment"
+      },
+      "expected": "unsafe/noncanonical deployment origin is rejected"
+    },
+    {
+      "name": "unsafe-origin-https://app.example.invalid?query=1",
+      "status": "PASS",
+      "observed": {
+        "exit": 1,
+        "stderr": "error: invalid input: deployment requires an exact HTTPS origin without credentials, path, query or fragment"
+      },
+      "expected": "unsafe/noncanonical deployment origin is rejected"
+    },
+    {
+      "name": "missing-declared-native-grant",
+      "status": "PASS",
+      "observed": {
+        "exit": 1,
+        "stderr": "error: access denied or resource not found"
+      },
+      "expected": "declared outbound capability without native grant fails validation"
+    },
+    {
+      "name": "live-readiness-redacted-metrics-A",
+      "status": "PASS",
+      "observed": {
+        "live": {
+          "status": 200,
+          "body": {
+            "live": true
+          }
+        },
+        "ready": {
+          "status": 200,
+          "body": {
+            "contract": "587ea42efb07279c887276075b9f9ee10061f9df6b710b5f1a6caf7e9fb3c449",
+            "ready": true
+          }
+        },
+        "metrics": {
+          "status": 200,
+          "body": {
+            "active_requests": 1,
+            "active_sockets": 0,
+            "draining": false,
+            "requests": 6
+          }
+        }
+      },
+      "expected": "both actual nodes report authoritative readiness and only aggregate redacted counters"
+    },
+    {
+      "name": "live-readiness-redacted-metrics-B",
+      "status": "PASS",
+      "observed": {
+        "live": {
+          "status": 200,
+          "body": {
+            "live": true
+          }
+        },
+        "ready": {
+          "status": 200,
+          "body": {
+            "contract": "587ea42efb07279c887276075b9f9ee10061f9df6b710b5f1a6caf7e9fb3c449",
+            "ready": true
+          }
+        },
+        "metrics": {
+          "status": 200,
+          "body": {
+            "active_requests": 1,
+            "active_sockets": 0,
+            "draining": false,
+            "requests": 4
+          }
+        }
+      },
+      "expected": "both actual nodes report authoritative readiness and only aggregate redacted counters"
+    },
+    {
+      "name": "shared-hashed-assets",
+      "status": "PASS",
+      "observed": [
+        {
+          "path": "/assets/5e04328fd18532a49f8d03a757e515db51af816715d74dc2dd55d4b375b16fbe.css",
+          "A": 200,
+          "B": 200,
+          "same": true,
+          "sha256": "5e04328fd18532a49f8d03a757e515db51af816715d74dc2dd55d4b375b16fbe"
+        },
+        {
+          "path": "/assets/fcba9fc81519390180236b0a4e5ae837002b84dc57c9a3ed1b69f17952d68735.js",
+          "A": 200,
+          "B": 200,
+          "same": true,
+          "sha256": "fcba9fc81519390180236b0a4e5ae837002b84dc57c9a3ed1b69f17952d68735"
+        }
+      ],
+      "expected": "both nodes serve the same build's content-addressed browser assets"
+    }
+  ],
+  "shutdowns": [
+    {
+      "worker": "one",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "worker": "two",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "http_requests": 16,
+  "elapsed_seconds": 17.178411208005855,
+  "temporary_root": "/tmp/diamond-w8-independent-b5p23i16",
+  "source_sha256": {
+    "deployment.py": "74b4ede83c14c3a3e66dc91d27c578439ebb03b325b22dd75a6780da37eacfcf",
+    "fixture.py": "07c8b348a9ac45afddd358d2faf6d27733f34aa760374384d412909f2b1f75de",
+    "jobs_events.py": "54ede16d6773100e536d0b9a0d79b1aea940704b3a185d01038653dac9c1fd59",
+    "receiver.py": "0d0a9419b417f0c71eb935a514a2df46d148baa60c568643502d622ec7baa343",
+    "service.py": "e3adf9bb4660131e84479e7cca614f21e69f70a0ec4dffe83c0c5d09f6344e1c",
+    "wire.py": "e63d9039bb7098723d1c4905ef3e6f786501d40a47d0668f5e682541e48ff7df"
+  },
+  "coverage_gaps": [
+    "Local Linux/Unix-socket PostgreSQL and shared filesystem only; no provisioned TLS edge or host deployment.",
+    "No old/new schema coexistence; only same current-artifact process replacement.",
+    "Reference tracker/catalog browser journeys and clean installation are verified separately."
+  ]
+}

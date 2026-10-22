@@ -6,8 +6,11 @@ pub(crate) mod artifact;
 mod assets;
 mod browser;
 mod connected;
+mod deployment;
+mod events;
 mod files;
 mod identity;
+mod jobs;
 mod lower;
 mod render;
 pub(crate) mod resolve;
@@ -65,6 +68,8 @@ struct Manifest {
     #[serde(default)]
     rpc: BTreeMap<String, String>,
     #[serde(default)]
+    public_rpc: BTreeSet<String>,
+    #[serde(default)]
     styles: Vec<String>,
     #[serde(default)]
     assets: BTreeMap<String, String>,
@@ -76,6 +81,10 @@ struct Manifest {
     http_api: Option<api::Config>,
     #[serde(default)]
     files: Option<files::Config>,
+    #[serde(default)]
+    jobs: BTreeMap<String, jobs::Binding>,
+    #[serde(default)]
+    events: BTreeMap<String, events::Binding>,
 }
 
 #[derive(Clone, Debug)]
@@ -105,6 +114,7 @@ pub struct CheckedProject {
     browser_checked: CheckedProgram,
     rpc: BTreeMap<String, rpc::Operation>,
     api: BTreeMap<String, api::Operation>,
+    jobs: BTreeMap<String, rpc::Operation>,
 }
 
 /// Read and check a bounded project without opening a database or listener.
@@ -649,7 +659,21 @@ fn compile_sources(
     let modules = parse_modules(&manifest, &sources)?;
     let server = check_server(&manifest, &modules)?;
     let rpc = rpc::operations(&manifest, &modules, &server)?;
+    for name in &manifest.public_rpc {
+        let op = rpc
+            .get(name)
+            .ok_or_else(|| input("public RPC must be explicitly declared"))?;
+        if server.functions[&op.function]
+            .effects
+            .iter()
+            .any(|e| !matches!(e, Effect::Read(_)))
+        {
+            return Err(input("public RPC must have only read effects"));
+        }
+    }
     let api = api::operations(&manifest, &modules, &server)?;
+    let jobs = jobs::checked(&manifest, &modules, &server)?;
+    events::checked(&manifest, &modules, &server)?;
     let browser_names = resolve::reachable(&manifest.browser, &manifest.modules);
     let browser_source = combined(&modules, &browser_names);
     let browser_checked =
@@ -675,6 +699,11 @@ fn compile_sources(
         &rpc,
         manifest.identity.is_some(),
         manifest.files.as_ref(),
+        manifest
+            .events
+            .iter()
+            .map(|(n, b)| Ok((n.clone(), events::payload(b, &modules, &manifest, &server)?)))
+            .collect::<Result<_>>()?,
     )
     .map_err(|error| locate(&modules, error))?;
     let urls = assets::urls(&manifest, &sources)?;
@@ -689,6 +718,7 @@ fn compile_sources(
         browser_checked,
         rpc,
         api,
+        jobs,
     })
 }
 
@@ -813,7 +843,8 @@ fn check_server(manifest: &Manifest, modules: &BTreeMap<String, Module>) -> Resu
                 .ok_or_else(|| input("unknown source-level join output type"))?;
         }
     }
-    let server = crate::checker::check_project(&source, grants, storage.as_ref())
+    let durable = durable_bindings(manifest, modules)?;
+    let server = crate::checker::check_project(&source, grants, storage.as_ref(), &durable)
         .map_err(|error| locate(modules, error))?;
     if server.grants.iter().any(|effect| match effect {
         Effect::Read(name) | Effect::Write(name) => !server.resources.contains_key(name),
@@ -869,6 +900,40 @@ fn check_server(manifest: &Manifest, modules: &BTreeMap<String, Module>) -> Resu
     Ok(server)
 }
 
+fn durable_bindings(
+    manifest: &Manifest,
+    modules: &BTreeMap<String, Module>,
+) -> Result<BTreeMap<String, (String, String)>> {
+    let mut durable = BTreeMap::new();
+    for (name, b) in &manifest.jobs {
+        let (m, f) = b
+            .function
+            .split_once('.')
+            .ok_or_else(|| input("job function requires module.function"))?;
+        let function = modules
+            .get(m)
+            .and_then(|m| m.symbols.get(f))
+            .ok_or_else(|| input("unknown job handler"))?;
+        durable.insert(
+            format!("jobs/{name}"),
+            (b.resource.clone(), function.clone()),
+        );
+    }
+    for (name, b) in &manifest.events {
+        let (m, t) = b
+            .payload
+            .split_once('.')
+            .unwrap_or((&manifest.server, &b.payload));
+        let ty = modules
+            .get(m)
+            .and_then(|m| m.symbols.get(t))
+            .cloned()
+            .unwrap_or_else(|| t.into());
+        durable.insert(format!("events/{name}"), (b.resource.clone(), ty));
+    }
+    Ok(durable)
+}
+
 fn capability_effect(name: &str) -> Result<Effect> {
     if name
         .strip_prefix("Http<")
@@ -877,7 +942,7 @@ fn capability_effect(name: &str) -> Result<Effect> {
     {
         return Ok(Effect::Host(name.into()));
     }
-    if name == "PostgresRead" {
+    if ["PostgresRead", "Jobs", "Events", "JobKey"].contains(&name) {
         return Ok(Effect::Host(name.into()));
     }
     for (prefix, write) in [("DbRead<", false), ("DbWrite<", true)] {

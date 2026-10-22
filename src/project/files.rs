@@ -227,7 +227,7 @@ pub(super) fn maintain(
     Ok(serde_json::json!({"removed":rows.len(),"maximum_batch":100}).to_string())
 }
 
-fn hex(bytes: &[u8]) -> String {
+pub(super) fn hex(bytes: &[u8]) -> String {
     bytes
         .iter()
         .flat_map(|b| {

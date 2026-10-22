@@ -1,0 +1,54 @@
+{
+  "app": "catalog",
+  "observations": [
+    {
+      "status": "FAIL",
+      "flow": "Catalog sign out after private draft creation",
+      "observed": "Private unpublished body and title remained in form fields",
+      "expected": "Reference author app clears private drafting state on identity change"
+    }
+  ],
+  "binary_sha256": "f07971db9dd0087dc14b3f8d798d946c3c396c66c996b7087bc9c82db1fe833e",
+  "article": "72a10cdba16deb7fb11effe97ac0a782bb7d4cdc0241c55c1440614cd70c0a8a",
+  "root": "/tmp/diamond-w7-w8-browser-f5mbixfu",
+  "origin": "http://127.0.0.1:39171",
+  "node_B_port": 60983,
+  "shutdowns": [
+    {
+      "worker": "one",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "worker": "two",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "receiver": {
+    "attempts": [],
+    "effect_keys": [],
+    "effects": 0,
+    "counts": {}
+  },
+  "temporary_root_removed": true
+}
