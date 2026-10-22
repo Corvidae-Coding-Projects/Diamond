@@ -1,0 +1,127 @@
+{
+  "status": "PASS",
+  "binary_sha256": "2e2c3271fcb693eb6987ee1682f7616becd59eed58bf8141ea1b3d2b947a6d8a",
+  "error": null,
+  "results": [
+    {
+      "name": "application-512mib-metadata-quota",
+      "status": "PASS",
+      "observed": {
+        "begin": [
+          503,
+          {
+            "error": "unavailable"
+          }
+        ],
+        "rows": 64,
+        "declared_bytes": 536870912,
+        "physical_bytes": 0
+      },
+      "expected": "real begin enforces the committed declared-byte quota; seeded metadata is not a disk-capacity test"
+    },
+    {
+      "name": "application-10000-metadata-quota",
+      "status": "PASS",
+      "observed": {
+        "begin": [
+          503,
+          {
+            "error": "unavailable"
+          }
+        ],
+        "rows": 10000
+      },
+      "expected": "row quota bounds metadata independently of byte quota"
+    },
+    {
+      "name": "explicit-reconciliation-batch100",
+      "status": "PASS",
+      "observed": {
+        "cli": {
+          "maximum_batch": 100,
+          "removed": 100
+        },
+        "remaining_rows": 5,
+        "remaining_files": 0
+      },
+      "expected": "one actual CLI pass deletes at most100 expired records and both partial/renamed bytes"
+    },
+    {
+      "name": "automatic-startup-reconciliation",
+      "status": "PASS",
+      "observed": {
+        "rows": []
+      },
+      "expected": "startup reconciliation removes committed expired pending metadata without a manual cleanup call"
+    },
+    {
+      "name": "cleanup-never-deletes-ready",
+      "status": "PASS",
+      "observed": {
+        "status": 200,
+        "rows": [
+          {
+            "id": "39655c4319629bc1791e51ba2bcad16a60b8883a8547cfd0d83a0808caebdf7e",
+            "binding": "issue_files",
+            "parent": "issue-red-one",
+            "owner": "alice",
+            "name": "ready-retained",
+            "media": "application/octet-stream",
+            "length": 1,
+            "state": "ready",
+            "sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+            "live": false
+          }
+        ]
+      },
+      "expected": "expired upload ticket cannot cause cleanup of an already published ready object"
+    },
+    {
+      "name": "actual-upload-deadline-and-resource-release",
+      "status": "PASS",
+      "observed": {
+        "elapsed_seconds": 30.003895027010003,
+        "http_status_line": "HTTP/1.1 503 Service Unavailable",
+        "fds_before": 25,
+        "fds_after": 25,
+        "fresh_rpc_status": 200
+      },
+      "expected": "actual stalled body times out near30s, drops its file/permit and permits fresh same-node work"
+    },
+    {
+      "name": "automatic-periodic-reconciliation",
+      "status": "PASS",
+      "observed": {
+        "elapsed_seconds": 28.972114823001903,
+        "remaining_rows": 0
+      },
+      "expected": "running servers reconcile expiry on their minute schedule without CLI or restart"
+    }
+  ],
+  "shutdowns": [
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "http_requests": 14,
+  "temporary_root": "/tmp/diamond-w6-independent-limits-c5uxby2d"
+}

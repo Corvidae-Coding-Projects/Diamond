@@ -1,0 +1,5244 @@
+{
+  "status": "PASS",
+  "qualification_complete": true,
+  "binary_sha256": "2e2c3271fcb693eb6987ee1682f7616becd59eed58bf8141ea1b3d2b947a6d8a",
+  "driver_sha256": "809e135db1fcd6119c34041e529406dcd17126fef01d0d3351925ee5da2b8488",
+  "hardware": {
+    "hostname": "dollspace-laptop",
+    "kernel": "7.2.9-201.fc44.x86_64",
+    "machine": "x86_64",
+    "cpu": "Intel(R) Core(TM) Ultra 9 275HX",
+    "logical_cpus": 24,
+    "memory_kib": 32259328,
+    "python": "3.14.8"
+  },
+  "thresholds_fixed_before_run": {
+    "clients": 100,
+    "records": 100000,
+    "duration_seconds": 1800,
+    "success_floor": 0.9,
+    "successful_p99_ceiling_seconds": 3.0
+  },
+  "observed": {
+    "duration_seconds": 1805.096,
+    "requests": 90250,
+    "successful_requests": 84557,
+    "success_ratio": 0.93692,
+    "requests_per_second": 49.997,
+    "successful_p50_seconds": 0.003596,
+    "successful_p95_seconds": 0.01457,
+    "successful_p99_seconds": 0.01678,
+    "request_errors": {
+      "ConnectionRefusedError": 50
+    },
+    "by_operation": {
+      "api-count": {
+        "statuses": {
+          "503": 1,
+          "200": 729,
+          "429": 1075
+        },
+        "successes": 729,
+        "p50_seconds": 0.015616,
+        "p95_seconds": 0.020401,
+        "p99_seconds": 0.024071,
+        "max_seconds": 0.036418
+      },
+      "api-page": {
+        "statuses": {
+          "503": 1,
+          "200": 1078,
+          "429": 1628
+        },
+        "successes": 1078,
+        "p50_seconds": 0.006054,
+        "p95_seconds": 0.011118,
+        "p99_seconds": 0.013552,
+        "max_seconds": 0.027766
+      },
+      "api-read": {
+        "statuses": {
+          "503": 3,
+          "200": 1793,
+          "429": 2717
+        },
+        "successes": 1793,
+        "p50_seconds": 0.006046,
+        "p95_seconds": 0.010745,
+        "p99_seconds": 0.013912,
+        "max_seconds": 0.022899
+      },
+      "count": {
+        "statuses": {
+          "503": 2,
+          "200": 7199,
+          "401": 19
+        },
+        "successes": 7199,
+        "p50_seconds": 0.014548,
+        "p95_seconds": 0.017423,
+        "p99_seconds": 0.019802,
+        "max_seconds": 0.048483
+      },
+      "joined": {
+        "statuses": {
+          "503": 2,
+          "200": 3598,
+          "401": 10
+        },
+        "successes": 3598,
+        "p50_seconds": 0.009684,
+        "p95_seconds": 0.012981,
+        "p99_seconds": 0.015441,
+        "max_seconds": 0.042317
+      },
+      "page": {
+        "statuses": {
+          "503": 7,
+          "200": 12594,
+          "401": 34
+        },
+        "successes": 12594,
+        "p50_seconds": 0.003693,
+        "p95_seconds": 0.007013,
+        "p99_seconds": 0.009377,
+        "max_seconds": 0.037057
+      },
+      "read": {
+        "statuses": {
+          "200": 21586,
+          "503": 10,
+          "401": 64
+        },
+        "successes": 21586,
+        "p50_seconds": 0.003729,
+        "p95_seconds": 0.007199,
+        "p99_seconds": 0.009825,
+        "max_seconds": 0.038911
+      },
+      "ready": {
+        "statuses": {
+          "503": 106,
+          "200": 8919
+        },
+        "successes": 8919,
+        "p50_seconds": 0.006988,
+        "p95_seconds": 0.010327,
+        "p99_seconds": 0.01285,
+        "max_seconds": 0.023529
+      },
+      "root": {
+        "statuses": {
+          "200": 27061,
+          "503": 14
+        },
+        "successes": 27061,
+        "p50_seconds": 0.00057,
+        "p95_seconds": 0.001227,
+        "p99_seconds": 0.001746,
+        "max_seconds": 0.012187
+      }
+    },
+    "maximum_rss_kib": {
+      "node_A": 53060,
+      "node_B": 34804,
+      "worker_one": 25896,
+      "worker_two": 26204
+    },
+    "database_records": 100004,
+    "final_counts": {
+      "records": 100004,
+      "jobs": 15,
+      "jobs_done": 15,
+      "jobs_incomplete": 0,
+      "events": 15
+    },
+    "final_readiness": {
+      "A": 200,
+      "B": 200
+    },
+    "slow_transfer": {
+      "begin_status": 200,
+      "put_status": 200,
+      "seconds": 12.827,
+      "bytes_sent": 8388608,
+      "finish_status": 200,
+      "delete_status": 200
+    },
+    "websocket": {
+      "events": [
+        {
+          "elapsed": 0.507,
+          "value": {
+            "cursor": "1",
+            "value": "capacity event 0"
+          }
+        },
+        {
+          "elapsed": 120.454,
+          "value": {
+            "cursor": "2",
+            "value": "capacity event 120"
+          }
+        },
+        {
+          "elapsed": 240.47,
+          "value": {
+            "cursor": "3",
+            "value": "capacity event 240"
+          }
+        },
+        {
+          "elapsed": 360.489,
+          "value": {
+            "cursor": "4",
+            "value": "capacity event 360"
+          }
+        },
+        {
+          "elapsed": 480.471,
+          "value": {
+            "cursor": "5",
+            "value": "capacity event 480"
+          }
+        },
+        {
+          "elapsed": 600.472,
+          "value": {
+            "cursor": "6",
+            "value": "capacity event 600"
+          }
+        },
+        {
+          "elapsed": 720.475,
+          "value": {
+            "cursor": "7",
+            "value": "capacity event 720"
+          }
+        },
+        {
+          "elapsed": 840.434,
+          "value": {
+            "cursor": "8",
+            "value": "capacity event 840"
+          }
+        },
+        {
+          "elapsed": 960.417,
+          "value": {
+            "cursor": "9",
+            "value": "capacity event 960"
+          }
+        },
+        {
+          "elapsed": 1080.386,
+          "value": {
+            "cursor": "10",
+            "value": "capacity event 1080"
+          }
+        },
+        {
+          "elapsed": 1200.406,
+          "value": {
+            "cursor": "11",
+            "value": "capacity event 1200"
+          }
+        },
+        {
+          "elapsed": 1320.369,
+          "value": {
+            "cursor": "12",
+            "value": "capacity event 1320"
+          }
+        },
+        {
+          "elapsed": 1440.356,
+          "value": {
+            "cursor": "13",
+            "value": "capacity event 1440"
+          }
+        },
+        {
+          "elapsed": 1560.3,
+          "value": {
+            "cursor": "14",
+            "value": "capacity event 1560"
+          }
+        },
+        {
+          "elapsed": 1680.32,
+          "value": {
+            "cursor": "15",
+            "value": "capacity event 1680"
+          }
+        },
+        {
+          "elapsed": 1800.261,
+          "value": {
+            "kind": "close",
+            "code": null,
+            "reason": ""
+          }
+        }
+      ],
+      "end": {
+        "value": {
+          "kind": "close",
+          "code": null,
+          "reason": ""
+        },
+        "elapsed": 1800.261
+      }
+    },
+    "query_plan": [
+      {
+        "Plan": {
+          "Node Type": "Limit",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "Startup Cost": 0.42,
+          "Total Cost": 0.84,
+          "Plan Rows": 2,
+          "Plan Width": 194,
+          "Actual Startup Time": 0.017,
+          "Actual Total Time": 0.019,
+          "Actual Rows": 2.0,
+          "Actual Loops": 1,
+          "Disabled": false,
+          "Shared Hit Blocks": 5,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0,
+          "Plans": [
+            {
+              "Node Type": "Index Scan",
+              "Parent Relationship": "Outer",
+              "Parallel Aware": false,
+              "Async Capable": false,
+              "Scan Direction": "Forward",
+              "Index Name": "k_07fc2a7d1e3c534c9dd57e04d5eca8cb74be6eef",
+              "Relation Name": "r_45792abffaa8e959_666067dd376e5d45",
+              "Alias": "r_45792abffaa8e959_666067dd376e5d45",
+              "Startup Cost": 0.42,
+              "Total Cost": 10502.67,
+              "Plan Rows": 50194,
+              "Plan Width": 194,
+              "Actual Startup Time": 0.016,
+              "Actual Total Time": 0.018,
+              "Actual Rows": 2.0,
+              "Actual Loops": 1,
+              "Disabled": false,
+              "Index Cond": "((workspace = '4e2d7c125c1399cd1436002baf5a5bc4ab981a4eeb6d567c809af3727d6c6566'::text) AND (rank < 1000))",
+              "Rows Removed by Index Recheck": 0,
+              "Index Searches": 1,
+              "Shared Hit Blocks": 5,
+              "Shared Read Blocks": 0,
+              "Shared Dirtied Blocks": 0,
+              "Shared Written Blocks": 0,
+              "Local Hit Blocks": 0,
+              "Local Read Blocks": 0,
+              "Local Dirtied Blocks": 0,
+              "Local Written Blocks": 0,
+              "Temp Read Blocks": 0,
+              "Temp Written Blocks": 0
+            }
+          ]
+        },
+        "Planning": {
+          "Shared Hit Blocks": 125,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0
+        },
+        "Planning Time": 0.199,
+        "Triggers": [],
+        "Execution Time": 0.031
+      }
+    ],
+    "control": [
+      {
+        "elapsed": 0.007,
+        "job_status": 200,
+        "event_status": 200,
+        "edit_status": 200
+      },
+      {
+        "elapsed": 120.083,
+        "job_status": 200,
+        "event_status": 200,
+        "edit_status": 200
+      },
+      {
+        "elapsed": 240.018,
+        "job_status": 200,
+        "event_status": 200,
+        "edit_status": 200
+      },
+      {
+        "elapsed": 360.071,
+        "job_status": 200,
+        "event_status": 200,
+        "edit_status": 200
+      },
+      {
+        "elapsed": 480.034,
+        "job_status": 200,
+        "event_status": 200,
+        "edit_status": 200
+      },
+      {
+        "elapsed": 600.074,
+        "job_status": 200,
+        "event_status": 200,
+        "edit_status": 200
+      },
+      {
+        "action": "kill-restart-node-B",
+        "elapsed": 600.074,
+        "recovery_seconds": 3.234
+      },
+      {
+        "elapsed": 720.044,
+        "job_status": 200,
+        "event_status": 200,
+        "edit_status": 200
+      },
+      {
+        "elapsed": 840.091,
+        "job_status": 200,
+        "event_status": 200,
+        "edit_status": 200
+      },
+      {
+        "action": "kill-restart-worker-two",
+        "elapsed": 900.004,
+        "recovery_seconds": 3.004
+      },
+      {
+        "elapsed": 960.013,
+        "job_status": 200,
+        "event_status": 200,
+        "edit_status": 200
+      },
+      {
+        "elapsed": 1080.046,
+        "job_status": 200,
+        "event_status": 200,
+        "edit_status": 200
+      },
+      {
+        "elapsed": 1200.081,
+        "job_status": 200,
+        "event_status": 200,
+        "edit_status": 200
+      },
+      {
+        "elapsed": 1320.028,
+        "job_status": 200,
+        "event_status": 200,
+        "edit_status": 200
+      },
+      {
+        "elapsed": 1440.066,
+        "job_status": 200,
+        "event_status": 200,
+        "edit_status": 200
+      },
+      {
+        "elapsed": 1560.005,
+        "job_status": 200,
+        "event_status": 200,
+        "edit_status": 200
+      },
+      {
+        "elapsed": 1680.05,
+        "job_status": 200,
+        "event_status": 200,
+        "edit_status": 200
+      }
+    ],
+    "samples": [
+      {
+        "elapsed": 0.007,
+        "rss_kib": {
+          "node_A": 46400,
+          "node_B": 26720,
+          "worker_one": 23552,
+          "worker_two": 23456
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 14,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 56
+            }
+          },
+          "B": {
+            "status": 503,
+            "value": {
+              "error": "unavailable"
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 0,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 0,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 15.074,
+        "rss_kib": {
+          "node_A": 52052,
+          "node_B": 33984,
+          "worker_one": 25736,
+          "worker_two": 23540
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 409
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 404
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 1,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 1,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 30.004,
+        "rss_kib": {
+          "node_A": 52236,
+          "node_B": 34160,
+          "worker_one": 25736,
+          "worker_two": 23548
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 1,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 781
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 1,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 777
+            }
+          }
+        },
+        "database": {
+          "connections": 18,
+          "jobs": 1,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 1,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 45.031,
+        "rss_kib": {
+          "node_A": 52284,
+          "node_B": 34256,
+          "worker_one": 25736,
+          "worker_two": 23552
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 1161
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 1156
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 1,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 1,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 60.062,
+        "rss_kib": {
+          "node_A": 52344,
+          "node_B": 34308,
+          "worker_one": 25736,
+          "worker_two": 23556
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 1555
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 3,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 1546
+            }
+          }
+        },
+        "database": {
+          "connections": 19,
+          "jobs": 1,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 1,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 75.093,
+        "rss_kib": {
+          "node_A": 52388,
+          "node_B": 34360,
+          "worker_one": 25736,
+          "worker_two": 23564
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 1913
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 1908
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 1,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 1,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 90.024,
+        "rss_kib": {
+          "node_A": 52404,
+          "node_B": 34392,
+          "worker_one": 25736,
+          "worker_two": 23572
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 1,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 2290
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 2,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 2286
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 1,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 1,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 105.053,
+        "rss_kib": {
+          "node_A": 52436,
+          "node_B": 34424,
+          "worker_one": 25736,
+          "worker_two": 23572
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 2665
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 2660
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 1,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 1,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 120.083,
+        "rss_kib": {
+          "node_A": 52472,
+          "node_B": 34444,
+          "worker_one": 25736,
+          "worker_two": 23572
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 1,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 3063
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 2,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 3059
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 1,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 1,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 135.025,
+        "rss_kib": {
+          "node_A": 52488,
+          "node_B": 34480,
+          "worker_one": 25828,
+          "worker_two": 23572
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 3419
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 3413
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 2,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 2,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 150.055,
+        "rss_kib": {
+          "node_A": 52504,
+          "node_B": 34512,
+          "worker_one": 25828,
+          "worker_two": 23572
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 3809
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 1,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 3808
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 2,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 2,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 165.084,
+        "rss_kib": {
+          "node_A": 52516,
+          "node_B": 34540,
+          "worker_one": 25828,
+          "worker_two": 23572
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 4171
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 4165
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 2,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 2,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 180.011,
+        "rss_kib": {
+          "node_A": 52528,
+          "node_B": 34560,
+          "worker_one": 25828,
+          "worker_two": 23572
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 1,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 4548
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 2,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 4549
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 2,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 2,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 195.039,
+        "rss_kib": {
+          "node_A": 52544,
+          "node_B": 34572,
+          "worker_one": 25828,
+          "worker_two": 23576
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 4923
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 4917
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 2,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 2,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 210.066,
+        "rss_kib": {
+          "node_A": 52556,
+          "node_B": 34580,
+          "worker_one": 25828,
+          "worker_two": 23580
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 2,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 5315
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 5311
+            }
+          }
+        },
+        "database": {
+          "connections": 18,
+          "jobs": 2,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 2,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 225.091,
+        "rss_kib": {
+          "node_A": 52584,
+          "node_B": 34592,
+          "worker_one": 25828,
+          "worker_two": 23580
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 5675
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 5669
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 2,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 2,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 240.018,
+        "rss_kib": {
+          "node_A": 52604,
+          "node_B": 34596,
+          "worker_one": 25828,
+          "worker_two": 23580
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 6053
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 6040
+            }
+          }
+        },
+        "database": {
+          "connections": 18,
+          "jobs": 2,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 2,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 255.059,
+        "rss_kib": {
+          "node_A": 52612,
+          "node_B": 34612,
+          "worker_one": 25856,
+          "worker_two": 23580
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 6429
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 6422
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 3,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 3,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 270.087,
+        "rss_kib": {
+          "node_A": 52612,
+          "node_B": 34612,
+          "worker_one": 25856,
+          "worker_two": 23580
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 6828
+            }
+          },
+          "B": {
+            "status": 503,
+            "value": {
+              "error": "unavailable"
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 3,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 3,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 285.016,
+        "rss_kib": {
+          "node_A": 52612,
+          "node_B": 34624,
+          "worker_one": 25856,
+          "worker_two": 23584
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 7181
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 7174
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 3,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 3,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 300.045,
+        "rss_kib": {
+          "node_A": 52612,
+          "node_B": 34640,
+          "worker_one": 25856,
+          "worker_two": 23584
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 7569
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 2,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 7557
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 3,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 3,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 315.083,
+        "rss_kib": {
+          "node_A": 52820,
+          "node_B": 34728,
+          "worker_one": 25856,
+          "worker_two": 23584
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 7936
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 7927
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 3,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 3,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 330.014,
+        "rss_kib": {
+          "node_A": 52840,
+          "node_B": 34732,
+          "worker_one": 25856,
+          "worker_two": 23584
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 1,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 8314
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 8309
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 3,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 3,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 345.04,
+        "rss_kib": {
+          "node_A": 52840,
+          "node_B": 34736,
+          "worker_one": 25856,
+          "worker_two": 23588
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 8688
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 8679
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 3,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 3,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 360.071,
+        "rss_kib": {
+          "node_A": 52840,
+          "node_B": 34744,
+          "worker_one": 25856,
+          "worker_two": 23592
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 2,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 9085
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 2,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 9074
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 3,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 3,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 375.012,
+        "rss_kib": {
+          "node_A": 52848,
+          "node_B": 34764,
+          "worker_one": 25860,
+          "worker_two": 23596
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 9442
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 9432
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 4,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 4,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 390.044,
+        "rss_kib": {
+          "node_A": 52856,
+          "node_B": 34768,
+          "worker_one": 25860,
+          "worker_two": 23596
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 2,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 9825
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 9823
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 4,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 4,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 405.077,
+        "rss_kib": {
+          "node_A": 52856,
+          "node_B": 34768,
+          "worker_one": 25860,
+          "worker_two": 23596
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 10194
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 10184
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 4,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 4,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 420.009,
+        "rss_kib": {
+          "node_A": 52856,
+          "node_B": 34768,
+          "worker_one": 25860,
+          "worker_two": 23596
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 1,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 10564
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 1,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 10566
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 4,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 4,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 435.039,
+        "rss_kib": {
+          "node_A": 52860,
+          "node_B": 34768,
+          "worker_one": 25860,
+          "worker_two": 23600
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 10946
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 10936
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 4,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 4,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 450.075,
+        "rss_kib": {
+          "node_A": 52860,
+          "node_B": 34780,
+          "worker_one": 25860,
+          "worker_two": 23600
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 1,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 11342
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 1,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 11329
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 4,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 4,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 465.005,
+        "rss_kib": {
+          "node_A": 52864,
+          "node_B": 34780,
+          "worker_one": 25860,
+          "worker_two": 23604
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 11698
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 11688
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 4,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 4,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 480.034,
+        "rss_kib": {
+          "node_A": 52864,
+          "node_B": 34780,
+          "worker_one": 25860,
+          "worker_two": 23608
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 12079
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 12069
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 4,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 4,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 495.076,
+        "rss_kib": {
+          "node_A": 52876,
+          "node_B": 34780,
+          "worker_one": 25860,
+          "worker_two": 26004
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 12452
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 12441
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 5,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 5,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 510.007,
+        "rss_kib": {
+          "node_A": 52884,
+          "node_B": 34796,
+          "worker_one": 25860,
+          "worker_two": 26004
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 1,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 12828
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 1,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 12815
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 5,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 5,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 525.032,
+        "rss_kib": {
+          "node_A": 52884,
+          "node_B": 34796,
+          "worker_one": 25860,
+          "worker_two": 26004
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 13204
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 13193
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 5,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 5,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 540.058,
+        "rss_kib": {
+          "node_A": 52884,
+          "node_B": 34800,
+          "worker_one": 25860,
+          "worker_two": 26004
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 3,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 13594
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 4,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 13586
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 5,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 5,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 555.088,
+        "rss_kib": {
+          "node_A": 52884,
+          "node_B": 34800,
+          "worker_one": 25860,
+          "worker_two": 26004
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 13956
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 13945
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 5,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 5,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 570.018,
+        "rss_kib": {
+          "node_A": 52888,
+          "node_B": 34804,
+          "worker_one": 25860,
+          "worker_two": 26004
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 14335
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 14324
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 5,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 5,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 585.047,
+        "rss_kib": {
+          "node_A": 52892,
+          "node_B": 34804,
+          "worker_one": 25860,
+          "worker_two": 26004
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 14708
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 14697
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 5,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 5,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 600.074,
+        "rss_kib": {
+          "node_A": 52900,
+          "node_B": 34804,
+          "worker_one": 25860,
+          "worker_two": 26004
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 2,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 15104
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 15096
+            }
+          }
+        },
+        "database": {
+          "connections": 18,
+          "jobs": 5,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 5,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 615.046,
+        "rss_kib": {
+          "node_A": 52904,
+          "node_B": 33212,
+          "worker_one": 25860,
+          "worker_two": 26028
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 15462
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 302
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 6,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 6,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 630.074,
+        "rss_kib": {
+          "node_A": 52904,
+          "node_B": 33528,
+          "worker_one": 25860,
+          "worker_two": 26028
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 15859
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 1,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 700
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 6,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 6,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 645.001,
+        "rss_kib": {
+          "node_A": 52908,
+          "node_B": 33768,
+          "worker_one": 25860,
+          "worker_two": 26028
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 16214
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 1054
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 6,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 6,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 660.03,
+        "rss_kib": {
+          "node_A": 52916,
+          "node_B": 33816,
+          "worker_one": 25860,
+          "worker_two": 26028
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 1,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 16593
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 1437
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 6,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 6,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 675.058,
+        "rss_kib": {
+          "node_A": 52944,
+          "node_B": 33884,
+          "worker_one": 25860,
+          "worker_two": 26028
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 16966
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 1806
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 6,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 6,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 690.084,
+        "rss_kib": {
+          "node_A": 52944,
+          "node_B": 33932,
+          "worker_one": 25860,
+          "worker_two": 26028
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 17367
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 2207
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 6,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 6,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 705.011,
+        "rss_kib": {
+          "node_A": 52944,
+          "node_B": 33984,
+          "worker_one": 25860,
+          "worker_two": 26028
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 17718
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 2558
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 6,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 6,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 720.044,
+        "rss_kib": {
+          "node_A": 52944,
+          "node_B": 34004,
+          "worker_one": 25860,
+          "worker_two": 26028
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 18100
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 3,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 2948
+            }
+          }
+        },
+        "database": {
+          "connections": 18,
+          "jobs": 6,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 6,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 735.09,
+        "rss_kib": {
+          "node_A": 52944,
+          "node_B": 34032,
+          "worker_one": 25884,
+          "worker_two": 26028
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 18472
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 3311
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 7,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 7,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 750.017,
+        "rss_kib": {
+          "node_A": 52944,
+          "node_B": 34076,
+          "worker_one": 25884,
+          "worker_two": 26028
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 1,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 18848
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 2,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 3686
+            }
+          }
+        },
+        "database": {
+          "connections": 18,
+          "jobs": 7,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 7,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 765.05,
+        "rss_kib": {
+          "node_A": 52948,
+          "node_B": 34100,
+          "worker_one": 25884,
+          "worker_two": 26028
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 19224
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 4063
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 7,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 7,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 780.081,
+        "rss_kib": {
+          "node_A": 52948,
+          "node_B": 34108,
+          "worker_one": 25884,
+          "worker_two": 26028
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 19624
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 4464
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 7,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 7,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 795.007,
+        "rss_kib": {
+          "node_A": 52948,
+          "node_B": 34128,
+          "worker_one": 25884,
+          "worker_two": 26028
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 19976
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 4815
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 7,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 7,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 810.037,
+        "rss_kib": {
+          "node_A": 52948,
+          "node_B": 34136,
+          "worker_one": 25884,
+          "worker_two": 26028
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 20354
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 5197
+            }
+          }
+        },
+        "database": {
+          "connections": 18,
+          "jobs": 7,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 7,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 825.063,
+        "rss_kib": {
+          "node_A": 52948,
+          "node_B": 34164,
+          "worker_one": 25884,
+          "worker_two": 26028
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 20728
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 5567
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 7,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 7,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 840.091,
+        "rss_kib": {
+          "node_A": 52952,
+          "node_B": 34176,
+          "worker_one": 25884,
+          "worker_two": 26028
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 21129
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 2,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 5968
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 7,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 7,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 855.027,
+        "rss_kib": {
+          "node_A": 52956,
+          "node_B": 34200,
+          "worker_one": 25888,
+          "worker_two": 26028
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 21482
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 6320
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 8,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 8,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 870.055,
+        "rss_kib": {
+          "node_A": 52960,
+          "node_B": 34208,
+          "worker_one": 25888,
+          "worker_two": 26028
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 1,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 21872
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 6715
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 8,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 8,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 885.077,
+        "rss_kib": {
+          "node_A": 52964,
+          "node_B": 34216,
+          "worker_one": 25888,
+          "worker_two": 26028
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 22234
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 7072
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 8,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 8,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 900.004,
+        "rss_kib": {
+          "node_A": 52964,
+          "node_B": 34220,
+          "worker_one": 25888,
+          "worker_two": 26028
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 1,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 22605
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 7442
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 8,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 8,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 915.029,
+        "rss_kib": {
+          "node_A": 52964,
+          "node_B": 34220,
+          "worker_one": 25888,
+          "worker_two": 23668
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 22986
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 7824
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 8,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 8,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 930.056,
+        "rss_kib": {
+          "node_A": 52964,
+          "node_B": 34272,
+          "worker_one": 25888,
+          "worker_two": 23680
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 2,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 23375
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 1,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 8212
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 8,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 8,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 945.086,
+        "rss_kib": {
+          "node_A": 52964,
+          "node_B": 34288,
+          "worker_one": 25888,
+          "worker_two": 23680
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 23738
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 8576
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 8,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 8,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 960.013,
+        "rss_kib": {
+          "node_A": 52964,
+          "node_B": 34296,
+          "worker_one": 25888,
+          "worker_two": 23688
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 24112
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 1,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 8945
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 8,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 8,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 975.053,
+        "rss_kib": {
+          "node_A": 52964,
+          "node_B": 34312,
+          "worker_one": 25888,
+          "worker_two": 26136
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 24492
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 9329
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 9,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 9,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 990.08,
+        "rss_kib": {
+          "node_A": 52964,
+          "node_B": 34320,
+          "worker_one": 25888,
+          "worker_two": 26136
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 1,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 24890
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 9727
+            }
+          }
+        },
+        "database": {
+          "connections": 18,
+          "jobs": 9,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 9,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1005.006,
+        "rss_kib": {
+          "node_A": 52964,
+          "node_B": 34320,
+          "worker_one": 25888,
+          "worker_two": 26136
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 25244
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 10081
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 9,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 9,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1020.034,
+        "rss_kib": {
+          "node_A": 52964,
+          "node_B": 34320,
+          "worker_one": 25888,
+          "worker_two": 26136
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 1,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 25626
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 10467
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 9,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 9,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1035.062,
+        "rss_kib": {
+          "node_A": 52964,
+          "node_B": 34320,
+          "worker_one": 25888,
+          "worker_two": 26136
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 25996
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 10833
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 9,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 9,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1050.093,
+        "rss_kib": {
+          "node_A": 52964,
+          "node_B": 34328,
+          "worker_one": 25888,
+          "worker_two": 26136
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 26397
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 2,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 11234
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 9,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 9,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1065.016,
+        "rss_kib": {
+          "node_A": 52964,
+          "node_B": 34328,
+          "worker_one": 25888,
+          "worker_two": 26136
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 26748
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 11585
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 9,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 9,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1080.046,
+        "rss_kib": {
+          "node_A": 53020,
+          "node_B": 34332,
+          "worker_one": 25888,
+          "worker_two": 26136
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 1,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 27135
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 2,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 11970
+            }
+          }
+        },
+        "database": {
+          "connections": 18,
+          "jobs": 9,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 9,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1095.088,
+        "rss_kib": {
+          "node_A": 53020,
+          "node_B": 34344,
+          "worker_one": 25888,
+          "worker_two": 26184
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 27502
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 12338
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 10,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 10,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1110.015,
+        "rss_kib": {
+          "node_A": 53020,
+          "node_B": 34344,
+          "worker_one": 25888,
+          "worker_two": 26184
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 3,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 27877
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 2,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 12719
+            }
+          }
+        },
+        "database": {
+          "connections": 18,
+          "jobs": 10,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 10,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1125.037,
+        "rss_kib": {
+          "node_A": 53020,
+          "node_B": 34344,
+          "worker_one": 25888,
+          "worker_two": 26184
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 28254
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 13090
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 10,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 10,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1140.067,
+        "rss_kib": {
+          "node_A": 53020,
+          "node_B": 34352,
+          "worker_one": 25888,
+          "worker_two": 26184
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 2,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 28647
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 2,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 13484
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 10,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 10,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1155.097,
+        "rss_kib": {
+          "node_A": 53020,
+          "node_B": 34352,
+          "worker_one": 25888,
+          "worker_two": 26184
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 29006
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 13842
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 10,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 10,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1170.025,
+        "rss_kib": {
+          "node_A": 53020,
+          "node_B": 34356,
+          "worker_one": 25888,
+          "worker_two": 26184
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 2,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 29387
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 1,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 14224
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 10,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 10,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1185.051,
+        "rss_kib": {
+          "node_A": 53020,
+          "node_B": 34360,
+          "worker_one": 25888,
+          "worker_two": 26184
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 29758
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 14594
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 10,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 10,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1200.081,
+        "rss_kib": {
+          "node_A": 53020,
+          "node_B": 34360,
+          "worker_one": 25888,
+          "worker_two": 26184
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 30156
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 14993
+            }
+          }
+        },
+        "database": {
+          "connections": 18,
+          "jobs": 10,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 10,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1215.026,
+        "rss_kib": {
+          "node_A": 53056,
+          "node_B": 34360,
+          "worker_one": 25892,
+          "worker_two": 26184
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 30512
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 15347
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 11,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 11,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1230.056,
+        "rss_kib": {
+          "node_A": 53056,
+          "node_B": 34364,
+          "worker_one": 25892,
+          "worker_two": 26184
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 3,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 30903
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 1,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 15737
+            }
+          }
+        },
+        "database": {
+          "connections": 18,
+          "jobs": 11,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 11,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1245.084,
+        "rss_kib": {
+          "node_A": 53056,
+          "node_B": 34372,
+          "worker_one": 25892,
+          "worker_two": 26184
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 31264
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 16099
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 11,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 11,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1260.012,
+        "rss_kib": {
+          "node_A": 53056,
+          "node_B": 34372,
+          "worker_one": 25892,
+          "worker_two": 26184
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 31642
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 1,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 16478
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 11,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 11,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1275.041,
+        "rss_kib": {
+          "node_A": 53056,
+          "node_B": 34372,
+          "worker_one": 25892,
+          "worker_two": 26184
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 32016
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 16851
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 11,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 11,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1290.071,
+        "rss_kib": {
+          "node_A": 53056,
+          "node_B": 34408,
+          "worker_one": 25892,
+          "worker_two": 26184
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 32408
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 2,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 17241
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 11,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 11,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1305.001,
+        "rss_kib": {
+          "node_A": 53056,
+          "node_B": 34412,
+          "worker_one": 25892,
+          "worker_two": 26184
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 32768
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 17603
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 11,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 11,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1320.028,
+        "rss_kib": {
+          "node_A": 53056,
+          "node_B": 34412,
+          "worker_one": 25892,
+          "worker_two": 26184
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 33149
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 1,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 17979
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 11,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 11,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1335.067,
+        "rss_kib": {
+          "node_A": 53056,
+          "node_B": 34412,
+          "worker_one": 25892,
+          "worker_two": 26192
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 33522
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 18356
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 12,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 12,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1350.094,
+        "rss_kib": {
+          "node_A": 53056,
+          "node_B": 34412,
+          "worker_one": 25892,
+          "worker_two": 26192
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 2,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 33923
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 18757
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 12,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 12,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1365.02,
+        "rss_kib": {
+          "node_A": 53056,
+          "node_B": 34424,
+          "worker_one": 25892,
+          "worker_two": 26192
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 34274
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 19108
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 12,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 12,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1380.055,
+        "rss_kib": {
+          "node_A": 53056,
+          "node_B": 34424,
+          "worker_one": 25892,
+          "worker_two": 26192
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 1,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 34668
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 19492
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 12,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 12,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1395.083,
+        "rss_kib": {
+          "node_A": 53056,
+          "node_B": 34424,
+          "worker_one": 25892,
+          "worker_two": 26192
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 35026
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 19860
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 12,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 12,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1410.012,
+        "rss_kib": {
+          "node_A": 53056,
+          "node_B": 34424,
+          "worker_one": 25892,
+          "worker_two": 26192
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 1,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 35400
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 1,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 20239
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 12,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 12,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1425.038,
+        "rss_kib": {
+          "node_A": 53056,
+          "node_B": 34424,
+          "worker_one": 25892,
+          "worker_two": 26192
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 35778
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 20612
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 12,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 12,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1440.066,
+        "rss_kib": {
+          "node_A": 53056,
+          "node_B": 34432,
+          "worker_one": 25892,
+          "worker_two": 26192
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 2,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 36167
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 1,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 21003
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 12,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 12,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1455.007,
+        "rss_kib": {
+          "node_A": 53056,
+          "node_B": 34432,
+          "worker_one": 25892,
+          "worker_two": 26204
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 36532
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 21365
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 13,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 13,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1470.035,
+        "rss_kib": {
+          "node_A": 53056,
+          "node_B": 34432,
+          "worker_one": 25892,
+          "worker_two": 26204
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 2,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 36919
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 21745
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 13,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 13,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1485.063,
+        "rss_kib": {
+          "node_A": 53056,
+          "node_B": 34432,
+          "worker_one": 25892,
+          "worker_two": 26204
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 37284
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 22117
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 13,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 13,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1500.091,
+        "rss_kib": {
+          "node_A": 53056,
+          "node_B": 34436,
+          "worker_one": 25892,
+          "worker_two": 26204
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 37685
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 22518
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 13,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 13,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1515.019,
+        "rss_kib": {
+          "node_A": 53056,
+          "node_B": 34436,
+          "worker_one": 25892,
+          "worker_two": 26204
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 38036
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 22869
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 13,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 13,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1530.051,
+        "rss_kib": {
+          "node_A": 53056,
+          "node_B": 34436,
+          "worker_one": 25892,
+          "worker_two": 26204
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 1,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 38426
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 1,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 23255
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 13,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 13,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1545.078,
+        "rss_kib": {
+          "node_A": 53056,
+          "node_B": 34436,
+          "worker_one": 25892,
+          "worker_two": 26204
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 38788
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 23621
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 13,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 13,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1560.005,
+        "rss_kib": {
+          "node_A": 53056,
+          "node_B": 34440,
+          "worker_one": 25892,
+          "worker_two": 26204
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 2,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 39164
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 24000
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 13,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 13,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1575.048,
+        "rss_kib": {
+          "node_A": 53056,
+          "node_B": 34444,
+          "worker_one": 25896,
+          "worker_two": 26204
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 39542
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 24374
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 14,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 14,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1590.08,
+        "rss_kib": {
+          "node_A": 53056,
+          "node_B": 34444,
+          "worker_one": 25896,
+          "worker_two": 26204
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 1,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 39939
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 1,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 24773
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 14,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 14,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1605.009,
+        "rss_kib": {
+          "node_A": 53056,
+          "node_B": 34444,
+          "worker_one": 25896,
+          "worker_two": 26204
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 40294
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 25126
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 14,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 14,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1620.039,
+        "rss_kib": {
+          "node_A": 53056,
+          "node_B": 34444,
+          "worker_one": 25896,
+          "worker_two": 26204
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 40677
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 1,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 25512
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 14,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 14,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1635.063,
+        "rss_kib": {
+          "node_A": 53060,
+          "node_B": 34444,
+          "worker_one": 25896,
+          "worker_two": 26204
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 41046
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 25878
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 14,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 14,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1650.09,
+        "rss_kib": {
+          "node_A": 53060,
+          "node_B": 34444,
+          "worker_one": 25896,
+          "worker_two": 26204
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 41447
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 1,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 26279
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 14,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 14,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1665.017,
+        "rss_kib": {
+          "node_A": 53060,
+          "node_B": 34444,
+          "worker_one": 25896,
+          "worker_two": 26204
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 41798
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 26630
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 14,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 14,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1680.05,
+        "rss_kib": {
+          "node_A": 53060,
+          "node_B": 34444,
+          "worker_one": 25896,
+          "worker_two": 26204
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 42185
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 1,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 27021
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 14,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 14,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1695.089,
+        "rss_kib": {
+          "node_A": 53060,
+          "node_B": 34444,
+          "worker_one": 25896,
+          "worker_two": 26204
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 42552
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 27383
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 15,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 15,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1710.019,
+        "rss_kib": {
+          "node_A": 53060,
+          "node_B": 34448,
+          "worker_one": 25896,
+          "worker_two": 26204
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 42929
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 1,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 27761
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 15,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 15,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1725.047,
+        "rss_kib": {
+          "node_A": 53060,
+          "node_B": 34448,
+          "worker_one": 25896,
+          "worker_two": 26204
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 43304
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 28135
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 15,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 15,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1740.075,
+        "rss_kib": {
+          "node_A": 53060,
+          "node_B": 34460,
+          "worker_one": 25896,
+          "worker_two": 26204
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 43699
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 28534
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 15,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 15,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1755.002,
+        "rss_kib": {
+          "node_A": 53060,
+          "node_B": 34460,
+          "worker_one": 25896,
+          "worker_two": 26204
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 44056
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 28887
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 15,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 15,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1770.028,
+        "rss_kib": {
+          "node_A": 53060,
+          "node_B": 34496,
+          "worker_one": 25896,
+          "worker_two": 26204
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 44433
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 29274
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 15,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 15,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1785.054,
+        "rss_kib": {
+          "node_A": 53060,
+          "node_B": 34496,
+          "worker_one": 25896,
+          "worker_two": 26204
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 44808
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 29639
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 15,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 15,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 1800.081,
+        "rss_kib": {
+          "node_A": 53060,
+          "node_B": 34496,
+          "worker_one": 25896,
+          "worker_two": 26204
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_requests": 1,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 45206
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 30035
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 15,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 15,
+          "objects": 0
+        }
+      }
+    ],
+    "receiver": {
+      "attempts": [
+        {
+          "path": "/v1/dedup/f31e7062660ca365ec0413cf5d624a8d81b48954f14b6765aea7ab39a2250457",
+          "key": "f31e7062660ca365ec0413cf5d624a8d81b48954f14b6765aea7ab39a2250457",
+          "body_sha256": "8a49c346b3bd43f66d16bb5cd37c74bcf8dce5d0da3334b9d7b89f78da5b5429",
+          "bytes": 26
+        },
+        {
+          "path": "/v1/dedup/af1ab9dd454b72b03f29c6d6630b82d6949e5f0f853d6c688e1f59c53f89bd8a",
+          "key": "af1ab9dd454b72b03f29c6d6630b82d6949e5f0f853d6c688e1f59c53f89bd8a",
+          "body_sha256": "8a49c346b3bd43f66d16bb5cd37c74bcf8dce5d0da3334b9d7b89f78da5b5429",
+          "bytes": 26
+        },
+        {
+          "path": "/v1/dedup/efb9d3d15f157d586d7ed3b67fdd4ff90472e982cfba78f4d13eb57fe10dd277",
+          "key": "efb9d3d15f157d586d7ed3b67fdd4ff90472e982cfba78f4d13eb57fe10dd277",
+          "body_sha256": "8a49c346b3bd43f66d16bb5cd37c74bcf8dce5d0da3334b9d7b89f78da5b5429",
+          "bytes": 26
+        },
+        {
+          "path": "/v1/dedup/3df71210ad254f7393a88e4d0f623de980437d38b4cbb1a689adbac244e60517",
+          "key": "3df71210ad254f7393a88e4d0f623de980437d38b4cbb1a689adbac244e60517",
+          "body_sha256": "8a49c346b3bd43f66d16bb5cd37c74bcf8dce5d0da3334b9d7b89f78da5b5429",
+          "bytes": 26
+        },
+        {
+          "path": "/v1/dedup/e9264ade4d586b0843f6f1cd5efdea80a92d270365a7c27c0aedf43c616facd7",
+          "key": "e9264ade4d586b0843f6f1cd5efdea80a92d270365a7c27c0aedf43c616facd7",
+          "body_sha256": "8a49c346b3bd43f66d16bb5cd37c74bcf8dce5d0da3334b9d7b89f78da5b5429",
+          "bytes": 26
+        },
+        {
+          "path": "/v1/dedup/d3315c2e558cab495771d96af53f21ea8283f27671fc2709d54abd7669784dcc",
+          "key": "d3315c2e558cab495771d96af53f21ea8283f27671fc2709d54abd7669784dcc",
+          "body_sha256": "8a49c346b3bd43f66d16bb5cd37c74bcf8dce5d0da3334b9d7b89f78da5b5429",
+          "bytes": 26
+        },
+        {
+          "path": "/v1/dedup/16884eedff20cfab364a8aea5e3272a5aa0b6d1a8f2ae7000e869ebd8f1b89ed",
+          "key": "16884eedff20cfab364a8aea5e3272a5aa0b6d1a8f2ae7000e869ebd8f1b89ed",
+          "body_sha256": "8a49c346b3bd43f66d16bb5cd37c74bcf8dce5d0da3334b9d7b89f78da5b5429",
+          "bytes": 26
+        },
+        {
+          "path": "/v1/dedup/6ac4053a8a09f84568e90c7133065fdac30d4dcc5da0ec3ffc0498a118dc157e",
+          "key": "6ac4053a8a09f84568e90c7133065fdac30d4dcc5da0ec3ffc0498a118dc157e",
+          "body_sha256": "8a49c346b3bd43f66d16bb5cd37c74bcf8dce5d0da3334b9d7b89f78da5b5429",
+          "bytes": 26
+        },
+        {
+          "path": "/v1/dedup/ba05cf46f550f8cfc0aeff5dfe8334fce8221fd1873ae563d9791baaaf7e0195",
+          "key": "ba05cf46f550f8cfc0aeff5dfe8334fce8221fd1873ae563d9791baaaf7e0195",
+          "body_sha256": "8a49c346b3bd43f66d16bb5cd37c74bcf8dce5d0da3334b9d7b89f78da5b5429",
+          "bytes": 26
+        },
+        {
+          "path": "/v1/dedup/5f84f65da4ce181edf22aae4ed4d0994048898a96d47d3244d4384b31b675502",
+          "key": "5f84f65da4ce181edf22aae4ed4d0994048898a96d47d3244d4384b31b675502",
+          "body_sha256": "8a49c346b3bd43f66d16bb5cd37c74bcf8dce5d0da3334b9d7b89f78da5b5429",
+          "bytes": 26
+        },
+        {
+          "path": "/v1/dedup/1dd2fdf28a241711ad1319f81775253b37662f3dc2c6f2dc80cc0b2803f373d6",
+          "key": "1dd2fdf28a241711ad1319f81775253b37662f3dc2c6f2dc80cc0b2803f373d6",
+          "body_sha256": "8a49c346b3bd43f66d16bb5cd37c74bcf8dce5d0da3334b9d7b89f78da5b5429",
+          "bytes": 26
+        },
+        {
+          "path": "/v1/dedup/ceff2b85d54ba6b73fe0dc371a393e90ecf13e47c83bebbfc7a0a22eea0df9fe",
+          "key": "ceff2b85d54ba6b73fe0dc371a393e90ecf13e47c83bebbfc7a0a22eea0df9fe",
+          "body_sha256": "8a49c346b3bd43f66d16bb5cd37c74bcf8dce5d0da3334b9d7b89f78da5b5429",
+          "bytes": 26
+        },
+        {
+          "path": "/v1/dedup/10246c9873a9ab7cfce3ba11f51b7815df58bd51846ca4eaae989825dc3a9ad7",
+          "key": "10246c9873a9ab7cfce3ba11f51b7815df58bd51846ca4eaae989825dc3a9ad7",
+          "body_sha256": "8a49c346b3bd43f66d16bb5cd37c74bcf8dce5d0da3334b9d7b89f78da5b5429",
+          "bytes": 26
+        },
+        {
+          "path": "/v1/dedup/fae46ae6f2556687f0ead1bff451692e8beee9e28332fc39f955ffe7038d12aa",
+          "key": "fae46ae6f2556687f0ead1bff451692e8beee9e28332fc39f955ffe7038d12aa",
+          "body_sha256": "8a49c346b3bd43f66d16bb5cd37c74bcf8dce5d0da3334b9d7b89f78da5b5429",
+          "bytes": 26
+        },
+        {
+          "path": "/v1/dedup/15916e716375bdbdb698fccedf50b313f63946a7ad250cc87636773973b09a4e",
+          "key": "15916e716375bdbdb698fccedf50b313f63946a7ad250cc87636773973b09a4e",
+          "body_sha256": "8a49c346b3bd43f66d16bb5cd37c74bcf8dce5d0da3334b9d7b89f78da5b5429",
+          "bytes": 26
+        }
+      ],
+      "effect_keys": [
+        "10246c9873a9ab7cfce3ba11f51b7815df58bd51846ca4eaae989825dc3a9ad7",
+        "15916e716375bdbdb698fccedf50b313f63946a7ad250cc87636773973b09a4e",
+        "16884eedff20cfab364a8aea5e3272a5aa0b6d1a8f2ae7000e869ebd8f1b89ed",
+        "1dd2fdf28a241711ad1319f81775253b37662f3dc2c6f2dc80cc0b2803f373d6",
+        "3df71210ad254f7393a88e4d0f623de980437d38b4cbb1a689adbac244e60517",
+        "5f84f65da4ce181edf22aae4ed4d0994048898a96d47d3244d4384b31b675502",
+        "6ac4053a8a09f84568e90c7133065fdac30d4dcc5da0ec3ffc0498a118dc157e",
+        "af1ab9dd454b72b03f29c6d6630b82d6949e5f0f853d6c688e1f59c53f89bd8a",
+        "ba05cf46f550f8cfc0aeff5dfe8334fce8221fd1873ae563d9791baaaf7e0195",
+        "ceff2b85d54ba6b73fe0dc371a393e90ecf13e47c83bebbfc7a0a22eea0df9fe",
+        "d3315c2e558cab495771d96af53f21ea8283f27671fc2709d54abd7669784dcc",
+        "e9264ade4d586b0843f6f1cd5efdea80a92d270365a7c27c0aedf43c616facd7",
+        "efb9d3d15f157d586d7ed3b67fdd4ff90472e982cfba78f4d13eb57fe10dd277",
+        "f31e7062660ca365ec0413cf5d624a8d81b48954f14b6765aea7ab39a2250457",
+        "fae46ae6f2556687f0ead1bff451692e8beee9e28332fc39f955ffe7038d12aa"
+      ],
+      "effects": 15,
+      "counts": {
+        "/v1/dedup/f31e7062660ca365ec0413cf5d624a8d81b48954f14b6765aea7ab39a2250457": 1,
+        "/v1/dedup/af1ab9dd454b72b03f29c6d6630b82d6949e5f0f853d6c688e1f59c53f89bd8a": 1,
+        "/v1/dedup/efb9d3d15f157d586d7ed3b67fdd4ff90472e982cfba78f4d13eb57fe10dd277": 1,
+        "/v1/dedup/3df71210ad254f7393a88e4d0f623de980437d38b4cbb1a689adbac244e60517": 1,
+        "/v1/dedup/e9264ade4d586b0843f6f1cd5efdea80a92d270365a7c27c0aedf43c616facd7": 1,
+        "/v1/dedup/d3315c2e558cab495771d96af53f21ea8283f27671fc2709d54abd7669784dcc": 1,
+        "/v1/dedup/16884eedff20cfab364a8aea5e3272a5aa0b6d1a8f2ae7000e869ebd8f1b89ed": 1,
+        "/v1/dedup/6ac4053a8a09f84568e90c7133065fdac30d4dcc5da0ec3ffc0498a118dc157e": 1,
+        "/v1/dedup/ba05cf46f550f8cfc0aeff5dfe8334fce8221fd1873ae563d9791baaaf7e0195": 1,
+        "/v1/dedup/5f84f65da4ce181edf22aae4ed4d0994048898a96d47d3244d4384b31b675502": 1,
+        "/v1/dedup/1dd2fdf28a241711ad1319f81775253b37662f3dc2c6f2dc80cc0b2803f373d6": 1,
+        "/v1/dedup/ceff2b85d54ba6b73fe0dc371a393e90ecf13e47c83bebbfc7a0a22eea0df9fe": 1,
+        "/v1/dedup/10246c9873a9ab7cfce3ba11f51b7815df58bd51846ca4eaae989825dc3a9ad7": 1,
+        "/v1/dedup/fae46ae6f2556687f0ead1bff451692e8beee9e28332fc39f955ffe7038d12aa": 1,
+        "/v1/dedup/15916e716375bdbdb698fccedf50b313f63946a7ad250cc87636773973b09a4e": 1
+      }
+    }
+  },
+  "failures": [],
+  "scope": "two real app nodes, two real workers, isolated PostgreSQL and shared filesystem; 100 client threads use actual loopback HTTP; direct SQL only seeds and independently observes the fixed synthetic corpus",
+  "shutdowns": [
+    {
+      "node": "B",
+      "exit": -9,
+      "expected_exit": -9,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "worker": "two",
+      "exit": -9,
+      "expected_exit": -9,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "worker": "one",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "worker": "two",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "temporary_root_removed": true
+}

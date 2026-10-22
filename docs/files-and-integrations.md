@@ -1,6 +1,6 @@
 # Private files and outbound integrations (W6)
 
-Diamond 0.15.0 provides a private shared-filesystem attachment adapter, typed
+Diamond 0.16.0 provides a private shared-filesystem attachment adapter, typed
 outbound JSON HTTP, and opaque destination credentials. The connected server
 remains loopback-only behind the W8 proxy profile. Remote PostgreSQL TLS and
 object-store replication remain operator responsibilities.

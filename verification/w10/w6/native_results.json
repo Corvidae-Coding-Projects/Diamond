@@ -1,0 +1,102 @@
+{
+  "status": "PASS",
+  "binary_sha256": "2e2c3271fcb693eb6987ee1682f7616becd59eed58bf8141ea1b3d2b947a6d8a",
+  "error": null,
+  "results": [
+    {
+      "name": "native-maintain-initialize",
+      "status": "PASS",
+      "observed": {
+        "exit": 0,
+        "stdout": "{\"initialized\":true}\n",
+        "stderr": ""
+      },
+      "expected": "public native maintain_files initializes actual shared directory binding"
+    },
+    {
+      "name": "native-serve-runtime-actual-http-and-files",
+      "status": "PASS",
+      "observed": {
+        "remote": [
+          200,
+          {
+            "value": "external exact \u96ea\u0000"
+          }
+        ],
+        "put_status": 200,
+        "finish": [
+          200,
+          {
+            "id": "c2f22752835a4e1207bac0097df314d82b1e4ff8c8b0e3c57f1bfe29ed93d1b7",
+            "state": "ready"
+          }
+        ],
+        "download_length": 4,
+        "events": [
+          {
+            "method": "GET",
+            "path": "/v1/ok",
+            "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "body_bytes": 0,
+            "authorization_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "expected_authorization": false,
+            "accept_encoding": "identity",
+            "peer": "127.0.0.1"
+          }
+        ]
+      },
+      "expected": "external native RuntimeGrants and serve_with_runtime expose real typed outbound call and shared upload"
+    },
+    {
+      "name": "native-bounded-clean",
+      "status": "PASS",
+      "observed": {
+        "exit": 0,
+        "stdout": "{\"maximum_batch\":100,\"removed\":1}\n",
+        "rows": []
+      },
+      "expected": "native maintenance removes actual deleted metadata and bytes"
+    },
+    {
+      "name": "native-config-missing-destinations",
+      "status": "PASS",
+      "observed": {
+        "exit": 1,
+        "stderr": "Error: Denied\n"
+      },
+      "expected": "missing/ambiguous native grants fail closed before listening"
+    },
+    {
+      "name": "native-config-unknown-field",
+      "status": "PASS",
+      "observed": {
+        "exit": 1,
+        "stderr": "Error: Input(\"invalid native runtime configuration\")\n"
+      },
+      "expected": "missing/ambiguous native grants fail closed before listening"
+    },
+    {
+      "name": "native-config-duplicate-config",
+      "status": "PASS",
+      "observed": {
+        "exit": 1,
+        "stderr": "Error: Input(\"invalid native runtime configuration\")\n"
+      },
+      "expected": "missing/ambiguous native grants fail closed before listening"
+    }
+  ],
+  "shutdowns": [
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "http_requests": 9,
+  "library_sha256": "d6a40dcfdc295292d976922aa6cf5cfe2d4db9659a9425d6fc95377cef330a68",
+  "native_sha256": "5ec79e3aac4c5facdf067f61ae4f60a1f42cf80cfc9d244f558eaff11250e2cf",
+  "temporary_root": "/tmp/diamond-w6-independent-native-y2m3b1og"
+}

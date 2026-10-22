@@ -1,0 +1,189 @@
+{
+  "app": "live-workspace",
+  "observations": [
+    {
+      "restarted": "A",
+      "seconds": 0.282
+    },
+    {
+      "logout_all_status": 200
+    },
+    {
+      "status": "PASS",
+      "flow": "Final 0.16.0 Chrome workspace journey",
+      "observed": {
+        "semantic_regions": 8,
+        "labeled_controls": 22,
+        "focus_sequence": [
+          "job-key",
+          "Queue background update",
+          "Check job",
+          "comment-body",
+          "Add comment",
+          "issue_attachment",
+          "Upload attachment",
+          "attachment",
+          "Download attachment",
+          "Delete attachment"
+        ],
+        "focus_outline": "rgb(189, 181, 255) solid 2.66667px with 2.66667px offset",
+        "native_required_validation": {
+          "focused": "title",
+          "invalid": true,
+          "mutation_blocked": true
+        },
+        "stylesheet": "2cc8b89fe02c517ce755676a36b20e686d715bb1e6c0900c9ff637c777c61db3.css",
+        "stylesheet_rules": 31,
+        "hostile_text_literal": true,
+        "script_or_img_nodes": 0,
+        "update_and_comment": true,
+        "job_state": "done",
+        "live_update": true,
+        "node_A_restart_seconds": 0.282,
+        "state_preserved_after_restart": true,
+        "logout_all_cleared_private_state": true,
+        "stale_alert": "Session ended. Sign in again."
+      },
+      "boundary": "Chrome 155 on the disposable loopback two-node/two-worker fixture; file transfer covered by the final W6 replay."
+    },
+    {
+      "jobs": [
+        {
+          "id": "64495bfa13ee98d35daca2503ca0bde56264eceb3d17b28248860dda58397901",
+          "binding": "summarize",
+          "parent": "c1f7ebea00c2a8af99d95fb7cad47ffd474846ebb7a90781a1772612731a2480",
+          "owner": "alice",
+          "state": "done",
+          "attempts": 1,
+          "fence": 1,
+          "outcome": "completed"
+        }
+      ],
+      "receiver": {
+        "attempts": [],
+        "effect_keys": [],
+        "effects": 0,
+        "counts": {}
+      }
+    }
+  ],
+  "binary_sha256": "2e2c3271fcb693eb6987ee1682f7616becd59eed58bf8141ea1b3d2b947a6d8a",
+  "workspace": "2f62794466f6eaa4a42c16f01a1305dc3aa94883ccf37b5e27b121d2a61cbbd7",
+  "project": "2ac789aac8981fee91fb7ba4a1dc45c2024f7ac3ffdf5fa830498b12ff9eef03",
+  "issue": "c1f7ebea00c2a8af99d95fb7cad47ffd474846ebb7a90781a1772612731a2480",
+  "root": "/tmp/diamond-w7-w8-browser-_0qkexvz",
+  "origin": "http://127.0.0.1:39171",
+  "node_B_port": 41481,
+  "shutdowns": [
+    {
+      "node": "A",
+      "exit": -9,
+      "expected_exit": -9,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "worker": "one",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "worker": "two",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "receiver": {
+    "attempts": [],
+    "effect_keys": [],
+    "effects": 0,
+    "counts": {}
+  },
+  "temporary_root_removed": true,
+  "status": "PASS",
+  "browser": "Google Chrome 155.0.8059.39",
+  "receipt": "W10 final Chrome workspace",
+  "source_receipt": "verification/live-workspace_browser_results.json",
+  "round_robin": {
+    "app": "live-workspace",
+    "observations": [
+      {
+        "status": "PASS",
+        "flow": "W10 workspace round-robin",
+        "observed": {
+          "read_seeded_issue_on_B": true,
+          "update_on_B_visible_on_A": true,
+          "comment_on_B_visible_on_A": true,
+          "two_servers": true,
+          "two_workers": true
+        },
+        "boundary": "Actual generated RPC against the freshly copied reference application and shared PostgreSQL."
+      }
+    ],
+    "binary_sha256": "2e2c3271fcb693eb6987ee1682f7616becd59eed58bf8141ea1b3d2b947a6d8a",
+    "workspace": "fe9f43d289c737a66e375737c7954eebea5efff397efb9d0bb5f55382b221c49",
+    "project": "3a86bf3ff36cb5b66f3950b63f6eb805c732f55112d5fc29d027a30f175889ad",
+    "issue": "fadcd06d85f77116ebcb5d8558e21d027cd41602b0a74efdad9ecc3139822e0c",
+    "root": "/tmp/diamond-w7-w8-browser-7a3vmsa9",
+    "origin": "http://127.0.0.1:39171",
+    "node_B_port": 33821,
+    "shutdowns": [
+      {
+        "worker": "one",
+        "exit": 0,
+        "expected_exit": 0,
+        "forced_kill": false,
+        "panic": false
+      },
+      {
+        "worker": "two",
+        "exit": 0,
+        "expected_exit": 0,
+        "forced_kill": false,
+        "panic": false
+      },
+      {
+        "node": "A",
+        "exit": 0,
+        "expected_exit": 0,
+        "forced_kill": false,
+        "panic": false
+      },
+      {
+        "node": "B",
+        "exit": 0,
+        "expected_exit": 0,
+        "forced_kill": false,
+        "panic": false
+      }
+    ],
+    "cleanup_errors": [],
+    "receiver": {
+      "attempts": [],
+      "effect_keys": [],
+      "effects": 0,
+      "counts": {}
+    },
+    "temporary_root_removed": true,
+    "status": "PASS"
+  }
+}

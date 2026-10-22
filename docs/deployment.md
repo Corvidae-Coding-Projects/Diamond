@@ -1,12 +1,12 @@
-# Operable deployment and recovery (W8)
+# Operable deployment and recovery (W8, qualified in W10)
 
-Diamond 0.15.0 provides a current-version Linux profile: two loopback application
+Diamond 0.16.0 provides a current-version Linux profile: two loopback application
 servers and two workers, one dedicated PostgreSQL database per application, a
 private shared filesystem for attachments, an explicit private account mail spool,
 and a maintained HTTPS proxy. It includes deployment validation and encrypted
 quiesced snapshots with isolated restore. No infrastructure is deployed by these
-commands. Retained W9 adversarial/distributed evidence is recorded separately;
-W10 still owns final release gates. This profile does not supply remote/TLS
+commands. Retained W9 adversarial/distributed evidence and the W10 final-artifact
+qualification are recorded separately. This profile does not supply remote/TLS
 PostgreSQL connections, SMTP delivery, object-store replication, online backups,
 or mixed-version upgrades.
 The example service units and edge configuration require operator installation;
@@ -74,6 +74,74 @@ Registration remains disabled unless selected in the source manifest. The privat
 mail spool is a development/operator delivery boundary: W8 does not turn it into
 an SMTP service. Do not promise end-user email delivery without a separately
 configured delivery adapter and verification.
+
+## Clean reference-application walkthrough
+
+Start with a clean checkout, Rust 1.96 or newer, PostgreSQL client/server tools,
+Git, GnuPG and a maintained Caddy executable. The following creates only ignored
+local files. A database administrator must first create one empty database and
+least-privilege role for each application; substitute its local Unix-socket
+connection string without committing it.
+
+```sh
+mkdir -p .diamond/install .diamond/runtime/objects .diamond/runtime/mail
+chmod 700 .diamond/runtime .diamond/runtime/objects .diamond/runtime/mail
+cargo install --locked --path . --root "$PWD/.diamond/install"
+export PATH="$PWD/.diamond/install/bin:$PATH"
+
+diamond new .diamond/workspace --template workspace
+diamond new .diamond/catalog --template catalog
+diamond check .diamond/workspace/diamond.toml
+diamond check .diamond/catalog/diamond.toml
+diamond build .diamond/workspace/diamond.toml --out .diamond/workspace-build
+diamond build .diamond/catalog/diamond.toml --out .diamond/catalog-build
+```
+
+Use separate database variables when operating the two apps. This example runtime
+grants the workspace only its private object root and grants neither application an
+undeclared destination:
+
+```sh
+export DIAMOND_WORKSPACE_POSTGRES='host=/run/postgresql dbname=diamond_workspace user=diamond_workspace'
+export DIAMOND_CATALOG_POSTGRES='host=/run/postgresql dbname=diamond_catalog user=diamond_catalog'
+export DIAMOND_WORKSPACE_RUNTIME="{\"objects\":\"$PWD/.diamond/runtime/objects\",\"http\":{}}"
+export DIAMOND_CATALOG_RUNTIME='{"http":{}}'
+
+diamond project-init .diamond/workspace-build --postgres-env DIAMOND_WORKSPACE_POSTGRES
+diamond project-files-init .diamond/workspace-build --postgres-env DIAMOND_WORKSPACE_POSTGRES --runtime-env DIAMOND_WORKSPACE_RUNTIME
+diamond project-admin-add .diamond/workspace-build --postgres-env DIAMOND_WORKSPACE_POSTGRES --user alice --email alice@example.invalid
+
+diamond project-init .diamond/catalog-build --postgres-env DIAMOND_CATALOG_POSTGRES
+diamond project-admin-add .diamond/catalog-build --postgres-env DIAMOND_CATALOG_POSTGRES --user author --email author@example.invalid
+```
+
+Run each application separately. For either build, set `DIAMOND_POSTGRES` and
+`DIAMOND_RUNTIME` to that application's values, choose two unused loopback ports,
+and run the deployment check. Then start two server commands and two worker
+commands under a supervisor:
+
+```sh
+export BUILD=.diamond/workspace-build
+export DIAMOND_POSTGRES="$DIAMOND_WORKSPACE_POSTGRES"
+export DIAMOND_RUNTIME="$DIAMOND_WORKSPACE_RUNTIME"
+
+diamond project-deploy-check "$BUILD" --postgres-env DIAMOND_POSTGRES --runtime-env DIAMOND_RUNTIME --origin https://app.example.invalid --identity-mailbox "$PWD/.diamond/runtime/mail"
+diamond serve "$BUILD" --listen 127.0.0.1:3001 --origin https://app.example.invalid --postgres-env DIAMOND_POSTGRES --runtime-env DIAMOND_RUNTIME --identity-mailbox "$PWD/.diamond/runtime/mail"
+diamond serve "$BUILD" --listen 127.0.0.1:3002 --origin https://app.example.invalid --postgres-env DIAMOND_POSTGRES --runtime-env DIAMOND_RUNTIME --identity-mailbox "$PWD/.diamond/runtime/mail"
+diamond project-work "$BUILD" --postgres-env DIAMOND_POSTGRES --runtime-env DIAMOND_RUNTIME
+diamond project-work "$BUILD" --postgres-env DIAMOND_POSTGRES --runtime-env DIAMOND_RUNTIME
+```
+
+For the catalog, stop those processes, set `BUILD=.diamond/catalog-build`, map
+`DIAMOND_POSTGRES` and `DIAMOND_RUNTIME` to the catalog variables, choose fresh
+ports, and run the same validation/server/worker sequence.
+
+Point the Caddy template at the two ports, browse only through its canonical HTTPS
+origin, and follow the journey in the scaffolded application README. Verify both
+backends' readiness before routing traffic. Stop all four actors before changing
+the current schema or taking/restoring a snapshot. The retained W10 verifier runs
+this topology with disposable databases and fixtures; these written commands do
+not create or deploy public infrastructure.
 
 ## Validate and operate
 

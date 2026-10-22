@@ -275,54 +275,54 @@ export component Tracker:
     credential = ""
 
   html:
-    <watch channel="issue_changes" parent={selected} into="live" cursor="live_cursor"></watch>
-    <section>
-      <h2>Live activity and background work</h2>
-      <p aria-live="polite">{live}</p>
-      <label for="job-key">Job deduplication key</label><input id="job-key" bind-value={job_key}>
-      <button on-click={queue_job}>Queue background update</button>
-      <button on-click={check_job}>Check job</button><p>{job}</p><p>{job_result}</p>
-      <label for="comment-body">Comment</label><textarea id="comment-body" bind-value={comment}></textarea>
-      <button on-click={comment_issue}>Add comment</button><pre>{comment_result}</pre>
-    </section>
     <main>
-      <section class="panel"><h2>Private attachments</h2>
+      <header class="masthead"><img src="asset:logo" alt="" width="40" height="40"><div><p class="eyebrow">DIAMOND · JOBS AND LIVE APPLICATIONS</p><h1>Live workspace</h1></div></header>
+      <watch channel="issue_changes" parent={selected} into="live" cursor="live_cursor"></watch>
+      <section class="panel" aria-labelledby="activity-heading">
+        <h2 id="activity-heading">Live activity and background work</h2>
+        <p id="live-status" role="status" aria-live="polite">{live}</p>
+        <label for="job-key">Job deduplication key</label><input id="job-key" bind-value={job_key}>
+        <button on-click={queue_job} aria-controls="job-status">Queue background update</button>
+        <button on-click={check_job} aria-controls="job-status">Check job</button><p id="job-status" role="status" aria-live="polite">{job} {job_result}</p>
+        <label for="comment-body">Comment</label><textarea id="comment-body" bind-value={comment}></textarea>
+        <button on-click={comment_issue} aria-controls="comment-status">Add comment</button><pre id="comment-status" role="status" aria-live="polite">{comment_result}</pre>
+      </section>
+      <section class="panel" aria-labelledby="attachments-heading"><h2 id="attachments-heading">Private attachments</h2>
         <p>Choose an issue, then select a file up to 8 MiB.</p>
         <label for="issue_attachment">Attachment</label><input id="issue_attachment" type="file">
-        <button on-click={upload_file}>Upload attachment</button>
+        <button on-click={upload_file} aria-controls="attachment_status">Upload attachment</button>
         <label for="attachment">Attachment ID</label><input id="attachment" bind-value={attachment}>
-        <button on-click={download_file}>Download attachment</button><button on-click={delete_file}>Delete attachment</button>
+        <button on-click={download_file} aria-controls="attachment_status">Download attachment</button><button on-click={delete_file} aria-controls="attachment_status">Delete attachment</button>
         <label for="external_path">Integration path</label><input id="external_path" bind-value={external_path}>
-        <button on-click={call_external}>Call inventory</button>
-        <pre id="attachment_status">{attachment_status}</pre>
+        <button on-click={call_external} aria-controls="attachment_status">Call inventory</button>
+        <pre id="attachment_status" role="status" aria-live="polite">{attachment_status}</pre>
       </section>
-      <header class="masthead"><img src="asset:logo" alt="Diamond" width="40" height="40"><div><p class="eyebrow">DIAMOND · JOBS AND LIVE APPLICATIONS</p><h1>Live workspace</h1></div></header>
       <when test={pending}><p role="status">Working…</p></when>
       <when test={error != ""}><p role="alert">{error}</p></when>
-      <section class="panel"><h2>Account</h2>
-        <label for="username">Username</label><input id="username" bind-value={username}>
+      <section class="panel" aria-labelledby="account-heading"><h2 id="account-heading">Account</h2>
+        <label for="username">Username</label><input id="username" autocomplete="username" bind-value={username}>
         <label for="password">Password</label><input id="password" type="password" bind-value={password}>
-        <button on-click={sign_in}>Sign in</button><button on-click={sign_out}>Sign out</button><p id="signed-in">{signed_in}</p>
+        <button on-click={sign_in} aria-controls="signed-in">Sign in</button><button on-click={sign_out} aria-controls="signed-in">Sign out</button><p id="signed-in" role="status" aria-live="polite">{signed_in}</p>
       </section>
-      <section class="panel"><h2>Enrollment and recovery</h2>
+      <section class="panel" aria-labelledby="enrollment-heading"><h2 id="enrollment-heading">Enrollment and recovery</h2>
         <p>This development app delivers one-use instructions to the private server mail directory. Paste the delivered code here.</p>
-        <label for="email">Email</label><input id="email" type="text" bind-value={email}>
+        <label for="email">Email</label><input id="email" type="text" autocomplete="email" bind-value={email}>
         <label for="invitation">Invitation code</label><input id="invitation" type="password" bind-value={invitation}>
         <button on-click={register}>Register</button><button on-click={resend}>Resend verification</button>
         <label for="challenge">Verification or recovery code</label><input id="challenge" type="password" bind-value={challenge}>
         <button on-click={verify}>Verify email</button><button on-click={recover}>Request password recovery</button>
         <button on-click={reset_password}>Reset password</button>
-        <label for="current-password">Current password</label><input id="current-password" type="password" bind-value={current_password}>
+        <label for="current-password">Current password</label><input id="current-password" type="password" autocomplete="current-password" bind-value={current_password}>
         <button on-click={change_password}>Change password</button><button on-click={logout_all}>End all sessions</button>
         <p id="account-status" role="status">{account_status}</p>
       </section>
-      <section class="panel"><h2>Administrator</h2>
+      <section class="panel" aria-labelledby="administrator-heading"><h2 id="administrator-heading">Administrator</h2>
         <p>These controls require a provisioned account administrator.</p>
         <button on-click={invite}>Invite email address</button>
         <label for="account-target">Account username</label><input id="account-target" bind-value={account_target}>
         <button on-click={disable_account}>Disable account</button><button on-click={enable_account}>Enable account</button>
       </section>
-      <section class="panel"><h2>API credentials</h2>
+      <section class="panel" aria-labelledby="credentials-heading"><h2 id="credentials-heading">API credentials</h2>
         <label for="scopes">Workspace scope JSON</label><input id="scopes" bind-value={scopes} placeholder="Workspace scope allowlist">
         <button on-click={create_credential}>Create one-hour read credential</button>
         <pre id="credential">{credential}</pre><button on-click={clear_credential}>Hide credential</button>
@@ -330,7 +330,7 @@ export component Tracker:
         <label for="credential-id">Credential ID</label><input id="credential-id" bind-value={credential_id}>
         <button on-click={revoke_credential}>Revoke credential</button>
       </section>
-      <section class="panel"><h2>Workspace and project</h2>
+      <section class="panel" aria-labelledby="workspace-heading"><h2 id="workspace-heading">Workspace and project</h2>
         <label for="label">Name</label><input id="label" bind-value={label} maxlength="80">
         <button on-click={make_workspace}>Create workspace</button>
         <label for="workspace">Workspace ID</label><input id="workspace" bind-value={workspace}>
@@ -341,7 +341,7 @@ export component Tracker:
         <label for="member-id">Membership ID</label><input id="member-id" bind-value={member_id}>
         <button on-click={revoke}>Revoke member</button>
       </section>
-      <section class="panel"><h2>Issues</h2>
+      <section class="panel" aria-labelledby="issues-heading"><h2 id="issues-heading">Issues</h2>
         <form on-submit={create}>
           <label for="title">Title</label><input id="title" bind-value={title} required="true" maxlength="120">
           <label for="details">Details</label><textarea id="details" bind-value={details}></textarea>
@@ -349,7 +349,7 @@ export component Tracker:
         </form>
         <label for="selected">Issue ID</label><input id="selected" bind-value={selected}>
         <button on-click={read}>Read</button><button on-click={update}>Save changes</button><button on-click={delete}>Delete</button>
-        <pre id="issue-output">{output}</pre>
+        <pre id="issue-output" role="status" aria-live="polite">{output}</pre>
         <button on-click={refresh}>First page</button><button on-click={next}>Next page</button><p id="total">{total}</p>
         <each items={page.cards} as="card" key={card.id}><use component="Card" issue={card}></use></each>
         <button on-click={join}>Show projects</button><pre id="joined">{joined}</pre>

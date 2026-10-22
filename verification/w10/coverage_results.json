@@ -1,0 +1,337 @@
+{
+  "status": "PASS",
+  "binary_sha256": "2e2c3271fcb693eb6987ee1682f7616becd59eed58bf8141ea1b3d2b947a6d8a",
+  "library_sha256": "d6a40dcfdc295292d976922aa6cf5cfe2d4db9659a9425d6fc95377cef330a68",
+  "production_modules": {
+    "language and checking": [
+      "checker.rs",
+      "checker/integrations.rs",
+      "hir.rs",
+      "lexer.rs",
+      "parser.rs",
+      "syntax.rs",
+      "template.rs"
+    ],
+    "single-file runtime": [
+      "accounts.rs",
+      "auth.rs",
+      "authority.rs",
+      "browser_auth.rs",
+      "data.rs",
+      "diagnostic_help.rs",
+      "error.rs",
+      "eval.rs",
+      "forms.rs",
+      "host.rs",
+      "http.rs",
+      "integrations.rs",
+      "policy.rs",
+      "policy/postgres.rs",
+      "standard.rs",
+      "value.rs",
+      "web.rs"
+    ],
+    "public API and CLI": [
+      "lib.rs",
+      "main.rs"
+    ],
+    "project compiler and frontend": [
+      "project/api.rs",
+      "project/artifact.rs",
+      "project/assets.rs",
+      "project/browser.rs",
+      "project/lower.rs",
+      "project/lower/asynchronous.rs",
+      "project/lower/reach.rs",
+      "project/mod.rs",
+      "project/render.rs",
+      "project/resolve.rs",
+      "project/rpc.rs",
+      "project/server.rs",
+      "project/wire.rs"
+    ],
+    "connected transport and deployment": [
+      "project/connected.rs",
+      "project/connected/profiles.rs",
+      "project/deployment.rs",
+      "project/deployment/backup.rs"
+    ],
+    "shared identity": [
+      "project/accounts/credentials.rs",
+      "project/accounts/delivery.rs",
+      "project/accounts/enrollment.rs",
+      "project/accounts/mod.rs",
+      "project/accounts/rates.rs",
+      "project/accounts/routes.rs",
+      "project/accounts/schema.rs",
+      "project/accounts/sessions.rs",
+      "project/identity.rs"
+    ],
+    "relational storage": [
+      "project/storage.rs",
+      "relational/config.rs",
+      "relational/migration.rs",
+      "relational/mod.rs",
+      "relational/pool.rs",
+      "relational/query.rs",
+      "relational/restriction.rs",
+      "relational/runtime.rs",
+      "relational/schema.rs",
+      "relational/types.rs"
+    ],
+    "private files": [
+      "project/files.rs",
+      "project/files/operations.rs",
+      "project/files/transport.rs"
+    ],
+    "jobs and integrations": [
+      "project/jobs.rs",
+      "project/jobs/worker.rs"
+    ],
+    "live events": [
+      "project/events.rs"
+    ]
+  },
+  "production_module_count": 68,
+  "missing_modules": [],
+  "nonexistent_modules": [],
+  "duplicate_module_assignments": [],
+  "cli_commands": [
+    "--help",
+    "--version",
+    "build",
+    "check",
+    "db-init",
+    "explain",
+    "new",
+    "project-admin-add",
+    "project-audit",
+    "project-backfill",
+    "project-backup",
+    "project-deploy-check",
+    "project-files-clean",
+    "project-files-init",
+    "project-init",
+    "project-migrate",
+    "project-recover",
+    "project-restore",
+    "project-status",
+    "project-user-add",
+    "project-work",
+    "run",
+    "serve",
+    "user-add"
+  ],
+  "absent_cli_commands": [],
+  "reference_operations": [
+    "catalog:api:public_page",
+    "catalog:api:read_article",
+    "catalog:event:article_changes",
+    "catalog:job:notify",
+    "catalog:rpc:create_article",
+    "catalog:rpc:edit_article",
+    "catalog:rpc:job_status",
+    "catalog:rpc:public_page",
+    "catalog:rpc:publish_article",
+    "catalog:rpc:read_article",
+    "live-workspace:api:delete_issue",
+    "live-workspace:api:issue_page",
+    "live-workspace:api:joined_projects",
+    "live-workspace:api:read_issue",
+    "live-workspace:api:update_issue",
+    "live-workspace:event:issue_changes",
+    "live-workspace:file:issue_files",
+    "live-workspace:job:summarize",
+    "live-workspace:rpc:create_comment",
+    "live-workspace:rpc:create_issue",
+    "live-workspace:rpc:create_project",
+    "live-workspace:rpc:create_workspace",
+    "live-workspace:rpc:delete_issue",
+    "live-workspace:rpc:external_get",
+    "live-workspace:rpc:external_post",
+    "live-workspace:rpc:grant_editor",
+    "live-workspace:rpc:issue_page",
+    "live-workspace:rpc:job_status",
+    "live-workspace:rpc:joined_projects",
+    "live-workspace:rpc:list_comments",
+    "live-workspace:rpc:queue_summary",
+    "live-workspace:rpc:read_issue",
+    "live-workspace:rpc:revoke_member",
+    "live-workspace:rpc:update_issue"
+  ],
+  "acceptance_criteria": {
+    "AC-1": [
+      "checkpoint-six",
+      "w9-hostile"
+    ],
+    "AC-2": [
+      "w3",
+      "checkpoint-six"
+    ],
+    "AC-3": [
+      "w3",
+      "workspace-browser",
+      "catalog-browser"
+    ],
+    "AC-4": [
+      "w3"
+    ],
+    "AC-5": [
+      "w3",
+      "w5",
+      "w9-hostile"
+    ],
+    "AC-6": [
+      "w5",
+      "w6",
+      "w7-w8",
+      "w9-hostile"
+    ],
+    "AC-7": [
+      "w7-w8",
+      "capacity",
+      "w9-hostile"
+    ],
+    "AC-8": [
+      "w5",
+      "w7-w8",
+      "w9-hostile"
+    ],
+    "AC-9": [
+      "w7-w8",
+      "w9-hostile"
+    ],
+    "AC-10": [
+      "w5",
+      "w9-hostile",
+      "workspace-browser"
+    ],
+    "AC-11": [
+      "w3",
+      "accessibility",
+      "workspace-browser",
+      "catalog-browser"
+    ],
+    "AC-12": [
+      "w6",
+      "w9-hostile",
+      "workspace-browser"
+    ],
+    "AC-13": [
+      "w6",
+      "w9-hostile"
+    ],
+    "AC-14": [
+      "w7-w8",
+      "w9-hostile",
+      "capacity"
+    ],
+    "AC-15": [
+      "w7-w8",
+      "w9-hostile",
+      "capacity"
+    ],
+    "AC-16": [
+      "w6",
+      "checkpoint-six"
+    ],
+    "AC-17": [
+      "w7-w8",
+      "w9-hostile",
+      "capacity"
+    ],
+    "AC-18": [
+      "checkpoint-six",
+      "accessibility",
+      "workspace-browser",
+      "catalog-browser"
+    ],
+    "AC-19": [
+      "w7-w8",
+      "workspace-browser",
+      "catalog-browser"
+    ],
+    "AC-20": [
+      "checkpoint-six",
+      "w3",
+      "w5",
+      "w6",
+      "w7-w8",
+      "w9-hostile",
+      "capacity",
+      "accessibility",
+      "dependencies",
+      "workspace-browser",
+      "catalog-browser"
+    ]
+  },
+  "evidence": {
+    "checkpoint-six": {
+      "path": "verification/w10/checkpoint_six_results.json",
+      "present": true,
+      "status": "PASS",
+      "sha256": "fe271f98b433fb1517cecfc34d64a574e5d2b316d81dc35aee2425381bc53b27"
+    },
+    "w3": {
+      "path": "verification/w10/w3_results.json",
+      "present": true,
+      "status": "PASS",
+      "sha256": "d6d6d172a3ebc7d298f8afa88ed65ce3f3af91b0843114179a770ee65aed2bdc"
+    },
+    "w5": {
+      "path": "verification/w10/w5_results.json",
+      "present": true,
+      "status": "PASS",
+      "sha256": "729a154a3270f00a457f07d739c39260fb24375b70b1324c0d6783b2eb74a87b"
+    },
+    "w6": {
+      "path": "verification/w10/w6/results.json",
+      "present": true,
+      "status": "PASS",
+      "sha256": "f6fede96d1ec83921a775cb8966ba643d186f674cf4a4d8d19d4ebe8fac5dbbf"
+    },
+    "w7-w8": {
+      "path": "verification/w10/w7_w8_results.json",
+      "present": true,
+      "status": "PASS",
+      "sha256": "2ad6c30eb219cc1428eab40380671e7f11ca0a1f7ee1f159ab11b2dbd5f21203"
+    },
+    "w9-hostile": {
+      "path": "verification/w10/w9_campaign_results.json",
+      "present": true,
+      "status": "PASS",
+      "sha256": "f7a56f5275299139d54eee35196dda6c4dbc218a1a0d7f903792b00ee27dbb5e"
+    },
+    "capacity": {
+      "path": "verification/w10/capacity_results.json",
+      "present": true,
+      "status": "PASS",
+      "sha256": "dc973b1be15a0b5c2484e65ee8a9a19a182045d4c8ab7bce111299d4992aa2c7"
+    },
+    "accessibility": {
+      "path": "verification/w10/accessibility_results.json",
+      "present": true,
+      "status": "PASS",
+      "sha256": "185d4855357cca86a7fa7fe69f786e775dcf56ef5269577ef1f4220f48353d76"
+    },
+    "dependencies": {
+      "path": "verification/w10/dependency_results.json",
+      "present": true,
+      "status": "PASS",
+      "sha256": "7ba175c69c5a73d9454fa71de19fe842d2f41d8aea64b1712206cddc00abd6b3"
+    },
+    "workspace-browser": {
+      "path": "verification/w10/workspace_browser_results.json",
+      "present": true,
+      "status": "PASS",
+      "sha256": "5486e700dc0b84be9642c0769133bd0c89849d739c805205355a75785296db74"
+    },
+    "catalog-browser": {
+      "path": "verification/w10/catalog_browser_results.json",
+      "present": true,
+      "status": "PASS",
+      "sha256": "f04ffe84b633072b93c79e247423dc9048e587bbc357169fdfdb027fade47d9a"
+    }
+  },
+  "failures": []
+}

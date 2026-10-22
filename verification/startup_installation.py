@@ -110,7 +110,7 @@ def main() -> int:
                 (observed["exit"] == 0, "installed version failed"),
                 (
                     observed["stdout"]
-                    == f"diamond {VERSION} (W9 adversarially exercised web application profile)\n",
+                    == f"diamond {VERSION} (W10 release-qualified web application profile)\n",
                     "installed version mismatch",
                 ),
             ],
@@ -123,7 +123,7 @@ def main() -> int:
                 (observed["exit"] == 0, "installed help failed"),
                 ("diamond explain CODE" in str(observed["stdout"]), "explain absent from help"),
                 (
-                    "W9 adversarially exercised web application profile"
+                    "W10 release-qualified web application profile"
                     in str(observed["stdout"]),
                     "checkpoint label mismatch",
                 ),
@@ -134,7 +134,26 @@ def main() -> int:
         for template in ["workspace", "catalog"]:
             project = directory / ("installed-" + template)
             observed = run(binary, ["new", str(project), "--template", template], cwd=directory)
-            record("installed_new_" + template, observed, [(observed["exit"] == 0, "installed scaffold failed"), ((project / "diamond.toml").is_file(), "embedded manifest missing")])
+            reference = ROOT / "examples" / ("live-workspace" if template == "workspace" else "catalog")
+            reference_hashes = {
+                str(path.relative_to(reference)): digest(path)
+                for path in sorted(reference.rglob("*"))
+                if path.is_file()
+            }
+            scaffold_hashes = {
+                str(path.relative_to(project)): digest(path)
+                for path in sorted(project.rglob("*"))
+                if path.is_file()
+            }
+            record(
+                "installed_new_" + template,
+                {"command": observed, "reference_sha256": reference_hashes, "scaffold_sha256": scaffold_hashes},
+                [
+                    (observed["exit"] == 0, "installed scaffold failed"),
+                    ((project / "diamond.toml").is_file(), "embedded manifest missing"),
+                    (scaffold_hashes == reference_hashes, "installed scaffold differs from the qualified reference application"),
+                ],
+            )
             observed = run(binary, ["build", str(project / "diamond.toml"), "--out", str(directory / (template + "-build"))], cwd=directory)
             record("installed_build_" + template, observed, [(observed["exit"] == 0, "installed scaffold build failed")])
 

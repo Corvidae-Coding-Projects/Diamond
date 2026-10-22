@@ -1,6 +1,6 @@
 # Durable jobs and live applications (W7)
 
-Diamond 0.15.0 provides a PostgreSQL transactional outbox, bounded workers, typed durable
+Diamond 0.16.0 provides a PostgreSQL transactional outbox, bounded workers, typed durable
 server events and generated browser subscriptions. This is a Linux, accounts-v1,
 relational-v1 profile. It does not provide detached Diamond tasks or exactly-once
 external execution. See [deployment and recovery](deployment.md).

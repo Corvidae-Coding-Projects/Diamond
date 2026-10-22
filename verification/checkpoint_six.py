@@ -27,6 +27,9 @@ def inputs() -> dict[str, str]:
     paths = [
         ROOT / "Cargo.toml",
         ROOT / "Cargo.lock",
+        ROOT / "deny.toml",
+        ROOT / "LICENSE",
+        ROOT / ".gitignore",
         ROOT / "README.md",
         ROOT / "CHECKPOINTS.md",
         ROOT / "IMPLEMENTATION_PLAN.md",

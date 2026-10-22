@@ -194,6 +194,8 @@ impl Template<'_> {
             "placeholder",
             "maxlength",
             "aria-label",
+            "aria-labelledby",
+            "aria-describedby",
         ]
         .contains(&name)
             || self.browser
@@ -220,7 +222,10 @@ impl Template<'_> {
                     "checked",
                     "role",
                     "aria-live",
-                    "aria-describedby",
+                    "aria-current",
+                    "aria-invalid",
+                    "aria-controls",
+                    "autocomplete",
                     "width",
                     "height",
                 ]
@@ -238,7 +243,8 @@ impl Template<'_> {
         if !([
             "html", "head", "title", "body", "main", "header", "footer", "nav", "section",
             "article", "div", "span", "p", "h1", "h2", "h3", "ul", "ol", "li", "a", "strong", "em",
-            "pre", "code", "form", "label", "input", "textarea", "button", "br", "hr",
+            "pre", "code", "form", "fieldset", "legend", "label", "input", "textarea", "button",
+            "br", "hr",
         ]
         .contains(&tag)
             || (self.browser

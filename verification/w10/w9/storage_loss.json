@@ -1,0 +1,89 @@
+{
+  "status": "PASS",
+  "binary_sha256": "2e2c3271fcb693eb6987ee1682f7616becd59eed58bf8141ea1b3d2b947a6d8a",
+  "error": null,
+  "results": [
+    {
+      "name": "published-object-cross-node-control",
+      "status": "PASS",
+      "observed": {
+        "transfer": 200,
+        "finish": 200,
+        "download": 200,
+        "bytes": 284,
+        "sha256": "76e648456d1091df1ff1908d26a723a9c41c4d62faaba8a6d413aac4ebad20d1"
+      },
+      "expected": "a real cross-node upload is finalized and read exactly before fault injection"
+    },
+    {
+      "name": "same-length-corruption-fails-closed-and-recovers",
+      "status": "PASS",
+      "observed": {
+        "corrupt_statuses": [
+          403,
+          403
+        ],
+        "corrupt_body_lengths": [
+          18,
+          18
+        ],
+        "repaired_status": 200,
+        "repaired_sha256": "76e648456d1091df1ff1908d26a723a9c41c4d62faaba8a6d413aac4ebad20d1"
+      },
+      "expected": "same-length corruption never streams, and restoring the recorded bytes restores service without restart"
+    },
+    {
+      "name": "missing-object-fails-closed-and-recovers",
+      "status": "PASS",
+      "observed": {
+        "missing_statuses": [
+          503,
+          503
+        ],
+        "repaired_status": 200,
+        "repaired_sha256": "76e648456d1091df1ff1908d26a723a9c41c4d62faaba8a6d413aac4ebad20d1"
+      },
+      "expected": "missing owned bytes never fall back to database metadata or another path, and exact repair is live"
+    },
+    {
+      "name": "live-root-replacement-fails-closed-and-recovers",
+      "status": "PASS",
+      "observed": {
+        "replacement_ready": 403,
+        "replacement_download": 503,
+        "replacement_begin": 503,
+        "row_counts": [
+          1,
+          1
+        ],
+        "replacement_files": [],
+        "restored_ready": 200,
+        "restored_download": 200,
+        "restored_sha256": "76e648456d1091df1ff1908d26a723a9c41c4d62faaba8a6d413aac4ebad20d1"
+      },
+      "expected": "a replaced shared root grants no readiness, reads, reservations, or fallback bytes; restoring its identity recovers both live nodes"
+    }
+  ],
+  "shutdowns": [
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "http_requests": 19,
+  "elapsed_seconds": 2.1815687360067386,
+  "command": "python3 verification/w9_independent/storage_loss.py --binary /tmp/diamond-w10-w9-campaign-f_nk909m/diamond",
+  "oracle": "ORACLES.md F1",
+  "temporary_root_removed": true
+}

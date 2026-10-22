@@ -20,8 +20,8 @@ def main():
         if options.app!='catalog':s.files_cli(initialize=True)
         s.cli('project-admin-add',s.project,'--postgres-env',ENV_NAME,'--user','alice','--email','alice@browser.invalid','--password-stdin',input=PASSWORD+'\n')
         contract,_=s.build();s.start_node('A');s.start_node('B');c=Client(s,contract['rpc_id']);c.login('alice',PASSWORD)
-        def rpc(name,*args):
-            status,value=c.rpc(name,*args)
+        def rpc(name,*args,node='A'):
+            status,value=c.rpc(name,*args,node=node)
             if status!=200:raise AssertionError((name,status,value))
             return value['value']
         if options.app=='catalog':report['article']=rpc('create_article','Private browser draft 雪','Hostile <script> remains literal text.')
@@ -32,7 +32,7 @@ def main():
         for line in sys.stdin:
             request=json.loads(line)
             if request.get('command')=='stop':break
-            if request.get('command')=='rpc':print(json.dumps({'value':rpc(request['name'],*request.get('arguments',[]))}),flush=True)
+            if request.get('command')=='rpc':print(json.dumps({'node':request.get('node','A'),'value':rpc(request['name'],*request.get('arguments',[]),node=request.get('node','A'))}),flush=True)
             if request.get('command')=='restart_A':
                 before=__import__('time').monotonic();s.stop_node('A',kill=True);s.start_node('A')
                 result={'restarted':'A','seconds':round(__import__('time').monotonic()-before,3)};report['observations'].append(result);path.write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(result),flush=True)

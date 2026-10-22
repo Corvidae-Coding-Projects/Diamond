@@ -1,0 +1,1075 @@
+{
+  "schema": 1,
+  "started_utc": "2026-10-22T22:45:09.794925+00:00",
+  "binary_sha256": "2e2c3271fcb693eb6987ee1682f7616becd59eed58bf8141ea1b3d2b947a6d8a",
+  "cases": [
+    {
+      "name": "valid_separator",
+      "observed": {
+        "arguments": [
+          "run",
+          "/tmp/diamond-cp6-diagnostics-qqm2xu0k/valid_separator.dia"
+        ],
+        "exit": 0,
+        "seconds": 0.002563,
+        "stdout": "1002\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "valid_crlf",
+      "observed": {
+        "arguments": [
+          "check",
+          "/tmp/diamond-cp6-diagnostics-qqm2xu0k/valid_crlf.dia"
+        ],
+        "exit": 0,
+        "seconds": 0.001754,
+        "stdout": "checked /tmp/diamond-cp6-diagnostics-qqm2xu0k/valid_crlf.dia: 1 functions, 0 records, 0 resources, 0 routes, 0 policies\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "valid_comments",
+      "observed": {
+        "arguments": [
+          "check",
+          "/tmp/diamond-cp6-diagnostics-qqm2xu0k/valid_comments.dia"
+        ],
+        "exit": 0,
+        "seconds": 0.001655,
+        "stdout": "checked /tmp/diamond-cp6-diagnostics-qqm2xu0k/valid_comments.dia: 1 functions, 0 records, 0 resources, 0 routes, 0 policies\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "empty",
+      "observed": {
+        "arguments": [
+          "check",
+          "/tmp/diamond-cp6-diagnostics-qqm2xu0k/empty.dia"
+        ],
+        "exit": 1,
+        "seconds": 0.001488,
+        "stdout": "",
+        "stderr": "error[D010]: expected a declaration; source is empty\n --> /tmp/diamond-cp6-diagnostics-qqm2xu0k/empty.dia:1:1\n"
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "tab",
+      "observed": {
+        "arguments": [
+          "check",
+          "/tmp/diamond-cp6-diagnostics-qqm2xu0k/tab.dia"
+        ],
+        "exit": 1,
+        "seconds": 0.001447,
+        "stdout": "",
+        "stderr": "error[D001]: tabs are not supported; indent with spaces\n --> /tmp/diamond-cp6-diagnostics-qqm2xu0k/tab.dia:2:1\n  |\n2 | �42\n  | ^\n"
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "indent",
+      "observed": {
+        "arguments": [
+          "check",
+          "/tmp/diamond-cp6-diagnostics-qqm2xu0k/indent.dia"
+        ],
+        "exit": 1,
+        "seconds": 0.001392,
+        "stdout": "",
+        "stderr": "error[D002]: indentation does not match an enclosing block\n --> /tmp/diamond-cp6-diagnostics-qqm2xu0k/indent.dia:3:4\n  |\n3 |    2\n  |    ^\n"
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "repeated_separator",
+      "observed": {
+        "arguments": [
+          "check",
+          "/tmp/diamond-cp6-diagnostics-qqm2xu0k/repeated_separator.dia"
+        ],
+        "exit": 1,
+        "seconds": 0.001336,
+        "stdout": "",
+        "stderr": "error[D004]: integer separators must be single underscores between digits\n --> /tmp/diamond-cp6-diagnostics-qqm2xu0k/repeated_separator.dia:2:4\n  |\n2 |   1__2\n  |    ^\n"
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "trailing_separator",
+      "observed": {
+        "arguments": [
+          "check",
+          "/tmp/diamond-cp6-diagnostics-qqm2xu0k/trailing_separator.dia"
+        ],
+        "exit": 1,
+        "seconds": 0.001332,
+        "stdout": "",
+        "stderr": "error[D004]: integer separators must be single underscores between digits\n --> /tmp/diamond-cp6-diagnostics-qqm2xu0k/trailing_separator.dia:2:4\n  |\n2 |   1_\n  |    ^\n"
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "separator_before_name",
+      "observed": {
+        "arguments": [
+          "check",
+          "/tmp/diamond-cp6-diagnostics-qqm2xu0k/separator_before_name.dia"
+        ],
+        "exit": 1,
+        "seconds": 0.001146,
+        "stdout": "",
+        "stderr": "error[D004]: integer separators must be single underscores between digits\n --> /tmp/diamond-cp6-diagnostics-qqm2xu0k/separator_before_name.dia:2:4\n  |\n2 |   1_foo\n  |    ^\n"
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "integer_overflow",
+      "observed": {
+        "arguments": [
+          "check",
+          "/tmp/diamond-cp6-diagnostics-qqm2xu0k/integer_overflow.dia"
+        ],
+        "exit": 1,
+        "seconds": 0.001377,
+        "stdout": "",
+        "stderr": "error[D004]: integer exceeds signed 64-bit range\n --> /tmp/diamond-cp6-diagnostics-qqm2xu0k/integer_overflow.dia:2:3\n  |\n2 |   9223372036854775808\n  |   ^\n"
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "unterminated_string",
+      "observed": {
+        "arguments": [
+          "check",
+          "/tmp/diamond-cp6-diagnostics-qqm2xu0k/unterminated_string.dia"
+        ],
+        "exit": 1,
+        "seconds": 0.001141,
+        "stdout": "",
+        "stderr": "error[D005]: unterminated string literal\n --> /tmp/diamond-cp6-diagnostics-qqm2xu0k/unterminated_string.dia:2:3\n  |\n2 |   \"open\n  |   ^\n"
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "unsupported_token",
+      "observed": {
+        "arguments": [
+          "check",
+          "/tmp/diamond-cp6-diagnostics-qqm2xu0k/unsupported_token.dia"
+        ],
+        "exit": 1,
+        "seconds": 0.001151,
+        "stdout": "",
+        "stderr": "error[D900]: unsupported feature: token '&'\n --> /tmp/diamond-cp6-diagnostics-qqm2xu0k/unsupported_token.dia:2:5\n  |\n2 |   1 & 2\n  |     ^\n"
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "unicode_column",
+      "observed": {
+        "arguments": [
+          "check",
+          "/tmp/diamond-cp6-diagnostics-qqm2xu0k/unicode_column.dia"
+        ],
+        "exit": 1,
+        "seconds": 0.001205,
+        "stdout": "",
+        "stderr": "error[D010]: expected Newline, found Symbol(\"@\")\n --> /tmp/diamond-cp6-diagnostics-qqm2xu0k/unicode_column.dia:2:10\n  |\n2 |   \"café\" @\n  |          ^\n"
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "bidi_excerpt",
+      "observed": {
+        "arguments": [
+          "check",
+          "/tmp/diamond-cp6-diagnostics-qqm2xu0k/bidi_excerpt.dia"
+        ],
+        "exit": 1,
+        "seconds": 0.001373,
+        "stdout": "",
+        "stderr": "error[D010]: expected Newline, found Symbol(\"@\")\n --> /tmp/diamond-cp6-diagnostics-qqm2xu0k/bidi_excerpt.dia:2:7\n  |\n2 |   \"�\" @\n  |       ^\n"
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "unclosed_group",
+      "observed": {
+        "arguments": [
+          "check",
+          "/tmp/diamond-cp6-diagnostics-qqm2xu0k/unclosed_group.dia"
+        ],
+        "exit": 1,
+        "seconds": 0.001424,
+        "stdout": "",
+        "stderr": "error[D010]: expected Symbol(\")\"), found Newline\n --> /tmp/diamond-cp6-diagnostics-qqm2xu0k/unclosed_group.dia:2:9\n  |\n2 |   (1 + 2\n  |         ^\n"
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "html_interpolation",
+      "observed": {
+        "arguments": [
+          "check",
+          "/tmp/diamond-cp6-diagnostics-qqm2xu0k/html_interpolation.dia"
+        ],
+        "exit": 1,
+        "seconds": 0.001418,
+        "stdout": "",
+        "stderr": "error[D112]: unknown value missing; authority and functions cannot be captured as ordinary values in this subset\n --> /tmp/diamond-cp6-diagnostics-qqm2xu0k/html_interpolation.dia:3:14\n  |\n3 |     <p>café {missing}</p>\n  |              ^\n"
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "html_closing_tag",
+      "observed": {
+        "arguments": [
+          "check",
+          "/tmp/diamond-cp6-diagnostics-qqm2xu0k/html_closing_tag.dia"
+        ],
+        "exit": 1,
+        "seconds": 0.001406,
+        "stdout": "",
+        "stderr": "error[D020]: unexpected closing tag </div>\n --> /tmp/diamond-cp6-diagnostics-qqm2xu0k/html_closing_tag.dia:3:12\n  |\n3 |     <p>text</div>\n  |            ^\n"
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "empty_interpolation",
+      "observed": {
+        "arguments": [
+          "check",
+          "/tmp/diamond-cp6-diagnostics-qqm2xu0k/empty_interpolation.dia"
+        ],
+        "exit": 1,
+        "seconds": 0.001345,
+        "stdout": "",
+        "stderr": "error[D010]: expected an expression, found End\n --> /tmp/diamond-cp6-diagnostics-qqm2xu0k/empty_interpolation.dia:3:9\n  |\n3 |     <p>{}</p>\n  |         ^\n"
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "multiline_interpolation_location",
+      "observed": {
+        "arguments": [
+          "check",
+          "/tmp/diamond-cp6-diagnostics-qqm2xu0k/multiline_interpolation_location.dia"
+        ],
+        "exit": 1,
+        "seconds": 0.001305,
+        "stdout": "",
+        "stderr": "error[D112]: unknown value missing; authority and functions cannot be captured as ordinary values in this subset\n --> /tmp/diamond-cp6-diagnostics-qqm2xu0k/multiline_interpolation_location.dia:4:7\n  |\n4 |       missing}</p>\n  |       ^\n"
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "html_tab",
+      "observed": {
+        "arguments": [
+          "check",
+          "/tmp/diamond-cp6-diagnostics-qqm2xu0k/html_tab.dia"
+        ],
+        "exit": 1,
+        "seconds": 0.001315,
+        "stdout": "",
+        "stderr": "error[D001]: tabs are not supported; indent with spaces\n --> /tmp/diamond-cp6-diagnostics-qqm2xu0k/html_tab.dia:3:14\n  |\n3 |     <p>before�after</p>\n  |              ^\n"
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "comment_only",
+      "observed": {
+        "arguments": [
+          "check",
+          "/tmp/diamond-cp6-diagnostics-qqm2xu0k/comment_only.dia"
+        ],
+        "exit": 1,
+        "seconds": 0.001555,
+        "stdout": "",
+        "stderr": "error[D010]: expected a declaration; source is empty\n --> /tmp/diamond-cp6-diagnostics-qqm2xu0k/comment_only.dia:3:1\n"
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "unknown_type",
+      "observed": {
+        "arguments": [
+          "check",
+          "/tmp/diamond-cp6-diagnostics-qqm2xu0k/unknown_type.dia"
+        ],
+        "exit": 1,
+        "seconds": 0.00126,
+        "stdout": "",
+        "stderr": "error[D103]: unknown type Missing\n --> /tmp/diamond-cp6-diagnostics-qqm2xu0k/unknown_type.dia:1:1\n  |\n1 | type MissingAlias = Missing\n  | ^\n"
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "unsupported_type",
+      "observed": {
+        "arguments": [
+          "check",
+          "/tmp/diamond-cp6-diagnostics-qqm2xu0k/unsupported_type.dia"
+        ],
+        "exit": 1,
+        "seconds": 0.001358,
+        "stdout": "",
+        "stderr": "error[D900]: unsupported feature: type Generic(\"Map\", [Named(\"Int\")])\n --> /tmp/diamond-cp6-diagnostics-qqm2xu0k/unsupported_type.dia:1:1\n  |\n1 | type Mapping = Map<Int>\n  | ^\n"
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "invalid_route_path",
+      "observed": {
+        "arguments": [
+          "check",
+          "/tmp/diamond-cp6-diagnostics-qqm2xu0k/invalid_route_path.dia"
+        ],
+        "exit": 1,
+        "seconds": 0.0012,
+        "stdout": "",
+        "stderr": "error[D402]: route paths must be unambiguous internal paths\n --> /tmp/diamond-cp6-diagnostics-qqm2xu0k/invalid_route_path.dia:1:1\n  |\n1 | public route GET \"relative\":\n  | ^\n"
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "unsupported_route_parameter",
+      "observed": {
+        "arguments": [
+          "check",
+          "/tmp/diamond-cp6-diagnostics-qqm2xu0k/unsupported_route_parameter.dia"
+        ],
+        "exit": 1,
+        "seconds": 0.00108,
+        "stdout": "",
+        "stderr": "error[D900]: unsupported feature: route parameters other than Int or Id\n --> /tmp/diamond-cp6-diagnostics-qqm2xu0k/unsupported_route_parameter.dia:1:1\n  |\n1 | public route GET \"/items/{value:Text}\":\n  | ^\n"
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "invalid_id_literal",
+      "observed": {
+        "arguments": [
+          "check",
+          "/tmp/diamond-cp6-diagnostics-qqm2xu0k/invalid_id_literal.dia"
+        ],
+        "exit": 1,
+        "seconds": 0.001107,
+        "stdout": "",
+        "stderr": "error[D117]: invalid Id literal; use ASCII letters, digits, underscores, or hyphens\n --> /tmp/diamond-cp6-diagnostics-qqm2xu0k/invalid_id_literal.dia:3:3\n  |\n3 |   ItemId(\"bad/value\")\n  |   ^\n"
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "invalid_static_link",
+      "observed": {
+        "arguments": [
+          "check",
+          "/tmp/diamond-cp6-diagnostics-qqm2xu0k/invalid_static_link.dia"
+        ],
+        "exit": 1,
+        "seconds": 0.001138,
+        "stdout": "",
+        "stderr": "error[D020]: only absolute internal URL paths are supported\n --> /tmp/diamond-cp6-diagnostics-qqm2xu0k/invalid_static_link.dia:3:13\n  |\n3 |     <a href=\"https://example.test\">outside</a>\n  |             ^\n"
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "encoded_static_link",
+      "observed": {
+        "arguments": [
+          "check",
+          "/tmp/diamond-cp6-diagnostics-qqm2xu0k/encoded_static_link.dia"
+        ],
+        "exit": 1,
+        "seconds": 0.000998,
+        "stdout": "",
+        "stderr": "error[D900]: unsupported feature: percent-encoded URL literals\n --> /tmp/diamond-cp6-diagnostics-qqm2xu0k/encoded_static_link.dia:3:13\n  |\n3 |     <a href=\"/items%2fhidden\">encoded</a>\n  |             ^\n"
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "example_hello",
+      "observed": {
+        "arguments": [
+          "check",
+          "/home/doll/diamond/examples/hello.dia"
+        ],
+        "exit": 0,
+        "seconds": 0.001502,
+        "stdout": "checked /home/doll/diamond/examples/hello.dia: 2 functions, 0 records, 0 resources, 0 routes, 0 policies\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "example_language",
+      "observed": {
+        "arguments": [
+          "check",
+          "/home/doll/diamond/examples/language.dia"
+        ],
+        "exit": 0,
+        "seconds": 0.001593,
+        "stdout": "checked /home/doll/diamond/examples/language.dia: 3 functions, 0 records, 0 resources, 0 routes, 0 policies\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "example_message_board",
+      "observed": {
+        "arguments": [
+          "check",
+          "/home/doll/diamond/examples/message_board.dia"
+        ],
+        "exit": 0,
+        "seconds": 0.002689,
+        "stdout": "checked /home/doll/diamond/examples/message_board.dia: 4 functions, 3 records, 1 resources, 9 routes, 1 policies\n  app MessageBoard\n  private GET / {Read(\"Posts\")}\n  public GET /posts {Read(\"Posts\")}\n  public GET /posts/{id:PostId} {Read(\"Posts\")}\n  private POST /posts {Read(\"Posts\"), Write(\"Posts\")}\n  private GET /posts/{id:PostId}/edit {Read(\"Posts\")}\n  private POST /posts/{id:PostId}/edit {Read(\"Posts\"), Write(\"Posts\")}\n  private POST /posts/{id:PostId}/publication {Read(\"Posts\"), Write(\"Posts\")}\n  private POST /posts/{id:PostId}/delete {Write(\"Posts\")}\n  private DELETE /posts/{id:PostId} {Write(\"Posts\")}\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "example_storage",
+      "observed": {
+        "arguments": [
+          "check",
+          "/home/doll/diamond/examples/storage.dia"
+        ],
+        "exit": 0,
+        "seconds": 0.001623,
+        "stdout": "checked /home/doll/diamond/examples/storage.dia: 1 functions, 2 records, 1 resources, 0 routes, 1 policies\n  app Storage\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "example_web",
+      "observed": {
+        "arguments": [
+          "check",
+          "/home/doll/diamond/examples/web.dia"
+        ],
+        "exit": 0,
+        "seconds": 0.001664,
+        "stdout": "checked /home/doll/diamond/examples/web.dia: 0 functions, 1 records, 0 resources, 5 routes, 0 policies\n  app Preview\n  public GET / {}\n  public GET /notes/{id:NoteId} {}\n  public GET /numbers/{number:Int} {}\n  public POST /echo {}\n  private GET /account {}\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "explain_D001",
+      "observed": {
+        "arguments": [
+          "explain",
+          "D001"
+        ],
+        "exit": 0,
+        "seconds": 0.001112,
+        "stdout": "D001 — tab character\nReplace the tab with spaces; Diamond source uses space indentation.\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "explain_D002",
+      "observed": {
+        "arguments": [
+          "explain",
+          "D002"
+        ],
+        "exit": 0,
+        "seconds": 0.001052,
+        "stdout": "D002 — inconsistent indentation\nAlign this line with an enclosing block's indentation.\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "explain_D003",
+      "observed": {
+        "arguments": [
+          "explain",
+          "D003"
+        ],
+        "exit": 0,
+        "seconds": 0.000991,
+        "stdout": "D003 — empty HTML template\nAdd an indented typed-HTML template below `html:`.\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "explain_D004",
+      "observed": {
+        "arguments": [
+          "explain",
+          "D004"
+        ],
+        "exit": 0,
+        "seconds": 0.00105,
+        "stdout": "D004 — invalid integer literal\nUse a signed 64-bit integer; underscores may appear singly between digits.\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "explain_D005",
+      "observed": {
+        "arguments": [
+          "explain",
+          "D005"
+        ],
+        "exit": 0,
+        "seconds": 0.000871,
+        "stdout": "D005 — invalid string literal\nClose the string and use only `\\n`, `\\r`, `\\t`, `\\\"`, or `\\\\` escapes.\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "explain_D010",
+      "observed": {
+        "arguments": [
+          "explain",
+          "D010"
+        ],
+        "exit": 0,
+        "seconds": 0.000812,
+        "stdout": "D010 — source syntax\nCorrect the token or structure at the reported source span.\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "explain_D020",
+      "observed": {
+        "arguments": [
+          "explain",
+          "D020"
+        ],
+        "exit": 0,
+        "seconds": 0.000818,
+        "stdout": "D020 — typed HTML syntax\nCorrect the reported allowlisted HTML structure, tag, or attribute.\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "explain_D101",
+      "observed": {
+        "arguments": [
+          "explain",
+          "D101"
+        ],
+        "exit": 0,
+        "seconds": 0.001012,
+        "stdout": "D101 — duplicate declaration\nGive each top-level declaration a unique name.\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "explain_D102",
+      "observed": {
+        "arguments": [
+          "explain",
+          "D102"
+        ],
+        "exit": 0,
+        "seconds": 0.001121,
+        "stdout": "D102 — invalid record field\nUse a unique field name and keep server-derived fields out of client forms.\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "explain_D103",
+      "observed": {
+        "arguments": [
+          "explain",
+          "D103"
+        ],
+        "exit": 0,
+        "seconds": 0.00138,
+        "stdout": "D103 — invalid type\nUse a declared type with the supported generic shape and bounds.\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "explain_D110",
+      "observed": {
+        "arguments": [
+          "explain",
+          "D110"
+        ],
+        "exit": 0,
+        "seconds": 0.001002,
+        "stdout": "D110 — invalid expression\nUse an expression supported by the declared type and current scope.\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "explain_D111",
+      "observed": {
+        "arguments": [
+          "explain",
+          "D111"
+        ],
+        "exit": 0,
+        "seconds": 0.001001,
+        "stdout": "D111 — invalid operator\nUse an operator defined for both operand types.\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "explain_D112",
+      "observed": {
+        "arguments": [
+          "explain",
+          "D112"
+        ],
+        "exit": 0,
+        "seconds": 0.001043,
+        "stdout": "D112 — unknown value\nDeclare the value in this scope or pass it as a supported parameter.\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "explain_D113",
+      "observed": {
+        "arguments": [
+          "explain",
+          "D113"
+        ],
+        "exit": 0,
+        "seconds": 0.001066,
+        "stdout": "D113 — unknown field\nUse a field declared on the value's checked record type.\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "explain_D114",
+      "observed": {
+        "arguments": [
+          "explain",
+          "D114"
+        ],
+        "exit": 0,
+        "seconds": 0.001074,
+        "stdout": "D114 — invalid field access\nAccess only fields supported by this value and authority context.\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "explain_D115",
+      "observed": {
+        "arguments": [
+          "explain",
+          "D115"
+        ],
+        "exit": 0,
+        "seconds": 0.000971,
+        "stdout": "D115 — invalid unary operation\nApply `not` to Bool or unary `-` to Int.\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "explain_D116",
+      "observed": {
+        "arguments": [
+          "explain",
+          "D116"
+        ],
+        "exit": 0,
+        "seconds": 0.000939,
+        "stdout": "D116 — invalid function call\nCall a declared function with the required arguments.\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "explain_D117",
+      "observed": {
+        "arguments": [
+          "explain",
+          "D117"
+        ],
+        "exit": 0,
+        "seconds": 0.000805,
+        "stdout": "D117 — invalid call arguments\nMatch the function's parameter count, names, and checked types.\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "explain_D118",
+      "observed": {
+        "arguments": [
+          "explain",
+          "D118"
+        ],
+        "exit": 0,
+        "seconds": 0.00095,
+        "stdout": "D118 — invalid record construction\nSupply each required record field once by name.\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "explain_D119",
+      "observed": {
+        "arguments": [
+          "explain",
+          "D119"
+        ],
+        "exit": 0,
+        "seconds": 0.00103,
+        "stdout": "D119 — invalid repository operation\nUse the resource's checked record, ID, and supported operation shape.\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "explain_D120",
+      "observed": {
+        "arguments": [
+          "explain",
+          "D120"
+        ],
+        "exit": 0,
+        "seconds": 0.001236,
+        "stdout": "D120 — invalid route use\nUse a declared route handle and supply its typed path parameters.\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "explain_D121",
+      "observed": {
+        "arguments": [
+          "explain",
+          "D121"
+        ],
+        "exit": 0,
+        "seconds": 0.001099,
+        "stdout": "D121 — invalid form\nUse a supported scalar form record and exclude protected fields.\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "explain_D122",
+      "observed": {
+        "arguments": [
+          "explain",
+          "D122"
+        ],
+        "exit": 0,
+        "seconds": 0.000935,
+        "stdout": "D122 — invalid return value\nReturn a value matching the function or route's checked result type.\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "explain_D123",
+      "observed": {
+        "arguments": [
+          "explain",
+          "D123"
+        ],
+        "exit": 0,
+        "seconds": 0.000952,
+        "stdout": "D123 — invalid match\nUse supported patterns and cover every variant without duplicates.\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "explain_D124",
+      "observed": {
+        "arguments": [
+          "explain",
+          "D124"
+        ],
+        "exit": 0,
+        "seconds": 0.001206,
+        "stdout": "D124 — invalid propagation\nUse `?` only where the surrounding result can carry the same failure.\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "explain_D125",
+      "observed": {
+        "arguments": [
+          "explain",
+          "D125"
+        ],
+        "exit": 0,
+        "seconds": 0.000943,
+        "stdout": "D125 — invalid selection\nUse named scalar filters with limit 1–100 and offset 0–10,000.\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "explain_D200",
+      "observed": {
+        "arguments": [
+          "explain",
+          "D200"
+        ],
+        "exit": 0,
+        "seconds": 0.000986,
+        "stdout": "D200 — invalid policy\nDeclare the resource and a supported action signature.\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "explain_D201",
+      "observed": {
+        "arguments": [
+          "explain",
+          "D201"
+        ],
+        "exit": 0,
+        "seconds": 0.00105,
+        "stdout": "D201 — unsafe policy expression\nKeep policy expressions within the restricted scalar, principal, and record-field subset.\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "explain_D204",
+      "observed": {
+        "arguments": [
+          "explain",
+          "D204"
+        ],
+        "exit": 0,
+        "seconds": 0.000927,
+        "stdout": "D204 — policy-controlled mutation\nAdd the required policy action or remove the mutation; application grants cannot replace policy.\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "explain_D301",
+      "observed": {
+        "arguments": [
+          "explain",
+          "D301"
+        ],
+        "exit": 0,
+        "seconds": 0.001191,
+        "stdout": "D301 — missing effect\nDeclare the exact application effect required by this call path.\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "explain_D302",
+      "observed": {
+        "arguments": [
+          "explain",
+          "D302"
+        ],
+        "exit": 0,
+        "seconds": 0.001029,
+        "stdout": "D302 — invalid transaction\nUse a database-enabled app and avoid nested or transitively nested transactions.\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "explain_D401",
+      "observed": {
+        "arguments": [
+          "explain",
+          "D401"
+        ],
+        "exit": 0,
+        "seconds": 0.001036,
+        "stdout": "D401 — route conflict\nGive each method and normalized route shape a single handler.\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "explain_D402",
+      "observed": {
+        "arguments": [
+          "explain",
+          "D402"
+        ],
+        "exit": 0,
+        "seconds": 0.001087,
+        "stdout": "D402 — invalid route path\nUse an absolute literal path with supported typed parameters.\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "explain_D403",
+      "observed": {
+        "arguments": [
+          "explain",
+          "D403"
+        ],
+        "exit": 0,
+        "seconds": 0.001042,
+        "stdout": "D403 — route parameter mismatch\nMake route parameters and handler-visible names agree.\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "explain_D405",
+      "observed": {
+        "arguments": [
+          "explain",
+          "D405"
+        ],
+        "exit": 0,
+        "seconds": 0.001091,
+        "stdout": "D405 — reserved route\nMove source routes outside the runtime-owned `/_diamond/` namespace.\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "explain_D900",
+      "observed": {
+        "arguments": [
+          "explain",
+          "D900"
+        ],
+        "exit": 0,
+        "seconds": 0.000961,
+        "stdout": "D900 — unsupported feature\nUse the documented MVP subset or remove the unsupported operation.\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "explain_d004",
+      "observed": {
+        "arguments": [
+          "explain",
+          "d004"
+        ],
+        "exit": 0,
+        "seconds": 0.00106,
+        "stdout": "D004 — invalid integer literal\nUse a signed 64-bit integer; underscores may appear singly between digits.\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "explain_unknown",
+      "observed": {
+        "arguments": [
+          "explain",
+          "D999"
+        ],
+        "exit": 1,
+        "seconds": 0.001094,
+        "stdout": "",
+        "stderr": "error: unknown diagnostic code D999\n"
+      },
+      "accepted": true,
+      "failures": []
+    }
+  ],
+  "case_count": 71,
+  "failures": [],
+  "result": "PASS"
+}

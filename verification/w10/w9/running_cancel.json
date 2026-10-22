@@ -1,0 +1,122 @@
+{
+  "status": "PASS",
+  "binary_sha256": "2e2c3271fcb693eb6987ee1682f7616becd59eed58bf8141ea1b3d2b947a6d8a",
+  "error": null,
+  "results": [
+    {
+      "name": "running-job-cancellation-fences-current-attempt",
+      "status": "PASS",
+      "observed": {
+        "cancel_status": 200,
+        "cancel_body": {
+          "value": "{\"attempts\":1,\"outcome\":\"cancelled\",\"state\":\"cancelled\"}"
+        },
+        "elapsed_seconds": 0.007578889999422245,
+        "before": {
+          "id": "ae0839b0986555c504755b3f83bf75bacd20f8790f11af87667ce89d6e26ec5b",
+          "state": "running",
+          "attempts": 1,
+          "fence": 1,
+          "lease": "2026-10-22 17:00:56.170433-05",
+          "outcome": ""
+        },
+        "after": {
+          "id": "ae0839b0986555c504755b3f83bf75bacd20f8790f11af87667ce89d6e26ec5b",
+          "state": "cancelled",
+          "attempts": 1,
+          "fence": 2,
+          "lease": "2026-10-22 17:00:56.170433-05",
+          "outcome": "cancelled"
+        },
+        "receiver": {
+          "attempts": [
+            {
+              "path": "/v1/dedup/ae0839b0986555c504755b3f83bf75bacd20f8790f11af87667ce89d6e26ec5b",
+              "key": "ae0839b0986555c504755b3f83bf75bacd20f8790f11af87667ce89d6e26ec5b",
+              "body_sha256": "fa2092976626de1336e9b9fab00fd79e4e7d6748a33c1572a1fccb069bcd85d0",
+              "bytes": 21
+            }
+          ],
+          "effect_keys": [
+            "ae0839b0986555c504755b3f83bf75bacd20f8790f11af87667ce89d6e26ec5b"
+          ],
+          "effects": 1,
+          "counts": {
+            "/v1/dedup/ae0839b0986555c504755b3f83bf75bacd20f8790f11af87667ce89d6e26ec5b": 1
+          }
+        }
+      },
+      "expected": "a current owner can cancel an in-flight job; the cancellation transaction commits a higher fence and cancelled state"
+    },
+    {
+      "name": "failed-or-successful-cancel-has-coherent-terminal-effect",
+      "status": "PASS",
+      "observed": {
+        "cancel_status": 200,
+        "state_after_cancel": {
+          "id": "ae0839b0986555c504755b3f83bf75bacd20f8790f11af87667ce89d6e26ec5b",
+          "state": "cancelled",
+          "attempts": 1,
+          "fence": 2,
+          "lease": "2026-10-22 17:00:56.170433-05",
+          "outcome": "cancelled"
+        },
+        "final": {
+          "id": "ae0839b0986555c504755b3f83bf75bacd20f8790f11af87667ce89d6e26ec5b",
+          "state": "cancelled",
+          "attempts": 1,
+          "fence": 2,
+          "lease": "2026-10-22 17:00:56.170433-05",
+          "outcome": "cancelled"
+        },
+        "receiver": {
+          "attempts": [
+            {
+              "path": "/v1/dedup/ae0839b0986555c504755b3f83bf75bacd20f8790f11af87667ce89d6e26ec5b",
+              "key": "ae0839b0986555c504755b3f83bf75bacd20f8790f11af87667ce89d6e26ec5b",
+              "body_sha256": "fa2092976626de1336e9b9fab00fd79e4e7d6748a33c1572a1fccb069bcd85d0",
+              "bytes": 21
+            }
+          ],
+          "effect_keys": [
+            "ae0839b0986555c504755b3f83bf75bacd20f8790f11af87667ce89d6e26ec5b"
+          ],
+          "effects": 1,
+          "counts": {
+            "/v1/dedup/ae0839b0986555c504755b3f83bf75bacd20f8790f11af87667ce89d6e26ec5b": 1
+          }
+        }
+      },
+      "expected": "a committed cancellation remains inert; if cancellation itself was rejected, the original at-least-once attempt may continue"
+    }
+  ],
+  "shutdowns": [
+    {
+      "worker": "held",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "http_requests": 6,
+  "elapsed_seconds": 2.5777375960024074,
+  "command": "python3 verification/w9_independent/running_cancel.py --binary /tmp/diamond-w10-w9-campaign-f_nk909m/diamond",
+  "oracle": "ORACLES.md J2",
+  "temporary_root_removed": true
+}

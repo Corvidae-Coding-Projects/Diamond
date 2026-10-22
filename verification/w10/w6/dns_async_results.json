@@ -1,0 +1,343 @@
+{
+  "status": "PASS",
+  "binary_sha256": "2e2c3271fcb693eb6987ee1682f7616becd59eed58bf8141ea1b3d2b947a6d8a",
+  "error": null,
+  "results": [
+    {
+      "name": "owned-dns-real-tls-success",
+      "status": "PASS",
+      "observed": {
+        "rpc": [
+          200,
+          {
+            "value": "external exact \u96ea\u0000"
+          }
+        ],
+        "dns": [
+          {
+            "name": "w6-ok.test",
+            "type": 1,
+            "mode": "loopback"
+          },
+          {
+            "name": "w6-ok.test",
+            "type": 28,
+            "mode": "loopback"
+          }
+        ],
+        "http_calls": 1
+      },
+      "expected": "real UDP DNS answer plus original-hostname TLS and CA validation reaches only the granted destination"
+    },
+    {
+      "name": "dns-cname",
+      "status": "PASS",
+      "observed": {
+        "rpc": [
+          200,
+          {
+            "value": "external exact \u96ea\u0000"
+          }
+        ],
+        "elapsed_seconds": 0.06522113901155535,
+        "dns": [
+          {
+            "name": "w6-ok.test",
+            "type": 1,
+            "mode": "cname"
+          },
+          {
+            "name": "w6-ok.test",
+            "type": 28,
+            "mode": "cname"
+          },
+          {
+            "name": "target.w6.test",
+            "type": 1,
+            "mode": "cname"
+          }
+        ],
+        "http_calls": 1
+      },
+      "expected": "CNAME/fresh valid answers preserve original TLS identity; mixed or private answers never connect; dropped DNS stays within the1-second grant deadline"
+    },
+    {
+      "name": "dns-mixed",
+      "status": "PASS",
+      "observed": {
+        "rpc": [
+          403,
+          {
+            "error": "denied"
+          }
+        ],
+        "elapsed_seconds": 0.005875478993402794,
+        "dns": [
+          {
+            "name": "w6-ok.test",
+            "type": 1,
+            "mode": "mixed"
+          },
+          {
+            "name": "w6-ok.test",
+            "type": 28,
+            "mode": "mixed"
+          }
+        ],
+        "http_calls": 0
+      },
+      "expected": "CNAME/fresh valid answers preserve original TLS identity; mixed or private answers never connect; dropped DNS stays within the1-second grant deadline"
+    },
+    {
+      "name": "dns-private",
+      "status": "PASS",
+      "observed": {
+        "rpc": [
+          403,
+          {
+            "error": "denied"
+          }
+        ],
+        "elapsed_seconds": 0.006536867993418127,
+        "dns": [
+          {
+            "name": "w6-ok.test",
+            "type": 1,
+            "mode": "private"
+          },
+          {
+            "name": "w6-ok.test",
+            "type": 28,
+            "mode": "private"
+          }
+        ],
+        "http_calls": 0
+      },
+      "expected": "CNAME/fresh valid answers preserve original TLS identity; mixed or private answers never connect; dropped DNS stays within the1-second grant deadline"
+    },
+    {
+      "name": "dns-drop",
+      "status": "PASS",
+      "observed": {
+        "rpc": [
+          503,
+          {
+            "error": "unavailable"
+          }
+        ],
+        "elapsed_seconds": 1.0080797870032256,
+        "dns": [
+          {
+            "name": "w6-ok.test",
+            "type": 1,
+            "mode": "drop"
+          },
+          {
+            "name": "w6-ok.test",
+            "type": 28,
+            "mode": "drop"
+          },
+          {
+            "name": "w6-ok.test",
+            "type": 1,
+            "mode": "drop"
+          },
+          {
+            "name": "w6-ok.test",
+            "type": 28,
+            "mode": "drop"
+          },
+          {
+            "name": "w6-ok.test",
+            "type": 1,
+            "mode": "drop"
+          },
+          {
+            "name": "w6-ok.test",
+            "type": 28,
+            "mode": "drop"
+          }
+        ],
+        "http_calls": 0
+      },
+      "expected": "CNAME/fresh valid answers preserve original TLS identity; mixed or private answers never connect; dropped DNS stays within the1-second grant deadline"
+    },
+    {
+      "name": "dns-loopback",
+      "status": "PASS",
+      "observed": {
+        "rpc": [
+          200,
+          {
+            "value": "external exact \u96ea\u0000"
+          }
+        ],
+        "elapsed_seconds": 0.06562834000214934,
+        "dns": [
+          {
+            "name": "w6-ok.test",
+            "type": 1,
+            "mode": "loopback"
+          },
+          {
+            "name": "w6-ok.test",
+            "type": 28,
+            "mode": "loopback"
+          }
+        ],
+        "http_calls": 1
+      },
+      "expected": "CNAME/fresh valid answers preserve original TLS identity; mixed or private answers never connect; dropped DNS stays within the1-second grant deadline"
+    },
+    {
+      "name": "custom-dns-loopback-only",
+      "status": "PASS",
+      "observed": {
+        "exit": 1,
+        "stderr": "error: invalid input: invalid native runtime configuration\n"
+      },
+      "expected": "custom resolver grant cannot alter the public network authority profile"
+    }
+  ],
+  "shutdowns": [
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "http_requests": 15,
+  "temporary_root": "/tmp/diamond-w6-independent-async-dns-ob2lkd27",
+  "dns_events": [
+    {
+      "name": "w6-ok.test",
+      "type": 1,
+      "mode": "loopback"
+    },
+    {
+      "name": "w6-ok.test",
+      "type": 28,
+      "mode": "loopback"
+    },
+    {
+      "name": "w6-ok.test",
+      "type": 1,
+      "mode": "cname"
+    },
+    {
+      "name": "w6-ok.test",
+      "type": 28,
+      "mode": "cname"
+    },
+    {
+      "name": "target.w6.test",
+      "type": 1,
+      "mode": "cname"
+    },
+    {
+      "name": "w6-ok.test",
+      "type": 1,
+      "mode": "mixed"
+    },
+    {
+      "name": "w6-ok.test",
+      "type": 28,
+      "mode": "mixed"
+    },
+    {
+      "name": "w6-ok.test",
+      "type": 1,
+      "mode": "private"
+    },
+    {
+      "name": "w6-ok.test",
+      "type": 28,
+      "mode": "private"
+    },
+    {
+      "name": "w6-ok.test",
+      "type": 1,
+      "mode": "drop"
+    },
+    {
+      "name": "w6-ok.test",
+      "type": 28,
+      "mode": "drop"
+    },
+    {
+      "name": "w6-ok.test",
+      "type": 1,
+      "mode": "drop"
+    },
+    {
+      "name": "w6-ok.test",
+      "type": 28,
+      "mode": "drop"
+    },
+    {
+      "name": "w6-ok.test",
+      "type": 1,
+      "mode": "drop"
+    },
+    {
+      "name": "w6-ok.test",
+      "type": 28,
+      "mode": "drop"
+    },
+    {
+      "name": "w6-ok.test",
+      "type": 1,
+      "mode": "loopback"
+    },
+    {
+      "name": "w6-ok.test",
+      "type": 28,
+      "mode": "loopback"
+    }
+  ]
+}

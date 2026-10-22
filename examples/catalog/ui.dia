@@ -46,24 +46,24 @@ export component Catalog:
     output = rpc.job_status(job)
   html:
     <main>
-      <h1>Publishing catalog</h1>
-      <section><h2>Public articles</h2>
+      <header><h1>Publishing catalog</h1><p>Browse public writing or sign in to manage your drafts.</p></header>
+      <section aria-labelledby="public-heading"><h2 id="public-heading">Public articles</h2>
         <label for="author">Author username</label><input id="author" bind-value={author}>
-        <button on-click={browse}>Browse published articles</button><pre>{output}</pre>
+        <button on-click={browse} aria-controls="catalog-output">Browse published articles</button><pre id="catalog-output" role="status" aria-live="polite">{output}</pre>
       </section>
-      <section><h2>Author account</h2>
-        <label for="username">Username</label><input id="username" bind-value={username}>
-        <label for="password">Password</label><input id="password" type="password" bind-value={password}>
-        <button on-click={login}>Sign in</button><button on-click={logout}>Sign out</button><p>{identity}</p>
+      <section aria-labelledby="account-heading"><h2 id="account-heading">Author account</h2>
+        <label for="username">Username</label><input id="username" autocomplete="username" bind-value={username}>
+        <label for="password">Password</label><input id="password" type="password" autocomplete="current-password" bind-value={password}>
+        <button on-click={login} aria-controls="identity-status">Sign in</button><button on-click={logout} aria-controls="identity-status">Sign out</button><p id="identity-status" role="status" aria-live="polite">{identity}</p>
       </section>
-      <section><h2>Write and publish</h2>
+      <section aria-labelledby="write-heading"><h2 id="write-heading">Write and publish</h2>
         <label for="article">Article ID</label><input id="article" bind-value={selected}>
         <label for="title">Title</label><input id="title" bind-value={title}>
         <label for="body">Body</label><textarea id="body" bind-value={body}></textarea>
         <button on-click={create}>Create draft</button><button on-click={read}>Read article</button><button on-click={edit}>Save article</button>
         <label for="key">Publication deduplication key</label><input id="key" bind-value={key}>
-        <button on-click={publish}>Publish and notify</button><button on-click={check}>Check notification job</button><p>{job}</p>
+        <button on-click={publish} aria-controls="job-status">Publish and notify</button><button on-click={check} aria-controls="job-status">Check notification job</button><p id="job-status" role="status" aria-live="polite">{job}</p>
       </section>
       <when test={identity != ""}><watch channel="article_changes" parent={selected} into="live" cursor="cursor"></watch></when>
-      <p aria-live="polite">{live}</p>
+      <p role="status" aria-live="polite">{live}</p>
     </main>

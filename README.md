@@ -1,6 +1,6 @@
 # Diamond
 
-Diamond 0.15.0 is a language prototype implemented in Rust. Its existing
+Diamond 0.16.0 is a release-qualified language prototype implemented in Rust. Its existing
 single-file interpreter connects checked evaluation, policies, SQLite, forms,
 typed HTML, local accounts, and sessions. The W1 expansion adds multi-file
 projects, checked server/browser boundaries, a first reactive component compiled
@@ -26,7 +26,10 @@ applications have Diamond business logic; see the [jobs/live guide](docs/jobs-an
 and [deployment/recovery guide](docs/deployment.md). W9 adds the retained hostile
 transport, policy-race, dependency-failure and capacity campaigns, plus repairs
 for the reproduced storage, job, deployment-admission and stale-browser
-identity-loss defects.
+identity-loss defects. W10 finishes accessibility semantics, installation and
+operator walkthroughs, dependency policy, compatibility review, and a unified
+final-artifact evidence ledger. See the
+[release qualification](docs/release-qualification.md).
 
 Checkpoint six completes the accepted MVP passes with source-span diagnostics,
 parser edge handling, a checked installation and startup path, focused guides,
@@ -37,12 +40,13 @@ guarantees or production readiness.
 The next phase is described in the [general web application expansion plan](.design/general-web-apps.md).
 It targets a reactive frontend written in Diamond, PostgreSQL and multiple
 application servers, shared identity and permissions, typed APIs, uploads,
-external integrations, and durable jobs. W1–W9 are implemented within their
-documented profiles; W10 remains planned. Public infrastructure installation,
+external integrations, and durable jobs. W1–W10 are implemented within their
+documented profiles. Public infrastructure installation,
 SMTP and object-store replication remain operator/later work. W4 uses one
 current schema with stopped-server migrations; old/new upgrade compatibility is
 outside the requested scope. See the [W7/W8 evidence](verification/web_seven_eight_results.md)
-and [W9 evidence](verification/web_nine_results.md).
+the [W9 evidence](verification/web_nine_results.md), and the
+[W10 evidence](verification/web_ten_results.md).
 
 Start the new project example with:
 

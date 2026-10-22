@@ -1,0 +1,52 @@
+{
+  "status": "PASS",
+  "binary_sha256": "2e2c3271fcb693eb6987ee1682f7616becd59eed58bf8141ea1b3d2b947a6d8a",
+  "error": null,
+  "observations": [
+    {
+      "name": "deployment-probes-have-separate-bounded-admission",
+      "status": "PASS",
+      "observed": {
+        "live": {
+          "status": 200,
+          "elapsed_ms": 1.008,
+          "body_sha256": "4a9218693a2d1a8a0adfbe64e0f05740c08d3c1fa41e7903601ac1867766970b"
+        },
+        "metrics": {
+          "status": 200,
+          "elapsed_ms": 0.693,
+          "body_sha256": "5b16a3465dc4a794f42fb1dcf9e2369748e2706eff276e42c8541886b2e86fde"
+        },
+        "ready": {
+          "status": 200,
+          "elapsed_ms": 10.525,
+          "body_sha256": "2581be820be56f07e4f9f815fa5ea9887d53abddaf8acb6218cc0f7083cfa5f3"
+        }
+      },
+      "expected": "live, metrics and ready stay responsive while all 16 ordinary permits await bounded request bodies"
+    },
+    {
+      "name": "ordinary-body-timeout-releases-capacity",
+      "status": "PASS",
+      "observed": {
+        "live": 200,
+        "metrics": 200,
+        "ready": 200
+      },
+      "expected": "after the three-second body deadline all deployment probes are healthy"
+    }
+  ],
+  "shutdowns": [
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "elapsed_seconds": 4.622,
+  "scope": "one real app node, 16 incomplete ordinary HTTP bodies, actual deployment probes and isolated PostgreSQL",
+  "temporary_root_removed": true
+}

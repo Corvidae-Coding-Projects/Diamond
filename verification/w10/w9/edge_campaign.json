@@ -1,0 +1,352 @@
+{
+  "status": "PASS",
+  "binary_sha256": "2e2c3271fcb693eb6987ee1682f7616becd59eed58bf8141ea1b3d2b947a6d8a",
+  "error": null,
+  "results": [
+    {
+      "name": "raw-http-canonical-control",
+      "status": "PASS",
+      "observed": {
+        "status": 200,
+        "bytes": 1168,
+        "error": null,
+        "elapsed_seconds": 0.0006314959900919348,
+        "body_tail": "-error\" role=\"alert\" hidden></p><script type=\"module\" src=\"/assets/6170753e649d95d246ac508190e16f96623a4081d234da9ed8c50367b1395c50.js\"></script></body></html>\n"
+      },
+      "expected": "a canonical raw HTTP request reaches the actual server before hostile variants run"
+    },
+    {
+      "name": "raw-http-reject-duplicate-host",
+      "status": "PASS",
+      "observed": {
+        "status": 400,
+        "bytes": 458,
+        "error": null,
+        "elapsed_seconds": 0.00041211700590793043,
+        "body_tail": "t-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'\r\nconnection: close\r\ndate: Thu, 22 Oct 2026 22:00:20 GMT\r\n\r\n{\"error\":\"invalid_request\"}"
+      },
+      "expected": "noncanonical framing or authority is rejected before protected dispatch"
+    },
+    {
+      "name": "raw-http-reject-forwarded",
+      "status": "PASS",
+      "observed": {
+        "status": 400,
+        "bytes": 458,
+        "error": null,
+        "elapsed_seconds": 0.00027100399893242866,
+        "body_tail": "t-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'\r\nconnection: close\r\ndate: Thu, 22 Oct 2026 22:00:20 GMT\r\n\r\n{\"error\":\"invalid_request\"}"
+      },
+      "expected": "noncanonical framing or authority is rejected before protected dispatch"
+    },
+    {
+      "name": "raw-http-reject-x-forwarded",
+      "status": "PASS",
+      "observed": {
+        "status": 400,
+        "bytes": 458,
+        "error": null,
+        "elapsed_seconds": 0.00013933100854046643,
+        "body_tail": "t-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'\r\nconnection: close\r\ndate: Thu, 22 Oct 2026 22:00:20 GMT\r\n\r\n{\"error\":\"invalid_request\"}"
+      },
+      "expected": "noncanonical framing or authority is rejected before protected dispatch"
+    },
+    {
+      "name": "raw-http-reject-absolute-form",
+      "status": "PASS",
+      "observed": {
+        "status": 400,
+        "bytes": 458,
+        "error": null,
+        "elapsed_seconds": 0.00013609298912342638,
+        "body_tail": "t-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'\r\nconnection: close\r\ndate: Thu, 22 Oct 2026 22:00:20 GMT\r\n\r\n{\"error\":\"invalid_request\"}"
+      },
+      "expected": "noncanonical framing or authority is rejected before protected dispatch"
+    },
+    {
+      "name": "raw-http-reject-encoded-path",
+      "status": "PASS",
+      "observed": {
+        "status": 400,
+        "bytes": 458,
+        "error": null,
+        "elapsed_seconds": 0.00013978499919176102,
+        "body_tail": "t-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'\r\nconnection: close\r\ndate: Thu, 22 Oct 2026 22:00:20 GMT\r\n\r\n{\"error\":\"invalid_request\"}"
+      },
+      "expected": "noncanonical framing or authority is rejected before protected dispatch"
+    },
+    {
+      "name": "raw-http-reject-double-slash",
+      "status": "PASS",
+      "observed": {
+        "status": 400,
+        "bytes": 458,
+        "error": null,
+        "elapsed_seconds": 0.0003167969989590347,
+        "body_tail": "t-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'\r\nconnection: close\r\ndate: Thu, 22 Oct 2026 22:00:20 GMT\r\n\r\n{\"error\":\"invalid_request\"}"
+      },
+      "expected": "noncanonical framing or authority is rejected before protected dispatch"
+    },
+    {
+      "name": "raw-http-reject-transfer-encoding",
+      "status": "PASS",
+      "observed": {
+        "status": 400,
+        "bytes": 458,
+        "error": null,
+        "elapsed_seconds": 0.00015466799959540367,
+        "body_tail": "t-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'\r\nconnection: close\r\ndate: Thu, 22 Oct 2026 22:00:20 GMT\r\n\r\n{\"error\":\"invalid_request\"}"
+      },
+      "expected": "noncanonical framing or authority is rejected before protected dispatch"
+    },
+    {
+      "name": "raw-http-reject-conflicting-content-length",
+      "status": "PASS",
+      "observed": {
+        "status": 400,
+        "bytes": 103,
+        "error": null,
+        "elapsed_seconds": 9.453301026951522e-05,
+        "body_tail": "HTTP/1.1 400 Bad Request\r\nconnection: close\r\ncontent-length: 0\r\ndate: Thu, 22 Oct 2026 22:00:20 GMT\r\n\r\n"
+      },
+      "expected": "noncanonical framing or authority is rejected before protected dispatch"
+    },
+    {
+      "name": "raw-http-reject-duplicate-origin",
+      "status": "PASS",
+      "observed": {
+        "status": 400,
+        "bytes": 458,
+        "error": null,
+        "elapsed_seconds": 0.00014038500376045704,
+        "body_tail": "t-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'\r\nconnection: close\r\ndate: Thu, 22 Oct 2026 22:00:20 GMT\r\n\r\n{\"error\":\"invalid_request\"}"
+      },
+      "expected": "noncanonical framing or authority is rejected before protected dispatch"
+    },
+    {
+      "name": "raw-http-reject-cross-site-fetch",
+      "status": "PASS",
+      "observed": {
+        "status": 400,
+        "bytes": 458,
+        "error": null,
+        "elapsed_seconds": 0.00013385398779064417,
+        "body_tail": "t-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'\r\nconnection: close\r\ndate: Thu, 22 Oct 2026 22:00:20 GMT\r\n\r\n{\"error\":\"invalid_request\"}"
+      },
+      "expected": "noncanonical framing or authority is rejected before protected dispatch"
+    },
+    {
+      "name": "raw-http-reject-incomplete-body-deadline",
+      "status": "PASS",
+      "observed": {
+        "status": 413,
+        "bytes": 459,
+        "error": null,
+        "elapsed_seconds": 3.2002848039992386,
+        "body_tail": "onnect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'\r\nconnection: close\r\ndate: Thu, 22 Oct 2026 22:00:23 GMT\r\n\r\n{\"error\":\"body_limit\"}"
+      },
+      "expected": "noncanonical framing or authority is rejected before protected dispatch"
+    },
+    {
+      "name": "incomplete-body-bounded",
+      "status": "PASS",
+      "observed": {
+        "status": 413,
+        "bytes": 459,
+        "error": null,
+        "elapsed_seconds": 3.2002848039992386,
+        "body_tail": "onnect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'\r\nconnection: close\r\ndate: Thu, 22 Oct 2026 22:00:23 GMT\r\n\r\n{\"error\":\"body_limit\"}"
+      },
+      "expected": "a truncated declared body is rejected near the three-second body deadline without holding capacity indefinitely"
+    },
+    {
+      "name": "profile-authority-and-strict-envelope-confusion",
+      "status": "PASS",
+      "observed": {
+        "cases": [
+          {
+            "name": "cookie-rpc-with-bearer",
+            "status": 403,
+            "body": "{\"error\":\"denied\"}"
+          },
+          {
+            "name": "rpc-wrong-csrf",
+            "status": 403,
+            "body": "{\"error\":\"denied\"}"
+          },
+          {
+            "name": "rpc-duplicate-json-key",
+            "status": 400,
+            "body": "{\"error\":\"invalid_input\"}"
+          },
+          {
+            "name": "rpc-extra-principal",
+            "status": 400,
+            "body": "{\"error\":\"invalid_input\"}"
+          },
+          {
+            "name": "rpc-duplicate-session-cookie",
+            "status": 403,
+            "body": "{\"error\":\"denied\"}"
+          },
+          {
+            "name": "api-cookie-bearer-confusion",
+            "status": 403,
+            "body": "{\"error\":\"denied\"}"
+          },
+          {
+            "name": "public-api-with-bearer",
+            "status": 403,
+            "body": "{\"error\":\"denied\"}"
+          }
+        ],
+        "rank_before": 11,
+        "rank_after": 11
+      },
+      "expected": "cookie, bearer, CSRF and strict JSON profiles do not fall back or accept client principal claims; protected state is unchanged"
+    },
+    {
+      "name": "fresh-request-after-hostile-http",
+      "status": "PASS",
+      "observed": [
+        200,
+        {
+          "value": {
+            "id": {
+              "tag": "issue",
+              "value": "fac280971928856f9d18e3e9bda7d5b364a1bec6ef6840f6ff26e1bb1e5c98fe"
+            },
+            "project": {
+              "tag": "project",
+              "value": "210f269b1b9f82ef1a01b4f568bf530bd9504235825f44ac54253d67dd5848a9"
+            },
+            "rank": "11",
+            "title": "red exact \u96ea",
+            "workspace": {
+              "tag": "workspace",
+              "value": "4e2d7c125c1399cd1436002baf5a5bc4ab981a4eeb6d567c809af3727d6c6566"
+            }
+          }
+        }
+      ],
+      "expected": "a fresh canonical authenticated request succeeds after malformed traffic with the unchanged row"
+    },
+    {
+      "name": "websocket-oversized-inbound-closes-without-starvation",
+      "status": "PASS",
+      "observed": {
+        "upgrade": 101,
+        "close": {
+          "kind": "close",
+          "code": null,
+          "reason": ""
+        }
+      },
+      "expected": "an oversized unsolicited client message closes the bounded socket and ordinary HTTP remains usable"
+    },
+    {
+      "name": "automatic-ten-thousand-event-retention-and-resync",
+      "status": "PASS",
+      "observed": {
+        "seeded": 9999,
+        "at_exact_limit": 10000,
+        "first_cursor": 10000,
+        "second_cursor": 10001,
+        "bounds": {
+          "count": 10000,
+          "minimum": 2,
+          "maximum": 10001
+        },
+        "old": {
+          "cursor": "10001",
+          "resync": true
+        },
+        "ahead": {
+          "cursor": "10001",
+          "resync": true
+        },
+        "current": {
+          "cursor": "10001",
+          "value": "retention-edge-b"
+        },
+        "zero_first": {
+          "cursor": "2",
+          "value": "retained-2"
+        }
+      },
+      "expected": "real publication trims the oldest row at the edge; unavailable/ahead cursors resync and cursor zero starts retained history"
+    },
+    {
+      "name": "postgres-outage-fails-closed",
+      "status": "PASS",
+      "observed": {
+        "live": 200,
+        "ready": 403,
+        "rpc": [
+          503,
+          {
+            "error": "unavailable"
+          }
+        ],
+        "socket": {
+          "kind": "close",
+          "code": null,
+          "reason": ""
+        }
+      },
+      "expected": "dependency loss preserves liveness but denies readiness/protected access and closes a socket that cannot reauthorize"
+    },
+    {
+      "name": "live-nodes-recover-after-postgres-restart",
+      "status": "PASS",
+      "observed": {
+        "attempts": [
+          {
+            "node": "A",
+            "status": 200
+          },
+          {
+            "node": "B",
+            "status": 503
+          },
+          {
+            "node": "A",
+            "status": 200
+          },
+          {
+            "node": "B",
+            "status": 200
+          }
+        ],
+        "nodes_alive": {
+          "A": null,
+          "B": null
+        }
+      },
+      "expected": "both unchanged server processes discard broken pooled connections and serve fresh authenticated reads after the owned database returns"
+    }
+  ],
+  "shutdowns": [
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "http_requests": 23,
+  "elapsed_seconds": 6.124508697001147,
+  "raw_socket_requests": 12,
+  "command": "python3 verification/w9_independent/edge_campaign.py --binary /tmp/diamond-w10-w9-campaign-f_nk909m/diamond",
+  "oracle": "ORACLES.md H1 H2 E1 E2 D1",
+  "temporary_root_removed": true
+}

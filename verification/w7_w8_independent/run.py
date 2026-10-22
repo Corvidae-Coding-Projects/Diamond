@@ -20,8 +20,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--binary", type=Path, required=True)
     parser.add_argument("--caddy", type=Path, required=True)
+    parser.add_argument("--output-dir", type=Path)
     parser.add_argument("--report", type=Path, default=BASE / "results.json")
     options = parser.parse_args()
+    output = (options.output_dir or BASE).resolve()
+    output.mkdir(parents=True, exist_ok=True)
     root = Path(tempfile.mkdtemp(prefix="diamond-w7-w8-independent-final-"))
     binary, caddy = root / "diamond", root / "caddy"
     shutil.copy2(options.binary, binary)
@@ -37,7 +40,7 @@ def main():
 
     def run(definition):
         name, extra = definition
-        path = BASE / (name + "_results.json")
+        path = output / (name + "_results.json")
         command = [sys.executable, str(BASE / (name + ".py")), "--binary", str(binary), "--report", str(path), *extra]
         result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=150)
         report = json.loads(path.read_text()) if path.exists() else {}

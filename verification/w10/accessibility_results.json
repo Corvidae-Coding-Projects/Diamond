@@ -1,0 +1,114 @@
+{
+  "status": "PASS",
+  "binary_sha256": "2e2c3271fcb693eb6987ee1682f7616becd59eed58bf8141ea1b3d2b947a6d8a",
+  "applications": [
+    {
+      "template": "workspace",
+      "checks": {
+        "one_main": true,
+        "one_h1": true,
+        "unique_ids": true,
+        "all_controls_labeled": true,
+        "sections_named": true,
+        "aria_relationships_resolve": true,
+        "status_feedback": true,
+        "one_hashed_stylesheet": true,
+        "visible_focus_rule": true,
+        "small_screen_rule": true
+      },
+      "tags": {
+        "html": 1,
+        "head": 1,
+        "meta": 2,
+        "title": 1,
+        "link": 1,
+        "body": 1,
+        "div": 2,
+        "diamond-component": 1,
+        "main": 1,
+        "header": 1,
+        "img": 1,
+        "p": 10,
+        "h1": 1,
+        "section": 8,
+        "h2": 8,
+        "label": 22,
+        "input": 20,
+        "button": 34,
+        "textarea": 2,
+        "pre": 6,
+        "form": 1,
+        "script": 1
+      },
+      "control_count": 22,
+      "status_regions": 8,
+      "duplicate_ids": [],
+      "unlabeled_controls": [],
+      "unresolved_relationships": [],
+      "index_sha256": "b18e9c7021229e2519efb373d9b66d9161534e0161ca2796c1b1bf0dd7d11452",
+      "stylesheet": "assets/2cc8b89fe02c517ce755676a36b20e686d715bb1e6c0900c9ff637c777c61db3.css",
+      "stylesheet_sha256": "2cc8b89fe02c517ce755676a36b20e686d715bb1e6c0900c9ff637c777c61db3"
+    },
+    {
+      "template": "catalog",
+      "checks": {
+        "one_main": true,
+        "one_h1": true,
+        "unique_ids": true,
+        "all_controls_labeled": true,
+        "sections_named": true,
+        "aria_relationships_resolve": true,
+        "status_feedback": true,
+        "one_hashed_stylesheet": true,
+        "visible_focus_rule": true,
+        "small_screen_rule": true
+      },
+      "tags": {
+        "html": 1,
+        "head": 1,
+        "meta": 2,
+        "title": 1,
+        "link": 1,
+        "body": 1,
+        "div": 1,
+        "diamond-component": 1,
+        "main": 1,
+        "header": 1,
+        "h1": 1,
+        "p": 5,
+        "section": 3,
+        "h2": 3,
+        "label": 7,
+        "input": 6,
+        "button": 8,
+        "pre": 1,
+        "textarea": 1,
+        "script": 1
+      },
+      "control_count": 7,
+      "status_regions": 5,
+      "duplicate_ids": [],
+      "unlabeled_controls": [],
+      "unresolved_relationships": [],
+      "index_sha256": "23c0491105c474f3c3e1c9254d4f7fbf977063d1847316c9766262abb0b5594b",
+      "stylesheet": "assets/75df3ba1c5c64859dec1a5ec7b77f18997c602ae3ca6ba2bd988d3bab69789ca.css",
+      "stylesheet_sha256": "75df3ba1c5c64859dec1a5ec7b77f18997c602ae3ca6ba2bd988d3bab69789ca"
+    }
+  ],
+  "primitive_cases": [
+    {
+      "name": "declared semantic primitives",
+      "accepted": true,
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "name": "undeclared ARIA attribute rejected",
+      "accepted": true,
+      "exit": 1,
+      "stderr": "error: counter.dia: D900 unsupported at 6:346: HTML attribute aria-bogus\n"
+    }
+  ],
+  "failures": [],
+  "browser_boundary": "Static final-artifact checks; real Chrome focus, validation, layout and live feedback are retained separately."
+}
