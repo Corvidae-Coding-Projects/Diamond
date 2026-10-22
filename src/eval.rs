@@ -84,6 +84,7 @@ pub(crate) struct Request<'a> {
 }
 
 pub(crate) struct Interpreter<'a, 'scope> {
+    integrations: Option<&'a crate::RuntimeGrants>,
     host: Option<&'a mut crate::host::HostRuntime>,
     postgres: Option<&'a mut crate::project::storage::PostgresStore>,
     program: &'a CheckedProgram,
@@ -103,6 +104,7 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
         request: Option<Request<'a>>,
     ) -> Self {
         Self {
+            integrations: None,
             host: None,
             postgres: None,
             program,
@@ -113,6 +115,11 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
             call_depth: 0,
             values: ValueBudget::new(),
         }
+    }
+
+    pub(crate) fn with_integrations(mut self, grants: &'a crate::RuntimeGrants) -> Self {
+        self.integrations = Some(grants);
+        self
     }
 
     pub fn with_host(mut self, host: &'a mut crate::host::HostRuntime) -> Self {
@@ -454,6 +461,43 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
             && let ExprKind::Name(name) = &base.kind
         {
             if name == "host" && !locals.contains_key(name) {
+                if matches!(method.as_str(), "secret" | "http_get" | "http_post") {
+                    let values = arguments
+                        .iter()
+                        .map(|(_, v)| self.expr(v, locals))
+                        .collect::<Result<Vec<_>>>()?;
+                    let Some(Value(ValueKind::Text(name))) = values.first() else {
+                        return Err(Error::Denied);
+                    };
+                    self.scope
+                        .require(&crate::authority::Effect::Host(format!("Http<{name}>")))?;
+                    let grants = self.integrations.ok_or(Error::Denied)?;
+                    if method == "secret" {
+                        return grants.secret(name);
+                    }
+                    let Some(Value(ValueKind::Text(path))) = values.get(1) else {
+                        return Err(Error::Denied);
+                    };
+                    let Some(Value(ValueKind::Secret(handle))) = values.get(2) else {
+                        return Err(Error::Denied);
+                    };
+                    let result = crate::checker::resolve_type(
+                        types.last().ok_or(Error::Denied)?,
+                        self.program,
+                        callee.location,
+                    )?;
+                    return Value::operation(grants.call(
+                        crate::integrations::Call {
+                            method: if method == "http_get" { "GET" } else { "POST" },
+                            name,
+                            path,
+                            handle,
+                            body: values.get(3),
+                        },
+                        &result,
+                        self.program,
+                    ));
+                }
                 let operation = crate::host::operation(method).ok_or(Error::Denied)?;
                 self.scope
                     .require(&crate::authority::Effect::Host(operation.capability.into()))?;

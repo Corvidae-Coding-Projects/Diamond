@@ -91,11 +91,12 @@ function __unwire(v,t,d=0){if(d>32)throw Error('wire depth');const name=typeof t
 }
 let __csrf='',__bootstrap=null,__bootstrapController=null,__authEpoch=0,__authBusy=false;
 async function __remote(name,args,types,result,ctx){let response,identity=false;try{if(ctx.epoch!==__authEpoch||ctx.controller.signal.aborted)throw Error('stale event');if(++ctx.calls>32)throw Error('event remote-call budget');
- if(['login','logout','reset','change_password','logout_all','disable'].some(n=>name==='session/'+n)){if(__authBusy)throw Error('identity update pending');__authBusy=true;identity=true;ctx.identity=true;ctx.epoch=++__authEpoch;}
+ if(['login','logout','reset','change_password','logout_all','disable'].some(n=>name==='session/'+n)){if(__authBusy)throw Error('identity update pending');__authBusy=true;identity=true;ctx.identity=true;ctx.epoch=++__authEpoch;__clearSelectedFiles();}
  if(!__csrf||name==='session/user'){
   if(!__bootstrap){__bootstrapController=new AbortController();__bootstrap=fetch('/_diamond/session',{signal:__bootstrapController.signal,credentials:'same-origin',cache:'no-store',headers:{'X-Diamond-Session':'1'}}).then(async r=>{if(!r.ok)throw Error('session unavailable');return r.json();}).finally(()=>{__bootstrap=null;__bootstrapController=null;});}
   const session=await __bootstrap;if(ctx.epoch!==__authEpoch)throw Error('identity changed');__csrf=session.csrf;if(name==='session/user')return session.user||'';
  }
+ if(name.startsWith('files/'))return await __files(name.slice(6),args,ctx);
  let path,body;if(name==='session/login'){path='/_diamond/login';body={username:args[0],password:args[1]};}
  else if(name==='session/logout'){path='/_diamond/logout';body={};}
  else if(name.startsWith('session/')){const n=name.slice(8),fields={register:['username','email','password','invite'],verify:['token'],resend:['email'],recover:['email'],reset:['token','password'],change_password:['current_password','password'],logout_all:[],invite:['email'],disable:['username','disabled'],create_token:['label','operations','scopes','lifetime_seconds'],list_tokens:[],revoke_token:['id']}[n];if(!fields)throw Error('unknown account operation');path='/_diamond/accounts/'+n;body=Object.fromEntries(fields.map((f,i)=>[f,f==='scopes'?JSON.parse(args[i]):f==='lifetime_seconds'?args[i].toString():args[i]]));}
@@ -104,7 +105,28 @@ async function __remote(name,args,types,result,ctx){let response,identity=false;
  const value=await response.json();if(!response.ok){const error=Error(value.error==='outcome_unknown'||response.status>=500?'Request failed; a mutation may have committed. Refresh before retrying.':value.error==='contract_mismatch'?'Application version changed. Reload this page.':'Request rejected. Check your session, input, and permissions. Earlier server calls may already have committed.');error.diamondRemote=true;error.uncertain=response.status>=500;error.lostIdentity=response.status===401;throw error;}
  if(ctx.epoch!==__authEpoch)throw Error('identity changed');if(value.csrf)__csrf=value.csrf;if(['logout','reset','change_password','logout_all','disable'].some(n=>name==='session/'+n))__csrf='';return __unwire(value.value,result);
  }catch(error){const failure=error.diamondRemote?error:Error('Request interrupted; a mutation may have committed. Refresh before retrying.');if(!error.diamondRemote){failure.diamondRemote=true;failure.uncertain=true;}if(ctx.epoch===__authEpoch&&(identity&&failure.uncertain||failure.lostIdentity))__forgetIdentity(failure);throw failure;}finally{if(identity)__authBusy=false;}}
-function __forgetIdentity(error){__csrf='';__bootstrapController?.abort();__bootstrap=null;__authEpoch++;for(const frame of __frames.values())__dispose(frame);__frames.clear();__render();__fail(null,error);}
+async function __files(operation,args,ctx){
+ const[binding,id,selector]=args;if(!/^[A-Za-z_][A-Za-z0-9_]*$/.test(binding))throw Error('file binding');
+ const base='/_diamond/files/'+binding;
+ const active=()=>{if(ctx.epoch!==__authEpoch||ctx.controller.signal.aborted)throw Error('stale upload');};
+ const call=async(path,method,body,upload)=>{active();const response=await fetch(path,{method,credentials:'same-origin',cache:'no-store',signal:ctx.controller.signal,headers:{...(method==='GET'?{}:{'Content-Type':body instanceof File?'application/octet-stream':'application/json','X-Diamond-CSRF':__csrf}),...(upload?{'X-Diamond-Upload':upload}:{})},...(method==='GET'?{}:{body:body instanceof File?body:JSON.stringify(body)})});const value=await response.json();if(!response.ok){const error=Error('File request rejected. Refresh before retrying.');error.diamondRemote=true;error.uncertain=response.status>=500;error.lostIdentity=response.status===401;throw error;}active();return value;};
+ if(operation==='upload'){
+  const input=document.getElementById(selector);if(!(input instanceof HTMLInputElement)||input.type!=='file'||input.files.length!==1)throw Error('Select one file first.');
+  const file=input.files[0];if(file.size>8388608)throw Error('File exceeds 8 MiB.');
+  const reserved=await call(base+'/begin','POST',{parent:id,filename:file.name,length:String(file.size),media_type:file.type});
+  if(!/^[0-9a-f]{64}$/.test(reserved.id)||!/^[0-9a-f]{64}$/.test(reserved.upload))throw Error('upload reservation');
+  await call(base+'/'+reserved.id,'PUT',file,reserved.upload);
+  const ready=await call(base+'/'+reserved.id+'/finish','POST',{},reserved.upload);
+  if(ready.state!=='ready'||ready.id!==reserved.id)throw Error('upload publication');input.value='';return ready.id;
+ }
+ if(!/^[0-9a-f]{64}$/.test(id))throw Error('attachment id');
+ if(operation==='status')return JSON.stringify(await call(base+'/'+id+'/status','GET'));
+ if(operation==='delete'){await call(base+'/'+id+'/delete','POST',{});return '';}
+ if(operation==='download'){active();const link=document.createElement('a');link.href=base+'/'+id;link.download='attachment.bin';link.click();return id;}
+ throw Error('file operation');
+}
+function __clearSelectedFiles(){for(const input of document.querySelectorAll('input[type=file]'))input.value='';}
+function __forgetIdentity(error){__clearSelectedFiles();__csrf='';__bootstrapController?.abort();__bootstrap=null;__authEpoch++;for(const frame of __frames.values())__dispose(frame);__frames.clear();__render();__fail(null,error);}
 let __frames=new Map(),__nodes=[],__rendering=false,__alive=true,__hydrationEdited=false;
 function __environment(frame,state=frame.state,props=frame.props){const env=Object.assign(__dict(),props,state,{pending:frame.pending,error:frame.error,route:location.pathname});for(const[n,e]of __program.components[frame.name].derived){env[n]=__eval(e.ast,env);__validate(env[n],e.ty);}return env;}
 function __initial(name,props,id){const def=__program.components[name],state=__dict(),env=Object.assign(__dict(),props);for(const[n,e]of def.state){state[n]=__eval(e.ast,env);__validate(state[n],e.ty);env[n]=state[n];}return{name,id,state,props,pending:false,error:'',generation:0,controller:null,active:false};}

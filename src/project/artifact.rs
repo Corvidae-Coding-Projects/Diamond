@@ -29,6 +29,9 @@ struct Contract<'a> {
     modules: BTreeMap<&'a str, ModuleContract<'a>>,
     browser: &'a super::lower::BrowserProgram,
     host_operations: Vec<crate::host::OperationContract>,
+    integration_operations: serde_json::Value,
+    file_operations: serde_json::Value,
+    private_files: Option<&'a super::files::Config>,
     artifacts: BTreeMap<String, String>,
     rpc: BTreeMap<String, super::rpc::Contract>,
     rpc_id: String,
@@ -102,6 +105,9 @@ pub(super) fn files(project: &CheckedProject) -> Result<BTreeMap<String, String>
             .collect(),
         browser: &project.browser,
         host_operations: crate::host::contracts(),
+        integration_operations: crate::integrations::contracts(),
+        file_operations: super::files::contracts(),
+        private_files: project.manifest.files.as_ref(),
         artifacts: files
             .iter()
             .map(|(path, content)| (path.clone(), hash(content.as_bytes())))

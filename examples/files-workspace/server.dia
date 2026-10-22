@@ -1,0 +1,134 @@
+type UserId = Id<"user">
+type WorkspaceId = Id<"workspace">
+type MemberId = Id<"member">
+type ProjectId = Id<"project">
+type IssueId = Id<"issue">
+enum Role:
+  Editor
+  Reader
+
+type Workspace:
+  id: WorkspaceId
+  owner: UserId @created_by_principal
+  label: Text<length: 1..80>
+type NewWorkspace:
+  label: Text<length: 1..80>
+type Member:
+  id: MemberId
+  workspace: WorkspaceId
+  user: UserId
+  role: Role
+type NewMember:
+  workspace: WorkspaceId
+  user: UserId
+  role: Role
+type Project:
+  id: ProjectId
+  workspace: WorkspaceId
+  label: Text<length: 1..80>
+  public: Bool
+type NewProject:
+  workspace: WorkspaceId
+  label: Text<length: 1..80>
+  public: Bool
+type Issue:
+  id: IssueId
+  owner: UserId @created_by_principal
+  workspace: WorkspaceId
+  project: ProjectId
+  title: Text<length: 1..120>
+  details: Text<length: 0..4000>
+  rank: Int
+type NewIssue:
+  workspace: WorkspaceId
+  project: ProjectId
+  title: Text<length: 1..120>
+  details: Text<length: 0..4000>
+  rank: Int
+type EditIssue:
+  title: Text<length: 1..120>
+  details: Text<length: 0..4000>
+type IssueProject:
+  left: Issue
+  right: Project
+resource Workspaces: Workspace
+resource Members: Member
+resource Projects: Project
+resource Issues: Issue
+
+policy Workspaces:
+  read(row, by principal):
+    principal.is_user(row.owner) or principal.is_related("Membership", row.id)
+  create(row, by principal):
+    principal.is_user(row.owner)
+policy Members:
+  read(row, by principal):
+    principal.is_related("Ownership", row.workspace)
+  create(row, by principal):
+    principal.is_related("Ownership", row.workspace)
+  delete(row, by principal):
+    principal.is_related("Ownership", row.workspace)
+policy Projects:
+  read(row, by principal):
+    principal.is_related("Ownership", row.workspace) or row.public and principal.is_related("Membership", row.workspace)
+  create(row, by principal):
+    principal.is_related("Ownership", row.workspace)
+policy Issues:
+  read(row, by principal):
+    principal.is_related("Ownership", row.workspace) or principal.is_related("Membership", row.workspace)
+  create(row, by principal):
+    principal.is_related("Ownership", row.workspace) or principal.has_role_in("Membership", row.workspace, .Editor)
+  update(before, after, by principal):
+    before.workspace == after.workspace and before.project == after.project and before.owner == after.owner and (principal.is_related("Ownership", before.workspace) or principal.has_role_in("Membership", before.workspace, .Editor))
+  delete(row, by principal):
+    principal.is_related("Ownership", row.workspace) or principal.has_role_in("Membership", row.workspace, .Editor)
+
+export fn main() -> Text:
+  heading()
+export fn create_workspace(label: Text<length: 1..80>) -> Result<Text, DataError>:
+  let row = workspaces.create(NewWorkspace(label: label))?
+  Ok(id_text(row.id))
+export fn grant_editor(workspace: Text, user: Text) -> Result<Text, DataError>:
+  let row = members.create(NewMember(workspace: WorkspaceId(workspace), user: UserId(user), role: Editor))?
+  Ok(id_text(row.id))
+export fn revoke_member(id: Text) -> Result<Text, DataError>:
+  members.delete(MemberId(id))?
+  Ok("Membership revoked.")
+export fn create_project(workspace: Text, label: Text<length: 1..80>) -> Result<Text, DataError>:
+  let row = projects.create(NewProject(workspace: WorkspaceId(workspace), label: label, public: true))?
+  Ok(id_text(row.id))
+export fn create_issue(workspace: Text, project: Text, title: Text<length: 1..120>, details: Text<length: 0..4000>) -> Result<Text, DataError>:
+  let row = issues.create(NewIssue(workspace: WorkspaceId(workspace), project: ProjectId(project), title: title, details: details, rank: 0))?
+  Ok(id_text(row.id))
+export fn read_issue(id: Text) -> Result<Text, DataError>:
+  let row = issues.get(IssueId(id))?
+  Ok(row.title + "\n" + row.details)
+export fn update_issue(id: Text, title: Text<length: 1..120>, details: Text<length: 0..4000>) -> Result<Text, DataError>:
+  let row = issues.update(IssueId(id), EditIssue(title: title, details: details))?
+  Ok(row.title + "\n" + row.details)
+export fn delete_issue(id: Text) -> Result<Text, DataError>:
+  issues.delete(IssueId(id))?
+  Ok("Issue deleted.")
+fn next_cursor(rows: List<Issue>) -> Result<Text, DataError>:
+  match list_get(rows, len(rows) - 1):
+    Some(row) => issues.cursor(row: row, order: "rank")
+    None => Ok("")
+export fn issue_page(workspace: Text, after: Text) -> Result<IssuePage, DataError>:
+  let rows = issues.page(workspace: WorkspaceId(workspace), order: "rank", after: after, limit: 10)?
+  let cards = for row in rows:
+    IssueCard(id: row.id, title: row.title, details: row.details)
+  let cursor = next_cursor(rows)?
+  let total = issues.count(workspace: WorkspaceId(workspace))?
+  Ok(IssuePage(cards: cards, after: cursor, total: total))
+export fn joined_projects(workspace: Text) -> Result<Text, DataError>:
+  let rows = issues.join(relation: "IssueProjects", workspace: WorkspaceId(workspace), order: "rank", limit: 10)?
+  let lines = for row in rows:
+    row.left.title + " | " + row.right.label
+  Ok(join_text(lines, "\n"))
+
+export fn external_get(path: Text) -> Result<Text, DataError>:
+  let credential = host.secret("inventory")
+  host.http_get<Text>("inventory", path, credential)
+export fn external_post(path: Text, body: Text) -> Result<Text, DataError>:
+  let credential = host.secret("inventory")
+  host.http_post<Text, Text>("inventory", path, credential, body)

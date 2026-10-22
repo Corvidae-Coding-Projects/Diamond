@@ -6,6 +6,7 @@ pub(crate) mod artifact;
 mod assets;
 mod browser;
 mod connected;
+mod files;
 mod identity;
 mod lower;
 mod render;
@@ -73,6 +74,8 @@ struct Manifest {
     identity: Option<accounts::Config>,
     #[serde(default)]
     http_api: Option<api::Config>,
+    #[serde(default)]
+    files: Option<files::Config>,
 }
 
 #[derive(Clone, Debug)]
@@ -472,6 +475,59 @@ impl CheckedProject {
     ) -> Result<()> {
         connected::serve(self, address, public_origin, configuration, Some(mailbox))
     }
+    /// Serve accounts, files, and integrations using explicit native runtime grants.
+    ///
+    /// # Errors
+    /// Rejects missing grants, mismatched shared stores, and invalid server profiles.
+    ///
+    /// ```no_run
+    /// let project = diamond::compile_project(std::path::Path::new("examples/files-workspace/diamond.toml"))?;
+    /// let grants = diamond::RuntimeGrants::from_json(&std::env::var("DIAMOND_RUNTIME")?)?;
+    /// project.serve_with_runtime("127.0.0.1:3000".parse()?, "http://127.0.0.1:3000",
+    ///     &std::env::var("DIAMOND_POSTGRES")?, std::path::Path::new("/private/mail"), grants)?;
+    /// # Ok::<(), Box<dyn std::error::Error>>(())
+    /// ```
+    pub fn serve_with_runtime(
+        &self,
+        address: SocketAddr,
+        public_origin: &str,
+        configuration: &str,
+        mailbox: &Path,
+        grants: crate::RuntimeGrants,
+    ) -> Result<()> {
+        connected::serve_runtime(
+            self,
+            address,
+            public_origin,
+            configuration,
+            Some(mailbox),
+            grants,
+        )
+    }
+
+    /// Initialize a shared object store, or reconcile at most 100 expired objects.
+    /// All servers must mount the same private durable directory. Reconciliation
+    /// never deletes a ready attachment and does not publish unfinished uploads.
+    ///
+    /// # Errors
+    /// Rejects absent grants, incompatible metadata, unsafe paths and storage errors.
+    ///
+    /// ```no_run
+    /// let project = diamond::compile_project(std::path::Path::new("examples/files-workspace/diamond.toml"))?;
+    /// let grants = diamond::RuntimeGrants::from_json(&std::env::var("DIAMOND_RUNTIME")?)?;
+    /// let report = project.maintain_files(&std::env::var("DIAMOND_POSTGRES")?, &grants, false)?;
+    /// assert!(report.contains("removed"));
+    /// # Ok::<(), Box<dyn std::error::Error>>(())
+    /// ```
+    pub fn maintain_files(
+        &self,
+        configuration: &str,
+        grants: &crate::RuntimeGrants,
+        initialize: bool,
+    ) -> Result<String> {
+        synchronous_context()?;
+        files::maintain(self, configuration, grants, initialize)
+    }
 }
 
 fn synchronous_context() -> Result<()> {
@@ -618,6 +674,7 @@ fn compile_sources(
         &components,
         &rpc,
         manifest.identity.is_some(),
+        manifest.files.as_ref(),
     )
     .map_err(|error| locate(&modules, error))?;
     let urls = assets::urls(&manifest, &sources)?;
@@ -764,6 +821,31 @@ fn check_server(manifest: &Manifest, modules: &BTreeMap<String, Module>) -> Resu
     }) {
         return Err(input("capability refers to an undeclared resource"));
     }
+    if let Some(config) = &manifest.files {
+        config.check(manifest, &server)?;
+    }
+    for function in server.functions.values() {
+        let external = function
+            .effects
+            .iter()
+            .any(|e| matches!(e, Effect::Host(s) if s.starts_with("Http<")));
+        if external
+            && (function.opens_transaction
+                || function
+                    .effects
+                    .iter()
+                    .any(|e| matches!(e, Effect::Write(_))))
+        {
+            return Err(input(
+                "external HTTP cannot share application writes or explicit transactions",
+            ));
+        }
+    }
+    if !wire::safe_type(&server.functions["main"].result, &server)
+        && contains_secret(&server.functions["main"].result, &server, 0)
+    {
+        return Err(input("opaque secrets cannot escape the server entry"));
+    }
     for name in &names {
         let module = &modules[name];
         for declaration in &module.parsed.program.declarations {
@@ -788,6 +870,13 @@ fn check_server(manifest: &Manifest, modules: &BTreeMap<String, Module>) -> Resu
 }
 
 fn capability_effect(name: &str) -> Result<Effect> {
+    if name
+        .strip_prefix("Http<")
+        .and_then(|s| s.strip_suffix('>'))
+        .is_some_and(resolve::identifier)
+    {
+        return Ok(Effect::Host(name.into()));
+    }
     if name == "PostgresRead" {
         return Ok(Effect::Host(name.into()));
     }
@@ -871,4 +960,30 @@ fn source_error(path: &str, error: Error) -> Error {
 }
 fn input(message: &str) -> Error {
     Error::Input(message.into())
+}
+
+fn contains_secret(ty: &crate::value::Type, p: &CheckedProgram, depth: usize) -> bool {
+    use crate::value::Type;
+    if depth > 32 {
+        return true;
+    }
+    match ty {
+        Type::Secret(_) => true,
+        Type::List(t) | Type::Option(t) | Type::Result(t) | Type::Success(t) => {
+            contains_secret(t, p, depth + 1)
+        }
+        Type::AppResult(t, e) => {
+            contains_secret(t, p, depth + 1) || contains_secret(e, p, depth + 1)
+        }
+        Type::Record(n) => p.records[n]
+            .fields
+            .values()
+            .any(|f| contains_secret(&f.ty, p, depth + 1)),
+        Type::Enum(n) => p.enums[n]
+            .variants
+            .values()
+            .flatten()
+            .any(|(_, t)| contains_secret(t, p, depth + 1)),
+        _ => false,
+    }
 }

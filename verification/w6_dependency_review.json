@@ -1,0 +1,808 @@
+{
+  "new_or_changed_packages": [
+    {
+      "name": "autocfg",
+      "version": "1.5.1",
+      "license": "Apache-2.0 OR MIT",
+      "rust_version": "1.0",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "base64",
+      "version": "0.23.1",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.71.0",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "cfg_aliases",
+      "version": "0.2.2",
+      "license": "MIT",
+      "rust_version": null,
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "combine",
+      "version": "4.6.9",
+      "license": "MIT",
+      "rust_version": null,
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "core-foundation",
+      "version": "0.9.4",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": null,
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "core-foundation",
+      "version": "0.10.1",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.65",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "core-foundation-sys",
+      "version": "0.8.7",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": null,
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "critical-section",
+      "version": "1.2.0",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": null,
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "crossbeam-channel",
+      "version": "0.5.17",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.60",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "crossbeam-epoch",
+      "version": "0.9.21",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.61",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "crossbeam-utils",
+      "version": "0.8.23",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.60",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "data-encoding",
+      "version": "2.11.1",
+      "license": "MIT",
+      "rust_version": "1.48",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "diamond-lang",
+      "version": "0.12.0",
+      "license": "MIT",
+      "rust_version": "1.96"
+    },
+    {
+      "name": "displaydoc",
+      "version": "0.2.7",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.71.0",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "either",
+      "version": "1.19.0",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.63.0",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "form_urlencoded",
+      "version": "1.2.2",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.51",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "futures-io",
+      "version": "0.3.34",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.36",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "futures-macro",
+      "version": "0.3.34",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.71",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "getrandom",
+      "version": "0.2.17",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": null,
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "hickory-net",
+      "version": "0.26.3",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.88",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "hickory-proto",
+      "version": "0.26.3",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.88",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "hickory-resolver",
+      "version": "0.26.3",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.88",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "hyper-rustls",
+      "version": "0.27.10",
+      "license": "Apache-2.0 OR ISC OR MIT",
+      "rust_version": "1.85",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "icu_collections",
+      "version": "2.3.0",
+      "license": "Unicode-3.0",
+      "rust_version": "1.88",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "icu_locale_core",
+      "version": "2.3.0",
+      "license": "Unicode-3.0",
+      "rust_version": "1.88",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "icu_normalizer",
+      "version": "2.3.0",
+      "license": "Unicode-3.0",
+      "rust_version": "1.88",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "icu_normalizer_data",
+      "version": "2.3.0",
+      "license": "Unicode-3.0",
+      "rust_version": "1.88",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "icu_properties",
+      "version": "2.3.0",
+      "license": "Unicode-3.0",
+      "rust_version": "1.88",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "icu_properties_data",
+      "version": "2.3.0",
+      "license": "Unicode-3.0",
+      "rust_version": "1.88",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "icu_provider",
+      "version": "2.3.1",
+      "license": "Unicode-3.0",
+      "rust_version": "1.88",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "idna",
+      "version": "1.1.0",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.57",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "idna_adapter",
+      "version": "1.2.2",
+      "license": "Apache-2.0 OR MIT",
+      "rust_version": "1.86",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "ipconfig",
+      "version": "0.3.4",
+      "license": "MIT/Apache-2.0",
+      "rust_version": "1.71",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "ipnet",
+      "version": "2.12.2",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": null,
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "jni",
+      "version": "0.22.4",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.85.0",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "jni-macros",
+      "version": "0.22.4",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": null,
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "jni-sys",
+      "version": "0.4.1",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.76.0",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "jni-sys-macros",
+      "version": "0.4.1",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": null,
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "litemap",
+      "version": "0.8.3",
+      "license": "Unicode-3.0",
+      "rust_version": "1.82",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "lru-slab",
+      "version": "0.1.3",
+      "license": "MIT OR Apache-2.0 OR Zlib",
+      "rust_version": null,
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "moka",
+      "version": "0.12.16",
+      "license": "(MIT OR Apache-2.0) AND Apache-2.0",
+      "rust_version": "1.71.1",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "ndk-context",
+      "version": "0.1.1",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": null,
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "num-traits",
+      "version": "0.2.19",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.60",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "openssl-probe",
+      "version": "0.2.1",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.60.0",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "portable-atomic",
+      "version": "1.15.0",
+      "license": "Apache-2.0 OR MIT",
+      "rust_version": "1.34",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "potential_utf",
+      "version": "0.1.6",
+      "license": "Unicode-3.0",
+      "rust_version": "1.82",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "prefix-trie",
+      "version": "0.8.4",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.71.1",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "quinn",
+      "version": "0.11.12",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.85",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "quinn-proto",
+      "version": "0.11.19",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.85",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "quinn-udp",
+      "version": "0.5.16",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.85",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "rand_pcg",
+      "version": "0.10.2",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.85",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "reqwest",
+      "version": "0.12.28",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.64.0",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "resolv-conf",
+      "version": "0.7.6",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.61",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "ring",
+      "version": "0.17.14",
+      "license": "Apache-2.0 AND ISC",
+      "rust_version": "1.66.0",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "rustc-hash",
+      "version": "2.1.3",
+      "license": "Apache-2.0 OR MIT",
+      "rust_version": "1.77",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "rustc_version",
+      "version": "0.4.1",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.32",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "rustls",
+      "version": "0.23.46",
+      "license": "Apache-2.0 OR ISC OR MIT",
+      "rust_version": "1.71",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "rustls-native-certs",
+      "version": "0.8.5",
+      "license": "Apache-2.0 OR ISC OR MIT",
+      "rust_version": "1.71",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "rustls-pki-types",
+      "version": "1.15.1",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.60",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "rustls-webpki",
+      "version": "0.103.16",
+      "license": "ISC",
+      "rust_version": "1.71",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "ryu",
+      "version": "1.0.23",
+      "license": "Apache-2.0 OR BSL-1.0",
+      "rust_version": "1.71",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "same-file",
+      "version": "1.0.6",
+      "license": "Unlicense/MIT",
+      "rust_version": null,
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "schannel",
+      "version": "0.1.30",
+      "license": "MIT",
+      "rust_version": "1.71.0",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "security-framework",
+      "version": "3.7.0",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.85",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "security-framework-sys",
+      "version": "2.17.0",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.70",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "semver",
+      "version": "1.0.28",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.68",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "serde_urlencoded",
+      "version": "0.7.1",
+      "license": "MIT/Apache-2.0",
+      "rust_version": null,
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "simd_cesu8",
+      "version": "1.2.0",
+      "license": "Apache-2.0 OR MIT",
+      "rust_version": "1.85.0",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "simdutf8",
+      "version": "0.1.5",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": null,
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "stable_deref_trait",
+      "version": "1.2.1",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": null,
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "syn",
+      "version": "2.0.119",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.71",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "synstructure",
+      "version": "0.14.0",
+      "license": "MIT",
+      "rust_version": "1.71",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "system-configuration",
+      "version": "0.7.0",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.64.0",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "system-configuration-sys",
+      "version": "0.6.0",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": null,
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "tagptr",
+      "version": "0.2.0",
+      "license": "MIT/Apache-2.0",
+      "rust_version": null,
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "tinystr",
+      "version": "0.8.4",
+      "license": "Unicode-3.0",
+      "rust_version": "1.82",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "tokio-rustls",
+      "version": "0.26.6",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.71",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "tower-http",
+      "version": "0.6.11",
+      "license": "MIT",
+      "rust_version": "1.64",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "tracing",
+      "version": "0.1.44",
+      "license": "MIT",
+      "rust_version": "1.65.0",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "tracing-core",
+      "version": "0.1.36",
+      "license": "MIT",
+      "rust_version": "1.65.0",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "try-lock",
+      "version": "0.2.5",
+      "license": "MIT",
+      "rust_version": null,
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "untrusted",
+      "version": "0.9.0",
+      "license": "ISC",
+      "rust_version": null,
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "url",
+      "version": "2.5.8",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.63",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "utf8_iter",
+      "version": "1.0.4",
+      "license": "Apache-2.0 OR MIT",
+      "rust_version": null,
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "uuid",
+      "version": "1.28.0",
+      "license": "Apache-2.0 OR MIT",
+      "rust_version": "1.89.0",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "walkdir",
+      "version": "2.5.0",
+      "license": "Unlicense/MIT",
+      "rust_version": null,
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "want",
+      "version": "0.3.2",
+      "license": "MIT",
+      "rust_version": null,
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "wasm-bindgen-futures",
+      "version": "0.4.79",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.81",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "wasm-streams",
+      "version": "0.4.2",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": null,
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "web-time",
+      "version": "1.1.0",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.60",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "widestring",
+      "version": "1.2.1",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.58",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "winapi-util",
+      "version": "0.1.11",
+      "license": "Unlicense OR MIT",
+      "rust_version": null,
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "windows-registry",
+      "version": "0.6.1",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.82",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "windows-result",
+      "version": "0.4.1",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.82",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "windows-strings",
+      "version": "0.5.1",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.82",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "windows-sys",
+      "version": "0.52.0",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.56",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "windows-targets",
+      "version": "0.52.6",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.56",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "windows_aarch64_gnullvm",
+      "version": "0.52.6",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.56",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "windows_aarch64_msvc",
+      "version": "0.52.6",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.56",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "windows_i686_gnu",
+      "version": "0.52.6",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.56",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "windows_i686_gnullvm",
+      "version": "0.52.6",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.56",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "windows_i686_msvc",
+      "version": "0.52.6",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.56",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "windows_x86_64_gnu",
+      "version": "0.52.6",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.56",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "windows_x86_64_gnullvm",
+      "version": "0.52.6",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.56",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "windows_x86_64_msvc",
+      "version": "0.52.6",
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.56",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "writeable",
+      "version": "0.6.4",
+      "license": "Unicode-3.0",
+      "rust_version": "1.82",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "yoke",
+      "version": "0.8.3",
+      "license": "Unicode-3.0",
+      "rust_version": "1.82",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "yoke-derive",
+      "version": "0.8.4",
+      "license": "Unicode-3.0",
+      "rust_version": "1.82",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "zerofrom",
+      "version": "0.1.8",
+      "license": "Unicode-3.0",
+      "rust_version": "1.71.1",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "zerofrom-derive",
+      "version": "0.1.8",
+      "license": "Unicode-3.0",
+      "rust_version": "1.71.1",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "zerotrie",
+      "version": "0.2.5",
+      "license": "Unicode-3.0",
+      "rust_version": "1.82",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "zerovec",
+      "version": "0.11.8",
+      "license": "Unicode-3.0",
+      "rust_version": "1.83",
+      "cached_archive_matches_lock": true
+    },
+    {
+      "name": "zerovec-derive",
+      "version": "0.11.6",
+      "license": "Unicode-3.0",
+      "rust_version": null,
+      "cached_archive_matches_lock": true
+    }
+  ],
+  "toolchain": "rustc 1.96.0 (ac68faa20 2026-05-25)",
+  "direct_additions": [
+    "reqwest0.12.28(default features disabled, verified Rustls TLS and streaming)",
+    "hickory-resolver0.26.3(system-config,tokio; async DNS deadline repair)",
+    "futures-util0.3.34",
+    "tokio-util0.7.20(io)",
+    "url2.5.8"
+  ],
+  "notes": [
+    "MSRV1.96 retained; actual build uses this toolchain.",
+    "Exact cached crate declarations inspected without extracting target-only packages. All available archive checksums match lock.",
+    "No TLS verification disabling, automatic HTTP retry, ambient proxy or response decompression.",
+    "License declarations are an inventory, not a legal opinion or vulnerability clearance."
+  ]
+}

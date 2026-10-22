@@ -15,6 +15,7 @@ mod forms;
 mod hir;
 mod host;
 mod http;
+mod integrations;
 mod lexer;
 mod parser;
 mod policy;
@@ -29,6 +30,7 @@ mod web;
 pub use auth::{SessionStore, SessionToken};
 pub use error::{Error, Location};
 pub use hir::CheckedProgram;
+pub use integrations::RuntimeGrants;
 pub use project::{CheckedProject, compile_project, load_project_build};
 pub use value::Value;
 

@@ -1,0 +1,139 @@
+{
+  "binary_sha256": "0aa105a7111872313e326cbc37e95ef01a4c47dcec54bcdd4b63abde15ae619c",
+  "observations": [
+    {
+      "case": "baseline",
+      "expected_accept": true,
+      "exit": 0,
+      "pass": true,
+      "diagnostic": ""
+    },
+    {
+      "case": "missing-app-and-module-budget",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: server.dia: D301 at 129:1: effects {Host(\"Http<inventory>\")} exceed the application's declared authority"
+    },
+    {
+      "case": "dynamic-destination",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: server.dia: D310 at 131:3: destination requires a static name"
+    },
+    {
+      "case": "wrong-destination-secret",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: server.dia: D310 at 131:3: path or destination secret type mismatch"
+    },
+    {
+      "case": "secret-comparison",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: server.dia: D115 at 138:3: operator is not defined for these types"
+    },
+    {
+      "case": "secret-display",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: server.dia: D117 at 138:6: utility argument types do not match"
+    },
+    {
+      "case": "secret-in-wire-request",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: server.dia: D310 at 134:3: HTTP requires finite wire-safe types"
+    },
+    {
+      "case": "secret-as-reply",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: server.dia: D310 at 131:3: HTTP requires finite wire-safe types"
+    },
+    {
+      "case": "secret-entry-escape",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: opaque secrets cannot escape the server entry"
+    },
+    {
+      "case": "secret-rpc-escape",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: RPC signatures require finite managed wire-safe types"
+    },
+    {
+      "case": "secret-nested-rpc-escape",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: RPC signatures require finite managed wire-safe types"
+    },
+    {
+      "case": "application-write-with-http",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: server.dia: D110 at 130:36: expected Text<length: 1..80>, found Text"
+    },
+    {
+      "case": "unknown-file-binding",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: tracker.dia: D330 at 32:18: unknown file binding or operation"
+    },
+    {
+      "case": "file-input-cannot-bind-text",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: D330 at 0:0: file inputs require a static id and a file profile, without bindings or multiple selection"
+    },
+    {
+      "case": "file-input-requires-grant",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: tracker.dia: D330 at 32:18: unknown file binding or operation"
+    },
+    {
+      "case": "bad-file-resource",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: invalid file binding or absent resource capabilities"
+    },
+    {
+      "case": "oversized-file-binding",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: invalid file binding or absent resource capabilities"
+    },
+    {
+      "case": "browser-host-authority",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: tracker.dia: D900 unsupported at 40:25: host operations require a server project module"
+    },
+    {
+      "case": "public-api-host-call",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: public API operations must be read-only"
+    }
+  ],
+  "pass": true
+}

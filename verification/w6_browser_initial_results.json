@@ -1,0 +1,163 @@
+{
+  "observations": [
+    {
+      "case": "final-candidate-chrome-login-and-http",
+      "status": "PASS",
+      "source": "CUA visible controls and DOM",
+      "observed": "alice signed in; Call inventory displayed external exact Unicode fixture response; diamond-error empty",
+      "binary_sha256": "cc42010c647d9956d060502a483ba83e6d2c3ba7fd322439535c62e65244d505"
+    },
+    {
+      "id": "91fc3ea26d0c1d8d198762d5f70310b3aa5096de1927d22b24095cd5023134ae",
+      "rows": [
+        {
+          "id": "91fc3ea26d0c1d8d198762d5f70310b3aa5096de1927d22b24095cd5023134ae",
+          "binding": "issue_files",
+          "parent": "146eb7415664913b3d6db2aa58e5c0e06927a9b69c9eb0ad195e4c7fe4c5f110",
+          "owner": "alice",
+          "name": "w6-browser-synthetic.txt",
+          "media": "text/plain",
+          "length": 131112,
+          "state": "ready",
+          "sha256": "096ff62a2485e794ca05b5f1509d245070e2e4035f6fd03f5d8df8316ee0f07f"
+        }
+      ],
+      "node_B_status": 200,
+      "node_B_sha256": "096ff62a2485e794ca05b5f1509d245070e2e4035f6fd03f5d8df8316ee0f07f",
+      "node_B_bytes": 131112,
+      "headers": {
+        "content-type": "application/octet-stream",
+        "content-length": "131112",
+        "content-disposition": "attachment; filename=attachment.bin",
+        "x-content-type-options": "nosniff",
+        "cache-control": "no-store",
+        "content-security-policy": "default-src 'none'; sandbox",
+        "date": "Thu, 22 Oct 2026 18:20:29 GMT"
+      },
+      "matches_uploaded_file": true
+    },
+    {
+      "case": "final-candidate-chrome-upload",
+      "status": "PASS",
+      "observed": "Approved native chooser selected w6-browser-synthetic.txt; upload returned ready metadata with expected owner, parent, byte length and SHA256; selection cleared",
+      "attachment": "91fc3ea26d0c1d8d198762d5f70310b3aa5096de1927d22b24095cd5023134ae",
+      "binary_sha256": "188783455bb45532a1ef2fdc566a4936568aa93c3bc5936f1757518e863cac98"
+    },
+    {
+      "id": "91fc3ea26d0c1d8d198762d5f70310b3aa5096de1927d22b24095cd5023134ae",
+      "rows": [],
+      "node_B_status": 403,
+      "node_B_sha256": "ad2108b94373d55034905f6b8c47981deba9b28c6913ad98af821166727a3859",
+      "node_B_bytes": 18,
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "content-length": "18",
+        "cache-control": "no-store",
+        "x-content-type-options": "nosniff",
+        "cross-origin-resource-policy": "same-origin",
+        "content-security-policy": "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+        "date": "Thu, 22 Oct 2026 18:21:55 GMT"
+      },
+      "matches_uploaded_file": false
+    },
+    {
+      "case": "chrome-native-download-and-delete",
+      "status": "PASS",
+      "download_path": "/home/doll/Pictures/attachment.bin",
+      "download_bytes": 131112,
+      "download_sha256": "096ff62a2485e794ca05b5f1509d245070e2e4035f6fd03f5d8df8316ee0f07f",
+      "observed": "Chrome download completed; CUA Delete attachment cleared ID and showed Deleted.; independent B GET403; metadata row reclaimed; both part/blob paths absent",
+      "binary_sha256": "188783455bb45532a1ef2fdc566a4936568aa93c3bc5936f1757518e863cac98"
+    },
+    {
+      "case": "dns-fixed-chrome-http",
+      "status": "PASS",
+      "observed": "Call inventory displayed exact Unicode external fixture response; diamond-error empty",
+      "binary_sha256": "188783455bb45532a1ef2fdc566a4936568aa93c3bc5936f1757518e863cac98"
+    },
+    {
+      "case": "chrome-logout-clears-selection",
+      "status": "PASS",
+      "observed": "Selected approved file again without submitting; Sign out completed, attachment state emptied, screenshot showed No file chosen and empty ID; diamond-error empty",
+      "binary_sha256": "188783455bb45532a1ef2fdc566a4936568aa93c3bc5936f1757518e863cac98"
+    }
+  ],
+  "binary_sha256": "188783455bb45532a1ef2fdc566a4936568aa93c3bc5936f1757518e863cac98",
+  "root": "/tmp/diamond-w6-browser-atczkivc",
+  "origin": "http://127.0.0.1:39171",
+  "issue": "146eb7415664913b3d6db2aa58e5c0e06927a9b69c9eb0ad195e4c7fe4c5f110",
+  "upload": "/tmp/diamond-w6-browser-atczkivc/w6-browser-synthetic.txt",
+  "upload_sha256": "096ff62a2485e794ca05b5f1509d245070e2e4035f6fd03f5d8df8316ee0f07f",
+  "length": 131112,
+  "node_B_port": 48769,
+  "shutdowns": [
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "cleaned_root": "/tmp/diamond-w6-browser-atczkivc",
+  "status": "PASS",
+  "scope": "Final executable: actual Chrome sign-in, chosen synthetic File, upload/publication/status, cross-node independent byte readback, native Chrome download checksum, approved deletion, post-delete403 and absent physical objects, logout selection clearing. Pre-fix HTTP observation is individually fingerprinted as historical.",
+  "download": {
+    "case": "chrome-native-download-bytes",
+    "status": "PASS",
+    "path": "/home/doll/Pictures/attachment.bin",
+    "bytes": 131112,
+    "sha256": "096ff62a2485e794ca05b5f1509d245070e2e4035f6fd03f5d8df8316ee0f07f"
+  },
+  "browser_screenshots": "Displayed during CUA verification; no screenshot file was saved. No filesystem screenshot artifact is claimed."
+}

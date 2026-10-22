@@ -88,6 +88,7 @@ pub(super) struct BrowserProgram {
 }
 struct Lower<'a> {
     accounts: bool,
+    files: BTreeSet<String>,
     program: &'a CheckedProgram,
     signatures: BTreeMap<String, Vec<(String, Type)>>,
     routes: BTreeSet<String>,
@@ -98,9 +99,13 @@ pub(super) fn lower(
     components: &[syntax::Component],
     rpc: &BTreeMap<String, super::rpc::Operation>,
     accounts: bool,
+    files: Option<&super::files::Config>,
 ) -> Result<BrowserProgram> {
     let mut lower = Lower {
         accounts,
+        files: files
+            .map(|c| c.bindings.keys().cloned().collect())
+            .unwrap_or_default(),
         program,
         signatures: BTreeMap::new(),
         routes: BTreeSet::from(["/".into()]),
@@ -307,7 +312,7 @@ impl Lower<'_> {
         } = &e.kind
             && let ExprKind::Field(base, name) = &callee.kind
             && let ExprKind::Name(namespace) = &base.kind
-            && ["rpc", "session"].contains(&namespace.as_str())
+            && ["rpc", "session", "files"].contains(&namespace.as_str())
         {
             let (parameters, result, operation) = if namespace == "rpc" {
                 let op = rpc
@@ -317,6 +322,44 @@ impl Lower<'_> {
                     op.arguments.clone(),
                     op.result.clone(),
                     format!("rpc/{name}"),
+                )
+            } else if namespace == "files" {
+                let Some((
+                    None,
+                    Expr {
+                        kind: ExprKind::Text(binding),
+                        ..
+                    },
+                )) = arguments.first()
+                else {
+                    return Err(error(
+                        e.location,
+                        "file binding must be a static declared name",
+                    ));
+                };
+                if !self.files.contains(binding)
+                    || !["upload", "status", "delete", "download"].contains(&name.as_str())
+                {
+                    return Err(error(e.location, "unknown file binding or operation"));
+                }
+                if name == "upload"
+                    && !matches!(
+                        arguments.get(2),
+                        Some((
+                            None,
+                            Expr {
+                                kind: ExprKind::Text(_),
+                                ..
+                            }
+                        ))
+                    )
+                {
+                    return Err(error(e.location, "file input id must be static"));
+                }
+                (
+                    vec![Type::Text; if name == "upload" { 3 } else { 2 }],
+                    Type::Text,
+                    format!("files/{name}"),
                 )
             } else {
                 let params = match name.as_str() {
@@ -397,8 +440,10 @@ impl Lower<'_> {
                         (_,HtmlAttribute::Expression(e))=>Attribute::Value(self.expression(e,locals)?),
                     };checked.push((name.clone(),attr));
                 }
-                if tag=="input" && (!checked.iter().any(|(n,_)|["bind-value","bind-checked"].contains(&n.as_str())) || checked.iter().any(|(n,v)| n=="value" || n=="type" && !matches!(v,Attribute::Text(s) if ["text","password","checkbox"].contains(&s.as_str())))) {return Err(error(Location::default(),"inputs require a binding and a static text/password/checkbox type"));}
-                if tag=="input" {
+                let file_input = tag=="input" && checked.iter().any(|(n,v)| n=="type" && matches!(v,Attribute::Text(s) if s=="file"));
+                if file_input && (self.files.is_empty() || !checked.iter().any(|(n,v)|n=="id" && matches!(v,Attribute::Text(s) if super::resolve::identifier(s))) || checked.iter().any(|(n,_)| ["bind-value","bind-checked","value","multiple"].contains(&n.as_str()))) { return Err(error(Location::default(),"file inputs require a static id and a file profile, without bindings or multiple selection")); }
+                if tag=="input" && !file_input && (!checked.iter().any(|(n,_)|["bind-value","bind-checked"].contains(&n.as_str())) || checked.iter().any(|(n,v)| n=="value" || n=="type" && !matches!(v,Attribute::Text(s) if ["text","password","checkbox"].contains(&s.as_str())))) {return Err(error(Location::default(),"inputs require a binding and a static text/password/checkbox type"));}
+                if tag=="input" && !file_input {
                     let checkbox=checked.iter().any(|(n,v)|n=="type" && matches!(v,Attribute::Text(s) if s=="checkbox"));
                     let binding=checked.iter().any(|(_,v)|matches!(v,Attribute::Checked(_)));
                     if checkbox!=binding {return Err(error(Location::default(),"checkbox inputs require bind-checked; text/password inputs require bind-value"));}

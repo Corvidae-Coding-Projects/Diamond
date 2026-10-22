@@ -139,7 +139,14 @@ fn api_work(
     } else {
         Scope::new(principal, grants)
     };
-    let value = invoke(&server.project, &op.rpc, &args, &scope, &mut store)?;
+    let value = invoke(
+        &server.project,
+        &op.rpc,
+        &args,
+        &scope,
+        &mut store,
+        &server.runtime,
+    )?;
     Ok(json!({"api_version":1,"value":value}))
 }
 pub(super) fn account_work(
@@ -235,9 +242,11 @@ pub(super) fn invoke(
     args: &[crate::Value],
     scope: &Scope<'_>,
     store: &mut PostgresStore,
+    runtime: &crate::RuntimeGrants,
 ) -> Result<Json> {
     let result = crate::eval::Interpreter::new(&project.server, scope, None, None)
         .with_postgres(store)
+        .with_integrations(runtime)
         .function(&op.function, args);
     if matches!(op.result, crate::value::Type::AppResult(..)) {
         let result = result.and_then(|v| match v.0 {

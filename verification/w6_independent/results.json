@@ -1,0 +1,123 @@
+{
+  "status": "PASS",
+  "binary_sha256": "0aa105a7111872313e326cbc37e95ef01a4c47dcec54bcdd4b63abde15ae619c",
+  "library_sha256": "5cac9924ad3f4c053a083a889648a89be5e1ec4dca88a5976e2617410ab40266",
+  "error": null,
+  "elapsed_seconds": 66.27220440900419,
+  "observations": 143,
+  "http_requests": 180,
+  "shutdowns": 22,
+  "steps": [
+    {
+      "name": "files",
+      "exit": 0,
+      "status": "PASS",
+      "observations": 65,
+      "http_requests": 87,
+      "shutdowns": 2,
+      "report": "verification/w6_independent/files_results.json",
+      "stdout": "{\"status\": \"PASS\", \"observations\": 65, \"error\": null}",
+      "stderr": ""
+    },
+    {
+      "name": "outbound",
+      "exit": 0,
+      "status": "PASS",
+      "observations": 34,
+      "http_requests": 44,
+      "shutdowns": 6,
+      "report": "verification/w6_independent/outbound_results.json",
+      "stdout": "{\"status\": \"PASS\", \"observations\": 34, \"error\": null}",
+      "stderr": ""
+    },
+    {
+      "name": "limits",
+      "exit": 0,
+      "status": "PASS",
+      "observations": 7,
+      "http_requests": 14,
+      "shutdowns": 3,
+      "report": "verification/w6_independent/limits_results.json",
+      "stdout": "{\"status\": \"PASS\", \"observations\": 7, \"error\": null}",
+      "stderr": ""
+    },
+    {
+      "name": "native",
+      "exit": 0,
+      "status": "PASS",
+      "observations": 6,
+      "http_requests": 9,
+      "shutdowns": 1,
+      "report": "verification/w6_independent/native_results.json",
+      "stdout": "{\"status\": \"PASS\", \"observations\": 6, \"error\": null}",
+      "stderr": ""
+    },
+    {
+      "name": "checker",
+      "exit": 0,
+      "status": "PASS",
+      "observations": 20,
+      "http_requests": 0,
+      "shutdowns": 0,
+      "report": "verification/w6_independent/checker_results.json",
+      "stdout": "{\"status\": \"PASS\", \"observations\": 20, \"failures\": []}",
+      "stderr": ""
+    },
+    {
+      "name": "dns",
+      "exit": 0,
+      "status": "PASS",
+      "observations": 2,
+      "http_requests": 5,
+      "shutdowns": 1,
+      "report": "verification/w6_independent/dns_results.json",
+      "stdout": "{\"status\": \"PASS\", \"observations\": 2, \"error\": null}",
+      "stderr": ""
+    },
+    {
+      "name": "dns_async",
+      "exit": 0,
+      "status": "PASS",
+      "observations": 7,
+      "http_requests": 15,
+      "shutdowns": 7,
+      "report": "verification/w6_independent/dns_async_results.json",
+      "stdout": "{\"status\": \"PASS\", \"observations\": 7, \"error\": null}",
+      "stderr": ""
+    },
+    {
+      "name": "reserved_ipv6",
+      "exit": 0,
+      "status": "PASS",
+      "observations": 2,
+      "http_requests": 6,
+      "shutdowns": 2,
+      "report": "verification/w6_independent/reserved_ipv6_results.json",
+      "stdout": "{\"status\": \"PASS\", \"observations\": 2, \"error\": null}",
+      "stderr": ""
+    }
+  ],
+  "source_sha256": {
+    "verification/w5_independent/common.py": "beeb3d89d7d75709ff82e321a305a83768ad12e8dc8ce24815b9bf7e301adb66",
+    "verification/w5_independent/fixture.py": "8c67a3338f50187215c5e1d92ecb0e998f5017fb5ed2a4a24fac627bb62769f6",
+    "verification/w5_independent/service.py": "73d7ede736d1ba45b7367a549a5d71d039643ce1d1126d7ecaa260e78d4d7820",
+    "verification/w6_independent/ORACLES.md": "7f6788eae1140dd1d69898eae637f5ea221524476e991c8a0b06425f5895f8e5",
+    "verification/w6_independent/checker.py": "038500e0c7a92a2e3b0a72119d864beb62e61fd2f0ffba4325c3758d7e6b4b47",
+    "verification/w6_independent/common.py": "59cff81f3a9a0069bd73d9d8f07fd4597f5b0a883ddf14047ab62390d070396f",
+    "verification/w6_independent/dns.py": "4452261b4c0ffdbb0b04e37775a16e437330f334c7af995c38c1da85d98f455e",
+    "verification/w6_independent/dns_async.py": "fa560015af75cc67a2c695fffc2492c6d88d70414b1aae7b1715013abf59f607",
+    "verification/w6_independent/dns_delay.c": "b8bd49cad56ab90e22a4bf6bbdb80630df1cc2c362ce8969dcb33f5c93f6362a",
+    "verification/w6_independent/external.py": "3dc1dbe9d12a2e7b83bf7302eb88cf63fb90d6335469017fdcd1ef7a8184af9b",
+    "verification/w6_independent/files.py": "5730ad4a69109cf3ad21a573141888ee6a41740f4d33baa4306acbceceef0f91",
+    "verification/w6_independent/fixture.py": "2b9170a5c923ccd6a180ab27e89bafe5de1ee5799892a69862673aecd7a34b93",
+    "verification/w6_independent/limits.py": "764f6be3ba4252fbeae79998b299a76d2e618b563aba1671f4f839c9f3c4c31a",
+    "verification/w6_independent/native.py": "5536b6c2531efd09261022b61acba08afc98b4b1621b793f17423a548070d4c4",
+    "verification/w6_independent/native.rs": "06bf434925f86eb508f6ff5e718734c970a77b7677d9087f3560915a08ccfbee",
+    "verification/w6_independent/outbound.py": "d41150dd5e218f5ab8bbc96650039ec5599948110f461806185f999ceff34294",
+    "verification/w6_independent/reserved_ipv6.py": "085114077bd1870a4078198b4b4da9636aaa0e5123a42fb043c7dbd2d64677e1",
+    "verification/w6_independent/resolver.py": "38675969ebc475229836c7364381e032aec400166bafafbf480c5d0333a88a03",
+    "verification/w6_independent/run.py": "9c6ed6a359aed3ccd9e6943acc6723bb7ca74ed16db864a1dc793ae3b92507fd",
+    "verification/w6_independent/service.py": "72e030f3e7183628a5163b1b611fecd6520df6e714d34fbf4e8f44f6ea2b8f42"
+  },
+  "temporary_root": "/tmp/diamond-w6-independent-run-2us_i5is"
+}

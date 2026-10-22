@@ -52,7 +52,7 @@ impl Rewrite<'_, '_> {
                 for (_, value) in arguments {
                     *value = self.expr(value, locals)?;
                 }
-                if matches!(&callee.kind,ExprKind::Field(base,_) if matches!(&base.kind,ExprKind::Name(n) if ["rpc","session"].contains(&n.as_str())))
+                if matches!(&callee.kind,ExprKind::Field(base,_) if matches!(&base.kind,ExprKind::Name(n) if ["rpc","session","files"].contains(&n.as_str())))
                 {
                     let value = self.lower.remote(&out, &self.scope(locals), self.rpc)?;
                     let EventValue::Remote { result, .. } = &value else {

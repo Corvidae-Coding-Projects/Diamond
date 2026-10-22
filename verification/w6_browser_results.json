@@ -1,0 +1,99 @@
+{
+  "observations": [
+    {
+      "id": "550e4a5a72701ba1de63d0394869de4344a6d22681309471ebbe84e4c62aed58",
+      "rows": [
+        {
+          "id": "550e4a5a72701ba1de63d0394869de4344a6d22681309471ebbe84e4c62aed58",
+          "binding": "issue_files",
+          "parent": "50ee57105eba7076f01919f0857abf8bd5ea0efe97a1094892719dd833d48058",
+          "owner": "alice",
+          "name": "w6-browser-synthetic.txt",
+          "media": "text/plain",
+          "length": 131112,
+          "state": "ready",
+          "sha256": "096ff62a2485e794ca05b5f1509d245070e2e4035f6fd03f5d8df8316ee0f07f"
+        }
+      ],
+      "node_B_status": 200,
+      "node_B_sha256": "096ff62a2485e794ca05b5f1509d245070e2e4035f6fd03f5d8df8316ee0f07f",
+      "node_B_bytes": 131112,
+      "headers": {
+        "content-type": "application/octet-stream",
+        "content-length": "131112",
+        "content-disposition": "attachment; filename=attachment.bin",
+        "x-content-type-options": "nosniff",
+        "cache-control": "no-store",
+        "content-security-policy": "default-src 'none'; sandbox",
+        "date": "Thu, 22 Oct 2026 18:32:50 GMT"
+      },
+      "matches_uploaded_file": true
+    },
+    {
+      "id": "550e4a5a72701ba1de63d0394869de4344a6d22681309471ebbe84e4c62aed58",
+      "rows": [],
+      "node_B_status": 403,
+      "node_B_sha256": "ad2108b94373d55034905f6b8c47981deba9b28c6913ad98af821166727a3859",
+      "node_B_bytes": 18,
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "content-length": "18",
+        "cache-control": "no-store",
+        "x-content-type-options": "nosniff",
+        "cross-origin-resource-policy": "same-origin",
+        "content-security-policy": "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+        "date": "Thu, 22 Oct 2026 18:40:11 GMT"
+      },
+      "matches_uploaded_file": false
+    },
+    {
+      "case": "final-browser-upload-and-delete",
+      "status": "PASS",
+      "observed": "Native chooser and Diamond upload returned ready with expected owner,131112bytes and SHA256; independent B matched bytes. After repeat download tracking failed, returned to app and approved Delete displayed Deleted., cleared ID and denied B readback.",
+      "binary_sha256": "0aa105a7111872313e326cbc37e95ef01a4c47dcec54bcdd4b63abde15ae619c"
+    },
+    {
+      "case": "final-browser-repeat-download",
+      "status": "UNCONFIRMED",
+      "observed": "Native download event timed out. A direct browser navigation returned invalid_request. No new saved file observed. Original complete18878345browserworkflow and downloaded checksum retained separately; file frontend/transport code unchanged by final one-line publicIPv6guard. No cause inferred; prompt clarification optional and withdrawn.",
+      "binary_sha256": "0aa105a7111872313e326cbc37e95ef01a4c47dcec54bcdd4b63abde15ae619c"
+    }
+  ],
+  "binary_sha256": "0aa105a7111872313e326cbc37e95ef01a4c47dcec54bcdd4b63abde15ae619c",
+  "root": "/tmp/diamond-w6-browser-atczkivc",
+  "origin": "http://127.0.0.1:39171",
+  "issue": "50ee57105eba7076f01919f0857abf8bd5ea0efe97a1094892719dd833d48058",
+  "upload": "/tmp/diamond-w6-browser-atczkivc/w6-browser-synthetic.txt",
+  "upload_sha256": "096ff62a2485e794ca05b5f1509d245070e2e4035f6fd03f5d8df8316ee0f07f",
+  "length": 131112,
+  "node_B_port": 53497,
+  "shutdowns": [
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "cleaned_root": "/tmp/diamond-w6-browser-atczkivc",
+  "status": "PASS_WITH_REPEAT_DOWNLOAD_GAP",
+  "scope": "Final0aa executable: actual Chrome chooser/upload/status, independent B byte/hash readback, approved UI deletion and B403, clean fixture shutdown. Complete original188 browser download/logout workflow retained in w6_browser_initial_results.json; those components unchanged by final public IPv6 predicate. Repeat native download event was unconfirmed, not counted as passing.",
+  "prior_complete_workflow": "w6_browser_initial_results.json",
+  "download": {
+    "case": "chrome-native-download-bytes",
+    "status": "PASS",
+    "path": "/home/doll/Pictures/attachment.bin",
+    "bytes": 131112,
+    "sha256": "096ff62a2485e794ca05b5f1509d245070e2e4035f6fd03f5d8df8316ee0f07f"
+  },
+  "browser_screenshots": "Displayed during CUA verification; no saved screenshot file is claimed."
+}

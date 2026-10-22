@@ -21,6 +21,23 @@ pub(crate) struct Context<'a, 'scope> {
     pub scope: &'a Scope<'scope>,
 }
 impl Context<'_, '_> {
+    pub(crate) fn attachment(&mut self, resource: &str, parent: &str, write: bool) -> Result<()> {
+        let record = &self.program.records[&self.program.resources[resource]];
+        let Type::Id(tag) = &record.fields["id"].ty else {
+            return Err(Error::Denied);
+        };
+        let id = Value(ValueKind::Id(tag.clone(), parent.into()));
+        let value = self.operation(resource, "get", &[], &[id], &mut ValueBudget::new())?;
+        if write {
+            self.scope.require(&Effect::Write(resource.into()))?;
+            let ValueKind::Record(_, fields) = value.0 else {
+                return Err(Error::Denied);
+            };
+            self.authorize(resource, Action::Update, &[&fields, &fields])?;
+        }
+        Ok(())
+    }
+
     fn authorize(
         &mut self,
         r: &str,

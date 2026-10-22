@@ -1,0 +1,102 @@
+schema_version = 1
+name = "FilesWorkspace"
+server = "server"
+browser = "ui"
+component = "Tracker"
+styles = ["tracker.css"]
+assets = { logo = "diamond.svg" }
+provides = ["Http<inventory>", "DbRead<Workspaces>", "DbWrite<Workspaces>", "DbRead<Members>", "DbWrite<Members>", "DbRead<Projects>", "DbWrite<Projects>", "DbRead<Issues>", "DbWrite<Issues>"]
+[modules.shared]
+path = "shared.dia"
+target = "shared"
+[modules.server]
+path = "server.dia"
+target = "server"
+imports = ["shared"]
+provides = ["Http<inventory>", "DbRead<Workspaces>", "DbWrite<Workspaces>", "DbRead<Members>", "DbWrite<Members>", "DbRead<Projects>", "DbWrite<Projects>", "DbRead<Issues>", "DbWrite<Issues>"]
+[modules.parts]
+path = "cards.dia"
+target = "browser"
+imports = ["shared"]
+[modules.ui]
+path = "tracker.dia"
+target = "browser"
+imports = ["shared", "parts"]
+[rpc]
+external_get = "server.external_get"
+external_post = "server.external_post"
+create_workspace = "server.create_workspace"
+grant_editor = "server.grant_editor"
+revoke_member = "server.revoke_member"
+create_project = "server.create_project"
+create_issue = "server.create_issue"
+read_issue = "server.read_issue"
+update_issue = "server.update_issue"
+delete_issue = "server.delete_issue"
+issue_page = "server.issue_page"
+joined_projects = "server.joined_projects"
+[storage]
+profile = "relational-v1"
+version = 1
+[storage.resources.Workspaces]
+scope = "id"
+[storage.resources.Members]
+scope = "workspace"
+unique = [["workspace", "user"]]
+[storage.resources.Members.references.workspace]
+resource = "Workspaces"
+fields = { workspace = "id" }
+[storage.resources.Projects]
+scope = "workspace"
+unique = [["workspace", "id"], ["workspace", "label"]]
+[storage.resources.Projects.references.workspace]
+resource = "Workspaces"
+fields = { workspace = "id" }
+[storage.resources.Issues]
+scope = "workspace"
+indexes = [["workspace", "rank"]]
+[storage.resources.Issues.references.project]
+resource = "Projects"
+fields = {workspace = "workspace", project = "id"}
+[storage.lookups.Ownership]
+resource = "Workspaces"
+scope = "id"
+principal = "owner"
+purpose = "Allow owners to administer their workspace."
+[storage.lookups.Membership]
+resource = "Members"
+scope = "workspace"
+principal = "user"
+role = "role"
+purpose = "Permit workspace reads and role-limited edits without exposing the membership directory."
+[storage.joins.IssueProjects]
+resource = "Issues"
+reference = "project"
+output = "IssueProject"
+
+[identity]
+profile = "accounts-v1"
+enrollment = "invite"
+[http_api]
+version = 1
+[http_api.operations.issue_page]
+function = "server.issue_page"
+auth = "token"
+[http_api.operations.read_issue]
+function = "server.read_issue"
+auth = "token"
+[http_api.operations.joined_projects]
+function = "server.joined_projects"
+auth = "token"
+[http_api.operations.update_issue]
+function = "server.update_issue"
+auth = "token"
+[http_api.operations.delete_issue]
+function = "server.delete_issue"
+auth = "token"
+
+[files]
+profile = "shared-fs-v1"
+[files.bindings.issue_files]
+resource = "Issues"
+max_bytes = 8388608

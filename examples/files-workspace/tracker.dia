@@ -1,0 +1,320 @@
+export component Tracker:
+  state attachment: Text = ""
+  state attachment_status: Text = ""
+  state external_path: Text = "/v1/ok"
+  state username: Text = ""
+  state password: Text = ""
+  state signed_in: Text = ""
+  state email: Text = ""
+  state challenge: Text = ""
+  state invitation: Text = ""
+  state current_password: Text = ""
+  state account_target: Text = ""
+  state account_status: Text = ""
+  state credential: Text = ""
+  state credential_id: Text = ""
+  state scopes: Text = ""
+  state credential_list: Text = ""
+  state label: Text = ""
+  state workspace: Text = ""
+  state project: Text = ""
+  state member: Text = ""
+  state member_id: Text = ""
+  state title: Text = ""
+  state details: Text = ""
+  state selected: Text = ""
+  state output: Text = "Sign in, create a workspace, then create a project."
+  state joined: Text = ""
+  state page: IssuePage = IssuePage(cards: [], after: "", total: 0)
+  derived total: Text = int_text(page.total) + " authorized issues"
+
+  on upload_file:
+    attachment = files.upload("issue_files", selected, "issue_attachment")
+    attachment_status = files.status("issue_files", attachment)
+  on download_file:
+    attachment = files.download("issue_files", attachment)
+  on delete_file:
+    attachment = files.delete("issue_files", attachment)
+    attachment_status = "Deleted."
+  on call_external:
+    attachment_status = rpc.external_get(external_path)
+
+  on sign_in:
+    signed_in = session.login(username, password)
+    attachment = ""
+    attachment_status = ""
+    password = ""
+    current_password = ""
+    challenge = ""
+    invitation = ""
+    credential = ""
+    credential_list = ""
+    workspace = ""
+    project = ""
+    member = ""
+    member_id = ""
+    title = ""
+    details = ""
+    selected = ""
+    label = ""
+    joined = ""
+    page = IssuePage(cards: [], after: "", total: 0)
+    output = "Signed in."
+  on sign_out:
+    signed_in = session.logout()
+    attachment = ""
+    attachment_status = ""
+    password = ""
+    current_password = ""
+    challenge = ""
+    invitation = ""
+    credential = ""
+    credential_list = ""
+    workspace = ""
+    project = ""
+    member = ""
+    member_id = ""
+    title = ""
+    details = ""
+    selected = ""
+    label = ""
+    joined = ""
+    page = IssuePage(cards: [], after: "", total: 0)
+    output = "Signed out."
+  on make_workspace:
+    workspace = rpc.create_workspace(label)
+    project = ""
+    selected = ""
+    joined = ""
+    page = IssuePage(cards: [], after: "", total: 0)
+    output = "Workspace created."
+  on make_project:
+    project = rpc.create_project(workspace, label)
+    output = "Project created."
+  on grant:
+    member_id = rpc.grant_editor(workspace, member)
+    output = "Editor access granted."
+  on revoke:
+    output = rpc.revoke_member(member_id)
+  on create:
+    selected = rpc.create_issue(workspace, project, title, details)
+    output = rpc.read_issue(selected)
+    page = rpc.issue_page(workspace, "")
+  on refresh:
+    page = rpc.issue_page(workspace, "")
+  on next:
+    page = rpc.issue_page(workspace, page.after)
+  on read:
+    output = rpc.read_issue(selected)
+  on update:
+    output = rpc.update_issue(selected, title, details)
+    page = rpc.issue_page(workspace, "")
+  on delete:
+    output = rpc.delete_issue(selected)
+    page = rpc.issue_page(workspace, "")
+  on join:
+    joined = rpc.joined_projects(workspace)
+
+  on register:
+    account_status = session.register(username, email, password, invitation)
+    password = ""
+    invitation = ""
+  on verify:
+    account_status = session.verify(challenge)
+    challenge = ""
+    account_status = "Verified. Sign in to continue."
+  on resend:
+    account_status = session.resend(email)
+  on recover:
+    account_status = session.recover(email)
+  on reset_password:
+    account_status = session.reset(challenge, password)
+    signed_in = ""
+    password = ""
+    current_password = ""
+    challenge = ""
+    invitation = ""
+    credential = ""
+    credential_list = ""
+    workspace = ""
+    project = ""
+    member = ""
+    member_id = ""
+    title = ""
+    details = ""
+    selected = ""
+    label = ""
+    joined = ""
+    page = IssuePage(cards: [], after: "", total: 0)
+    output = "Sign in to reload your workspace."
+    account_status = "Password reset. Sign in again."
+  on change_password:
+    account_status = session.change_password(current_password, password)
+    signed_in = ""
+    password = ""
+    current_password = ""
+    challenge = ""
+    invitation = ""
+    credential = ""
+    credential_list = ""
+    workspace = ""
+    project = ""
+    member = ""
+    member_id = ""
+    title = ""
+    details = ""
+    selected = ""
+    label = ""
+    joined = ""
+    page = IssuePage(cards: [], after: "", total: 0)
+    output = "Sign in to reload your workspace."
+    account_status = "Password changed. Sign in again."
+  on logout_all:
+    account_status = session.logout_all()
+    signed_in = ""
+    password = ""
+    current_password = ""
+    challenge = ""
+    invitation = ""
+    credential = ""
+    credential_list = ""
+    workspace = ""
+    project = ""
+    member = ""
+    member_id = ""
+    title = ""
+    details = ""
+    selected = ""
+    label = ""
+    joined = ""
+    page = IssuePage(cards: [], after: "", total: 0)
+    output = "Sign in to reload your workspace."
+    account_status = "All account sessions ended."
+  on invite:
+    account_status = session.invite(email)
+  on disable_account:
+    account_status = session.disable(account_target, true)
+    signed_in = ""
+    password = ""
+    current_password = ""
+    challenge = ""
+    invitation = ""
+    credential = ""
+    credential_list = ""
+    workspace = ""
+    project = ""
+    member = ""
+    member_id = ""
+    title = ""
+    details = ""
+    selected = ""
+    label = ""
+    joined = ""
+    page = IssuePage(cards: [], after: "", total: 0)
+    output = "Sign in to reload your workspace."
+    account_status = "Account disabled. Sign in again to reload private state."
+  on enable_account:
+    account_status = session.disable(account_target, false)
+    signed_in = ""
+    password = ""
+    current_password = ""
+    challenge = ""
+    invitation = ""
+    credential = ""
+    credential_list = ""
+    workspace = ""
+    project = ""
+    member = ""
+    member_id = ""
+    title = ""
+    details = ""
+    selected = ""
+    label = ""
+    joined = ""
+    page = IssuePage(cards: [], after: "", total: 0)
+    output = "Sign in to reload your workspace."
+    account_status = "Account enabled. Sign in again to reload private state."
+  on create_credential:
+    credential = session.create_token("Workspace reader", ["read_issue", "issue_page", "joined_projects"], scopes, 3600)
+    account_status = "Copy your credential now. It is shown only at issuance."
+  on list_credentials:
+    credential_list = session.list_tokens()
+  on revoke_credential:
+    account_status = session.revoke_token(credential_id)
+    credential = ""
+    credential_list = session.list_tokens()
+    account_status = "Credential revoked."
+  on clear_credential:
+    credential = ""
+
+  html:
+    <main>
+      <section class="panel"><h2>Private attachments</h2>
+        <p>Choose an issue, then select a file up to 8 MiB.</p>
+        <label for="issue_attachment">Attachment</label><input id="issue_attachment" type="file">
+        <button on-click={upload_file}>Upload attachment</button>
+        <label for="attachment">Attachment ID</label><input id="attachment" bind-value={attachment}>
+        <button on-click={download_file}>Download attachment</button><button on-click={delete_file}>Delete attachment</button>
+        <label for="external_path">Integration path</label><input id="external_path" bind-value={external_path}>
+        <button on-click={call_external}>Call inventory</button>
+        <pre id="attachment_status">{attachment_status}</pre>
+      </section>
+      <header class="masthead"><img src="asset:logo" alt="Diamond" width="40" height="40"><div><p class="eyebrow">DIAMOND · FILES AND INTEGRATIONS</p><h1>Files workspace</h1></div></header>
+      <when test={pending}><p role="status">Working…</p></when>
+      <when test={error != ""}><p role="alert">{error}</p></when>
+      <section class="panel"><h2>Account</h2>
+        <label for="username">Username</label><input id="username" bind-value={username}>
+        <label for="password">Password</label><input id="password" type="password" bind-value={password}>
+        <button on-click={sign_in}>Sign in</button><button on-click={sign_out}>Sign out</button><p id="signed-in">{signed_in}</p>
+      </section>
+      <section class="panel"><h2>Enrollment and recovery</h2>
+        <p>This development app delivers one-use instructions to the private server mail directory. Paste the delivered code here.</p>
+        <label for="email">Email</label><input id="email" type="text" bind-value={email}>
+        <label for="invitation">Invitation code</label><input id="invitation" type="password" bind-value={invitation}>
+        <button on-click={register}>Register</button><button on-click={resend}>Resend verification</button>
+        <label for="challenge">Verification or recovery code</label><input id="challenge" type="password" bind-value={challenge}>
+        <button on-click={verify}>Verify email</button><button on-click={recover}>Request password recovery</button>
+        <button on-click={reset_password}>Reset password</button>
+        <label for="current-password">Current password</label><input id="current-password" type="password" bind-value={current_password}>
+        <button on-click={change_password}>Change password</button><button on-click={logout_all}>End all sessions</button>
+        <p id="account-status" role="status">{account_status}</p>
+      </section>
+      <section class="panel"><h2>Administrator</h2>
+        <p>These controls require a provisioned account administrator.</p>
+        <button on-click={invite}>Invite email address</button>
+        <label for="account-target">Account username</label><input id="account-target" bind-value={account_target}>
+        <button on-click={disable_account}>Disable account</button><button on-click={enable_account}>Enable account</button>
+      </section>
+      <section class="panel"><h2>API credentials</h2>
+        <label for="scopes">Workspace scope JSON</label><input id="scopes" bind-value={scopes} placeholder="Workspace scope allowlist">
+        <button on-click={create_credential}>Create one-hour read credential</button>
+        <pre id="credential">{credential}</pre><button on-click={clear_credential}>Hide credential</button>
+        <button on-click={list_credentials}>List credentials</button><pre id="credential-list">{credential_list}</pre>
+        <label for="credential-id">Credential ID</label><input id="credential-id" bind-value={credential_id}>
+        <button on-click={revoke_credential}>Revoke credential</button>
+      </section>
+      <section class="panel"><h2>Workspace and project</h2>
+        <label for="label">Name</label><input id="label" bind-value={label} maxlength="80">
+        <button on-click={make_workspace}>Create workspace</button>
+        <label for="workspace">Workspace ID</label><input id="workspace" bind-value={workspace}>
+        <button on-click={make_project}>Create project</button>
+        <label for="project">Project ID</label><input id="project" bind-value={project}>
+        <label for="member">Editor username</label><input id="member" bind-value={member}>
+        <button on-click={grant}>Grant editor</button>
+        <label for="member-id">Membership ID</label><input id="member-id" bind-value={member_id}>
+        <button on-click={revoke}>Revoke member</button>
+      </section>
+      <section class="panel"><h2>Issues</h2>
+        <form on-submit={create}>
+          <label for="title">Title</label><input id="title" bind-value={title} required="true" maxlength="120">
+          <label for="details">Details</label><textarea id="details" bind-value={details}></textarea>
+          <button type="submit" disabled={pending}>Create issue</button>
+        </form>
+        <label for="selected">Issue ID</label><input id="selected" bind-value={selected}>
+        <button on-click={read}>Read</button><button on-click={update}>Save changes</button><button on-click={delete}>Delete</button>
+        <pre id="issue-output">{output}</pre>
+        <button on-click={refresh}>First page</button><button on-click={next}>Next page</button><p id="total">{total}</p>
+        <each items={page.cards} as="card" key={card.id}><use component="Card" issue={card}></use></each>
+        <button on-click={join}>Show projects</button><pre id="joined">{joined}</pre>
+      </section>
+    </main>

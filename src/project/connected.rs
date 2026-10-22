@@ -21,8 +21,8 @@ use std::{collections::BTreeMap, fmt, net::SocketAddr, sync::Arc, time::Duration
 use tokio::sync::Semaphore;
 use zeroize::{Zeroize, Zeroizing};
 
-struct Secrets {
-    configuration: Zeroizing<String>,
+pub(super) struct Secrets {
+    pub(super) configuration: Zeroizing<String>,
     dummy: Zeroizing<String>,
 }
 impl fmt::Debug for Secrets {
@@ -32,18 +32,20 @@ impl fmt::Debug for Secrets {
 }
 
 #[derive(Debug)]
-struct Server {
-    project: CheckedProject,
-    files: BTreeMap<String, String>,
-    pages: BTreeMap<String, String>,
-    authority: String,
-    origin: String,
-    contract: String,
-    cookie: String,
-    secrets: Arc<Secrets>,
-    permits: Arc<Semaphore>,
-    pool: Option<Arc<crate::relational::Pool>>,
-    mailbox: Option<super::accounts::Mailbox>,
+pub(super) struct Server {
+    pub(super) project: CheckedProject,
+    pub(super) files: BTreeMap<String, String>,
+    pub(super) pages: BTreeMap<String, String>,
+    pub(super) authority: String,
+    pub(super) origin: String,
+    pub(super) contract: String,
+    pub(super) cookie: String,
+    pub(super) secrets: Arc<Secrets>,
+    pub(super) permits: Arc<Semaphore>,
+    pub(super) pool: Option<Arc<crate::relational::Pool>>,
+    pub(super) mailbox: Option<super::accounts::Mailbox>,
+    pub(super) runtime: crate::RuntimeGrants,
+    pub(super) objects: Option<super::files::Store>,
 }
 
 #[derive(Deserialize)]
@@ -72,6 +74,31 @@ pub(super) fn serve(
     configuration: &str,
     mailbox: Option<&std::path::Path>,
 ) -> Result<()> {
+    serve_runtime(
+        project,
+        address,
+        origin,
+        configuration,
+        mailbox,
+        crate::RuntimeGrants::default(),
+    )
+}
+
+pub(super) fn serve_runtime(
+    project: &CheckedProject,
+    address: SocketAddr,
+    origin: &str,
+    configuration: &str,
+    mailbox: Option<&std::path::Path>,
+    runtime: crate::RuntimeGrants,
+) -> Result<()> {
+    for effect in &project.server.grants {
+        if let crate::authority::Effect::Host(name) = effect
+            && let Some(name) = name.strip_prefix("Http<").and_then(|s| s.strip_suffix('>'))
+        {
+            runtime.require(name)?;
+        }
+    }
     if !address.ip().is_loopback() {
         return Err(input("connected development serving is loopback-only"));
     }
@@ -80,23 +107,8 @@ pub(super) fn serve(
             "call synchronous connected serving outside an async runtime",
         ));
     }
-    let uri: Uri = origin
-        .parse()
-        .map_err(|_| input("invalid connected public origin"))?;
-    let authority = uri
-        .authority()
-        .ok_or_else(|| input("public origin requires an authority"))?;
-    if uri.scheme_str() != Some("http")
-        || !["localhost", "127.0.0.1", "[::1]"].contains(&authority.host())
-        || authority.port_u16().is_none()
-        || uri.path() != "/"
-        || uri.query().is_some()
-        || origin != format!("http://{authority}")
-    {
-        return Err(input(
-            "W2 requires an exact http://localhost:PORT loopback development origin",
-        ));
-    }
+    let objects = super::files::Store::open(project, configuration, &runtime, false)?;
+    let authority = check_origin(origin)?;
     let mailbox = match (&project.manifest.identity, mailbox) {
         (Some(_), Some(path)) => Some(super::accounts::Mailbox::open(path)?),
         (None, None) => None,
@@ -115,6 +127,8 @@ pub(super) fn serve(
         )?),
     });
     let state = Arc::new(Server {
+        runtime,
+        objects,
         mailbox,
         project: project.clone(),
         files: artifact::files(project)?
@@ -129,7 +143,7 @@ pub(super) fn serve(
             .iter()
             .map(|p| (p.clone(), artifact::page_key(p)))
             .collect(),
-        authority: authority.to_string(),
+        authority,
         origin: origin.into(),
         contract: artifact::contract_id(project)?,
         cookie: format!(
@@ -155,7 +169,8 @@ pub(super) fn serve(
             .fallback(handler)
             .with_state(Arc::clone(&state));
         eprintln!("Diamond connected development server: {origin}");
-        axum::serve(
+        let (stop, cleaner) = super::files::cleaner(Arc::clone(&state));
+        let result = axum::serve(
             listener,
             app.into_make_service_with_connect_info::<SocketAddr>(),
         )
@@ -163,7 +178,10 @@ pub(super) fn serve(
             let _signal = tokio::signal::ctrl_c().await;
         })
         .await
-        .map_err(Error::Io)
+        .map_err(Error::Io);
+        let _sent = stop.send(());
+        let _joined = cleaner.await;
+        result
     });
     // Retain the pool until the outer runtime has joined all owned blocking work.
     // Its synchronous drivers must be destroyed outside an async runtime context.
@@ -190,6 +208,9 @@ async fn handler(
     }
     if request.headers().contains_key(header::AUTHORIZATION) {
         return failure(&Error::Denied);
+    }
+    if path.starts_with("/_diamond/files/") {
+        return super::files::request(server, request, permit).await;
     }
     if request.method() == "GET" || request.method() == "HEAD" {
         if path != "/_diamond/session" {
@@ -407,11 +428,12 @@ fn work(
         &decoded.ok_or(Error::Denied)?,
         &scope,
         &mut store,
+        &server.runtime,
     )?;
     Ok((json!({"value":value}), None))
 }
 
-fn one_header<'a>(request: &'a Request, name: &str) -> Option<&'a str> {
+pub(super) fn one_header<'a>(request: &'a Request, name: &str) -> Option<&'a str> {
     let mut values = request.headers().get_all(name).iter();
     let value = values.next()?.to_str().ok()?;
     if values.next().is_some() {
@@ -438,11 +460,19 @@ fn valid_request(server: &Server, request: &Request) -> bool {
         && one_header(request, "sec-fetch-site") != Some("cross-site")
         && (!request.headers().contains_key(header::CONTENT_LENGTH)
             || one_header(request, "content-length")
-                .and_then(|v| v.parse::<usize>().ok())
-                .is_some_and(|n| n <= 16_384))
+                .and_then(|v| v.parse::<u64>().ok())
+                .is_some_and(|n| {
+                    n <= if request.method() == "PUT"
+                        && request.uri().path().starts_with("/_diamond/files/")
+                    {
+                        super::files::MAX_BYTES
+                    } else {
+                        16_384
+                    }
+                }))
 }
 
-fn cookie(request: &Request, name: &str) -> Result<Option<Zeroizing<String>>> {
+pub(super) fn cookie(request: &Request, name: &str) -> Result<Option<Zeroizing<String>>> {
     let mut result = None;
     for header in request.headers().get_all(header::COOKIE) {
         let header = header.to_str().map_err(|_| Error::Denied)?;
@@ -480,7 +510,7 @@ fn login_response(name: &str, session: Session) -> (Json, Option<String>) {
 fn input_error_contract() -> Error {
     input("RPC contract mismatch")
 }
-fn json_response(status: StatusCode, value: &Json) -> Response {
+pub(super) fn json_response(status: StatusCode, value: &Json) -> Response {
     response(
         status,
         "application/json; charset=utf-8",
@@ -496,7 +526,7 @@ fn response(status: StatusCode, kind: &'static str, text: &str, head: bool) -> R
     response
 }
 
-fn failure(error: &Error) -> Response {
+pub(super) fn failure(error: &Error) -> Response {
     let (status, code) = match error {
         Error::Unauthenticated => (StatusCode::UNAUTHORIZED, "authentication_required"),
         Error::Denied => (StatusCode::FORBIDDEN, "denied"),
@@ -522,4 +552,25 @@ fn failure(error: &Error) -> Response {
         );
     }
     response
+}
+
+fn check_origin(origin: &str) -> Result<String> {
+    let uri: Uri = origin
+        .parse()
+        .map_err(|_| input("invalid connected public origin"))?;
+    let authority = uri
+        .authority()
+        .ok_or_else(|| input("public origin requires an authority"))?;
+    if uri.scheme_str() != Some("http")
+        || !["localhost", "127.0.0.1", "[::1]"].contains(&authority.host())
+        || authority.port_u16().is_none()
+        || uri.path() != "/"
+        || uri.query().is_some()
+        || origin != format!("http://{authority}")
+    {
+        return Err(input(
+            "W2 requires an exact http://localhost:PORT loopback development origin",
+        ));
+    }
+    Ok(authority.to_string())
 }

@@ -61,7 +61,7 @@ fn try_main() -> Result<()> {
     }
     if command == "--version" {
         println!(
-            "diamond {} (W5 accounts and explicit API development profile)",
+            "diamond {} (W6 files and integrations development profile)",
             env!("CARGO_PKG_VERSION")
         );
         return Ok(());
@@ -76,6 +76,8 @@ fn try_main() -> Result<()> {
         "build",
         "serve",
         "project-init",
+        "project-files-init",
+        "project-files-clean",
         "project-user-add",
         "project-admin-add",
         "project-status",
@@ -143,6 +145,7 @@ struct ProjectOptions<'a> {
     listen: &'a str,
     origin: Option<&'a str>,
     postgres_env: Option<&'a str>,
+    runtime_env: Option<&'a str>,
     username: Option<&'a str>,
     password_stdin: bool,
     email: Option<&'a str>,
@@ -156,6 +159,7 @@ fn project_options<'a>(command: &str, arguments: &'a [String]) -> Result<Project
         listen: "127.0.0.1:3000",
         origin: None,
         postgres_env: None,
+        runtime_env: None,
         username: None,
         password_stdin: false,
         email: None,
@@ -180,6 +184,17 @@ fn project_options<'a>(command: &str, arguments: &'a [String]) -> Result<Project
             .get(cursor + 1)
             .context("project option requires a value")?;
         match (command, option.as_str()) {
+            ("serve" | "project-files-init" | "project-files-clean", "--runtime-env") => {
+                if value.is_empty()
+                    || value.len() > 128
+                    || !value
+                        .bytes()
+                        .all(|b| b.is_ascii_alphanumeric() || b == b'_')
+                {
+                    bail!("invalid runtime environment variable name");
+                }
+                parsed.runtime_env = Some(value);
+            }
             ("project-backfill", "--batch") => {
                 parsed.batch = value.parse().context("invalid backfill batch")?;
             }
@@ -190,8 +205,17 @@ fn project_options<'a>(command: &str, arguments: &'a [String]) -> Result<Project
             ("project-admin-add", "--email") => parsed.email = Some(value),
             ("serve", "--identity-mailbox") => parsed.mailbox = Some(PathBuf::from(value)),
             (
-                "run" | "serve" | "project-init" | "project-user-add" | "project-admin-add"
-                | "project-status" | "project-migrate" | "project-backfill" | "project-audit",
+                "run"
+                | "serve"
+                | "project-init"
+                | "project-files-init"
+                | "project-files-clean"
+                | "project-user-add"
+                | "project-admin-add"
+                | "project-status"
+                | "project-migrate"
+                | "project-backfill"
+                | "project-audit",
                 "--postgres-env",
             ) => {
                 if value.is_empty()
@@ -255,6 +279,29 @@ fn project_command(command: &str, arguments: &[String]) -> Result<()> {
             &options,
             configuration.as_deref().map(String::as_str),
         )?,
+        "project-files-init" | "project-files-clean" => {
+            let source = Zeroizing::new(
+                std::env::var(
+                    options
+                        .runtime_env
+                        .context("file administration requires --runtime-env VARIABLE")?,
+                )
+                .map_err(|_| {
+                    anyhow::Error::msg("runtime configuration is missing or invalid UTF-8")
+                })?,
+            );
+            let grants = diamond::RuntimeGrants::from_json(&source)?;
+            println!(
+                "{}",
+                project.maintain_files(
+                    configuration
+                        .as_deref()
+                        .context("file administration requires --postgres-env VARIABLE")?,
+                    &grants,
+                    command == "project-files-init"
+                )?
+            );
+        }
         "project-init" => project
             .initialize_postgres(
                 configuration
@@ -274,39 +321,12 @@ fn project_command(command: &str, arguments: &[String]) -> Result<()> {
             }?;
             println!("{report}");
         }
-        "project-admin-add" => {
-            let password = read_password(options.password_stdin)?;
-            project
-                .add_postgres_administrator(
-                    configuration
-                        .as_deref()
-                        .context("project-admin-add requires --postgres-env VARIABLE")?,
-                    options
-                        .username
-                        .context("project-admin-add requires --user USERNAME")?,
-                    options
-                        .email
-                        .context("project-admin-add requires --email ADDRESS")?,
-                    &password,
-                )
-                .context("provision accounts administrator")?;
-            println!("shared administrator created");
-        }
-        "project-user-add" => {
-            let password = read_password(options.password_stdin)?;
-            project
-                .add_postgres_user(
-                    configuration
-                        .as_deref()
-                        .context("project-user-add requires --postgres-env VARIABLE")?,
-                    options
-                        .username
-                        .context("project-user-add requires --user USERNAME")?,
-                    &password,
-                )
-                .context("provision shared project account")?;
-            println!("shared project account created");
-        }
+        "project-admin-add" | "project-user-add" => provision_project_user(
+            &project,
+            &options,
+            configuration.as_deref().map(String::as_str),
+            command == "project-admin-add",
+        )?,
         _ => bail!("unsupported project command"),
     }
     Ok(())
@@ -326,13 +346,29 @@ fn serve_project(
             .origin
             .context("connected serving requires --origin URL")?;
         if let Some(mailbox) = options.mailbox.as_deref() {
-            project.serve_accounts(address, origin, configuration, mailbox)
+            if let Some(name) = options.runtime_env {
+                let source = Zeroizing::new(std::env::var(name).map_err(|_| {
+                    anyhow::Error::msg("runtime configuration is missing or invalid UTF-8")
+                })?);
+                project.serve_with_runtime(
+                    address,
+                    origin,
+                    configuration,
+                    mailbox,
+                    diamond::RuntimeGrants::from_json(&source)?,
+                )
+            } else {
+                project.serve_accounts(address, origin, configuration, mailbox)
+            }
         } else {
+            if options.runtime_env.is_some() {
+                bail!("runtime grants require --identity-mailbox");
+            }
             project.serve_connected(address, origin, configuration)
         }
         .context("serve connected project")?;
     } else {
-        if options.origin.is_some() || options.mailbox.is_some() {
+        if options.origin.is_some() || options.mailbox.is_some() || options.runtime_env.is_some() {
             bail!("--origin and --identity-mailbox require an explicit PostgreSQL grant");
         }
         project.serve(address).context("serve project assets")?;
@@ -603,7 +639,39 @@ fn read_password(password_stdin: bool) -> Result<Zeroizing<String>> {
 
 fn help() {
     println!(
-        "Diamond {} — W5 shared accounts, APIs and interpreted MVP\n\n  diamond check FILE_OR_PROJECT\n  diamond build PROJECT --out NEW_DIRECTORY\n  diamond serve PROJECT_OR_BUILD [--listen 127.0.0.1:PORT] [--postgres-env VARIABLE --origin http://localhost:PORT] [--identity-mailbox PRIVATE_DIRECTORY]\n  diamond run PROJECT_OR_BUILD [--postgres-env VARIABLE]\n  diamond project-init PROJECT --postgres-env VARIABLE\n  diamond project-user-add PROJECT --postgres-env VARIABLE --user USERNAME [--password-stdin]\n  diamond project-admin-add PROJECT --postgres-env VARIABLE --user USERNAME --email ADDRESS [--password-stdin]\n  diamond project-status PROJECT --postgres-env VARIABLE\n  diamond project-migrate PROJECT --postgres-env VARIABLE\n  diamond project-backfill PROJECT --postgres-env VARIABLE [--batch 100]\n  diamond project-audit PROJECT --postgres-env VARIABLE\n  diamond run FILE [--database PATH] [--auth PATH] [--listen 127.0.0.1:PORT] [--max-requests N]\n  diamond db-init FILE --database PATH\n  diamond user-add --auth PATH --user USERNAME [--password-stdin]\n  diamond explain CODE\n\nOpen http://localhost:PORT for browser secure-cookie support.\nSee README.md for installation, examples, supported language, and limits.",
+        "Diamond {} — W6 private files, integrations and interpreted MVP\n\n  diamond check FILE_OR_PROJECT\n  diamond build PROJECT --out NEW_DIRECTORY\n  diamond serve PROJECT_OR_BUILD [--listen 127.0.0.1:PORT] [--postgres-env VARIABLE --origin http://localhost:PORT] [--identity-mailbox PRIVATE_DIRECTORY] [--runtime-env VARIABLE]\n  diamond run PROJECT_OR_BUILD [--postgres-env VARIABLE]\n  diamond project-init PROJECT --postgres-env VARIABLE\n  diamond project-files-init PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-files-clean PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-user-add PROJECT --postgres-env VARIABLE --user USERNAME [--password-stdin]\n  diamond project-admin-add PROJECT --postgres-env VARIABLE --user USERNAME --email ADDRESS [--password-stdin]\n  diamond project-status PROJECT --postgres-env VARIABLE\n  diamond project-migrate PROJECT --postgres-env VARIABLE\n  diamond project-backfill PROJECT --postgres-env VARIABLE [--batch 100]\n  diamond project-audit PROJECT --postgres-env VARIABLE\n  diamond run FILE [--database PATH] [--auth PATH] [--listen 127.0.0.1:PORT] [--max-requests N]\n  diamond db-init FILE --database PATH\n  diamond user-add --auth PATH --user USERNAME [--password-stdin]\n  diamond explain CODE\n\nOpen http://localhost:PORT for browser secure-cookie support.\nSee README.md for installation, examples, supported language, and limits.",
         env!("CARGO_PKG_VERSION")
     );
+}
+
+fn provision_project_user(
+    project: &diamond::CheckedProject,
+    options: &ProjectOptions<'_>,
+    configuration: Option<&str>,
+    administrator: bool,
+) -> Result<()> {
+    let password = read_password(options.password_stdin)?;
+    let configuration =
+        configuration.context("user provisioning requires --postgres-env VARIABLE")?;
+    let username = options
+        .username
+        .context("user provisioning requires --user USERNAME")?;
+    if administrator {
+        project
+            .add_postgres_administrator(
+                configuration,
+                username,
+                options
+                    .email
+                    .context("administrator requires --email ADDRESS")?,
+                &password,
+            )
+            .context("provision accounts administrator")?;
+    } else {
+        project
+            .add_postgres_user(configuration, username, &password)
+            .context("provision shared project account")?;
+    }
+    println!("shared project account created");
+    Ok(())
 }

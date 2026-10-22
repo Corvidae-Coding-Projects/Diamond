@@ -19,6 +19,7 @@ pub(crate) enum Type {
     Url,
     Response,
     Id(String),
+    Secret(String),
     Record(String),
     Enum(String),
     List(Box<Self>),
@@ -66,6 +67,7 @@ impl fmt::Display for Type {
             Self::Html => f.write_str("Html"),
             Self::Url => f.write_str("Url"),
             Self::Response => f.write_str("Response"),
+            Self::Secret(tag) => write!(f, "Secret<{tag:?}>"),
             Self::Id(tag) => write!(f, "Id<{tag:?}>"),
             Self::Record(name) | Self::Enum(name) => f.write_str(name),
             Self::List(ty) => write!(f, "List<{ty}>"),
@@ -100,6 +102,7 @@ pub(crate) enum ValueKind {
     Url(String),
     Response(u16, String),
     Id(String, String),
+    Secret(crate::integrations::SecretHandle),
     Record(String, BTreeMap<String, Value>),
     Variant(String, String, Vec<Value>),
     List(Vec<Value>),
@@ -256,7 +259,8 @@ fn value_weight(value: &Value, depth: usize, total: &mut usize) -> Result<()> {
         ValueKind::DataError(failure) | ValueKind::Err(failure) => {
             *total = total.saturating_add(failure_weight(failure));
         }
-        ValueKind::Decimal(_)
+        ValueKind::Secret(_)
+        | ValueKind::Decimal(_)
         | ValueKind::Timestamp(_)
         | ValueKind::Duration(_)
         | ValueKind::Int(_)
@@ -345,6 +349,7 @@ impl Value {
             (ValueKind::Text(value), Type::BoundedText(minimum, maximum)) => {
                 (*minimum..=*maximum).contains(&value.chars().count())
             }
+            (ValueKind::Secret(handle), Type::Secret(expected)) => handle.name == *expected,
             (ValueKind::Id(tag, value), Type::Id(expected)) => {
                 tag == expected && crate::auth::valid_id(value)
             }

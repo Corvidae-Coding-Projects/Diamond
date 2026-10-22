@@ -5,7 +5,7 @@ use crate::value::{Failure, Type, Value, ValueKind};
 use serde_json::{Value as Json, json};
 use std::collections::BTreeMap;
 
-pub(super) fn safe_type(ty: &Type, p: &CheckedProgram) -> bool {
+pub(crate) fn safe_type(ty: &Type, p: &CheckedProgram) -> bool {
     safe(ty, p, 0)
 }
 fn safe(ty: &Type, p: &CheckedProgram, depth: usize) -> bool {
@@ -253,7 +253,7 @@ fn decode_enum(n: &str, value: &Json, p: &CheckedProgram, depth: usize) -> Resul
 }
 
 /// Reject repeated object keys at every level before typed decoding.
-pub(super) fn strict_from_slice<T: serde::de::DeserializeOwned>(
+pub(crate) fn strict_from_slice<T: serde::de::DeserializeOwned>(
     bytes: &[u8],
 ) -> std::result::Result<T, serde_json::Error> {
     use serde::Deserialize;

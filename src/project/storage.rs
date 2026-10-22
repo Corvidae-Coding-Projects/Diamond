@@ -117,6 +117,9 @@ impl PostgresStore {
                     super::accounts::validate(store.connection.runtime()?, &store.app)?;
                 }
             }
+            if let Some(config) = &project.manifest.files {
+                super::files::schema(&mut store, config, initialize)?;
+            }
             return Ok(store);
         }
         // Serialize initialization and every request for this application across
@@ -153,6 +156,22 @@ impl PostgresStore {
             ));
         }
         Ok(store)
+    }
+
+    pub(super) fn attachment(
+        &mut self,
+        scope: &Scope<'_>,
+        resource: &str,
+        parent: &str,
+        write: bool,
+    ) -> Result<()> {
+        crate::relational::Context {
+            connection: self.connection.runtime()?,
+            program: &self.program,
+            app: &self.app,
+            scope,
+        }
+        .attachment(resource, parent, write)
     }
 
     pub(crate) fn check_deadline(&self) -> Result<()> {

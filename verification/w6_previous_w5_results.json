@@ -1,0 +1,6091 @@
+{
+  "status": "PASS",
+  "binary_sha256": "0aa105a7111872313e326cbc37e95ef01a4c47dcec54bcdd4b63abde15ae619c",
+  "library_sha256": "5cac9924ad3f4c053a083a889648a89be5e1ec4dca88a5976e2617410ab40266",
+  "error": null,
+  "failures": [],
+  "reports": {
+    "checker": {
+      "status": "PASS",
+      "binary_sha256": "0aa105a7111872313e326cbc37e95ef01a4c47dcec54bcdd4b63abde15ae619c",
+      "error": null,
+      "results": [
+        {
+          "name": "explicit-protected-public-api",
+          "status": "PASS",
+          "expected": "accept",
+          "observed": {
+            "exit": 0,
+            "stdout": "project IndependentAccountsAPI: 2 modules; server server; browser ui / App; capabilities {\"DbRead<Globals>\", \"DbRead<Issues>\", \"DbRead<Projects>\", \"DbWrite<Issues>\"}\n",
+            "stderr": ""
+          },
+          "manifest_sha256": "64a8a59171df223d830f8a920378196832fcc80a70be53c349bb6da4ba0206bf",
+          "server_sha256": "027ea141131ef38c6bb96778a9018d5d30a05dd697fbd9318af243c3f474672a"
+        },
+        {
+          "name": "public-mutation-export",
+          "status": "PASS",
+          "expected": "reject",
+          "observed": {
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: invalid input: public API operations must be read-only\n"
+          },
+          "manifest_sha256": "3007e222cecb1584b27f27bfab91128b8e39473f51798f29f2c15fe303e99e3a",
+          "server_sha256": "027ea141131ef38c6bb96778a9018d5d30a05dd697fbd9318af243c3f474672a"
+        },
+        {
+          "name": "unscoped-resource-needs-explicit-grant",
+          "status": "PASS",
+          "expected": "reject",
+          "observed": {
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: invalid input: API access to unscoped resources requires allow_unscoped=true\n"
+          },
+          "manifest_sha256": "079aee1e12a5984b126faca1058ff70c58ff85a1e935f4da52d43001426e9926",
+          "server_sha256": "027ea141131ef38c6bb96778a9018d5d30a05dd697fbd9318af243c3f474672a"
+        },
+        {
+          "name": "reserved-api-metadata-operation",
+          "status": "PASS",
+          "expected": "reject",
+          "observed": {
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: invalid input: _contract is reserved for API metadata\n"
+          },
+          "manifest_sha256": "38cfbba370736703a8aa046d48ae6420609e377f47e02984a406ce6d0c2389a0",
+          "server_sha256": "027ea141131ef38c6bb96778a9018d5d30a05dd697fbd9318af243c3f474672a"
+        },
+        {
+          "name": "unknown-api-version",
+          "status": "PASS",
+          "expected": "reject",
+          "observed": {
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: invalid input: HTTP API requires version 1 and 1..64 operations\n"
+          },
+          "manifest_sha256": "49f61168a3255326c9f7f9535f8d3158e484c76a1b5b1047cf23f022efb148e3",
+          "server_sha256": "027ea141131ef38c6bb96778a9018d5d30a05dd697fbd9318af243c3f474672a"
+        },
+        {
+          "name": "cookie-is-not-api-auth-profile",
+          "status": "PASS",
+          "expected": "reject",
+          "observed": {
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: invalid input: invalid project manifest: TOML parse error at line 58, column 8\ufffd   |\ufffd58 | auth = \"cookie\"\ufffd   |        ^^^^^^^^\ufffdunknown variant `cookie`, expected `public` or `token`\ufffd\n"
+          },
+          "manifest_sha256": "14216f2fa65927bafdc1ecbd1d29be9f89b887132ec46040edee0ab1538c5c0d",
+          "server_sha256": "027ea141131ef38c6bb96778a9018d5d30a05dd697fbd9318af243c3f474672a"
+        },
+        {
+          "name": "unresolved-operation-binding",
+          "status": "PASS",
+          "expected": "reject",
+          "observed": {
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: invalid input: RPC requires an explicitly exported server function\n"
+          },
+          "manifest_sha256": "8523734476e3771bf77b815cee4ddafe53de266cac7c3f1fd7305c5bfabce973",
+          "server_sha256": "027ea141131ef38c6bb96778a9018d5d30a05dd697fbd9318af243c3f474672a"
+        },
+        {
+          "name": "implicit-unexported-handler",
+          "status": "PASS",
+          "expected": "reject",
+          "observed": {
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: invalid input: RPC requires an explicitly exported server function\n"
+          },
+          "manifest_sha256": "943757b26db048d619590c462ae3b137e74e7a6915c3601a28d455f627ecb9bc",
+          "server_sha256": "7ec669ec6084d203e3637a7c721439cc7cf58c660cf2735be62fe9260f776418"
+        },
+        {
+          "name": "api-needs-explicit-identity",
+          "status": "PASS",
+          "expected": "reject",
+          "observed": {
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: invalid input: HTTP APIs require accounts-v1\n"
+          },
+          "manifest_sha256": "a8205d6800fb4feaabb4239358ea24fc55a5591fc73df4a8ba38d394c07d66ee",
+          "server_sha256": "027ea141131ef38c6bb96778a9018d5d30a05dd697fbd9318af243c3f474672a"
+        },
+        {
+          "name": "enrollment-not-an-arbitrary-mode",
+          "status": "PASS",
+          "expected": "reject",
+          "observed": {
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: invalid input: invalid project manifest: TOML parse error at line 27, column 14\ufffd   |\ufffd27 | enrollment = \"automatic-admin\"\ufffd   |              ^^^^^^^^^^^^^^^^^\ufffdunknown variant `automatic-admin`, expected one of `invite`, `open`, `closed`\ufffd\n"
+          },
+          "manifest_sha256": "dde5c891dd4db80883baba54ccf0c436dd1d6b098bfd8e3dadee1aa36dcfdf44",
+          "server_sha256": "027ea141131ef38c6bb96778a9018d5d30a05dd697fbd9318af243c3f474672a"
+        },
+        {
+          "name": "unknown-api-operation-fields",
+          "status": "PASS",
+          "expected": "reject",
+          "observed": {
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: invalid input: invalid project manifest: TOML parse error at line 58, column 1\ufffd   |\ufffd58 | principal = \"admin\"\ufffd   | ^^^^^^^^^\ufffdunknown field `principal`, expected one of `function`, `auth`, `allow_unscoped`\ufffd\n"
+          },
+          "manifest_sha256": "d52995147198465312da545c88bad143c8670748e67b1520fd28653dfb3dabe2",
+          "server_sha256": "027ea141131ef38c6bb96778a9018d5d30a05dd697fbd9318af243c3f474672a"
+        }
+      ],
+      "temporary_root": "/tmp/diamond-w5-independent-checker-3irhbuae"
+    },
+    "lifecycle": {
+      "status": "PASS",
+      "binary_sha256": "0aa105a7111872313e326cbc37e95ef01a4c47dcec54bcdd4b63abde15ae619c",
+      "error": null,
+      "results": [
+        {
+          "name": "registration-pending-canonical-nonadmin",
+          "status": "PASS",
+          "observed": {
+            "response": {
+              "value": "If eligible, instructions have been delivered."
+            },
+            "rows": [
+              {
+                "username": "bob",
+                "email": "bob@qualification.invalid",
+                "verified": false,
+                "disabled": false,
+                "administrator": false,
+                "epoch": 1,
+                "has_hash": true
+              }
+            ]
+          },
+          "expected": "canonical ASCII email, hashed password, pending and never administrator"
+        },
+        {
+          "name": "registration-known-generic",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "value": "If eligible, instructions have been delivered."
+            }
+          },
+          "expected": "known registration has same public acceptance and does not replace credentials"
+        },
+        {
+          "name": "pending-login-denied",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            }
+          },
+          "expected": "pending account is not an authenticated identity"
+        },
+        {
+          "name": "pending-account-cannot-issue-api-credential",
+          "status": "PASS",
+          "observed": {
+            "status": 401,
+            "value": {
+              "error": "authentication_required"
+            },
+            "credentials": "0"
+          },
+          "expected": "pending account has no authenticated identity; credential issuance returns401 and creates nothing"
+        },
+        {
+          "name": "registration-administrator-forgery",
+          "status": "PASS",
+          "observed": {
+            "status": 400,
+            "value": {
+              "error": "invalid_input"
+            }
+          },
+          "expected": "unknown authority field rejects before account creation"
+        },
+        {
+          "name": "verification-one-use-race",
+          "status": "PASS",
+          "observed": {
+            "outcomes": [
+              [
+                200,
+                {
+                  "value": ""
+                }
+              ],
+              [
+                403,
+                {
+                  "error": "denied"
+                }
+              ]
+            ],
+            "rows": [
+              {
+                "username": "bob",
+                "email": "bob@qualification.invalid",
+                "verified": true,
+                "disabled": false,
+                "administrator": false,
+                "epoch": 1,
+                "has_hash": true
+              }
+            ]
+          },
+          "expected": "one atomic redemption, no replay activation or repeated side effects"
+        },
+        {
+          "name": "ordinary-account-cannot-administer-accounts",
+          "status": "PASS",
+          "observed": {
+            "invitation": [
+              403,
+              {
+                "error": "denied"
+              }
+            ],
+            "disable": [
+              403,
+              {
+                "error": "denied"
+              }
+            ]
+          },
+          "expected": "verified ordinary account cannot invite or disable accounts; CLI administrator remains active"
+        },
+        {
+          "name": "controlled-functional-rate-window-sessions",
+          "status": "PASS",
+          "observed": {
+            "expired_rows": 7
+          },
+          "expected": "owner-only fixture intervention between independent functional phases; rate survival is tested separately without it"
+        },
+        {
+          "name": "issue-scoped-credential-logout-is-separate",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "shape": [
+              "id",
+              "value"
+            ],
+            "id": "55c9d8fe14e4f0b0265e5f6dee6173c6c385b328f9ed56556e0800e6effa7378"
+          },
+          "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+        },
+        {
+          "name": "single-logout-revokes-only-current-session",
+          "status": "PASS",
+          "observed": {
+            "logout": [
+              200,
+              {
+                "value": ""
+              }
+            ],
+            "current_cookie_read": [
+              403,
+              {
+                "error": "denied"
+              }
+            ],
+            "other_session_status": 200,
+            "api_status": 200
+          },
+          "expected": "logout ends its cookie session while another session and independently managed API token remain valid"
+        },
+        {
+          "name": "logout-all-sessions-only",
+          "status": "PASS",
+          "observed": {
+            "logout": [
+              200,
+              {
+                "value": ""
+              }
+            ],
+            "cookie_reads": [
+              [
+                403,
+                {
+                  "error": "denied"
+                }
+              ],
+              [
+                401,
+                {
+                  "error": "authentication_required"
+                }
+              ]
+            ],
+            "api_status": 200
+          },
+          "expected": "both node sessions revoked; separately scoped API credential remains valid"
+        },
+        {
+          "name": "disable-revokes-all-node-credentials",
+          "status": "PASS",
+          "observed": {
+            "disable": [
+              200,
+              {
+                "value": ""
+              }
+            ],
+            "cookie": [
+              [
+                401,
+                {
+                  "error": "authentication_required"
+                }
+              ],
+              [
+                401,
+                {
+                  "error": "authentication_required"
+                }
+              ]
+            ],
+            "api": [
+              [
+                401,
+                {
+                  "error": "authentication_required"
+                }
+              ],
+              [
+                401,
+                {
+                  "error": "authentication_required"
+                }
+              ]
+            ]
+          },
+          "expected": "committed disable prevents new session and API authority on both nodes"
+        },
+        {
+          "name": "enable-does-not-resurrect",
+          "status": "PASS",
+          "observed": {
+            "disabled_login": [
+              403,
+              {
+                "error": "denied"
+              }
+            ],
+            "enable": [
+              200,
+              {
+                "value": ""
+              }
+            ],
+            "old_api": [
+              [
+                401,
+                {
+                  "error": "authentication_required"
+                }
+              ],
+              [
+                401,
+                {
+                  "error": "authentication_required"
+                }
+              ]
+            ],
+            "old_sessions": [
+              [
+                401,
+                {
+                  "error": "authentication_required"
+                }
+              ],
+              [
+                401,
+                {
+                  "error": "authentication_required"
+                }
+              ]
+            ]
+          },
+          "expected": "reenabled account requires fresh authentication; old epochs remain revoked"
+        },
+        {
+          "name": "controlled-functional-rate-window-password-change",
+          "status": "PASS",
+          "observed": {
+            "expired_rows": 6
+          },
+          "expected": "owner-only fixture intervention between independent functional phases; rate survival is tested separately without it"
+        },
+        {
+          "name": "issue-scoped-credential-password-change",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "shape": [
+              "id",
+              "value"
+            ],
+            "id": "6f54f2c8097238d847006991813c60428098de41812de5bfe0a793eef0958e39"
+          },
+          "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+        },
+        {
+          "name": "password-change-revokes-all",
+          "status": "PASS",
+          "observed": {
+            "wrong_current": [
+              403,
+              {
+                "error": "denied"
+              }
+            ],
+            "hash_unchanged_on_wrong": true,
+            "change": [
+              200,
+              {
+                "value": ""
+              }
+            ],
+            "old_password": [
+              403,
+              {
+                "error": "denied"
+              }
+            ],
+            "cookie_denials": [
+              [
+                403,
+                {
+                  "error": "denied"
+                }
+              ],
+              [
+                403,
+                {
+                  "error": "denied"
+                }
+              ]
+            ],
+            "api_denials": [
+              [
+                401,
+                {
+                  "error": "authentication_required"
+                }
+              ],
+              [
+                401,
+                {
+                  "error": "authentication_required"
+                }
+              ]
+            ]
+          },
+          "expected": "current password proves change; successful change revokes both credential classes"
+        },
+        {
+          "name": "controlled-functional-rate-window-recovery",
+          "status": "PASS",
+          "observed": {
+            "expired_rows": 6
+          },
+          "expected": "owner-only fixture intervention between independent functional phases; rate survival is tested separately without it"
+        },
+        {
+          "name": "issue-scoped-credential-password-recovery",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "shape": [
+              "id",
+              "value"
+            ],
+            "id": "5db6cbad732a4ce851f404cd93d30c8f1e90304426b1ec05ed63c0b08e2e9c63"
+          },
+          "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+        },
+        {
+          "name": "recovery-request-generic-nonmutating",
+          "status": "PASS",
+          "observed": {
+            "known": [
+              200,
+              {
+                "value": "If eligible, instructions have been delivered."
+              }
+            ],
+            "unknown": [
+              200,
+              {
+                "value": "If eligible, instructions have been delivered."
+              }
+            ],
+            "existing_api_status": 200
+          },
+          "expected": "same public acceptance; unknown recipient gets no delivery and requesting recovery revokes nothing"
+        },
+        {
+          "name": "recovery-purpose-one-use-revocation",
+          "status": "PASS",
+          "observed": {
+            "wrong_purpose": [
+              403,
+              {
+                "error": "denied"
+              }
+            ],
+            "reset": [
+              200,
+              {
+                "value": ""
+              }
+            ],
+            "replay": [
+              403,
+              {
+                "error": "denied"
+              }
+            ],
+            "old_api": [
+              [
+                401,
+                {
+                  "error": "authentication_required"
+                }
+              ],
+              [
+                401,
+                {
+                  "error": "authentication_required"
+                }
+              ]
+            ]
+          },
+          "expected": "purpose substitution denies without consuming valid recovery; single reset revokes old authority"
+        },
+        {
+          "name": "controlled-functional-rate-window-challenge-expiry-resend",
+          "status": "PASS",
+          "observed": {
+            "expired_rows": 8
+          },
+          "expected": "owner-only fixture intervention between independent functional phases; rate survival is tested separately without it"
+        },
+        {
+          "name": "carol-pending-registration",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "value": "If eligible, instructions have been delivered."
+            }
+          },
+          "expected": "fresh pending account accepted before expiry/resend checks"
+        },
+        {
+          "name": "database-expiry-and-resend-replacement",
+          "status": "PASS",
+          "observed": {
+            "expired": [
+              403,
+              {
+                "error": "denied"
+              }
+            ],
+            "old_resend": [
+              403,
+              {
+                "error": "denied"
+              }
+            ],
+            "wrong_purpose": [
+              403,
+              {
+                "error": "denied"
+              }
+            ],
+            "current": [
+              200,
+              {
+                "value": ""
+              }
+            ],
+            "resend_shapes": [
+              [
+                200,
+                {
+                  "value": "If eligible, instructions have been delivered."
+                }
+              ],
+              [
+                200,
+                {
+                  "value": "If eligible, instructions have been delivered."
+                }
+              ],
+              [
+                200,
+                {
+                  "value": "If eligible, instructions have been delivered."
+                }
+              ]
+            ]
+          },
+          "expected": "database-time expiry denies; resend replaces old secret; generic unknown response; wrong purpose cannot consume current verification"
+        },
+        {
+          "name": "controlled-functional-rate-window-application-binding",
+          "status": "PASS",
+          "observed": {
+            "expired_rows": 5
+          },
+          "expected": "owner-only fixture intervention between independent functional phases; rate survival is tested separately without it"
+        },
+        {
+          "name": "challenge-application-binding",
+          "status": "PASS",
+          "observed": {
+            "wrong_app": [
+              403,
+              {
+                "error": "denied"
+              }
+            ],
+            "correct_app": [
+              200,
+              {
+                "value": ""
+              }
+            ]
+          },
+          "expected": "foreign app cannot redeem or consume another app's challenge"
+        },
+        {
+          "name": "restart-keeps-committed-identity",
+          "status": "PASS",
+          "observed": {
+            "account": [
+              {
+                "username": "bob",
+                "email": "bob@qualification.invalid",
+                "verified": true,
+                "disabled": false,
+                "administrator": false,
+                "epoch": 5,
+                "has_hash": true
+              }
+            ],
+            "read_status": 200
+          },
+          "expected": "fresh node preserves exact committed identity and its current password"
+        },
+        {
+          "name": "controlled-functional-rate-window-session-expiry",
+          "status": "PASS",
+          "observed": {
+            "expired_rows": 4
+          },
+          "expected": "owner-only fixture intervention between independent functional phases; rate survival is tested separately without it"
+        },
+        {
+          "name": "issue-scoped-credential-session-expiry-separate",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "shape": [
+              "id",
+              "value"
+            ],
+            "id": "6809064d53cf5e89438df156f78b0bdc0d93b9847127d260917ff5b02d7f665b"
+          },
+          "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+        },
+        {
+          "name": "session-database-expiry-is-separate-from-api",
+          "status": "PASS",
+          "observed": {
+            "expired_cookies": [
+              [
+                401,
+                {
+                  "error": "authentication_required"
+                }
+              ],
+              [
+                401,
+                {
+                  "error": "authentication_required"
+                }
+              ]
+            ],
+            "api_status": 200
+          },
+          "expected": "database-time session expiry denies both nodes without revoking separately expiring API credentials"
+        },
+        {
+          "name": "database-and-logs-no-plaintext-secrets",
+          "status": "PASS",
+          "observed": {
+            "plaintext_password_rows": "0",
+            "plaintext_challenge_rows": "0",
+            "leaked_secret_fingerprints": []
+          },
+          "expected": "only digests/hashes persist; no delivered or password secrets in actual server logs"
+        }
+      ],
+      "shutdowns": [
+        {
+          "node": "C",
+          "exit": 0,
+          "expected_exit": 0,
+          "forced_kill": false,
+          "panic": false
+        },
+        {
+          "node": "B",
+          "exit": 0,
+          "expected_exit": 0,
+          "forced_kill": false,
+          "panic": false
+        },
+        {
+          "node": "A",
+          "exit": 0,
+          "expected_exit": 0,
+          "forced_kill": false,
+          "panic": false
+        },
+        {
+          "node": "B",
+          "exit": 0,
+          "expected_exit": 0,
+          "forced_kill": false,
+          "panic": false
+        }
+      ],
+      "cleanup_errors": [],
+      "http_requests": 106,
+      "temporary_root": "/tmp/diamond-w5-independent-lifecycle-uxf3ff_t",
+      "scope": "actual account lifecycle, challenge bindings, two-node epochs/revocation, actual private delivery and committed SQL observations"
+    },
+    "enrollment": {
+      "status": "PASS",
+      "binary_sha256": "0aa105a7111872313e326cbc37e95ef01a4c47dcec54bcdd4b63abde15ae619c",
+      "error": null,
+      "results": [
+        {
+          "name": "invitation-admin-authority-required",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            }
+          },
+          "expected": "anonymous caller cannot issue invitation or delivery"
+        },
+        {
+          "name": "invite-profile-denies-uninvited-enrollment",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            }
+          },
+          "expected": "no account or administrative authority without invitation; safe generic acceptance or policy denial"
+        },
+        {
+          "name": "admin-invitation-delivered",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "value": "If eligible, instructions have been delivered."
+            }
+          },
+          "expected": "real private one-use invitation to canonical recipient"
+        },
+        {
+          "name": "invitation-recipient-binding",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            },
+            "unconsumed_correct_invites": "1"
+          },
+          "expected": "wrong recipient cannot create account or consume invitation intended for another address"
+        },
+        {
+          "name": "invitation-consumed-pending-verification",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "value": "If eligible, instructions have been delivered."
+            },
+            "account": [
+              {
+                "username": "invitee",
+                "email": "invitee@qualification.invalid",
+                "verified": false,
+                "disabled": false,
+                "administrator": false,
+                "epoch": 1,
+                "has_hash": true
+              }
+            ],
+            "consumed_invites": "1"
+          },
+          "expected": "single registration atomically consumes invitation and creates pending account with separate verification purpose"
+        },
+        {
+          "name": "invitation-replay-denied",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            }
+          },
+          "expected": "consumed invitation cannot create another account"
+        },
+        {
+          "name": "invited-verification-purpose",
+          "status": "PASS",
+          "observed": {
+            "wrong_purpose": [
+              403,
+              {
+                "error": "denied"
+              }
+            ],
+            "verification": [
+              200,
+              {
+                "value": ""
+              }
+            ]
+          },
+          "expected": "verification credential cannot reset password, then activates only invited account"
+        },
+        {
+          "name": "controlled-functional-rate-window-invitation-expiry",
+          "status": "PASS",
+          "observed": {
+            "expired_rows": 7
+          },
+          "expected": "owner-only fixture intervention between independent functional phases; rate survival is tested separately without it"
+        },
+        {
+          "name": "invitation-database-expiry",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            }
+          },
+          "expected": "database-time expired invitation cannot enroll"
+        },
+        {
+          "name": "closed-profile-no-public-enrollment",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            }
+          },
+          "expected": "closed public registration creates nothing; explicit trusted administrator still authenticates"
+        }
+      ],
+      "shutdowns": [
+        {
+          "node": "C",
+          "exit": 0,
+          "expected_exit": 0,
+          "forced_kill": false,
+          "panic": false
+        },
+        {
+          "node": "A",
+          "exit": 0,
+          "expected_exit": 0,
+          "forced_kill": false,
+          "panic": false
+        },
+        {
+          "node": "B",
+          "exit": 0,
+          "expected_exit": 0,
+          "forced_kill": false,
+          "panic": false
+        }
+      ],
+      "cleanup_errors": [],
+      "http_requests": 23,
+      "temporary_root": null,
+      "scope": "real invite/closed profiles, recipient/purpose/expiry/one-use constraints and CLI administrator boundary"
+    },
+    "api": {
+      "status": "PASS",
+      "binary_sha256": "0aa105a7111872313e326cbc37e95ef01a4c47dcec54bcdd4b63abde15ae619c",
+      "error": null,
+      "results": [
+        {
+          "name": "restricted-runtime-schema-authority",
+          "status": "PASS",
+          "observed": [
+            {
+              "nspname": "diamond_identity",
+              "can_create": false
+            },
+            {
+              "nspname": "diamond_w2",
+              "can_create": false
+            },
+            {
+              "nspname": "diamond_w4",
+              "can_create": false
+            }
+          ],
+          "expected": "identity/data work as DML role without schema CREATE or object ownership"
+        },
+        {
+          "name": "controlled-functional-rate-window-api-functional",
+          "status": "PASS",
+          "observed": {
+            "expired_rows": 6
+          },
+          "expected": "owner-only fixture intervention between independent functional phases; rate survival is tested separately without it"
+        },
+        {
+          "name": "issue-scoped-credential-red-all-operations",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "shape": [
+              "id",
+              "value"
+            ],
+            "id": "51fd811c0d916548720440968a4471654c9db9c8a28f37c97f9e5440d4ed08d3"
+          },
+          "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+        },
+        {
+          "name": "public-declared-read",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "api_version": 1,
+              "value": "Public declared read"
+            }
+          },
+          "expected": {
+            "status": 200,
+            "value": "Public declared read"
+          }
+        },
+        {
+          "name": "public-cannot-mutate",
+          "status": "PASS",
+          "observed": {
+            "status": 401,
+            "value": {
+              "error": "authentication_required"
+            }
+          },
+          "expected": "missing bearer cannot invoke protected mutation"
+        },
+        {
+          "name": "scope-authorized-get",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "api_version": 1,
+              "value": {
+                "id": {
+                  "tag": "issue",
+                  "value": "issue-red-one"
+                },
+                "project": {
+                  "tag": "project",
+                  "value": "project-red-visible"
+                },
+                "rank": "11",
+                "title": "red exact \u96ea",
+                "workspace": {
+                  "tag": "workspace",
+                  "value": "red"
+                }
+              }
+            }
+          },
+          "expected": {
+            "status": 200,
+            "value": {
+              "id": {
+                "tag": "issue",
+                "value": "issue-red-one"
+              },
+              "workspace": {
+                "tag": "workspace",
+                "value": "red"
+              },
+              "project": {
+                "tag": "project",
+                "value": "project-red-visible"
+              },
+              "rank": "11",
+              "title": "red exact \u96ea"
+            }
+          }
+        },
+        {
+          "name": "issue-scoped-credential-reader-policy-attenuation",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "shape": [
+              "id",
+              "value"
+            ],
+            "id": "2074b976c0db91532b44d1641583d41dbb98d9ae803bd29aa34693dd72244445"
+          },
+          "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+        },
+        {
+          "name": "reader-current-policy-read",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "api_version": 1,
+              "value": {
+                "id": {
+                  "tag": "issue",
+                  "value": "issue-red-one"
+                },
+                "project": {
+                  "tag": "project",
+                  "value": "project-red-visible"
+                },
+                "rank": "11",
+                "title": "red exact \u96ea",
+                "workspace": {
+                  "tag": "workspace",
+                  "value": "red"
+                }
+              }
+            }
+          },
+          "expected": {
+            "status": 200,
+            "value": {
+              "id": {
+                "tag": "issue",
+                "value": "issue-red-one"
+              },
+              "workspace": {
+                "tag": "workspace",
+                "value": "red"
+              },
+              "project": {
+                "tag": "project",
+                "value": "project-red-visible"
+              },
+              "rank": "11",
+              "title": "red exact \u96ea"
+            }
+          }
+        },
+        {
+          "name": "operation-allowlist-cannot-expand-reader-role",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            },
+            "rank": "11"
+          },
+          "expected": "credential permits operation/scope but cannot expand owner's current Reader resource policy, even for a provisioned account administrator"
+        },
+        {
+          "name": "scope-denied-get",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            }
+          },
+          "expected": {
+            "status": 403,
+            "value": "denied"
+          }
+        },
+        {
+          "name": "scope-before-aggregate",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "api_version": 1,
+              "value": "2"
+            }
+          },
+          "expected": {
+            "status": 200,
+            "value": "2"
+          }
+        },
+        {
+          "name": "explicit-unscoped-operation-grant",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "api_version": 1,
+              "value": "1"
+            }
+          },
+          "expected": {
+            "status": 200,
+            "value": "1"
+          }
+        },
+        {
+          "name": "scope-before-page",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "api_version": 1,
+              "value": [
+                {
+                  "id": {
+                    "tag": "issue",
+                    "value": "issue-red-one"
+                  },
+                  "project": {
+                    "tag": "project",
+                    "value": "project-red-visible"
+                  },
+                  "rank": "11",
+                  "title": "red exact \u96ea",
+                  "workspace": {
+                    "tag": "workspace",
+                    "value": "red"
+                  }
+                },
+                {
+                  "id": {
+                    "tag": "issue",
+                    "value": "issue-red-two"
+                  },
+                  "project": {
+                    "tag": "project",
+                    "value": "project-red-hidden"
+                  },
+                  "rank": "12",
+                  "title": "red hidden parent",
+                  "workspace": {
+                    "tag": "workspace",
+                    "value": "red"
+                  }
+                }
+              ]
+            }
+          },
+          "expected": {
+            "status": 200,
+            "value": [
+              {
+                "id": {
+                  "tag": "issue",
+                  "value": "issue-red-one"
+                },
+                "workspace": {
+                  "tag": "workspace",
+                  "value": "red"
+                },
+                "project": {
+                  "tag": "project",
+                  "value": "project-red-visible"
+                },
+                "rank": "11",
+                "title": "red exact \u96ea"
+              },
+              {
+                "id": {
+                  "tag": "issue",
+                  "value": "issue-red-two"
+                },
+                "workspace": {
+                  "tag": "workspace",
+                  "value": "red"
+                },
+                "project": {
+                  "tag": "project",
+                  "value": "project-red-hidden"
+                },
+                "rank": "12",
+                "title": "red hidden parent"
+              }
+            ]
+          }
+        },
+        {
+          "name": "scope-excludes-filtered-other-workspace",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "api_version": 1,
+              "value": []
+            }
+          },
+          "expected": {
+            "status": 200,
+            "value": []
+          }
+        },
+        {
+          "name": "right-base-policy-before-join",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "api_version": 1,
+              "value": [
+                {
+                  "left": {
+                    "id": {
+                      "tag": "issue",
+                      "value": "issue-red-one"
+                    },
+                    "project": {
+                      "tag": "project",
+                      "value": "project-red-visible"
+                    },
+                    "rank": "11",
+                    "title": "red exact \u96ea",
+                    "workspace": {
+                      "tag": "workspace",
+                      "value": "red"
+                    }
+                  },
+                  "right": {
+                    "id": {
+                      "tag": "project",
+                      "value": "project-red-visible"
+                    },
+                    "owner": {
+                      "tag": "user",
+                      "value": "alice"
+                    },
+                    "public": true,
+                    "workspace": {
+                      "tag": "workspace",
+                      "value": "red"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "expected": {
+            "status": 200,
+            "value": [
+              {
+                "left": {
+                  "id": {
+                    "tag": "issue",
+                    "value": "issue-red-one"
+                  },
+                  "workspace": {
+                    "tag": "workspace",
+                    "value": "red"
+                  },
+                  "project": {
+                    "tag": "project",
+                    "value": "project-red-visible"
+                  },
+                  "rank": "11",
+                  "title": "red exact \u96ea"
+                },
+                "right": {
+                  "id": {
+                    "tag": "project",
+                    "value": "project-red-visible"
+                  },
+                  "workspace": {
+                    "tag": "workspace",
+                    "value": "red"
+                  },
+                  "owner": {
+                    "tag": "user",
+                    "value": "alice"
+                  },
+                  "public": true
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "scope-before-join",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "api_version": 1,
+              "value": []
+            }
+          },
+          "expected": {
+            "status": 200,
+            "value": []
+          }
+        },
+        {
+          "name": "mutation-poststate-scope-denial",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            }
+          },
+          "expected": "owner has blue membership but red token cannot move record outside its fixed scope"
+        },
+        {
+          "name": "mutation-prestate-scope-denial",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            }
+          },
+          "expected": "no write to an owner-readable row outside token scope"
+        },
+        {
+          "name": "read-return-rollback-edit",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            },
+            "committed_rank": "11"
+          },
+          "expected": "hidden return-read denies and all writes in the serializable operation roll back"
+        },
+        {
+          "name": "read-return-rollback-write_then_hidden",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            },
+            "committed_rank": "11"
+          },
+          "expected": "hidden return-read denies and all writes in the serializable operation roll back"
+        },
+        {
+          "name": "permitted-mutation-readback",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "api_version": 1,
+              "value": {
+                "id": {
+                  "tag": "issue",
+                  "value": "issue-red-one"
+                },
+                "project": {
+                  "tag": "project",
+                  "value": "project-red-visible"
+                },
+                "rank": "44",
+                "title": "red exact \u96ea",
+                "workspace": {
+                  "tag": "workspace",
+                  "value": "red"
+                }
+              }
+            }
+          },
+          "expected": {
+            "status": 200,
+            "value": {
+              "id": {
+                "tag": "issue",
+                "value": "issue-red-one"
+              },
+              "workspace": {
+                "tag": "workspace",
+                "value": "red"
+              },
+              "project": {
+                "tag": "project",
+                "value": "project-red-visible"
+              },
+              "rank": "44",
+              "title": "red exact \u96ea"
+            }
+          }
+        },
+        {
+          "name": "fresh-node-mutation-readback",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "api_version": 1,
+              "value": {
+                "id": {
+                  "tag": "issue",
+                  "value": "issue-red-one"
+                },
+                "project": {
+                  "tag": "project",
+                  "value": "project-red-visible"
+                },
+                "rank": "44",
+                "title": "red exact \u96ea",
+                "workspace": {
+                  "tag": "workspace",
+                  "value": "red"
+                }
+              }
+            }
+          },
+          "expected": {
+            "status": 200,
+            "value": {
+              "id": {
+                "tag": "issue",
+                "value": "issue-red-one"
+              },
+              "workspace": {
+                "tag": "workspace",
+                "value": "red"
+              },
+              "project": {
+                "tag": "project",
+                "value": "project-red-visible"
+              },
+              "rank": "44",
+              "title": "red exact \u96ea"
+            }
+          }
+        },
+        {
+          "name": "external-api-create",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "id": {
+                "tag": "issue",
+                "value": "f6cd85e245c7ae5bc0ae9afbf23afb9100ece67e8d116fd7e774c69a6c23d0ef"
+              },
+              "project": {
+                "tag": "project",
+                "value": "project-red-visible"
+              },
+              "rank": "73",
+              "title": "Created via external API \u96ea",
+              "workspace": {
+                "tag": "workspace",
+                "value": "red"
+              }
+            }
+          },
+          "expected": "server-generated ID and exact typed committed record"
+        },
+        {
+          "name": "external-api-created-fresh-read",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "api_version": 1,
+              "value": {
+                "id": {
+                  "tag": "issue",
+                  "value": "f6cd85e245c7ae5bc0ae9afbf23afb9100ece67e8d116fd7e774c69a6c23d0ef"
+                },
+                "project": {
+                  "tag": "project",
+                  "value": "project-red-visible"
+                },
+                "rank": "73",
+                "title": "Created via external API \u96ea",
+                "workspace": {
+                  "tag": "workspace",
+                  "value": "red"
+                }
+              }
+            }
+          },
+          "expected": {
+            "status": 200,
+            "value": {
+              "id": {
+                "tag": "issue",
+                "value": "f6cd85e245c7ae5bc0ae9afbf23afb9100ece67e8d116fd7e774c69a6c23d0ef"
+              },
+              "project": {
+                "tag": "project",
+                "value": "project-red-visible"
+              },
+              "rank": "73",
+              "title": "Created via external API \u96ea",
+              "workspace": {
+                "tag": "workspace",
+                "value": "red"
+              }
+            }
+          }
+        },
+        {
+          "name": "external-api-delete",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "api_version": 1,
+              "value": "Deleted"
+            }
+          },
+          "expected": {
+            "status": 200,
+            "value": "Deleted"
+          }
+        },
+        {
+          "name": "external-api-delete-committed",
+          "status": "PASS",
+          "observed": "0",
+          "expected": "deleted row absent in independent SQL"
+        },
+        {
+          "name": "credential-list-metadata-only",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "metadata": [
+              {
+                "expires": "2026-10-22 14:32:18.214495-05",
+                "id": "51fd811c0d916548720440968a4471654c9db9c8a28f37c97f9e5440d4ed08d3",
+                "label": "red-all-operations",
+                "operations": [
+                  "read",
+                  "page",
+                  "count",
+                  "joined",
+                  "create",
+                  "move",
+                  "edit",
+                  "delete",
+                  "write_then_hidden",
+                  "codec",
+                  "global_count_allowed"
+                ],
+                "revoked": false,
+                "scopes": {
+                  "workspace": [
+                    "red"
+                  ]
+                }
+              }
+            ]
+          },
+          "expected": "credential IDs/scopes/expiry may be listed; raw secret cannot be read back"
+        },
+        {
+          "name": "other-user-cannot-revoke-credential",
+          "status": "PASS",
+          "observed": {
+            "other_user": [
+              403,
+              {
+                "error": "denied"
+              }
+            ],
+            "owner_after_status": 200
+          },
+          "expected": "credential management limited to its owner"
+        },
+        {
+          "name": "controlled-functional-rate-window-token-management",
+          "status": "PASS",
+          "observed": {
+            "expired_rows": 7
+          },
+          "expected": "owner-only fixture intervention between independent functional phases; rate survival is tested separately without it"
+        },
+        {
+          "name": "token-issuance-empty-operation-allowlist",
+          "status": "PASS",
+          "observed": {
+            "status": 400,
+            "value": {
+              "error": "invalid_input"
+            }
+          },
+          "expected": "undeclared operation is an authority denial; malformed credential fields are shape errors; neither issues a credential"
+        },
+        {
+          "name": "token-issuance-undeclared-operation",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            }
+          },
+          "expected": "undeclared operation is an authority denial; malformed credential fields are shape errors; neither issues a credential"
+        },
+        {
+          "name": "token-issuance-forged-scope-tag",
+          "status": "PASS",
+          "observed": {
+            "status": 400,
+            "value": {
+              "error": "invalid_input"
+            }
+          },
+          "expected": "undeclared operation is an authority denial; malformed credential fields are shape errors; neither issues a credential"
+        },
+        {
+          "name": "token-issuance-invalid-scope-id",
+          "status": "PASS",
+          "observed": {
+            "status": 400,
+            "value": {
+              "error": "invalid_input"
+            }
+          },
+          "expected": "undeclared operation is an authority denial; malformed credential fields are shape errors; neither issues a credential"
+        },
+        {
+          "name": "token-issuance-numeric-lifetime-coercion",
+          "status": "PASS",
+          "observed": {
+            "status": 400,
+            "value": {
+              "error": "invalid_input"
+            }
+          },
+          "expected": "undeclared operation is an authority denial; malformed credential fields are shape errors; neither issues a credential"
+        },
+        {
+          "name": "token-issuance-negative-lifetime",
+          "status": "PASS",
+          "observed": {
+            "status": 400,
+            "value": {
+              "error": "invalid_input"
+            }
+          },
+          "expected": "undeclared operation is an authority denial; malformed credential fields are shape errors; neither issues a credential"
+        },
+        {
+          "name": "token-issuance-unknown-credential-field",
+          "status": "PASS",
+          "observed": {
+            "status": 400,
+            "value": {
+              "error": "invalid_input"
+            }
+          },
+          "expected": "undeclared operation is an authority denial; malformed credential fields are shape errors; neither issues a credential"
+        },
+        {
+          "name": "malformed-credential-issuance-commits-no-changes",
+          "status": "PASS",
+          "observed": {
+            "rows_before": 2,
+            "rows_after": 2,
+            "state_equal": true
+          },
+          "expected": "all rejected issuance shapes leave independent committed credential metadata unchanged"
+        },
+        {
+          "name": "issue-scoped-credential-explicit-revoke",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "shape": [
+              "id",
+              "value"
+            ],
+            "id": "07b1fbcb47dcb30a4c7badfa0593812be6dc5232c0196eec0bc2803cf8b41bbd"
+          },
+          "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+        },
+        {
+          "name": "explicit-token-revocation-on-both-nodes",
+          "status": "PASS",
+          "observed": {
+            "revoke": [
+              200,
+              {
+                "value": ""
+              }
+            ],
+            "new_operations": [
+              [
+                401,
+                {
+                  "error": "authentication_required"
+                }
+              ],
+              [
+                401,
+                {
+                  "error": "authentication_required"
+                }
+              ]
+            ]
+          },
+          "expected": "owner revocation is shared by new operations on either node"
+        },
+        {
+          "name": "api-credential-application-binding",
+          "status": "PASS",
+          "observed": {
+            "status": 401,
+            "value": {
+              "error": "authentication_required"
+            }
+          },
+          "expected": "credential from another app cannot authenticate even with identical operation/resource declarations"
+        },
+        {
+          "name": "controlled-functional-rate-window-strict-wire",
+          "status": "PASS",
+          "observed": {
+            "expired_rows": 5
+          },
+          "expected": "owner-only fixture intervention between independent functional phases; rate survival is tested separately without it"
+        },
+        {
+          "name": "valid-codec-0",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "api_version": 1,
+              "value": {
+                "active": true,
+                "amount": {
+                  "tag": "Decimal",
+                  "value": "-9223372036854775808"
+                },
+                "duration": {
+                  "tag": "Duration",
+                  "value": "-9223372036854775808"
+                },
+                "number": "-9223372036854775808",
+                "optional": {
+                  "tag": "None"
+                },
+                "status": {
+                  "fields": [],
+                  "tag": "Ready"
+                },
+                "text": "\u96ea",
+                "timestamp": {
+                  "tag": "Timestamp",
+                  "value": "-9223372036854775808"
+                },
+                "workspace": {
+                  "tag": "workspace",
+                  "value": "red"
+                }
+              }
+            }
+          },
+          "expected": {
+            "status": 200,
+            "value": {
+              "number": "-9223372036854775808",
+              "text": "\u96ea",
+              "active": true,
+              "amount": {
+                "tag": "Decimal",
+                "value": "-9223372036854775808"
+              },
+              "timestamp": {
+                "tag": "Timestamp",
+                "value": "-9223372036854775808"
+              },
+              "duration": {
+                "tag": "Duration",
+                "value": "-9223372036854775808"
+              },
+              "workspace": {
+                "tag": "workspace",
+                "value": "red"
+              },
+              "optional": {
+                "tag": "None"
+              },
+              "status": {
+                "tag": "Ready",
+                "fields": []
+              }
+            }
+          }
+        },
+        {
+          "name": "valid-codec-1",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "api_version": 1,
+              "value": {
+                "active": false,
+                "amount": {
+                  "tag": "Decimal",
+                  "value": "-9007199254740993"
+                },
+                "duration": {
+                  "tag": "Duration",
+                  "value": "-9007199254740993"
+                },
+                "number": "-9007199254740993",
+                "optional": {
+                  "tag": "Some",
+                  "value": "optional \u96ea\u0000"
+                },
+                "status": {
+                  "fields": [
+                    "detail \u96ea"
+                  ],
+                  "tag": "Detail"
+                },
+                "text": "NUL\u0000exact",
+                "timestamp": {
+                  "tag": "Timestamp",
+                  "value": "-9007199254740993"
+                },
+                "workspace": {
+                  "tag": "workspace",
+                  "value": "red"
+                }
+              }
+            }
+          },
+          "expected": {
+            "status": 200,
+            "value": {
+              "number": "-9007199254740993",
+              "text": "NUL\u0000exact",
+              "active": false,
+              "amount": {
+                "tag": "Decimal",
+                "value": "-9007199254740993"
+              },
+              "timestamp": {
+                "tag": "Timestamp",
+                "value": "-9007199254740993"
+              },
+              "duration": {
+                "tag": "Duration",
+                "value": "-9007199254740993"
+              },
+              "workspace": {
+                "tag": "workspace",
+                "value": "red"
+              },
+              "optional": {
+                "tag": "Some",
+                "value": "optional \u96ea\u0000"
+              },
+              "status": {
+                "tag": "Detail",
+                "fields": [
+                  "detail \u96ea"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "name": "valid-codec-2",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "api_version": 1,
+              "value": {
+                "active": true,
+                "amount": {
+                  "tag": "Decimal",
+                  "value": "-1"
+                },
+                "duration": {
+                  "tag": "Duration",
+                  "value": "-1"
+                },
+                "number": "-1",
+                "optional": {
+                  "tag": "None"
+                },
+                "status": {
+                  "fields": [],
+                  "tag": "Ready"
+                },
+                "text": "e\u0301",
+                "timestamp": {
+                  "tag": "Timestamp",
+                  "value": "-1"
+                },
+                "workspace": {
+                  "tag": "workspace",
+                  "value": "red"
+                }
+              }
+            }
+          },
+          "expected": {
+            "status": 200,
+            "value": {
+              "number": "-1",
+              "text": "e\u0301",
+              "active": true,
+              "amount": {
+                "tag": "Decimal",
+                "value": "-1"
+              },
+              "timestamp": {
+                "tag": "Timestamp",
+                "value": "-1"
+              },
+              "duration": {
+                "tag": "Duration",
+                "value": "-1"
+              },
+              "workspace": {
+                "tag": "workspace",
+                "value": "red"
+              },
+              "optional": {
+                "tag": "None"
+              },
+              "status": {
+                "tag": "Ready",
+                "fields": []
+              }
+            }
+          }
+        },
+        {
+          "name": "valid-codec-3",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "api_version": 1,
+              "value": {
+                "active": false,
+                "amount": {
+                  "tag": "Decimal",
+                  "value": "0"
+                },
+                "duration": {
+                  "tag": "Duration",
+                  "value": "0"
+                },
+                "number": "0",
+                "optional": {
+                  "tag": "Some",
+                  "value": "optional \u96ea\u0000"
+                },
+                "status": {
+                  "fields": [
+                    "detail \u96ea"
+                  ],
+                  "tag": "Detail"
+                },
+                "text": "\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00",
+                "timestamp": {
+                  "tag": "Timestamp",
+                  "value": "0"
+                },
+                "workspace": {
+                  "tag": "workspace",
+                  "value": "red"
+                }
+              }
+            }
+          },
+          "expected": {
+            "status": 200,
+            "value": {
+              "number": "0",
+              "text": "\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00",
+              "active": false,
+              "amount": {
+                "tag": "Decimal",
+                "value": "0"
+              },
+              "timestamp": {
+                "tag": "Timestamp",
+                "value": "0"
+              },
+              "duration": {
+                "tag": "Duration",
+                "value": "0"
+              },
+              "workspace": {
+                "tag": "workspace",
+                "value": "red"
+              },
+              "optional": {
+                "tag": "Some",
+                "value": "optional \u96ea\u0000"
+              },
+              "status": {
+                "tag": "Detail",
+                "fields": [
+                  "detail \u96ea"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "name": "valid-codec-4",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "api_version": 1,
+              "value": {
+                "active": true,
+                "amount": {
+                  "tag": "Decimal",
+                  "value": "9007199254740993"
+                },
+                "duration": {
+                  "tag": "Duration",
+                  "value": "9007199254740993"
+                },
+                "number": "9007199254740993",
+                "optional": {
+                  "tag": "None"
+                },
+                "status": {
+                  "fields": [],
+                  "tag": "Ready"
+                },
+                "text": "<b>literal</b>",
+                "timestamp": {
+                  "tag": "Timestamp",
+                  "value": "9007199254740993"
+                },
+                "workspace": {
+                  "tag": "workspace",
+                  "value": "red"
+                }
+              }
+            }
+          },
+          "expected": {
+            "status": 200,
+            "value": {
+              "number": "9007199254740993",
+              "text": "<b>literal</b>",
+              "active": true,
+              "amount": {
+                "tag": "Decimal",
+                "value": "9007199254740993"
+              },
+              "timestamp": {
+                "tag": "Timestamp",
+                "value": "9007199254740993"
+              },
+              "duration": {
+                "tag": "Duration",
+                "value": "9007199254740993"
+              },
+              "workspace": {
+                "tag": "workspace",
+                "value": "red"
+              },
+              "optional": {
+                "tag": "None"
+              },
+              "status": {
+                "tag": "Ready",
+                "fields": []
+              }
+            }
+          }
+        },
+        {
+          "name": "valid-codec-5",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "api_version": 1,
+              "value": {
+                "active": false,
+                "amount": {
+                  "tag": "Decimal",
+                  "value": "9223372036854775807"
+                },
+                "duration": {
+                  "tag": "Duration",
+                  "value": "9223372036854775807"
+                },
+                "number": "9223372036854775807",
+                "optional": {
+                  "tag": "Some",
+                  "value": "optional \u96ea\u0000"
+                },
+                "status": {
+                  "fields": [
+                    "detail \u96ea"
+                  ],
+                  "tag": "Detail"
+                },
+                "text": "",
+                "timestamp": {
+                  "tag": "Timestamp",
+                  "value": "9223372036854775807"
+                },
+                "workspace": {
+                  "tag": "workspace",
+                  "value": "red"
+                }
+              }
+            }
+          },
+          "expected": {
+            "status": 200,
+            "value": {
+              "number": "9223372036854775807",
+              "text": "",
+              "active": false,
+              "amount": {
+                "tag": "Decimal",
+                "value": "9223372036854775807"
+              },
+              "timestamp": {
+                "tag": "Timestamp",
+                "value": "9223372036854775807"
+              },
+              "duration": {
+                "tag": "Duration",
+                "value": "9223372036854775807"
+              },
+              "workspace": {
+                "tag": "workspace",
+                "value": "red"
+              },
+              "optional": {
+                "tag": "Some",
+                "value": "optional \u96ea\u0000"
+              },
+              "status": {
+                "tag": "Detail",
+                "fields": [
+                  "detail \u96ea"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "name": "strict-codec-integer-json-number",
+          "status": "PASS",
+          "observed": {
+            "status": 400,
+            "value": {
+              "error": "invalid_input"
+            }
+          },
+          "expected": "strict declared wire type rejects without coercion or authority"
+        },
+        {
+          "name": "strict-codec-integer-fraction",
+          "status": "PASS",
+          "observed": {
+            "status": 400,
+            "value": {
+              "error": "invalid_input"
+            }
+          },
+          "expected": "strict declared wire type rejects without coercion or authority"
+        },
+        {
+          "name": "strict-codec-integer-leading-zero",
+          "status": "PASS",
+          "observed": {
+            "status": 400,
+            "value": {
+              "error": "invalid_input"
+            }
+          },
+          "expected": "strict declared wire type rejects without coercion or authority"
+        },
+        {
+          "name": "strict-codec-integer-negative-zero",
+          "status": "PASS",
+          "observed": {
+            "status": 400,
+            "value": {
+              "error": "invalid_input"
+            }
+          },
+          "expected": "strict declared wire type rejects without coercion or authority"
+        },
+        {
+          "name": "strict-codec-integer-plus",
+          "status": "PASS",
+          "observed": {
+            "status": 400,
+            "value": {
+              "error": "invalid_input"
+            }
+          },
+          "expected": "strict declared wire type rejects without coercion or authority"
+        },
+        {
+          "name": "strict-codec-integer-overflow",
+          "status": "PASS",
+          "observed": {
+            "status": 400,
+            "value": {
+              "error": "invalid_input"
+            }
+          },
+          "expected": "strict declared wire type rejects without coercion or authority"
+        },
+        {
+          "name": "strict-codec-integer-underflow",
+          "status": "PASS",
+          "observed": {
+            "status": 400,
+            "value": {
+              "error": "invalid_input"
+            }
+          },
+          "expected": "strict declared wire type rejects without coercion or authority"
+        },
+        {
+          "name": "strict-codec-unknown-record-field",
+          "status": "PASS",
+          "observed": {
+            "status": 400,
+            "value": {
+              "error": "invalid_input"
+            }
+          },
+          "expected": "strict declared wire type rejects without coercion or authority"
+        },
+        {
+          "name": "strict-codec-missing-record-field",
+          "status": "PASS",
+          "observed": {
+            "status": 400,
+            "value": {
+              "error": "invalid_input"
+            }
+          },
+          "expected": "strict declared wire type rejects without coercion or authority"
+        },
+        {
+          "name": "strict-codec-string-over-scalar-bound",
+          "status": "PASS",
+          "observed": {
+            "status": 400,
+            "value": {
+              "error": "invalid_input"
+            }
+          },
+          "expected": "strict declared wire type rejects without coercion or authority"
+        },
+        {
+          "name": "strict-codec-lone-high-surrogate",
+          "status": "PASS",
+          "observed": {
+            "status": 400,
+            "value": {
+              "error": "invalid_input"
+            }
+          },
+          "expected": "strict declared wire type rejects without coercion or authority"
+        },
+        {
+          "name": "strict-codec-lone-low-surrogate",
+          "status": "PASS",
+          "observed": {
+            "status": 400,
+            "value": {
+              "error": "invalid_input"
+            }
+          },
+          "expected": "strict declared wire type rejects without coercion or authority"
+        },
+        {
+          "name": "strict-codec-id-wrong-nominal-tag",
+          "status": "PASS",
+          "observed": {
+            "status": 400,
+            "value": {
+              "error": "invalid_input"
+            }
+          },
+          "expected": "strict declared wire type rejects without coercion or authority"
+        },
+        {
+          "name": "strict-codec-id-invalid-value",
+          "status": "PASS",
+          "observed": {
+            "status": 400,
+            "value": {
+              "error": "invalid_input"
+            }
+          },
+          "expected": "strict declared wire type rejects without coercion or authority"
+        },
+        {
+          "name": "strict-codec-option-is-not-null",
+          "status": "PASS",
+          "observed": {
+            "status": 400,
+            "value": {
+              "error": "invalid_input"
+            }
+          },
+          "expected": "strict declared wire type rejects without coercion or authority"
+        },
+        {
+          "name": "strict-codec-option-payload-required",
+          "status": "PASS",
+          "observed": {
+            "status": 400,
+            "value": {
+              "error": "invalid_input"
+            }
+          },
+          "expected": "strict declared wire type rejects without coercion or authority"
+        },
+        {
+          "name": "strict-codec-option-unknown-field",
+          "status": "PASS",
+          "observed": {
+            "status": 400,
+            "value": {
+              "error": "invalid_input"
+            }
+          },
+          "expected": "strict declared wire type rejects without coercion or authority"
+        },
+        {
+          "name": "strict-codec-enum-unknown-tag",
+          "status": "PASS",
+          "observed": {
+            "status": 400,
+            "value": {
+              "error": "invalid_input"
+            }
+          },
+          "expected": "strict declared wire type rejects without coercion or authority"
+        },
+        {
+          "name": "strict-codec-enum-unit-has-no-fields",
+          "status": "PASS",
+          "observed": {
+            "status": 400,
+            "value": {
+              "error": "invalid_input"
+            }
+          },
+          "expected": "strict declared wire type rejects without coercion or authority"
+        },
+        {
+          "name": "strict-codec-decimal-number-coercion",
+          "status": "PASS",
+          "observed": {
+            "status": 400,
+            "value": {
+              "error": "invalid_input"
+            }
+          },
+          "expected": "strict declared wire type rejects without coercion or authority"
+        },
+        {
+          "name": "strict-codec-timestamp-wrong-tag",
+          "status": "PASS",
+          "observed": {
+            "status": 400,
+            "value": {
+              "error": "invalid_input"
+            }
+          },
+          "expected": "strict declared wire type rejects without coercion or authority"
+        },
+        {
+          "name": "strict-codec-duration-unknown-field",
+          "status": "PASS",
+          "observed": {
+            "status": 400,
+            "value": {
+              "error": "invalid_input"
+            }
+          },
+          "expected": "strict declared wire type rejects without coercion or authority"
+        },
+        {
+          "name": "strict-codec-bool-string-coercion",
+          "status": "PASS",
+          "observed": {
+            "status": 400,
+            "value": {
+              "error": "invalid_input"
+            }
+          },
+          "expected": "strict declared wire type rejects without coercion or authority"
+        },
+        {
+          "name": "unknown-envelope-field",
+          "status": "PASS",
+          "observed": {
+            "status": 400,
+            "value": {
+              "error": "invalid_input"
+            }
+          },
+          "expected": "strict envelope rejects malformed/extra fields"
+        },
+        {
+          "name": "missing-arguments",
+          "status": "PASS",
+          "observed": {
+            "status": 400,
+            "value": {
+              "error": "invalid_input"
+            }
+          },
+          "expected": "strict envelope rejects malformed/extra fields"
+        },
+        {
+          "name": "wrong-arguments-shape",
+          "status": "PASS",
+          "observed": {
+            "status": 400,
+            "value": {
+              "error": "invalid_input"
+            }
+          },
+          "expected": "strict envelope rejects malformed/extra fields"
+        },
+        {
+          "name": "wrong-arity",
+          "status": "PASS",
+          "observed": {
+            "status": 400,
+            "value": {
+              "error": "invalid_input"
+            }
+          },
+          "expected": "strict envelope rejects malformed/extra fields"
+        },
+        {
+          "name": "wrong-version",
+          "status": "PASS",
+          "observed": {
+            "status": 400,
+            "value": {
+              "error": "invalid_input"
+            }
+          },
+          "expected": "version/origin/forwarded data cannot expand identity or scope"
+        },
+        {
+          "name": "origin-expansion",
+          "status": "PASS",
+          "observed": {
+            "status": 400,
+            "value": {
+              "error": "invalid_request"
+            }
+          },
+          "expected": "version/origin/forwarded data cannot expand identity or scope"
+        },
+        {
+          "name": "forwarded-authority",
+          "status": "PASS",
+          "observed": {
+            "status": 400,
+            "value": {
+              "error": "invalid_request"
+            }
+          },
+          "expected": "version/origin/forwarded data cannot expand identity or scope"
+        },
+        {
+          "name": "random-bearer",
+          "status": "PASS",
+          "observed": {
+            "status": 401,
+            "value": {
+              "error": "authentication_required"
+            }
+          },
+          "expected": "only actual opaque current credentials authenticate"
+        },
+        {
+          "name": "wrong-prefix",
+          "status": "PASS",
+          "observed": {
+            "status": 401,
+            "value": {
+              "error": "authentication_required"
+            }
+          },
+          "expected": "only actual opaque current credentials authenticate"
+        },
+        {
+          "name": "username-is-not-bearer",
+          "status": "PASS",
+          "observed": {
+            "status": 401,
+            "value": {
+              "error": "authentication_required"
+            }
+          },
+          "expected": "only actual opaque current credentials authenticate"
+        },
+        {
+          "name": "api-cookie-profile-rejected",
+          "status": "PASS",
+          "observed": {
+            "cookie_only": [
+              403,
+              {
+                "error": "denied"
+              }
+            ],
+            "mixed": [
+              403,
+              {
+                "error": "denied"
+              }
+            ]
+          },
+          "expected": "cookie and mixed profiles cannot authenticate the bearer API"
+        },
+        {
+          "name": "api-bearer-not-cookie-rpc",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            }
+          },
+          "expected": "valid API credential does not replace cookie/RPC session"
+        },
+        {
+          "name": "no-reflection-/api/v1/hidden",
+          "status": "PASS",
+          "observed": {
+            "status": 404,
+            "response": "{\"error\":\"not_found\"}"
+          },
+          "expected": "undeclared helpers and unsupported route versions are not reflected"
+        },
+        {
+          "name": "no-reflection-/api/v1/missing",
+          "status": "PASS",
+          "observed": {
+            "status": 404,
+            "response": "{\"error\":\"not_found\"}"
+          },
+          "expected": "undeclared helpers and unsupported route versions are not reflected"
+        },
+        {
+          "name": "no-reflection-/api/v2/read",
+          "status": "PASS",
+          "observed": {
+            "status": 404,
+            "response": "{\"error\":\"not_found\"}"
+          },
+          "expected": "undeclared helpers and unsupported route versions are not reflected"
+        },
+        {
+          "name": "strict-method-GET",
+          "status": "PASS",
+          "observed": {
+            "status": 405,
+            "headers": {
+              "content-type": "application/json; charset=utf-8",
+              "content-length": "18",
+              "cache-control": "no-store",
+              "x-content-type-options": "nosniff",
+              "cross-origin-resource-policy": "same-origin",
+              "content-security-policy": "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+              "date": "Thu, 22 Oct 2026 18:32:18 GMT"
+            },
+            "response": "{\"error\":\"method\"}"
+          },
+          "expected": "API operation is explicit POST, no automatic credentialed CORS"
+        },
+        {
+          "name": "strict-method-PUT",
+          "status": "PASS",
+          "observed": {
+            "status": 405,
+            "headers": {
+              "content-type": "application/json; charset=utf-8",
+              "content-length": "18",
+              "cache-control": "no-store",
+              "x-content-type-options": "nosniff",
+              "cross-origin-resource-policy": "same-origin",
+              "content-security-policy": "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+              "date": "Thu, 22 Oct 2026 18:32:18 GMT"
+            },
+            "response": "{\"error\":\"method\"}"
+          },
+          "expected": "API operation is explicit POST, no automatic credentialed CORS"
+        },
+        {
+          "name": "strict-method-DELETE",
+          "status": "PASS",
+          "observed": {
+            "status": 405,
+            "headers": {
+              "content-type": "application/json; charset=utf-8",
+              "content-length": "18",
+              "cache-control": "no-store",
+              "x-content-type-options": "nosniff",
+              "cross-origin-resource-policy": "same-origin",
+              "content-security-policy": "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+              "date": "Thu, 22 Oct 2026 18:32:18 GMT"
+            },
+            "response": "{\"error\":\"method\"}"
+          },
+          "expected": "API operation is explicit POST, no automatic credentialed CORS"
+        },
+        {
+          "name": "strict-method-OPTIONS",
+          "status": "PASS",
+          "observed": {
+            "status": 405,
+            "headers": {
+              "content-type": "application/json; charset=utf-8",
+              "content-length": "18",
+              "cache-control": "no-store",
+              "x-content-type-options": "nosniff",
+              "cross-origin-resource-policy": "same-origin",
+              "content-security-policy": "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+              "date": "Thu, 22 Oct 2026 18:32:18 GMT"
+            },
+            "response": "{\"error\":\"method\"}"
+          },
+          "expected": "API operation is explicit POST, no automatic credentialed CORS"
+        },
+        {
+          "name": "duplicate-envelope-field",
+          "status": "PASS",
+          "observed": {
+            "status": 400,
+            "response": "{\"error\":\"invalid_input\"}"
+          },
+          "expected": "duplicate JSON fields reject before protected dispatch"
+        },
+        {
+          "name": "controlled-functional-rate-window-generated-attenuation",
+          "status": "PASS",
+          "observed": {
+            "expired_rows": 8
+          },
+          "expected": "owner-only fixture intervention between independent functional phases; rate survival is tested separately without it"
+        },
+        {
+          "name": "issue-scoped-credential-generated-0",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "shape": [
+              "id",
+              "value"
+            ],
+            "id": "d8d4b786f44f329f9f1163cb4ad7247e1c299dec9f7b2ac87299aaea061479c0"
+          },
+          "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+        },
+        {
+          "name": "generated-get-0",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "api_version": 1,
+              "value": {
+                "id": {
+                  "tag": "issue",
+                  "value": "issue-red-one"
+                },
+                "project": {
+                  "tag": "project",
+                  "value": "project-red-visible"
+                },
+                "rank": "11",
+                "title": "red exact \u96ea",
+                "workspace": {
+                  "tag": "workspace",
+                  "value": "red"
+                }
+              }
+            }
+          },
+          "expected": {
+            "status": 200,
+            "value": {
+              "id": {
+                "tag": "issue",
+                "value": "issue-red-one"
+              },
+              "workspace": {
+                "tag": "workspace",
+                "value": "red"
+              },
+              "project": {
+                "tag": "project",
+                "value": "project-red-visible"
+              },
+              "rank": "11",
+              "title": "red exact \u96ea"
+            }
+          }
+        },
+        {
+          "name": "generated-count-0",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "api_version": 1,
+              "value": "3"
+            }
+          },
+          "expected": {
+            "status": 200,
+            "value": "3"
+          }
+        },
+        {
+          "name": "issue-scoped-credential-generated-1",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "shape": [
+              "id",
+              "value"
+            ],
+            "id": "6415f07c32a72c243b762b981c3552cd84e39116954c2a656740c3e8c49dc54c"
+          },
+          "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+        },
+        {
+          "name": "generated-get-1",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            }
+          },
+          "expected": {
+            "status": 403,
+            "value": "denied"
+          }
+        },
+        {
+          "name": "generated-count-1",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "api_version": 1,
+              "value": "0"
+            }
+          },
+          "expected": {
+            "status": 200,
+            "value": "0"
+          }
+        },
+        {
+          "name": "issue-scoped-credential-generated-2",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "shape": [
+              "id",
+              "value"
+            ],
+            "id": "8dd456dbde666da07768e8d436c9112649644952170dd314a8cdc9a765c9066d"
+          },
+          "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+        },
+        {
+          "name": "generated-get-2",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            }
+          },
+          "expected": {
+            "status": 403,
+            "value": "denied"
+          }
+        },
+        {
+          "name": "generated-count-2",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "api_version": 1,
+              "value": "0"
+            }
+          },
+          "expected": {
+            "status": 200,
+            "value": "0"
+          }
+        },
+        {
+          "name": "issue-scoped-credential-generated-3",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "shape": [
+              "id",
+              "value"
+            ],
+            "id": "3290ee0532e3aaf4125db8a73e7b5d57d03799e2d7fdf6766f61f17b15a43773"
+          },
+          "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+        },
+        {
+          "name": "generated-get-3",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            }
+          },
+          "expected": {
+            "status": 403,
+            "value": "denied"
+          }
+        },
+        {
+          "name": "generated-count-3",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            }
+          },
+          "expected": {
+            "status": 403,
+            "value": "denied"
+          }
+        },
+        {
+          "name": "issue-scoped-credential-generated-4",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "shape": [
+              "id",
+              "value"
+            ],
+            "id": "07baf8e2adac112f9b78da69ffcde93b75b1a8d1c73b9382cd0dd26b57f3730a"
+          },
+          "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+        },
+        {
+          "name": "generated-get-4",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "api_version": 1,
+              "value": {
+                "id": {
+                  "tag": "issue",
+                  "value": "issue-red-one"
+                },
+                "project": {
+                  "tag": "project",
+                  "value": "project-red-visible"
+                },
+                "rank": "11",
+                "title": "red exact \u96ea",
+                "workspace": {
+                  "tag": "workspace",
+                  "value": "red"
+                }
+              }
+            }
+          },
+          "expected": {
+            "status": 200,
+            "value": {
+              "id": {
+                "tag": "issue",
+                "value": "issue-red-one"
+              },
+              "workspace": {
+                "tag": "workspace",
+                "value": "red"
+              },
+              "project": {
+                "tag": "project",
+                "value": "project-red-visible"
+              },
+              "rank": "11",
+              "title": "red exact \u96ea"
+            }
+          }
+        },
+        {
+          "name": "generated-count-4",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            }
+          },
+          "expected": {
+            "status": 403,
+            "value": "denied"
+          }
+        },
+        {
+          "name": "issue-scoped-credential-generated-5",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "shape": [
+              "id",
+              "value"
+            ],
+            "id": "b091f200e058407b319e68170c470ec06742b448ac2702d7f9959c26073f4b0e"
+          },
+          "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+        },
+        {
+          "name": "generated-get-5",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "api_version": 1,
+              "value": {
+                "id": {
+                  "tag": "issue",
+                  "value": "issue-red-two"
+                },
+                "project": {
+                  "tag": "project",
+                  "value": "project-red-hidden"
+                },
+                "rank": "12",
+                "title": "red hidden parent",
+                "workspace": {
+                  "tag": "workspace",
+                  "value": "red"
+                }
+              }
+            }
+          },
+          "expected": {
+            "status": 200,
+            "value": {
+              "id": {
+                "tag": "issue",
+                "value": "issue-red-two"
+              },
+              "workspace": {
+                "tag": "workspace",
+                "value": "red"
+              },
+              "project": {
+                "tag": "project",
+                "value": "project-red-hidden"
+              },
+              "rank": "12",
+              "title": "red hidden parent"
+            }
+          }
+        },
+        {
+          "name": "generated-count-5",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            }
+          },
+          "expected": {
+            "status": 403,
+            "value": "denied"
+          }
+        },
+        {
+          "name": "issue-scoped-credential-generated-6",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "shape": [
+              "id",
+              "value"
+            ],
+            "id": "922307de38cd1d125e2b0528574778ff956fd29e6e6581b897545b9614084fcb"
+          },
+          "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+        },
+        {
+          "name": "generated-get-6",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            }
+          },
+          "expected": {
+            "status": 403,
+            "value": "denied"
+          }
+        },
+        {
+          "name": "generated-count-6",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "api_version": 1,
+              "value": "2"
+            }
+          },
+          "expected": {
+            "status": 200,
+            "value": "2"
+          }
+        },
+        {
+          "name": "issue-scoped-credential-generated-7",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "shape": [
+              "id",
+              "value"
+            ],
+            "id": "27a6cd8bb0e48f40c6c09d4e3bb59a87dc5721dbdde25e4273b43213f6b6f560"
+          },
+          "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+        },
+        {
+          "name": "generated-get-7",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            }
+          },
+          "expected": {
+            "status": 403,
+            "value": "denied"
+          }
+        },
+        {
+          "name": "generated-count-7",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            }
+          },
+          "expected": {
+            "status": 403,
+            "value": "denied"
+          }
+        },
+        {
+          "name": "issue-scoped-credential-generated-8",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "shape": [
+              "id",
+              "value"
+            ],
+            "id": "d462b56bb7ab2fb0a18b492ca8cf40d49751c6f0b3e9a6b962d2e1a9664afcf4"
+          },
+          "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+        },
+        {
+          "name": "generated-get-8",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "api_version": 1,
+              "value": {
+                "id": {
+                  "tag": "issue",
+                  "value": "issue-red-one"
+                },
+                "project": {
+                  "tag": "project",
+                  "value": "project-red-visible"
+                },
+                "rank": "11",
+                "title": "red exact \u96ea",
+                "workspace": {
+                  "tag": "workspace",
+                  "value": "red"
+                }
+              }
+            }
+          },
+          "expected": {
+            "status": 200,
+            "value": {
+              "id": {
+                "tag": "issue",
+                "value": "issue-red-one"
+              },
+              "workspace": {
+                "tag": "workspace",
+                "value": "red"
+              },
+              "project": {
+                "tag": "project",
+                "value": "project-red-visible"
+              },
+              "rank": "11",
+              "title": "red exact \u96ea"
+            }
+          }
+        },
+        {
+          "name": "generated-count-8",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "api_version": 1,
+              "value": "2"
+            }
+          },
+          "expected": {
+            "status": 200,
+            "value": "2"
+          }
+        },
+        {
+          "name": "issue-scoped-credential-generated-9",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "shape": [
+              "id",
+              "value"
+            ],
+            "id": "99c1628b56dee90e91c719209ffb2aee4c6d4e628c07ef9db79807eb80a2f250"
+          },
+          "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+        },
+        {
+          "name": "generated-get-9",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            }
+          },
+          "expected": {
+            "status": 403,
+            "value": "denied"
+          }
+        },
+        {
+          "name": "generated-count-9",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "api_version": 1,
+              "value": "2"
+            }
+          },
+          "expected": {
+            "status": 200,
+            "value": "2"
+          }
+        },
+        {
+          "name": "issue-scoped-credential-generated-10",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "shape": [
+              "id",
+              "value"
+            ],
+            "id": "5faacac6286a3cd02691839231b11804d8410e061f6795034edb0e4a59cfeddb"
+          },
+          "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+        },
+        {
+          "name": "generated-get-10",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            }
+          },
+          "expected": {
+            "status": 403,
+            "value": "denied"
+          }
+        },
+        {
+          "name": "generated-count-10",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            }
+          },
+          "expected": {
+            "status": 403,
+            "value": "denied"
+          }
+        },
+        {
+          "name": "issue-scoped-credential-generated-11",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "shape": [
+              "id",
+              "value"
+            ],
+            "id": "2ce1f31fa6ce124b4ac5e87110a607115d19ef942f0dd643a4c64c296019a31b"
+          },
+          "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+        },
+        {
+          "name": "generated-get-11",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            }
+          },
+          "expected": {
+            "status": 403,
+            "value": "denied"
+          }
+        },
+        {
+          "name": "generated-count-11",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            }
+          },
+          "expected": {
+            "status": 403,
+            "value": "denied"
+          }
+        },
+        {
+          "name": "issue-scoped-credential-generated-12",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "shape": [
+              "id",
+              "value"
+            ],
+            "id": "5c19996f14f7a43bd8ea39c28c3528ada09c3223537ae9b3f0da9aee443e17ba"
+          },
+          "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+        },
+        {
+          "name": "generated-get-12",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "api_version": 1,
+              "value": {
+                "id": {
+                  "tag": "issue",
+                  "value": "issue-red-one"
+                },
+                "project": {
+                  "tag": "project",
+                  "value": "project-red-visible"
+                },
+                "rank": "11",
+                "title": "red exact \u96ea",
+                "workspace": {
+                  "tag": "workspace",
+                  "value": "red"
+                }
+              }
+            }
+          },
+          "expected": {
+            "status": 200,
+            "value": {
+              "id": {
+                "tag": "issue",
+                "value": "issue-red-one"
+              },
+              "workspace": {
+                "tag": "workspace",
+                "value": "red"
+              },
+              "project": {
+                "tag": "project",
+                "value": "project-red-visible"
+              },
+              "rank": "11",
+              "title": "red exact \u96ea"
+            }
+          }
+        },
+        {
+          "name": "generated-count-12",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            }
+          },
+          "expected": {
+            "status": 403,
+            "value": "denied"
+          }
+        },
+        {
+          "name": "issue-scoped-credential-generated-13",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "shape": [
+              "id",
+              "value"
+            ],
+            "id": "17dc94eb025874bc56e3eb387de91af07a8374cae7034d9b310c9d9ac6ef6180"
+          },
+          "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+        },
+        {
+          "name": "generated-get-13",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            }
+          },
+          "expected": {
+            "status": 403,
+            "value": "denied"
+          }
+        },
+        {
+          "name": "generated-count-13",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "api_version": 1,
+              "value": "2"
+            }
+          },
+          "expected": {
+            "status": 200,
+            "value": "2"
+          }
+        },
+        {
+          "name": "issue-scoped-credential-generated-14",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "shape": [
+              "id",
+              "value"
+            ],
+            "id": "67ead3b4fa42bf0ab05ac505d7a44cd638d4746f85e279eb5909ee722be073fe"
+          },
+          "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+        },
+        {
+          "name": "generated-get-14",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            }
+          },
+          "expected": {
+            "status": 403,
+            "value": "denied"
+          }
+        },
+        {
+          "name": "generated-count-14",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            }
+          },
+          "expected": {
+            "status": 403,
+            "value": "denied"
+          }
+        },
+        {
+          "name": "issue-scoped-credential-generated-15",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "shape": [
+              "id",
+              "value"
+            ],
+            "id": "cafd9a6dd2502ce18f083172bf86747da1026f1b91b0a985adb9913fdb06d8e6"
+          },
+          "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+        },
+        {
+          "name": "generated-get-15",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            }
+          },
+          "expected": {
+            "status": 403,
+            "value": "denied"
+          }
+        },
+        {
+          "name": "generated-count-15",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "api_version": 1,
+              "value": "0"
+            }
+          },
+          "expected": {
+            "status": 200,
+            "value": "0"
+          }
+        },
+        {
+          "name": "issue-scoped-credential-generated-16",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "shape": [
+              "id",
+              "value"
+            ],
+            "id": "5cbe619c845e1a358b6ae77f92205a57c8c16290d5d40864c12576bde4056455"
+          },
+          "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+        },
+        {
+          "name": "generated-get-16",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "api_version": 1,
+              "value": {
+                "id": {
+                  "tag": "issue",
+                  "value": "issue-red-one"
+                },
+                "project": {
+                  "tag": "project",
+                  "value": "project-red-visible"
+                },
+                "rank": "11",
+                "title": "red exact \u96ea",
+                "workspace": {
+                  "tag": "workspace",
+                  "value": "red"
+                }
+              }
+            }
+          },
+          "expected": {
+            "status": 200,
+            "value": {
+              "id": {
+                "tag": "issue",
+                "value": "issue-red-one"
+              },
+              "workspace": {
+                "tag": "workspace",
+                "value": "red"
+              },
+              "project": {
+                "tag": "project",
+                "value": "project-red-visible"
+              },
+              "rank": "11",
+              "title": "red exact \u96ea"
+            }
+          }
+        },
+        {
+          "name": "generated-count-16",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "api_version": 1,
+              "value": "3"
+            }
+          },
+          "expected": {
+            "status": 200,
+            "value": "3"
+          }
+        },
+        {
+          "name": "issue-scoped-credential-generated-17",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "shape": [
+              "id",
+              "value"
+            ],
+            "id": "da87726128525eca52740b13fba4e1674f13fc1ba2e7cbd9b55a4c09f21a68e6"
+          },
+          "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+        },
+        {
+          "name": "generated-get-17",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "api_version": 1,
+              "value": {
+                "id": {
+                  "tag": "issue",
+                  "value": "issue-red-two"
+                },
+                "project": {
+                  "tag": "project",
+                  "value": "project-red-hidden"
+                },
+                "rank": "12",
+                "title": "red hidden parent",
+                "workspace": {
+                  "tag": "workspace",
+                  "value": "red"
+                }
+              }
+            }
+          },
+          "expected": {
+            "status": 200,
+            "value": {
+              "id": {
+                "tag": "issue",
+                "value": "issue-red-two"
+              },
+              "workspace": {
+                "tag": "workspace",
+                "value": "red"
+              },
+              "project": {
+                "tag": "project",
+                "value": "project-red-hidden"
+              },
+              "rank": "12",
+              "title": "red hidden parent"
+            }
+          }
+        },
+        {
+          "name": "generated-count-17",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "api_version": 1,
+              "value": "2"
+            }
+          },
+          "expected": {
+            "status": 200,
+            "value": "2"
+          }
+        },
+        {
+          "name": "issue-scoped-credential-generated-18",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "shape": [
+              "id",
+              "value"
+            ],
+            "id": "bf7101873c67efed00d639541bc0de3bb9c782557cf11d93de12defc846f988e"
+          },
+          "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+        },
+        {
+          "name": "generated-get-18",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            }
+          },
+          "expected": {
+            "status": 403,
+            "value": "denied"
+          }
+        },
+        {
+          "name": "generated-count-18",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "api_version": 1,
+              "value": "0"
+            }
+          },
+          "expected": {
+            "status": 200,
+            "value": "0"
+          }
+        },
+        {
+          "name": "issue-scoped-credential-generated-19",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "shape": [
+              "id",
+              "value"
+            ],
+            "id": "b519b2870b35a0f409a11dfcffd66eb7d95f9f43ddc275aa0a2fb1b8a6ff445d"
+          },
+          "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+        },
+        {
+          "name": "generated-get-19",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            }
+          },
+          "expected": {
+            "status": 403,
+            "value": "denied"
+          }
+        },
+        {
+          "name": "generated-count-19",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "api_version": 1,
+              "value": "0"
+            }
+          },
+          "expected": {
+            "status": 200,
+            "value": "0"
+          }
+        },
+        {
+          "name": "issue-scoped-credential-generated-20",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "shape": [
+              "id",
+              "value"
+            ],
+            "id": "d95fd066e5d2c8eaf493569334370535384b0517b7f80ea7d91f6b13f8f8b64c"
+          },
+          "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+        },
+        {
+          "name": "generated-get-20",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            }
+          },
+          "expected": {
+            "status": 403,
+            "value": "denied"
+          }
+        },
+        {
+          "name": "generated-count-20",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            }
+          },
+          "expected": {
+            "status": 403,
+            "value": "denied"
+          }
+        },
+        {
+          "name": "issue-scoped-credential-generated-21",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "shape": [
+              "id",
+              "value"
+            ],
+            "id": "36c30fab68b96dfe4b754a24d5404df56d0a7957eaad85871afde1032fb4beb4"
+          },
+          "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+        },
+        {
+          "name": "generated-get-21",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            }
+          },
+          "expected": {
+            "status": 403,
+            "value": "denied"
+          }
+        },
+        {
+          "name": "generated-count-21",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            }
+          },
+          "expected": {
+            "status": 403,
+            "value": "denied"
+          }
+        },
+        {
+          "name": "issue-scoped-credential-generated-22",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "shape": [
+              "id",
+              "value"
+            ],
+            "id": "aefdf1b6bb47e1aabd20c1919f1eb89b2ebb3c029e3f4a92249a41c6f3e217bc"
+          },
+          "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+        },
+        {
+          "name": "generated-get-22",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            }
+          },
+          "expected": {
+            "status": 403,
+            "value": "denied"
+          }
+        },
+        {
+          "name": "generated-count-22",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "api_version": 1,
+              "value": "2"
+            }
+          },
+          "expected": {
+            "status": 200,
+            "value": "2"
+          }
+        },
+        {
+          "name": "issue-scoped-credential-generated-23",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "shape": [
+              "id",
+              "value"
+            ],
+            "id": "adc1ab0f69f91db380c62ec9f1e4fc58a44e07b8db961bb16d764d8c878d97d7"
+          },
+          "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+        },
+        {
+          "name": "generated-get-23",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            }
+          },
+          "expected": {
+            "status": 403,
+            "value": "denied"
+          }
+        },
+        {
+          "name": "generated-count-23",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "api_version": 1,
+              "value": "0"
+            }
+          },
+          "expected": {
+            "status": 200,
+            "value": "0"
+          }
+        },
+        {
+          "name": "new-operation-after-role-revocation-A",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            }
+          },
+          "expected": {
+            "status": 403,
+            "value": "denied"
+          }
+        },
+        {
+          "name": "new-operation-after-role-revocation-B",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            }
+          },
+          "expected": {
+            "status": 403,
+            "value": "denied"
+          }
+        },
+        {
+          "name": "role-restore-does-not-expand-fixed-blue-scope",
+          "status": "PASS",
+          "observed": {
+            "status": 403,
+            "value": {
+              "error": "denied"
+            }
+          },
+          "expected": {
+            "status": 403,
+            "value": "denied"
+          }
+        },
+        {
+          "name": "database-expired-api-A",
+          "status": "PASS",
+          "observed": {
+            "status": 401,
+            "value": {
+              "error": "authentication_required"
+            }
+          },
+          "expected": "database-time expiry denies current API credential on either node"
+        },
+        {
+          "name": "database-expired-api-B",
+          "status": "PASS",
+          "observed": {
+            "status": 401,
+            "value": {
+              "error": "authentication_required"
+            }
+          },
+          "expected": "database-time expiry denies current API credential on either node"
+        },
+        {
+          "name": "api-digest-and-fixed-scopes-persist",
+          "status": "PASS",
+          "observed": [
+            {
+              "id": "51fd811c0d916548720440968a4471654c9db9c8a28f37c97f9e5440d4ed08d3",
+              "username": "alice",
+              "operations": [
+                "read",
+                "page",
+                "count",
+                "joined",
+                "create",
+                "move",
+                "edit",
+                "delete",
+                "write_then_hidden",
+                "codec",
+                "global_count_allowed"
+              ],
+              "scopes": "{\"workspace\":[\"red\"]}",
+              "revoked": false,
+              "not_plaintext": true
+            }
+          ],
+          "expected": "committed digest metadata, fixed operation allowlist and nominal scope IDs"
+        },
+        {
+          "name": "server-source-canary-excluded-from-public-build",
+          "status": "PASS",
+          "observed": {
+            "public_artifacts": [
+              "index.html",
+              "assets/5e04328fd18532a49f8d03a757e515db51af816715d74dc2dd55d4b375b16fbe.css",
+              "assets/0ea37713c63ef6c54b7e20dad32b38d2dbb715722a6aa7614b4ebf62276f92ae.js",
+              "assets/05881d008f3458c2080f6807157e67c64a70dc223da09beefd6e69f7aa0d3ef8.js.map"
+            ],
+            "leaked": []
+          },
+          "expected": "server-only helper/canary text is absent from browser-facing artifacts"
+        }
+      ],
+      "shutdowns": [
+        {
+          "node": "C",
+          "exit": 0,
+          "expected_exit": 0,
+          "forced_kill": false,
+          "panic": false
+        },
+        {
+          "node": "A",
+          "exit": 0,
+          "expected_exit": 0,
+          "forced_kill": false,
+          "panic": false
+        },
+        {
+          "node": "B",
+          "exit": 0,
+          "expected_exit": 0,
+          "forced_kill": false,
+          "panic": false
+        }
+      ],
+      "cleanup_errors": [],
+      "http_requests": 177,
+      "seed": 3516944389,
+      "dimensions": {
+        "owners": [
+          "alice",
+          "bob",
+          "carol",
+          "outsider"
+        ],
+        "scopes": [
+          "blue",
+          "private",
+          "red"
+        ],
+        "scope_sets": [
+          [
+            "blue"
+          ],
+          [
+            "blue",
+            "private"
+          ],
+          [
+            "blue",
+            "private",
+            "red"
+          ],
+          [
+            "blue",
+            "red"
+          ],
+          [
+            "private"
+          ],
+          [
+            "private",
+            "red"
+          ],
+          [
+            "red"
+          ]
+        ],
+        "operation_sets": [
+          [
+            "count"
+          ],
+          [
+            "count",
+            "joined"
+          ],
+          [
+            "count",
+            "joined",
+            "read"
+          ],
+          [
+            "count",
+            "read"
+          ],
+          [
+            "joined"
+          ],
+          [
+            "joined",
+            "read"
+          ],
+          [
+            "read"
+          ]
+        ],
+        "membership_changes": 1,
+        "generated_cases": [
+          {
+            "index": 0,
+            "owner": "alice",
+            "scopes": [
+              "blue",
+              "red"
+            ],
+            "operations": [
+              "count",
+              "joined",
+              "read"
+            ],
+            "target_issue": "issue-red-one",
+            "get_expected_allowed": true,
+            "count_expected": 3
+          },
+          {
+            "index": 1,
+            "owner": "bob",
+            "scopes": [
+              "blue",
+              "private"
+            ],
+            "operations": [
+              "count",
+              "joined",
+              "read"
+            ],
+            "target_issue": "issue-red-two",
+            "get_expected_allowed": false,
+            "count_expected": 0
+          },
+          {
+            "index": 2,
+            "owner": "carol",
+            "scopes": [
+              "blue"
+            ],
+            "operations": [
+              "count",
+              "joined"
+            ],
+            "target_issue": "issue-blue-one",
+            "get_expected_allowed": false,
+            "count_expected": 0
+          },
+          {
+            "index": 3,
+            "owner": "outsider",
+            "scopes": [
+              "blue",
+              "private",
+              "red"
+            ],
+            "operations": [
+              "joined",
+              "read"
+            ],
+            "target_issue": "issue-private-one",
+            "get_expected_allowed": false,
+            "count_expected": null
+          },
+          {
+            "index": 4,
+            "owner": "alice",
+            "scopes": [
+              "blue",
+              "private",
+              "red"
+            ],
+            "operations": [
+              "joined",
+              "read"
+            ],
+            "target_issue": "issue-red-one",
+            "get_expected_allowed": true,
+            "count_expected": null
+          },
+          {
+            "index": 5,
+            "owner": "bob",
+            "scopes": [
+              "blue",
+              "private",
+              "red"
+            ],
+            "operations": [
+              "read"
+            ],
+            "target_issue": "issue-red-two",
+            "get_expected_allowed": true,
+            "count_expected": null
+          },
+          {
+            "index": 6,
+            "owner": "carol",
+            "scopes": [
+              "blue",
+              "red"
+            ],
+            "operations": [
+              "count",
+              "joined",
+              "read"
+            ],
+            "target_issue": "issue-blue-one",
+            "get_expected_allowed": false,
+            "count_expected": 2
+          },
+          {
+            "index": 7,
+            "owner": "outsider",
+            "scopes": [
+              "blue"
+            ],
+            "operations": [
+              "joined",
+              "read"
+            ],
+            "target_issue": "issue-private-one",
+            "get_expected_allowed": false,
+            "count_expected": null
+          },
+          {
+            "index": 8,
+            "owner": "alice",
+            "scopes": [
+              "private",
+              "red"
+            ],
+            "operations": [
+              "count",
+              "joined",
+              "read"
+            ],
+            "target_issue": "issue-red-one",
+            "get_expected_allowed": true,
+            "count_expected": 2
+          },
+          {
+            "index": 9,
+            "owner": "bob",
+            "scopes": [
+              "private",
+              "red"
+            ],
+            "operations": [
+              "count"
+            ],
+            "target_issue": "issue-red-two",
+            "get_expected_allowed": false,
+            "count_expected": 2
+          },
+          {
+            "index": 10,
+            "owner": "carol",
+            "scopes": [
+              "blue",
+              "private",
+              "red"
+            ],
+            "operations": [
+              "joined",
+              "read"
+            ],
+            "target_issue": "issue-blue-one",
+            "get_expected_allowed": false,
+            "count_expected": null
+          },
+          {
+            "index": 11,
+            "owner": "outsider",
+            "scopes": [
+              "blue"
+            ],
+            "operations": [
+              "read"
+            ],
+            "target_issue": "issue-private-one",
+            "get_expected_allowed": false,
+            "count_expected": null
+          },
+          {
+            "index": 12,
+            "owner": "alice",
+            "scopes": [
+              "blue",
+              "private",
+              "red"
+            ],
+            "operations": [
+              "joined",
+              "read"
+            ],
+            "target_issue": "issue-red-one",
+            "get_expected_allowed": true,
+            "count_expected": null
+          },
+          {
+            "index": 13,
+            "owner": "bob",
+            "scopes": [
+              "blue",
+              "red"
+            ],
+            "operations": [
+              "count",
+              "joined"
+            ],
+            "target_issue": "issue-red-two",
+            "get_expected_allowed": false,
+            "count_expected": 2
+          },
+          {
+            "index": 14,
+            "owner": "carol",
+            "scopes": [
+              "blue",
+              "private",
+              "red"
+            ],
+            "operations": [
+              "joined"
+            ],
+            "target_issue": "issue-blue-one",
+            "get_expected_allowed": false,
+            "count_expected": null
+          },
+          {
+            "index": 15,
+            "owner": "outsider",
+            "scopes": [
+              "blue",
+              "private",
+              "red"
+            ],
+            "operations": [
+              "count",
+              "joined",
+              "read"
+            ],
+            "target_issue": "issue-private-one",
+            "get_expected_allowed": false,
+            "count_expected": 0
+          },
+          {
+            "index": 16,
+            "owner": "alice",
+            "scopes": [
+              "blue",
+              "private",
+              "red"
+            ],
+            "operations": [
+              "count",
+              "read"
+            ],
+            "target_issue": "issue-red-one",
+            "get_expected_allowed": true,
+            "count_expected": 3
+          },
+          {
+            "index": 17,
+            "owner": "bob",
+            "scopes": [
+              "blue",
+              "private",
+              "red"
+            ],
+            "operations": [
+              "count",
+              "joined",
+              "read"
+            ],
+            "target_issue": "issue-red-two",
+            "get_expected_allowed": true,
+            "count_expected": 2
+          },
+          {
+            "index": 18,
+            "owner": "carol",
+            "scopes": [
+              "blue",
+              "private"
+            ],
+            "operations": [
+              "count",
+              "joined",
+              "read"
+            ],
+            "target_issue": "issue-blue-one",
+            "get_expected_allowed": false,
+            "count_expected": 0
+          },
+          {
+            "index": 19,
+            "owner": "outsider",
+            "scopes": [
+              "blue",
+              "private"
+            ],
+            "operations": [
+              "count"
+            ],
+            "target_issue": "issue-private-one",
+            "get_expected_allowed": false,
+            "count_expected": 0
+          },
+          {
+            "index": 20,
+            "owner": "alice",
+            "scopes": [
+              "blue",
+              "private"
+            ],
+            "operations": [
+              "joined",
+              "read"
+            ],
+            "target_issue": "issue-red-one",
+            "get_expected_allowed": false,
+            "count_expected": null
+          },
+          {
+            "index": 21,
+            "owner": "bob",
+            "scopes": [
+              "private"
+            ],
+            "operations": [
+              "joined",
+              "read"
+            ],
+            "target_issue": "issue-red-two",
+            "get_expected_allowed": false,
+            "count_expected": null
+          },
+          {
+            "index": 22,
+            "owner": "carol",
+            "scopes": [
+              "red"
+            ],
+            "operations": [
+              "count",
+              "joined",
+              "read"
+            ],
+            "target_issue": "issue-blue-one",
+            "get_expected_allowed": false,
+            "count_expected": 2
+          },
+          {
+            "index": 23,
+            "owner": "outsider",
+            "scopes": [
+              "red"
+            ],
+            "operations": [
+              "count",
+              "joined",
+              "read"
+            ],
+            "target_issue": "issue-private-one",
+            "get_expected_allowed": false,
+            "count_expected": 0
+          }
+        ]
+      },
+      "temporary_root": "/tmp/diamond-w5-independent-api-qc7x9mg6",
+      "scope": "actual scoped HTTP API and strict codecs; generated operation/scope/role attenuation against independent fixture; no public TLS/capacity claim"
+    },
+    "rates": {
+      "status": "PASS",
+      "binary_sha256": "0aa105a7111872313e326cbc37e95ef01a4c47dcec54bcdd4b63abde15ae619c",
+      "error": null,
+      "results": [
+        {
+          "name": "controlled-functional-rate-window-confirmed-abort-rate-phase",
+          "status": "PASS",
+          "observed": {
+            "expired_rows": 3
+          },
+          "expected": "owner-only fixture intervention between independent functional phases; rate survival is tested separately without it"
+        },
+        {
+          "name": "auth-global-peer-rate-survives-main-rollback",
+          "status": "PASS",
+          "observed": {
+            "statuses": {
+              "409": 14
+            },
+            "counters": [
+              {
+                "bucket": "auth:global",
+                "attempts": 14,
+                "live": true
+              },
+              {
+                "bucket": "auth:peer:72e414b6cc818cee9ed09256eafc74a2da96e8cc047e89c3fdf7349ec7de9f06",
+                "attempts": 14,
+                "live": true
+              }
+            ]
+          },
+          "expected": "all fourteen main operations distinctly abort, independently committed global/peer attempts remain14; authenticated account body has no declared subject"
+        },
+        {
+          "name": "aborted-credential-issuance-has-no-row",
+          "status": "PASS",
+          "observed": "0",
+          "expected": "all allowed identity transactions really aborted; independently committed attempts remain"
+        },
+        {
+          "name": "auth-abort-counter-survives-node-failure",
+          "status": "PASS",
+          "observed": {
+            "both_nodes": [
+              [
+                409,
+                {
+                  "error": "aborted"
+                }
+              ],
+              [
+                409,
+                {
+                  "error": "aborted"
+                }
+              ]
+            ],
+            "fresh_process": [
+              409,
+              {
+                "error": "aborted"
+              }
+            ],
+            "counters": [
+              {
+                "bucket": "auth:global",
+                "attempts": 17,
+                "live": true
+              },
+              {
+                "bucket": "auth:peer:72e414b6cc818cee9ed09256eafc74a2da96e8cc047e89c3fdf7349ec7de9f06",
+                "attempts": 17,
+                "live": true
+              }
+            ]
+          },
+          "expected": "same shared independently committed attempts17 after restart; main credential operations continue distinctly aborting"
+        },
+        {
+          "name": "controlled-functional-rate-window-failed-password-rate-phase",
+          "status": "PASS",
+          "observed": {
+            "expired_rows": 2
+          },
+          "expected": "owner-only fixture intervention between independent functional phases; rate survival is tested separately without it"
+        },
+        {
+          "name": "auth-subject-rate-counts-failed-passwords",
+          "status": "PASS",
+          "observed": {
+            "statuses": {
+              "403": 12,
+              "429": 2
+            },
+            "counters": [
+              {
+                "bucket": "auth:global",
+                "attempts": 14,
+                "live": true
+              },
+              {
+                "bucket": "auth:peer:72e414b6cc818cee9ed09256eafc74a2da96e8cc047e89c3fdf7349ec7de9f06",
+                "attempts": 14,
+                "live": true
+              },
+              {
+                "bucket": "auth:subject:831632a6d24d94b4b0339b9de86c5ab90d60fb7ac2e79daa21a5f3ec06195d67",
+                "attempts": 14,
+                "live": true
+              }
+            ]
+          },
+          "expected": {
+            "accepted_or_main_failure_status": 403,
+            "within_rate_cap": 12,
+            "rate_limited": 2,
+            "no_rate_fixture_mutation_during_this_phase": true
+          }
+        },
+        {
+          "name": "correct-password-cannot-bypass-live-failed-attempt-cap",
+          "status": "PASS",
+          "observed": {
+            "status": 429,
+            "value": {
+              "error": "rate_limited"
+            }
+          },
+          "expected": "shared subject cap persists despite main authentication failures"
+        },
+        {
+          "name": "auth-subject-counter-survives-node-restart",
+          "status": "PASS",
+          "observed": {
+            "status": 429,
+            "value": {
+              "error": "rate_limited"
+            }
+          },
+          "expected": "fresh node observes committed failed-password subject cap"
+        },
+        {
+          "name": "controlled-functional-rate-window-api-success-rate-phase",
+          "status": "PASS",
+          "observed": {
+            "expired_rows": 3
+          },
+          "expected": "owner-only fixture intervention between independent functional phases; rate survival is tested separately without it"
+        },
+        {
+          "name": "issue-scoped-credential-Rate qualification",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "shape": [
+              "id",
+              "value"
+            ],
+            "id": "f27ae119d4f66449132dbae0251ac6966b1e38151554921f7847ee8bc296752f"
+          },
+          "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+        },
+        {
+          "name": "api-subject-shared-cap",
+          "status": "PASS",
+          "observed": {
+            "statuses": {
+              "200": 120,
+              "429": 8
+            },
+            "counters": [
+              {
+                "bucket": "api:global",
+                "attempts": 128,
+                "live": true
+              },
+              {
+                "bucket": "api:peer:72e414b6cc818cee9ed09256eafc74a2da96e8cc047e89c3fdf7349ec7de9f06",
+                "attempts": 128,
+                "live": true
+              },
+              {
+                "bucket": "api:subject:2de48a55a81ef281c97eebb8fd62f6271f343b1fd28cfc75c41b59fbb31e6491",
+                "attempts": 128,
+                "live": true
+              },
+              {
+                "bucket": "auth:global",
+                "attempts": 1,
+                "live": true
+              },
+              {
+                "bucket": "auth:peer:72e414b6cc818cee9ed09256eafc74a2da96e8cc047e89c3fdf7349ec7de9f06",
+                "attempts": 1,
+                "live": true
+              }
+            ]
+          },
+          "expected": {
+            "accepted_or_main_failure_status": 200,
+            "within_rate_cap": 120,
+            "rate_limited": 8,
+            "no_rate_fixture_mutation_during_this_phase": true
+          }
+        },
+        {
+          "name": "api-counter-survives-node-restart",
+          "status": "PASS",
+          "observed": {
+            "status": 429,
+            "value": {
+              "error": "rate_limited"
+            }
+          },
+          "expected": "fresh node observes shared cap before executing API operation"
+        },
+        {
+          "name": "controlled-functional-rate-window-api-policy-rollback-rate-phase",
+          "status": "PASS",
+          "observed": {
+            "expired_rows": 5
+          },
+          "expected": "owner-only fixture intervention between independent functional phases; rate survival is tested separately without it"
+        },
+        {
+          "name": "api-rate-survives-policy-rollback",
+          "status": "PASS",
+          "observed": {
+            "statuses": {
+              "403": 120,
+              "429": 8
+            },
+            "counters": [
+              {
+                "bucket": "api:global",
+                "attempts": 128,
+                "live": true
+              },
+              {
+                "bucket": "api:peer:72e414b6cc818cee9ed09256eafc74a2da96e8cc047e89c3fdf7349ec7de9f06",
+                "attempts": 128,
+                "live": true
+              },
+              {
+                "bucket": "api:subject:2de48a55a81ef281c97eebb8fd62f6271f343b1fd28cfc75c41b59fbb31e6491",
+                "attempts": 128,
+                "live": true
+              }
+            ]
+          },
+          "expected": {
+            "accepted_or_main_failure_status": 403,
+            "within_rate_cap": 120,
+            "rate_limited": 8,
+            "no_rate_fixture_mutation_during_this_phase": true
+          }
+        },
+        {
+          "name": "controlled-functional-rate-window-api-public-subject-rate-phase",
+          "status": "PASS",
+          "observed": {
+            "expired_rows": 3
+          },
+          "expected": "owner-only fixture intervention between independent functional phases; rate survival is tested separately without it"
+        },
+        {
+          "name": "api-public-shared-subject-cap",
+          "status": "PASS",
+          "observed": {
+            "statuses": {
+              "200": 120,
+              "429": 8
+            },
+            "counters": [
+              {
+                "bucket": "api:global",
+                "attempts": 128,
+                "live": true
+              },
+              {
+                "bucket": "api:peer:72e414b6cc818cee9ed09256eafc74a2da96e8cc047e89c3fdf7349ec7de9f06",
+                "attempts": 128,
+                "live": true
+              },
+              {
+                "bucket": "api:subject:c8446e9356664669deb98afbd6ac3830d1b2bbe44a07b91852761779c32ae903",
+                "attempts": 128,
+                "live": true
+              }
+            ]
+          },
+          "expected": {
+            "accepted_or_main_failure_status": 200,
+            "within_rate_cap": 120,
+            "rate_limited": 8,
+            "no_rate_fixture_mutation_during_this_phase": true
+          }
+        },
+        {
+          "name": "controlled-functional-rate-window-api-token-issuance-for-independent-caps",
+          "status": "PASS",
+          "observed": {
+            "expired_rows": 3
+          },
+          "expected": "owner-only fixture intervention between independent functional phases; rate survival is tested separately without it"
+        },
+        {
+          "name": "issue-scoped-credential-rate-subject-0",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "shape": [
+              "id",
+              "value"
+            ],
+            "id": "ae8b1e68eb83319143c9d4050162319f5392b3e699fd43719c4dc0af53ca3c8d"
+          },
+          "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+        },
+        {
+          "name": "issue-scoped-credential-rate-subject-1",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "shape": [
+              "id",
+              "value"
+            ],
+            "id": "1120ee31a5ea399ff23fa8d8f1ac316286eaa37a30f4791ccb19cefee92fce79"
+          },
+          "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+        },
+        {
+          "name": "issue-scoped-credential-rate-subject-2",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "shape": [
+              "id",
+              "value"
+            ],
+            "id": "bc9a42835e00b2fdf513b7e571c41236829a9a291c8fd31cca1fe011e954d80f"
+          },
+          "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+        },
+        {
+          "name": "issue-scoped-credential-rate-subject-3",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "shape": [
+              "id",
+              "value"
+            ],
+            "id": "b74177eb853501135b52efb52815338951c2b621ee80f94ccee0cf451af749f6"
+          },
+          "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+        },
+        {
+          "name": "issue-scoped-credential-rate-subject-4",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "shape": [
+              "id",
+              "value"
+            ],
+            "id": "780482871c78df0291ef41b9b9f6db36e08de387865206d0c5fcb19a5eda2679"
+          },
+          "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+        },
+        {
+          "name": "controlled-functional-rate-window-api-peer-rate-phase",
+          "status": "PASS",
+          "observed": {
+            "expired_rows": 2
+          },
+          "expected": "owner-only fixture intervention between independent functional phases; rate survival is tested separately without it"
+        },
+        {
+          "name": "api-peer-shared-cap-across-distinct-credential-subjects",
+          "status": "PASS",
+          "observed": {
+            "statuses": {
+              "200": 300,
+              "429": 8
+            },
+            "counters": [
+              {
+                "bucket": "api:global",
+                "attempts": 308,
+                "live": true
+              },
+              {
+                "bucket": "api:peer:72e414b6cc818cee9ed09256eafc74a2da96e8cc047e89c3fdf7349ec7de9f06",
+                "attempts": 308,
+                "live": true
+              },
+              {
+                "bucket": "api:subject:0864312fd332d1ba170b0ee81d8184257cbc3c33930d304de58caabf1a21df5d",
+                "attempts": 100,
+                "live": true
+              },
+              {
+                "bucket": "api:subject:2de48a55a81ef281c97eebb8fd62f6271f343b1fd28cfc75c41b59fbb31e6491",
+                "attempts": 100,
+                "live": true
+              },
+              {
+                "bucket": "api:subject:66f933d1c9cd83b838f01400ae0d2e22fdec05e1a1c1582076103cafe56a8f80",
+                "attempts": 100,
+                "live": true
+              }
+            ]
+          },
+          "expected": {
+            "accepted_or_main_failure_status": 200,
+            "within_rate_cap": 300,
+            "rate_limited": 8,
+            "no_rate_fixture_mutation_during_this_phase": true
+          }
+        },
+        {
+          "name": "controlled-functional-rate-window-api-global-rate-phase",
+          "status": "PASS",
+          "observed": {
+            "expired_rows": 5
+          },
+          "expected": "owner-only fixture intervention between independent functional phases; rate survival is tested separately without it"
+        },
+        {
+          "name": "api-global-shared-cap-across-real-peers-and-credential-subjects",
+          "status": "PASS",
+          "observed": {
+            "statuses": {
+              "200": 600,
+              "429": 8
+            },
+            "counters": [
+              {
+                "bucket": "api:global",
+                "attempts": 608,
+                "live": true
+              },
+              {
+                "bucket": "api:peer:8d0fdbf51bcdfabad02d6d1a9722ed263bb1835d96fe057912b96b1ed02d00d0",
+                "attempts": 200,
+                "live": true
+              },
+              {
+                "bucket": "api:peer:96cbd85320d6de5898272eb04b26b447b53a0ce372a8f440e67e77ac79c3161b",
+                "attempts": 200,
+                "live": true
+              },
+              {
+                "bucket": "api:peer:a4c96e46313fd0b8a2a544d2d810718920ee27c5f9009885a3cdb52e136c648b",
+                "attempts": 200,
+                "live": true
+              },
+              {
+                "bucket": "api:subject:0864312fd332d1ba170b0ee81d8184257cbc3c33930d304de58caabf1a21df5d",
+                "attempts": 100,
+                "live": true
+              },
+              {
+                "bucket": "api:subject:2de48a55a81ef281c97eebb8fd62f6271f343b1fd28cfc75c41b59fbb31e6491",
+                "attempts": 100,
+                "live": true
+              },
+              {
+                "bucket": "api:subject:3c80c6a258b5d492262a1311c952d5410695b88133eea11a3da75d6f67abb878",
+                "attempts": 100,
+                "live": true
+              },
+              {
+                "bucket": "api:subject:419d672fe87f3555254ec002f6008030f6d1ec9a8973e90f9520fe6b543b2164",
+                "attempts": 100,
+                "live": true
+              },
+              {
+                "bucket": "api:subject:66f933d1c9cd83b838f01400ae0d2e22fdec05e1a1c1582076103cafe56a8f80",
+                "attempts": 100,
+                "live": true
+              },
+              {
+                "bucket": "api:subject:ce9fca1658d47dc2363197bdcce048d3c00a4e13153d2056d21951df55a00d73",
+                "attempts": 100,
+                "live": true
+              }
+            ]
+          },
+          "expected": {
+            "accepted_or_main_failure_status": 200,
+            "within_rate_cap": 600,
+            "rate_limited": 8,
+            "no_rate_fixture_mutation_during_this_phase": true
+          }
+        },
+        {
+          "name": "controlled-functional-rate-window-auth-peer-rate-phase",
+          "status": "PASS",
+          "observed": {
+            "expired_rows": 10
+          },
+          "expected": "owner-only fixture intervention between independent functional phases; rate survival is tested separately without it"
+        },
+        {
+          "name": "auth-peer-shared-cap-without-subject",
+          "status": "PASS",
+          "observed": {
+            "statuses": {
+              "200": 100,
+              "429": 8
+            },
+            "counters": [
+              {
+                "bucket": "auth:global",
+                "attempts": 108,
+                "live": true
+              },
+              {
+                "bucket": "auth:peer:72e414b6cc818cee9ed09256eafc74a2da96e8cc047e89c3fdf7349ec7de9f06",
+                "attempts": 108,
+                "live": true
+              }
+            ]
+          },
+          "expected": {
+            "accepted_or_main_failure_status": 200,
+            "within_rate_cap": 100,
+            "rate_limited": 8,
+            "no_rate_fixture_mutation_during_this_phase": true
+          }
+        },
+        {
+          "name": "controlled-functional-rate-window-auth-global-rate-phase",
+          "status": "PASS",
+          "observed": {
+            "expired_rows": 2
+          },
+          "expected": "owner-only fixture intervention between independent functional phases; rate survival is tested separately without it"
+        },
+        {
+          "name": "auth-global-shared-cap-across-distinct-real-peers",
+          "status": "PASS",
+          "observed": {
+            "statuses": {
+              "200": 120,
+              "429": 8
+            },
+            "counters": [
+              {
+                "bucket": "auth:global",
+                "attempts": 128,
+                "live": true
+              },
+              {
+                "bucket": "auth:peer:8d0fdbf51bcdfabad02d6d1a9722ed263bb1835d96fe057912b96b1ed02d00d0",
+                "attempts": 60,
+                "live": true
+              },
+              {
+                "bucket": "auth:peer:a4c96e46313fd0b8a2a544d2d810718920ee27c5f9009885a3cdb52e136c648b",
+                "attempts": 60,
+                "live": true
+              }
+            ]
+          },
+          "expected": {
+            "accepted_or_main_failure_status": 200,
+            "within_rate_cap": 120,
+            "rate_limited": 8,
+            "no_rate_fixture_mutation_during_this_phase": true
+          }
+        },
+        {
+          "name": "rate-keyspace-remains-bounded-in-exercised-inputs",
+          "status": "PASS",
+          "observed": {
+            "rows": 3
+          },
+          "expected": "fixed finite global/peer/subject fixtures do not create an unbounded row per attempt"
+        }
+      ],
+      "shutdowns": [
+        {
+          "node": "B",
+          "exit": 0,
+          "expected_exit": 0,
+          "forced_kill": false,
+          "panic": false
+        },
+        {
+          "node": "B",
+          "exit": 0,
+          "expected_exit": 0,
+          "forced_kill": false,
+          "panic": false
+        },
+        {
+          "node": "B",
+          "exit": 0,
+          "expected_exit": 0,
+          "forced_kill": false,
+          "panic": false
+        },
+        {
+          "node": "A",
+          "exit": 0,
+          "expected_exit": 0,
+          "forced_kill": false,
+          "panic": false
+        },
+        {
+          "node": "B",
+          "exit": 0,
+          "expected_exit": 0,
+          "forced_kill": false,
+          "panic": false
+        }
+      ],
+      "cleanup_errors": [],
+      "http_requests": 1584,
+      "temporary_root": "/tmp/diamond-w5-independent-rates-l960cjn7",
+      "documented_caps": {
+        "auth": {
+          "global": 120,
+          "peer": 100,
+          "subject": 12
+        },
+        "api": {
+          "global": 600,
+          "peer": 300,
+          "subject": 120
+        }
+      },
+      "scope": "real shared rate decisions, eight-client bounded races, controlled independent phases, real loopback peer sources and actual rollback/restart; no capacity or distributed-edge claim"
+    },
+    "faults": {
+      "status": "PASS",
+      "binary_sha256": "0aa105a7111872313e326cbc37e95ef01a4c47dcec54bcdd4b63abde15ae619c",
+      "error": null,
+      "results": [
+        {
+          "name": "issue-scoped-credential-fault-alice",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "shape": [
+              "id",
+              "value"
+            ],
+            "id": "da3ec2de313364db2075a8877da00d0806361c21f33822109b31c506d17527d1"
+          },
+          "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+        },
+        {
+          "name": "issue-scoped-credential-fault-bob",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "shape": [
+              "id",
+              "value"
+            ],
+            "id": "fba4c17e8f636393ea0f9d6c1c91ff220cf21b66f5b9f5c847f1753b1d5d1b2c"
+          },
+          "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+        },
+        {
+          "name": "controlled-functional-rate-window-delivery-fault",
+          "status": "PASS",
+          "observed": {
+            "expired_rows": 4
+          },
+          "expected": "owner-only fixture intervention between independent functional phases; rate survival is tested separately without it"
+        },
+        {
+          "name": "delivery-failure-after-commit",
+          "status": "PASS",
+          "observed": {
+            "http": [
+              503,
+              {
+                "error": "outcome_unknown"
+              }
+            ],
+            "committed_challenge": [
+              {
+                "purpose": "recover",
+                "email": "bob@qualification.invalid",
+                "username": "bob",
+                "epoch": 1,
+                "consumed": false,
+                "live": true
+              }
+            ],
+            "existing_api_status": 200
+          },
+          "expected": "delivery fails safely after actual issuance commit; committed pending challenge remains, existing account authority unchanged"
+        },
+        {
+          "name": "delivery-restored-explicit-resubmission",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "value": "If eligible, instructions have been delivered."
+            }
+          },
+          "expected": "caller explicitly requests new delivery after restoration; no implicit retry from failed request"
+        },
+        {
+          "name": "controlled-functional-rate-window-commit-ack-fault",
+          "status": "PASS",
+          "observed": {
+            "expired_rows": 6
+          },
+          "expected": "owner-only fixture intervention between independent functional phases; rate survival is tested separately without it"
+        },
+        {
+          "name": "identity-commit-ack-loss-is-unknown",
+          "status": "PASS",
+          "observed": {
+            "http": [
+              503,
+              {
+                "error": "outcome_unknown"
+              }
+            ],
+            "committed_challenge": [
+              {
+                "purpose": "recover",
+                "email": "carol@qualification.invalid",
+                "username": "carol",
+                "epoch": 1,
+                "consumed": false,
+                "live": true
+              }
+            ],
+            "actual_delivery_files": 0
+          },
+          "expected": "PG really committed once but caller cannot confirm; no delivery or automatic replay after unknown commit"
+        },
+        {
+          "name": "uncertain-connection-replaced",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "value": {
+              "api_version": 1,
+              "value": {
+                "id": {
+                  "tag": "issue",
+                  "value": "issue-red-one"
+                },
+                "project": {
+                  "tag": "project",
+                  "value": "project-red-visible"
+                },
+                "rank": "11",
+                "title": "red exact \u96ea",
+                "workspace": {
+                  "tag": "workspace",
+                  "value": "red"
+                }
+              }
+            }
+          },
+          "expected": "fresh owned connection safely resumes service after discarded uncertain transport"
+        },
+        {
+          "name": "confirmed-identity-abort-distinct-from-unknown",
+          "status": "PASS",
+          "observed": {
+            "http": [
+              409,
+              {
+                "error": "aborted"
+              }
+            ],
+            "state_unchanged": true,
+            "attempts_before": 6,
+            "attempts_after": 9
+          },
+          "expected": "real confirmed COMMIT abort rolls back identity changes and delivery, independently committed rate attempts remain"
+        },
+        {
+          "name": "controlled-functional-rate-window-held-snapshot-revocation",
+          "status": "PASS",
+          "observed": {
+            "expired_rows": 6
+          },
+          "expected": "owner-only fixture intervention between independent functional phases; rate survival is tested separately without it"
+        },
+        {
+          "name": "inflight-revocation-declared-snapshot-boundary",
+          "status": "PASS",
+          "observed": {
+            "disable": [
+              200,
+              {
+                "value": ""
+              }
+            ],
+            "earlier_request": [
+              409,
+              {
+                "error": "aborted"
+              }
+            ]
+          },
+          "expected": "earlier serializable request may finish in serial order or distinctly abort; no real-time cancellation promise"
+        },
+        {
+          "name": "new-request-after-committed-revocation-A",
+          "status": "PASS",
+          "observed": {
+            "status": 401,
+            "value": {
+              "error": "authentication_required"
+            }
+          },
+          "expected": "new request rechecks shared revoked identity on either node"
+        },
+        {
+          "name": "new-request-after-committed-revocation-B",
+          "status": "PASS",
+          "observed": {
+            "status": 401,
+            "value": {
+              "error": "authentication_required"
+            }
+          },
+          "expected": "new request rechecks shared revoked identity on either node"
+        },
+        {
+          "name": "authoritative-store-failure-no-fallback-A",
+          "status": "PASS",
+          "observed": {
+            "status": 503,
+            "value": {
+              "error": "unavailable"
+            }
+          },
+          "expected": "store unavailable grants no cached bearer identity"
+        },
+        {
+          "name": "authoritative-store-failure-no-fallback-B",
+          "status": "PASS",
+          "observed": {
+            "status": 503,
+            "value": {
+              "error": "unavailable"
+            }
+          },
+          "expected": "store unavailable grants no cached bearer identity"
+        },
+        {
+          "name": "store-restart-explicit-read-recovery-A",
+          "status": "PASS",
+          "observed": [
+            [
+              200,
+              {
+                "api_version": 1,
+                "value": {
+                  "id": {
+                    "tag": "issue",
+                    "value": "issue-red-one"
+                  },
+                  "project": {
+                    "tag": "project",
+                    "value": "project-red-visible"
+                  },
+                  "rank": "11",
+                  "title": "red exact \u96ea",
+                  "workspace": {
+                    "tag": "workspace",
+                    "value": "red"
+                  }
+                }
+              }
+            ]
+          ],
+          "expected": "bounded explicit read probes replace stale connections; no mutation replay"
+        },
+        {
+          "name": "revocation-survives-store-restart-A",
+          "status": "PASS",
+          "observed": {
+            "status": 401,
+            "value": {
+              "error": "authentication_required"
+            }
+          },
+          "expected": "database restart preserves committed disablement and revocation"
+        },
+        {
+          "name": "store-restart-explicit-read-recovery-B",
+          "status": "PASS",
+          "observed": [
+            [
+              200,
+              {
+                "api_version": 1,
+                "value": {
+                  "id": {
+                    "tag": "issue",
+                    "value": "issue-red-one"
+                  },
+                  "project": {
+                    "tag": "project",
+                    "value": "project-red-visible"
+                  },
+                  "rank": "11",
+                  "title": "red exact \u96ea",
+                  "workspace": {
+                    "tag": "workspace",
+                    "value": "red"
+                  }
+                }
+              }
+            ]
+          ],
+          "expected": "bounded explicit read probes replace stale connections; no mutation replay"
+        },
+        {
+          "name": "revocation-survives-store-restart-B",
+          "status": "PASS",
+          "observed": {
+            "status": 401,
+            "value": {
+              "error": "authentication_required"
+            }
+          },
+          "expected": "database restart preserves committed disablement and revocation"
+        }
+      ],
+      "shutdowns": [
+        {
+          "node": "A",
+          "exit": 0,
+          "expected_exit": 0,
+          "forced_kill": false,
+          "panic": false
+        },
+        {
+          "node": "B",
+          "exit": 0,
+          "expected_exit": 0,
+          "forced_kill": false,
+          "panic": false
+        }
+      ],
+      "cleanup_errors": [],
+      "http_requests": 25,
+      "proxy_events": [
+        {
+          "kind": "dropped-real-commit-ack"
+        },
+        {
+          "kind": "held-real-query-completion",
+          "sql_prefix": "SELECT username,epoch,operations,scopes FROM diamond_identity.credentials WHERE app=$1 AND digest=$2"
+        }
+      ],
+      "temporary_root": "/tmp/diamond-w5-independent-faults-ee84y443",
+      "scope": "real committed delivery/transport/serialization/store faults and held shared-authority snapshot; no fake PG responses or production resilience claim"
+    },
+    "native": {
+      "status": "PASS",
+      "binary_sha256": "0aa105a7111872313e326cbc37e95ef01a4c47dcec54bcdd4b63abde15ae619c",
+      "error": null,
+      "results": [
+        {
+          "name": "external-native-admin-provisioning",
+          "status": "PASS",
+          "observed": {
+            "exit": 0,
+            "stdout": "Native account provisioning completed without duplicate replacement\n",
+            "stderr": "",
+            "account": [
+              {
+                "username": "native-admin",
+                "email": "native-admin@qualification.invalid",
+                "verified": true,
+                "disabled": false,
+                "administrator": true
+              }
+            ]
+          },
+          "expected": "native initializer provisions one verified administrator and rejects duplicate replacement"
+        },
+        {
+          "name": "issue-scoped-credential-native-issued",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "shape": [
+              "id",
+              "value"
+            ],
+            "id": "7b5eff118c77d217c857feaf4e89dc8bfe34b35a6e3708c8572a7a3b5d176cd2"
+          },
+          "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+        },
+        {
+          "name": "external-native-serving-accounts-api",
+          "status": "PASS",
+          "observed": {
+            "count": [
+              200,
+              {
+                "api_version": 1,
+                "value": "0"
+              }
+            ],
+            "public": [
+              200,
+              {
+                "api_version": 1,
+                "value": "Public declared read"
+              }
+            ]
+          },
+          "expected": "real native serve_accounts exposes the compiled app with authoritative shared accounts and explicit JSON API"
+        }
+      ],
+      "shutdowns": [
+        {
+          "node": "A",
+          "exit": 0,
+          "expected_exit": 0,
+          "forced_kill": false,
+          "panic": false
+        }
+      ],
+      "cleanup_errors": [],
+      "http_requests": 6,
+      "library_sha256": "5cac9924ad3f4c053a083a889648a89be5e1ec4dca88a5976e2617410ab40266",
+      "native_sha256": "ecff229d219abc5df35686ef4ee3fa94397598091943345449b69a4b2814db7d",
+      "temporary_root": "/tmp/diamond-w5-independent-native-1bj7izi5"
+    },
+    "api_mutation_regression": {
+      "status": "PASS",
+      "binary_sha256": "0aa105a7111872313e326cbc37e95ef01a4c47dcec54bcdd4b63abde15ae619c",
+      "error": null,
+      "results": [
+        {
+          "name": "issue-scoped-credential-Independent synthetic credential",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "shape": [
+              "id",
+              "value"
+            ],
+            "id": "9c6e84ef8d765d387d09a49e8c1aa38330081dd0c79861ead8aa3ec813699786"
+          },
+          "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+        },
+        {
+          "name": "update-rpc-restricted-False",
+          "status": "PASS",
+          "observed": {
+            "before": "11",
+            "after": "49",
+            "http": [
+              200,
+              {
+                "value": {
+                  "id": {
+                    "tag": "issue",
+                    "value": "issue-red-one"
+                  },
+                  "project": {
+                    "tag": "project",
+                    "value": "project-red-visible"
+                  },
+                  "rank": "49",
+                  "title": "red exact \u96ea",
+                  "workspace": {
+                    "tag": "workspace",
+                    "value": "red"
+                  }
+                }
+              }
+            ]
+          },
+          "expected": "valid authorized update commits rank49"
+        },
+        {
+          "name": "update-api-restricted-False",
+          "status": "PASS",
+          "observed": {
+            "before": "11",
+            "after": "49",
+            "http": [
+              200,
+              {
+                "api_version": 1,
+                "value": {
+                  "id": {
+                    "tag": "issue",
+                    "value": "issue-red-one"
+                  },
+                  "project": {
+                    "tag": "project",
+                    "value": "project-red-visible"
+                  },
+                  "rank": "49",
+                  "title": "red exact \u96ea",
+                  "workspace": {
+                    "tag": "workspace",
+                    "value": "red"
+                  }
+                }
+              }
+            ]
+          },
+          "expected": "valid authorized update commits rank49"
+        },
+        {
+          "name": "delete-api-restricted-False",
+          "status": "PASS",
+          "observed": {
+            "remaining_rows": "0",
+            "http": [
+              200,
+              {
+                "api_version": 1,
+                "value": "Deleted"
+              }
+            ]
+          },
+          "expected": "valid authorized deletion commits once"
+        },
+        {
+          "name": "postgres-error-log-False",
+          "status": "PASS",
+          "observed": [],
+          "expected": "raw owned PG errors retained; parameter logging is not enabled"
+        },
+        {
+          "name": "issue-scoped-credential-Independent synthetic credential",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "shape": [
+              "id",
+              "value"
+            ],
+            "id": "a8413de7ed736d074f253d2fd0cc605d2d166d3e037393b088bba403746bd869"
+          },
+          "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+        },
+        {
+          "name": "update-rpc-restricted-True",
+          "status": "PASS",
+          "observed": {
+            "before": "11",
+            "after": "49",
+            "http": [
+              200,
+              {
+                "value": {
+                  "id": {
+                    "tag": "issue",
+                    "value": "issue-red-one"
+                  },
+                  "project": {
+                    "tag": "project",
+                    "value": "project-red-visible"
+                  },
+                  "rank": "49",
+                  "title": "red exact \u96ea",
+                  "workspace": {
+                    "tag": "workspace",
+                    "value": "red"
+                  }
+                }
+              }
+            ]
+          },
+          "expected": "valid authorized update commits rank49"
+        },
+        {
+          "name": "update-api-restricted-True",
+          "status": "PASS",
+          "observed": {
+            "before": "11",
+            "after": "49",
+            "http": [
+              200,
+              {
+                "api_version": 1,
+                "value": {
+                  "id": {
+                    "tag": "issue",
+                    "value": "issue-red-one"
+                  },
+                  "project": {
+                    "tag": "project",
+                    "value": "project-red-visible"
+                  },
+                  "rank": "49",
+                  "title": "red exact \u96ea",
+                  "workspace": {
+                    "tag": "workspace",
+                    "value": "red"
+                  }
+                }
+              }
+            ]
+          },
+          "expected": "valid authorized update commits rank49"
+        },
+        {
+          "name": "delete-api-restricted-True",
+          "status": "PASS",
+          "observed": {
+            "remaining_rows": "0",
+            "http": [
+              200,
+              {
+                "api_version": 1,
+                "value": "Deleted"
+              }
+            ]
+          },
+          "expected": "valid authorized deletion commits once"
+        },
+        {
+          "name": "postgres-error-log-True",
+          "status": "PASS",
+          "observed": [],
+          "expected": "raw owned PG errors retained; parameter logging is not enabled"
+        }
+      ],
+      "shutdowns": [
+        {
+          "node": "A",
+          "exit": 0,
+          "expected_exit": 0,
+          "forced_kill": false,
+          "panic": false
+        },
+        {
+          "node": "B",
+          "exit": 0,
+          "expected_exit": 0,
+          "forced_kill": false,
+          "panic": false
+        },
+        {
+          "node": "A",
+          "exit": 0,
+          "expected_exit": 0,
+          "forced_kill": false,
+          "panic": false
+        },
+        {
+          "node": "B",
+          "exit": 0,
+          "expected_exit": 0,
+          "forced_kill": false,
+          "panic": false
+        }
+      ],
+      "cleanup_errors": [],
+      "http_requests": 8,
+      "temporary_root": "/tmp/diamond-w5-api-mutation-replay-a0a3ls15"
+    },
+    "identity_pressure": {
+      "status": "PASS",
+      "binary_sha256": "0aa105a7111872313e326cbc37e95ef01a4c47dcec54bcdd4b63abde15ae619c",
+      "error": null,
+      "results": [
+        {
+          "name": "controlled-functional-rate-window-pressure-start",
+          "status": "PASS",
+          "observed": {
+            "expired_rows": 3
+          },
+          "expected": "owner-only fixture intervention between independent functional phases; rate survival is tested separately without it"
+        },
+        {
+          "name": "bounded-pressure-confirmed-abort-or-safe-unavailable",
+          "status": "PASS",
+          "observed": {
+            "outcomes": [
+              {
+                "elapsed_seconds": 4.0128153469995596,
+                "status": 503,
+                "response": {
+                  "error": "unavailable"
+                }
+              },
+              {
+                "elapsed_seconds": 2.01280809698801,
+                "status": 409,
+                "response": {
+                  "error": "aborted"
+                }
+              },
+              {
+                "elapsed_seconds": 0.008100755003397353,
+                "status": 409,
+                "response": {
+                  "error": "aborted"
+                }
+              },
+              {
+                "elapsed_seconds": 0.009020083991345018,
+                "status": 409,
+                "response": {
+                  "error": "aborted"
+                }
+              },
+              {
+                "elapsed_seconds": 5.014939199012588,
+                "status": 503,
+                "response": {
+                  "error": "unavailable"
+                }
+              },
+              {
+                "elapsed_seconds": 1.0115011490124743,
+                "status": 409,
+                "response": {
+                  "error": "aborted"
+                }
+              },
+              {
+                "elapsed_seconds": 4.011313126000459,
+                "status": 503,
+                "response": {
+                  "error": "unavailable"
+                }
+              },
+              {
+                "elapsed_seconds": 3.010876639993512,
+                "status": 409,
+                "response": {
+                  "error": "aborted"
+                }
+              },
+              {
+                "elapsed_seconds": 4.004397358003189,
+                "status": 503,
+                "response": {
+                  "error": "unavailable"
+                }
+              },
+              {
+                "elapsed_seconds": 4.002968055996462,
+                "status": 503,
+                "response": {
+                  "error": "unavailable"
+                }
+              },
+              {
+                "elapsed_seconds": 6.005776760997833,
+                "status": 409,
+                "response": {
+                  "error": "aborted"
+                }
+              },
+              {
+                "elapsed_seconds": 2.0073856209928636,
+                "status": 503,
+                "response": {
+                  "error": "unavailable"
+                }
+              },
+              {
+                "elapsed_seconds": 3.003652601997601,
+                "status": 409,
+                "response": {
+                  "error": "aborted"
+                }
+              },
+              {
+                "elapsed_seconds": 3.0032911019952735,
+                "status": 409,
+                "response": {
+                  "error": "aborted"
+                }
+              }
+            ],
+            "campaign_elapsed_seconds": 7.0200336200068705,
+            "committed_credentials": 0,
+            "committed_global_attempts": 14,
+            "statuses": {
+              "503": 6,
+              "409": 8
+            }
+          },
+          "expected": "admitted confirmed aborts409; bounded admission/deadline failures503; no credential writes; failed main operations consume independently committed attempts; eight clients/14 calls finish within driver deadlines"
+        },
+        {
+          "name": "issue-scoped-credential-fresh-after-pressure",
+          "status": "PASS",
+          "observed": {
+            "status": 200,
+            "shape": [
+              "id",
+              "value"
+            ],
+            "id": "fed57af9477d628b4f6cf01844d0a3e29ceee3014397ca385cc00113989a90c4"
+          },
+          "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+        },
+        {
+          "name": "fresh-work-recovers-after-pressure",
+          "status": "PASS",
+          "observed": {
+            "revocation": [
+              200,
+              {
+                "value": ""
+              }
+            ]
+          },
+          "expected": "owned workers and connections recover; one fresh issuance and cross-node revocation finish"
+        }
+      ],
+      "shutdowns": [
+        {
+          "node": "A",
+          "exit": 0,
+          "expected_exit": 0,
+          "forced_kill": false,
+          "panic": false
+        },
+        {
+          "node": "B",
+          "exit": 0,
+          "expected_exit": 0,
+          "forced_kill": false,
+          "panic": false
+        }
+      ],
+      "cleanup_errors": [],
+      "http_requests": 20,
+      "temporary_root": "/tmp/diamond-w5-identity-pressure-q045xfwv",
+      "scope": "safe bounded pressure behavior only; no production-capacity or strict409-under-overload claim"
+    },
+    "api_contract_boundary": {
+      "status": "PASS",
+      "binary_sha256": "0aa105a7111872313e326cbc37e95ef01a4c47dcec54bcdd4b63abde15ae619c",
+      "error": null,
+      "results": [
+        {
+          "name": "reserved-metadata-name-rejected-at-check",
+          "status": "PASS",
+          "observed": {
+            "exit": 1,
+            "stdout": "",
+            "stderr": "error: invalid input: _contract is reserved for API metadata\n"
+          },
+          "expected": "declared API operation cannot occupy the reserved metadata route"
+        },
+        {
+          "name": "metadata-optional-current-version",
+          "status": "PASS",
+          "observed": {
+            "unversioned_status": 200,
+            "current_status": 200,
+            "same_metadata": true
+          },
+          "expected": "public metadata permits omitted header or explicit current version, returning same contract"
+        },
+        {
+          "name": "metadata-rejects-explicit-version-2",
+          "status": "PASS",
+          "observed": {
+            "status": 400,
+            "response": "{\"error\":\"invalid_input\"}"
+          },
+          "expected": "explicit unsupported/noncanonical API version is not ignored at reserved metadata boundary"
+        },
+        {
+          "name": "metadata-rejects-explicit-version-0",
+          "status": "PASS",
+          "observed": {
+            "status": 400,
+            "response": "{\"error\":\"invalid_input\"}"
+          },
+          "expected": "explicit unsupported/noncanonical API version is not ignored at reserved metadata boundary"
+        },
+        {
+          "name": "metadata-rejects-explicit-version-invalid",
+          "status": "PASS",
+          "observed": {
+            "status": 400,
+            "response": "{\"error\":\"invalid_input\"}"
+          },
+          "expected": "explicit unsupported/noncanonical API version is not ignored at reserved metadata boundary"
+        },
+        {
+          "name": "metadata-rejects-explicit-version-01",
+          "status": "PASS",
+          "observed": {
+            "status": 400,
+            "response": "{\"error\":\"invalid_input\"}"
+          },
+          "expected": "explicit unsupported/noncanonical API version is not ignored at reserved metadata boundary"
+        }
+      ],
+      "shutdowns": [
+        {
+          "node": "A",
+          "exit": 0,
+          "expected_exit": 0,
+          "forced_kill": false,
+          "panic": false
+        }
+      ],
+      "cleanup_errors": [],
+      "http_requests": 7,
+      "temporary_root": "/tmp/diamond-w5-api-contract-boundary-94j0k0z8"
+    }
+  },
+  "driver_sha256": {
+    "verification/w5_independent/ORACLES.md": "3acf31631420e384783d8d749e8fd9838eb525ac7debd80ad74a438d915815a4",
+    "verification/w5_independent/accounts.py": "414090ddcbfae433c741c2b58547f2843fa3fb52fcd898796cc9a822ac7502ea",
+    "verification/w5_independent/api.py": "19cd0d61e72b81929a7463e14e1bed090371c82cb6e7aa0ce9e7196e18a52955",
+    "verification/w5_independent/checker.py": "80f43b39e7d03e17ae2eeb5bb7edda657489e6f26e8633a19ad61e75d741b9c2",
+    "verification/w5_independent/codec_cases.py": "7b14834237fd831fec81e3c9f0b49db7a6ad8af2cb8bc0e86aab2e4164e0e313",
+    "verification/w5_independent/common.py": "beeb3d89d7d75709ff82e321a305a83768ad12e8dc8ce24815b9bf7e301adb66",
+    "verification/w5_independent/enrollment.py": "cc6a8365797cd480125a544a8ccfa0d1de14aa28d8e75bcd7023eab441f29c38",
+    "verification/w5_independent/faults.py": "ffda5e3b640e82a7b7f97e6af6856b3207d897e599c9fb75b1298d9057406ec9",
+    "verification/w5_independent/findings/api_contract_boundary/README.md": "4789e49cc103e67d03016f8cfe35f53027ccde1931966172798c53a66525abc1",
+    "verification/w5_independent/findings/api_contract_boundary/original_reserved_fixture/diamond.toml": "9f49b6c76fbe520015d2756dc35432a10648d1b95e36478bc48ccaa10ee3066e",
+    "verification/w5_independent/findings/api_contract_boundary/original_reserved_fixture/server.dia": "027ea141131ef38c6bb96778a9018d5d30a05dd697fbd9318af243c3f474672a",
+    "verification/w5_independent/findings/api_contract_boundary/original_reserved_fixture/ui.dia": "ed3d254294b9b0fa37ff43ca8f67bbdd6cf39d1657154a7b4fc12b33cbddb696",
+    "verification/w5_independent/findings/api_contract_boundary/replay.py": "f373f17c0256acab9ea3a5a80836151a26de17318e642b057cd7fd5f28358d21",
+    "verification/w5_independent/findings/api_mutation/README.md": "f3c08f56b594bad1568aac0bbefb16daa03cb1b7634ebbea5a58e3e8350d4adb",
+    "verification/w5_independent/findings/api_mutation/original_fixture/diamond.toml": "0bc629e5f32457b98519da4b59e56a0131702cfebd81ef52e1099c0b41b22b3b",
+    "verification/w5_independent/findings/api_mutation/original_fixture/server.dia": "315367019cf420a9c1705a57bc34f25b4886e39f3c4bc64de56b1ea0d57bcb58",
+    "verification/w5_independent/findings/api_mutation/original_fixture/ui.dia": "ed3d254294b9b0fa37ff43ca8f67bbdd6cf39d1657154a7b4fc12b33cbddb696",
+    "verification/w5_independent/findings/api_mutation/replay.py": "057d9516ce06611afee056535c61bcdcfac3012c23a25ba170a35aa16c12f4b2",
+    "verification/w5_independent/findings/identity_pressure/README.md": "9a4d5219a8cb558562b86127808b697c286f8440f4298df6d7e157313d6fa0c8",
+    "verification/w5_independent/findings/identity_pressure/replay.py": "6a9b04b7fe4fde5082826c1f0dbd9af0693a925439ff1bdd35161e8fe3ce7f85",
+    "verification/w5_independent/fixture.py": "8c67a3338f50187215c5e1d92ecb0e998f5017fb5ed2a4a24fac627bb62769f6",
+    "verification/w5_independent/lifecycle.py": "17210006fd02b3e9b9c83ceb77cb11b40a46d9b12b393e5b19248019708ab823",
+    "verification/w5_independent/model.py": "a3c4e1e25923ced65edab90e066ee486f71187fc391992c2e610f033e21af590",
+    "verification/w5_independent/native.py": "db9aa2b628d61beff4d80a84e09d6247320864780fe95fab0235cc612621715a",
+    "verification/w5_independent/native.rs": "de85a68b1df0e575858ed16ff8690979d439dce31f0c49926026c706b4dd722f",
+    "verification/w5_independent/pg_proxy.py": "1343f0d517440db3a4bd195dbc9655ba273d3ca58487eeef2b415e5b10611caf",
+    "verification/w5_independent/rates.py": "e7af1fa0a8cecc0c4bc9890242740ea82eb9c815cc6fb79598a36e63b5c8491a",
+    "verification/w5_independent/service.py": "73d7ede736d1ba45b7367a549a5d71d039643ce1d1126d7ecaa260e78d4d7820",
+    "verification/web_five_independent.py": "c687f077cc67a5f8e25a6620e2780ec281cc7a264f6b9c95d39fb37bdbc0ed16"
+  },
+  "scope": "accounts-v1 relational current schema; actual CLI, Unix-socket PG, private real mailbox, two direct real app nodes, strict raw HTTP API and native public consumer; browser operated separately; no upgrade compatibility, TLS/SMTP/external mail, capacity or exhaustive-security claim",
+  "temporary_root": null
+}

@@ -1,0 +1,30 @@
+export component Card(issue: IssueCard):
+  state expanded: Bool = false
+  state mounted: Int = 0
+  state draft: Text = issue.title
+  derived identity: Text = id_text(issue.id)
+  on mount:
+    mounted = mounted + 1
+  on unmount:
+    expanded = false
+  on toggle:
+    expanded = not expanded
+  html:
+    <article class="issue-card" id={"card-" + identity}>
+      <h3>{issue.title}</h3>
+      <p class="muted">{identity}</p>
+      <label for={"draft-" + identity}>Local draft</label>
+      <input id={"draft-" + identity} type="text" bind-value={draft}>
+      <button type="button" on-click={toggle}>Toggle details</button>
+      <when test={expanded}><pre>{issue.details}</pre></when>
+      <p class="muted">Mount count: <span class="mount-count">{mounted}</span></p>
+    </article>
+
+export component About(note: Text):
+  state visits: Int = 0
+  on mount:
+    visits = visits + 1
+  on unmount:
+    visits = 0
+  html:
+    <section class="panel"><h2>About this workspace</h2><p>{note}</p><p>Mount count: <span id="about-mounts">{visits}</span></p><a href="/">Back to issues</a></section>

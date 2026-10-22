@@ -1,0 +1,166 @@
+{
+  "status": "PASS",
+  "binary_sha256": "0aa105a7111872313e326cbc37e95ef01a4c47dcec54bcdd4b63abde15ae619c",
+  "results": [
+    {
+      "name": "ordinary-interface-control",
+      "expected_accept": true,
+      "exit": 0,
+      "status": "PASS",
+      "diagnostic": "",
+      "source_sha256": "f60df7e523e10fb0cb7ff55a34b3775973ed179233047d2c80eec87f4e580d21"
+    },
+    {
+      "name": "transaction-syntax-control",
+      "expected_accept": true,
+      "exit": 0,
+      "status": "PASS",
+      "diagnostic": "",
+      "source_sha256": "886840b9715b87225d1d12aa28a2eb20254874800175871d1b4fa2538137f0b9"
+    },
+    {
+      "name": "readonly-snapshot-control",
+      "expected_accept": true,
+      "exit": 0,
+      "status": "PASS",
+      "diagnostic": "",
+      "source_sha256": "f60df7e523e10fb0cb7ff55a34b3775973ed179233047d2c80eec87f4e580d21"
+    },
+    {
+      "name": "http-transitive-helper-control",
+      "expected_accept": true,
+      "exit": 0,
+      "status": "PASS",
+      "diagnostic": "",
+      "source_sha256": "43b74f8a1b0659b3f0a36709dc1e6d94b9450e6f9d31a9cbf594df958a7e215b"
+    },
+    {
+      "name": "explicit-transaction-http",
+      "expected_accept": false,
+      "exit": 1,
+      "status": "PASS",
+      "diagnostic": "error: server.dia: D900 unsupported at 152:15: call to __diamond_fn_6_server_external_get can open a nested transaction block",
+      "source_sha256": "3b7bfebf8c7650995b70f5a3073ec39672e714317300ccbea6c9f58357bc8dc1"
+    },
+    {
+      "name": "transitive-write-and-host",
+      "expected_accept": false,
+      "exit": 1,
+      "status": "PASS",
+      "diagnostic": "error: invalid input: external HTTP cannot share application writes or explicit transactions",
+      "source_sha256": "727834697356d01ee1f95cfaba9d10ace83455cda945001841690c9be2287fa7"
+    },
+    {
+      "name": "transitive-host-and-write",
+      "expected_accept": false,
+      "exit": 1,
+      "status": "PASS",
+      "diagnostic": "error: invalid input: external HTTP cannot share application writes or explicit transactions",
+      "source_sha256": "5f8a0b3413e2cf3816c5ba1c4b2ff2765f473373b724cc3a8e770139ee0fab6d"
+    },
+    {
+      "name": "missing-static-budget",
+      "expected_accept": false,
+      "exit": 1,
+      "status": "PASS",
+      "diagnostic": "error: server.dia: D301 at 146:1: effects {Read(\"Issues\"), Host(\"Http<inventory>\")} exceed the application's declared authority",
+      "source_sha256": "f7a0f3b7a88d53bd637069bd7ad72b897446c2e69cbc0d43faa3fae17ba08ec1"
+    },
+    {
+      "name": "cross-nominal-secret",
+      "expected_accept": false,
+      "exit": 1,
+      "status": "PASS",
+      "diagnostic": "error: server.dia: D310 at 142:3: path or destination secret type mismatch",
+      "source_sha256": "593b2429c1c53f4ea0abc15f67a1e7d4994815819b3123a228c008e460915600"
+    },
+    {
+      "name": "dynamic-destination",
+      "expected_accept": false,
+      "exit": 1,
+      "status": "PASS",
+      "diagnostic": "error: server.dia: D310 at 142:3: destination requires a static name",
+      "source_sha256": "fe943ee91d784024c8027c0b1dcdfb6e00eb83b3a87132b14feb23afb540a2f0"
+    },
+    {
+      "name": "secret-equality",
+      "expected_accept": false,
+      "exit": 1,
+      "status": "PASS",
+      "diagnostic": "error: server.dia: D115 at 152:3: operator is not defined for these types",
+      "source_sha256": "2e7fd3c202f1656506683baa794537b2f532f32f44ff284d51735feb9b104374"
+    },
+    {
+      "name": "secret-through-text-function",
+      "expected_accept": false,
+      "exit": 1,
+      "status": "PASS",
+      "diagnostic": "error: server.dia: D110 at 152:16: expected Text, found Secret<\"inventory\">",
+      "source_sha256": "4b0f3e780dbdbace6cb850bfe1f820b7c815c3eb5e908dd1d17ecffeb9dbcce3"
+    },
+    {
+      "name": "secret-in-post-wire",
+      "expected_accept": false,
+      "exit": 1,
+      "status": "PASS",
+      "diagnostic": "error: server.dia: D310 at 145:3: HTTP requires finite wire-safe types",
+      "source_sha256": "49cab2f6e29a5019e6fda553d795eb0842b2c62cc648c3c579d376228b1e567c"
+    },
+    {
+      "name": "secret-in-reply-wire",
+      "expected_accept": false,
+      "exit": 1,
+      "status": "PASS",
+      "diagnostic": "error: server.dia: D310 at 142:3: HTTP requires finite wire-safe types",
+      "source_sha256": "14036da891bd77c6de295f488a4c9805ffa59819543751af962694f22d1345ec"
+    },
+    {
+      "name": "secret-nested-rpc-result",
+      "expected_accept": false,
+      "exit": 1,
+      "status": "PASS",
+      "diagnostic": "error: invalid input: RPC signatures require finite managed wire-safe types",
+      "source_sha256": "0425c38985b1359c48b5851ca301904db96d808ce3390e189ba9e46d5fd12200"
+    },
+    {
+      "name": "secret-in-stored-record",
+      "expected_accept": false,
+      "exit": 1,
+      "status": "PASS",
+      "diagnostic": "error: server.dia: D900 unsupported at 72:1: database field authority of type Secret<\"inventory\">",
+      "source_sha256": "1fda96f90202cf1184004da991e0e010155cadb60eeb784dbff83a9497866c83"
+    },
+    {
+      "name": "browser-host-handle",
+      "expected_accept": false,
+      "exit": 1,
+      "status": "PASS",
+      "diagnostic": "error: ui.dia: D900 unsupported at 4:13: host operations require a server project module",
+      "source_sha256": "7c3d6303a2cb7a54440ad878b318fd2a6554fa1d303ece96e5ffc88b167eb881"
+    },
+    {
+      "name": "public-api-host-effects",
+      "expected_accept": false,
+      "exit": 1,
+      "status": "PASS",
+      "diagnostic": "error: invalid input: public API operations must be read-only",
+      "source_sha256": "a016949432dea0f6545d19e794a86e6cbd0573655b110b4413876ef5be3d79f6"
+    },
+    {
+      "name": "unknown-file-resource",
+      "expected_accept": false,
+      "exit": 1,
+      "status": "PASS",
+      "diagnostic": "error: invalid input: invalid file binding or absent resource capabilities",
+      "source_sha256": "fd48de7d6334932a1f438e0114183f284577ae692c1aa51057129815c9bee3b7"
+    },
+    {
+      "name": "excess-file-bound",
+      "expected_accept": false,
+      "exit": 1,
+      "status": "PASS",
+      "diagnostic": "error: invalid input: invalid file binding or absent resource capabilities",
+      "source_sha256": "97d7c892f7b83915122b6d6bd1727163aec93db5254ec92fa4fadf114a70ab4e"
+    }
+  ]
+}

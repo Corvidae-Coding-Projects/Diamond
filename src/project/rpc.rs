@@ -70,9 +70,9 @@ pub(super) fn operations(
             if checked
                 .effects
                 .iter()
-                .any(|effect| matches!(effect, crate::authority::Effect::Host(_)))
+                .any(|effect| matches!(effect, crate::authority::Effect::Host(name) if !name.starts_with("Http<")))
             {
-                return Err(input("W2 RPC does not dispatch external host operations"));
+                return Err(input("RPC does not dispatch this native host operation"));
             }
             Ok((
                 name.clone(),

@@ -1,5 +1,7 @@
 //! Declaration resolution, local typing, closed-call-graph effects, and route checks.
 
+mod integrations;
+
 use crate::authority::{Effect, Effects};
 use crate::error::{Error, Location, Result};
 use crate::hir::{self, CheckedProgram, Segment};
@@ -227,6 +229,9 @@ fn resolve(
             }
         },
         TypeName::Id(tag) if !tag.is_empty() => Type::Id(tag.clone()),
+        TypeName::Secret(tag) if crate::project::resolve::identifier(tag) => {
+            Type::Secret(tag.clone())
+        }
         TypeName::BoundedText(a, b) => Type::BoundedText(*a, *b),
         TypeName::Generic(name, arguments) if name == "Option" && arguments.len() == 1 => {
             Type::Option(Box::new(resolve(
@@ -1353,6 +1358,9 @@ impl<'a> Checker<'a> {
                 "host operations require a server project module",
             ));
         }
+        if matches!(method, "secret" | "http_get" | "http_post") {
+            return self.integration_call(method, args, types, location);
+        }
         let operation = crate::host::operation(method).ok_or_else(|| {
             Error::diagnostic("D310", location, "unknown registered host operation")
         })?;
@@ -1502,7 +1510,11 @@ impl<'a> Checker<'a> {
             Error::diagnostic("D116", location, format!("unknown function {name}"))
         })?;
         if matches!(self.transaction_context, TransactionContext::Inside)
-            && function.opens_transaction
+            && (function.opens_transaction
+                || function
+                    .effects
+                    .iter()
+                    .any(|e| matches!(e, Effect::Host(_))))
         {
             return Err(Error::unsupported(
                 location,

@@ -393,7 +393,9 @@ impl Parser {
             return Ok(TypeName::Named(name));
         }
         self.take();
-        let result = if name == "Id" {
+        let result = if name == "Secret" {
+            TypeName::Secret(self.text()?)
+        } else if name == "Id" {
             TypeName::Id(self.text()?)
         } else if name == "Text" && self.is_name("length") {
             self.take();
@@ -724,11 +726,16 @@ impl Parser {
                     kind: ExprKind::Field(Box::new(left), name.clone()),
                     location,
                 };
-                if name == "form" && self.is_symbol("<") {
+                if ["form", "http_get", "http_post"].contains(&name.as_str()) && self.is_symbol("<")
+                {
                     self.take();
-                    let ty = self.ty(0)?;
+                    let mut types = vec![self.ty(0)?];
+                    while self.is_symbol(",") {
+                        self.take();
+                        types.push(self.ty(0)?);
+                    }
                     self.symbol(">")?;
-                    left = self.call(left, vec![ty])?;
+                    left = self.call(left, types)?;
                 }
                 continue;
             }
