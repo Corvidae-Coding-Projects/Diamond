@@ -90,19 +90,21 @@ function __unwire(v,t,d=0){if(d>32)throw Error('wire depth');const name=typeof t
  return __validate(result,t,d);
 }
 let __csrf='',__bootstrap=null,__bootstrapController=null,__authEpoch=0,__authBusy=false;
-async function __remote(name,args,types,result,ctx){let response;try{if(ctx.epoch!==__authEpoch||ctx.controller.signal.aborted)throw Error('stale event');if(++ctx.calls>32)throw Error('event remote-call budget');
- if(name==='session/login'||name==='session/logout'){if(__authBusy)throw Error('identity update pending');__authBusy=true;ctx.identity=true;ctx.epoch=++__authEpoch;}
+async function __remote(name,args,types,result,ctx){let response,identity=false;try{if(ctx.epoch!==__authEpoch||ctx.controller.signal.aborted)throw Error('stale event');if(++ctx.calls>32)throw Error('event remote-call budget');
+ if(['login','logout','reset','change_password','logout_all','disable'].some(n=>name==='session/'+n)){if(__authBusy)throw Error('identity update pending');__authBusy=true;identity=true;ctx.identity=true;ctx.epoch=++__authEpoch;}
  if(!__csrf||name==='session/user'){
   if(!__bootstrap){__bootstrapController=new AbortController();__bootstrap=fetch('/_diamond/session',{signal:__bootstrapController.signal,credentials:'same-origin',cache:'no-store',headers:{'X-Diamond-Session':'1'}}).then(async r=>{if(!r.ok)throw Error('session unavailable');return r.json();}).finally(()=>{__bootstrap=null;__bootstrapController=null;});}
   const session=await __bootstrap;if(ctx.epoch!==__authEpoch)throw Error('identity changed');__csrf=session.csrf;if(name==='session/user')return session.user||'';
  }
  let path,body;if(name==='session/login'){path='/_diamond/login';body={username:args[0],password:args[1]};}
  else if(name==='session/logout'){path='/_diamond/logout';body={};}
+ else if(name.startsWith('session/')){const n=name.slice(8),fields={register:['username','email','password','invite'],verify:['token'],resend:['email'],recover:['email'],reset:['token','password'],change_password:['current_password','password'],logout_all:[],invite:['email'],disable:['username','disabled'],create_token:['label','operations','scopes','lifetime_seconds'],list_tokens:[],revoke_token:['id']}[n];if(!fields)throw Error('unknown account operation');path='/_diamond/accounts/'+n;body=Object.fromEntries(fields.map((f,i)=>[f,f==='scopes'?JSON.parse(args[i]):f==='lifetime_seconds'?args[i].toString():args[i]]));}
  else{path='/_diamond/'+name;body={contract:__contract,arguments:args.map((v,i)=>{__validate(v,types[i]);return __wireAny(v);})};}
  response=await fetch(path,{method:'POST',credentials:'same-origin',signal:ctx.controller.signal,headers:{'Content-Type':'application/json','X-Diamond-CSRF':__csrf},body:JSON.stringify(body)});
- const value=await response.json();if(!response.ok){const error=Error(value.error==='outcome_unknown'||response.status>=500?'Request failed; a mutation may have committed. Refresh before retrying.':value.error==='contract_mismatch'?'Application version changed. Reload this page.':'Request rejected. Check your session, input, and permissions. Earlier server calls may already have committed.');error.diamondRemote=true;throw error;}
- if(ctx.epoch!==__authEpoch)throw Error('identity changed');if(value.csrf)__csrf=value.csrf;if(name==='session/logout')__csrf='';return __unwire(value.value,result);
- }catch(error){if(error.diamondRemote)throw error;const failure=Error('Request interrupted; a mutation may have committed. Refresh before retrying.');failure.diamondRemote=true;throw failure;}finally{if(ctx.identity)__authBusy=false;}}
+ const value=await response.json();if(!response.ok){const error=Error(value.error==='outcome_unknown'||response.status>=500?'Request failed; a mutation may have committed. Refresh before retrying.':value.error==='contract_mismatch'?'Application version changed. Reload this page.':'Request rejected. Check your session, input, and permissions. Earlier server calls may already have committed.');error.diamondRemote=true;error.uncertain=response.status>=500;error.lostIdentity=response.status===401;throw error;}
+ if(ctx.epoch!==__authEpoch)throw Error('identity changed');if(value.csrf)__csrf=value.csrf;if(['logout','reset','change_password','logout_all','disable'].some(n=>name==='session/'+n))__csrf='';return __unwire(value.value,result);
+ }catch(error){const failure=error.diamondRemote?error:Error('Request interrupted; a mutation may have committed. Refresh before retrying.');if(!error.diamondRemote){failure.diamondRemote=true;failure.uncertain=true;}if(ctx.epoch===__authEpoch&&(identity&&failure.uncertain||failure.lostIdentity))__forgetIdentity(failure);throw failure;}finally{if(identity)__authBusy=false;}}
+function __forgetIdentity(error){__csrf='';__bootstrapController?.abort();__bootstrap=null;__authEpoch++;for(const frame of __frames.values())__dispose(frame);__frames.clear();__render();__fail(null,error);}
 let __frames=new Map(),__nodes=[],__rendering=false,__alive=true,__hydrationEdited=false;
 function __environment(frame,state=frame.state,props=frame.props){const env=Object.assign(__dict(),props,state,{pending:frame.pending,error:frame.error,route:location.pathname});for(const[n,e]of __program.components[frame.name].derived){env[n]=__eval(e.ast,env);__validate(env[n],e.ty);}return env;}
 function __initial(name,props,id){const def=__program.components[name],state=__dict(),env=Object.assign(__dict(),props);for(const[n,e]of def.state){state[n]=__eval(e.ast,env);__validate(state[n],e.ty);env[n]=state[n];}return{name,id,state,props,pending:false,error:'',generation:0,controller:null,active:false};}
@@ -125,7 +127,7 @@ function __activate(el,v){const prior=__meta.get(el);if(prior){for(const name of
  el.onclick=null;el.onsubmit=null;el.oninput=null;el.onchange=null;
  if(v.events&&v.events['on-click'])el.onclick=event=>{event.preventDefault();__dispatch(v.frame,v.events['on-click']);};
  if(v.events&&v.events['on-submit'])el.onsubmit=event=>{event.preventDefault();if(el.checkValidity()&&!v.frame.pending)__dispatch(v.frame,v.events['on-submit']);};
- if(v.binding||v.checked){const input=()=>{if(!v.frame.active)return;try{const name=v.binding||v.checked,def=__program.components[v.frame.name].state.find(([n])=>n===name)[1],value=v.checked?el.checked:__text(el.value);__validate(value,def.ty);v.frame.generation++;v.frame.controller?.abort();v.frame.pending=false;const old=v.frame.state;v.frame.state=Object.assign(__dict(),old,{[name]:value});try{__render();}catch(e){v.frame.state=old;throw e;}}catch(e){__fail(v.frame,e);}};if(el.tagName==='SELECT')el.onchange=input;else el.oninput=input;}
+ if(v.binding||v.checked){const input=()=>{if(!v.frame.active||__authBusy)return;try{const name=v.binding||v.checked,def=__program.components[v.frame.name].state.find(([n])=>n===name)[1],value=v.checked?el.checked:__text(el.value);__validate(value,def.ty);v.frame.generation++;v.frame.controller?.abort();v.frame.pending=false;const old=v.frame.state;v.frame.state=Object.assign(__dict(),old,{[name]:value});try{__render();}catch(e){v.frame.state=old;throw e;}}catch(e){__fail(v.frame,e);}};if(el.tagName==='SELECT')el.onchange=input;else el.oninput=input;}
  if(v.tag==='a'&&__program.routes.includes(v.attrs.href))el.onclick=e=>{if(e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;e.preventDefault();__navigate(v.attrs.href);};__meta.set(el,v);}
 function __create(v){if(__own(v,'text'))return document.createTextNode(v.text);const el=document.createElement(v.tag);for(const child of v.children)el.append(__create(child));__activate(el,v);return el;}
 function __patch(parent,old,next){const oldNodes=Array.from(parent.childNodes),byKey=new Map(old.map((v,i)=>[v.key,{v,el:oldNodes[i]}]));const kept=new Set();for(let i=0;i<next.length;i++){const v=next[i],match=byKey.get(v.key);let el;
@@ -157,7 +159,7 @@ async function __evalAsync(expr,env,remotes,ctx){__step();const k=expr.kind;let 
  else return __eval(expr,env);return __check(v);
 }
 
-async function __dispatch(frame,name){if(!frame.active)return;const assignments=__program.components[frame.name].events[name];if(!assignments)return;
+async function __dispatch(frame,name){if(!frame.active||__authBusy)return;const assignments=__program.components[frame.name].events[name];if(!assignments)return;
  const generation=++frame.generation;frame.controller?.abort();const ctx={controller:new AbortController(),epoch:__authEpoch,identity:false,calls:0};frame.controller=ctx.controller;const deadline=setTimeout(()=>ctx.controller.abort(),30000);frame.pending=true;frame.error='';
  const next=Object.assign(__dict(),frame.state);try{__render();for(const[target,e]of assignments){const env=__environment(frame,next);next[target]=e.Pure?__eval(e.Pure.ast,env):e.Async?await __evalAsync(e.Async.expression.ast,env,e.Async.remotes,ctx):await __remote(e.Remote.operation,e.Remote.arguments.map(e=>__eval(e.ast,env)),e.Remote.types,e.Remote.result,ctx);__validate(next[target],__program.components[frame.name].state.find(([n])=>n===target)[1].ty);}
  if(!frame.active||frame.generation!==generation||ctx.epoch!==__authEpoch)return;const previous=frame.state;frame.state=next;try{__render();}catch(error){frame.state=previous;throw error;}__error.hidden=true;
@@ -165,6 +167,7 @@ async function __dispatch(frame,name){if(!frame.active)return;const assignments=
  finally{clearTimeout(deadline);if(frame.active&&frame.generation===generation){frame.pending=false;frame.controller=null;try{__render();}catch(error){__fail(frame,error,ctx.calls);}}}}
 let __currentPath=location.pathname;
 function __changeRoute(path,push){const previous=__currentPath,previousState=history.state;
+ if(__authBusy){if(!push)history.replaceState(previousState,'',previous);return;}
  // Render against the candidate path without creating a history entry until it succeeds.
  if(push)history.replaceState(previousState,'',path);__reset();for(const f of __frames.values()){f.generation++;f.controller?.abort();f.pending=false;}
  try{__render();if(push){history.replaceState(previousState,'',previous);history.pushState(null,'',path);}__currentPath=path;__error.hidden=true;}

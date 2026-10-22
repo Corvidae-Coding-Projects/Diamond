@@ -1,5 +1,7 @@
 //! Checked project graphs, target separation, and versioned application builds.
 
+mod accounts;
+mod api;
 pub(crate) mod artifact;
 mod assets;
 mod browser;
@@ -67,6 +69,10 @@ struct Manifest {
     assets: BTreeMap<String, String>,
     #[serde(default)]
     storage: Option<crate::relational::Storage>,
+    #[serde(default)]
+    identity: Option<accounts::Config>,
+    #[serde(default)]
+    http_api: Option<api::Config>,
 }
 
 #[derive(Clone, Debug)]
@@ -95,6 +101,7 @@ pub struct CheckedProject {
     browser: lower::BrowserProgram,
     browser_checked: CheckedProgram,
     rpc: BTreeMap<String, rpc::Operation>,
+    api: BTreeMap<String, api::Operation>,
 }
 
 /// Read and check a bounded project without opening a database or listener.
@@ -257,7 +264,10 @@ impl CheckedProject {
     /// # Ok::<(), diamond::Error>(())
     /// ```
     pub fn serve(&self, address: SocketAddr) -> Result<()> {
-        if !self.rpc.is_empty() {
+        if !self.rpc.is_empty()
+            || self.manifest.identity.is_some()
+            || self.manifest.http_api.is_some()
+        {
             return Err(input(
                 "RPC projects require serve_connected with an explicit PostgreSQL grant and origin",
             ));
@@ -417,7 +427,50 @@ impl CheckedProject {
         public_origin: &str,
         configuration: &str,
     ) -> Result<()> {
-        connected::serve(self, address, public_origin, configuration)
+        connected::serve(self, address, public_origin, configuration, None)
+    }
+    /// Provision a verified accounts-v1 administrator using trusted database authority.
+    ///
+    /// # Errors
+    /// Rejects duplicate accounts, invalid input, missing profiles and database failures.
+    ///
+    /// ```no_run
+    /// # fn example(project: &diamond::CheckedProject) -> Result<(), diamond::Error> {
+    /// project.add_postgres_administrator("host=/tmp/postgres dbname=diamond", "alice", "alice@example.invalid", "a-long-test-password")?;
+    /// # Ok(()) }
+    /// ```
+    pub fn add_postgres_administrator(
+        &self,
+        configuration: &str,
+        username: &str,
+        email: &str,
+        password: &str,
+    ) -> Result<()> {
+        synchronous_context()?;
+        let mut store = storage::PostgresStore::open_control(self, configuration, None)?;
+        let result = store.provision_account(username, email, password, true);
+        store.finish_request(result)
+    }
+    /// Serve accounts-v1 with an explicitly granted owner-only development mail directory.
+    /// The directory must already exist with mode 0700; delivered challenges are private 0600 files.
+    ///
+    /// # Errors
+    /// Rejects invalid origins, listeners, profiles, mailbox grants or database/runtime failures.
+    ///
+    /// ```no_run
+    /// # fn example(project: &diamond::CheckedProject) -> Result<(), diamond::Error> {
+    /// project.serve_accounts("127.0.0.1:3000".parse().map_err(|_|diamond::Error::Input("address".into()))?,
+    /// "http://localhost:3000", "host=/tmp/postgres dbname=diamond", std::path::Path::new("/tmp/private-mail"))?;
+    /// # Ok(()) }
+    /// ```
+    pub fn serve_accounts(
+        &self,
+        address: SocketAddr,
+        public_origin: &str,
+        configuration: &str,
+        mailbox: &Path,
+    ) -> Result<()> {
+        connected::serve(self, address, public_origin, configuration, Some(mailbox))
     }
 }
 
@@ -447,6 +500,15 @@ fn manifest(source: &str) -> Result<Manifest> {
     }
     for capability in &manifest.provides {
         capability_effect(capability)?;
+    }
+    if let Some(config) = &manifest.identity {
+        config.checked()?;
+        if manifest.storage.is_none() {
+            return Err(input("accounts-v1 requires relational storage"));
+        }
+    }
+    if manifest.http_api.is_some() && manifest.identity.is_none() {
+        return Err(input("HTTP APIs require accounts-v1"));
     }
     if manifest.rpc.len() > 64 {
         return Err(input("at most 64 RPC operations are supported"));
@@ -531,6 +593,7 @@ fn compile_sources(
     let modules = parse_modules(&manifest, &sources)?;
     let server = check_server(&manifest, &modules)?;
     let rpc = rpc::operations(&manifest, &modules, &server)?;
+    let api = api::operations(&manifest, &modules, &server)?;
     let browser_names = resolve::reachable(&manifest.browser, &manifest.modules);
     let browser_source = combined(&modules, &browser_names);
     let browser_checked =
@@ -549,8 +612,14 @@ fn compile_sources(
         .iter()
         .flat_map(|n| modules[n].parsed.components.clone())
         .collect::<Vec<_>>();
-    let mut browser = lower::lower(&browser_checked, &component.name, &components, &rpc)
-        .map_err(|error| locate(&modules, error))?;
+    let mut browser = lower::lower(
+        &browser_checked,
+        &component.name,
+        &components,
+        &rpc,
+        manifest.identity.is_some(),
+    )
+    .map_err(|error| locate(&modules, error))?;
     let urls = assets::urls(&manifest, &sources)?;
     assets::resolve(&mut browser, &urls)?;
     Ok(CheckedProject {
@@ -562,6 +631,7 @@ fn compile_sources(
         browser,
         browser_checked,
         rpc,
+        api,
     })
 }
 

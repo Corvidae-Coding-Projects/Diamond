@@ -87,6 +87,7 @@ pub(super) struct BrowserProgram {
     pub routes: BTreeSet<String>,
 }
 struct Lower<'a> {
+    accounts: bool,
     program: &'a CheckedProgram,
     signatures: BTreeMap<String, Vec<(String, Type)>>,
     routes: BTreeSet<String>,
@@ -96,8 +97,10 @@ pub(super) fn lower(
     root: &str,
     components: &[syntax::Component],
     rpc: &BTreeMap<String, super::rpc::Operation>,
+    accounts: bool,
 ) -> Result<BrowserProgram> {
     let mut lower = Lower {
+        accounts,
         program,
         signatures: BTreeMap::new(),
         routes: BTreeSet::from(["/".into()]),
@@ -319,7 +322,14 @@ impl Lower<'_> {
                 let params = match name.as_str() {
                     "login" => vec![Type::Text, Type::Text],
                     "logout" | "user" => vec![],
-                    _ => return Err(error(e.location, "unknown session operation")),
+                    _ if self.accounts => super::accounts::signature(name)
+                        .ok_or_else(|| error(e.location, "unknown account operation"))?,
+                    _ => {
+                        return Err(error(
+                            e.location,
+                            "unknown session operation or missing accounts-v1 profile",
+                        ));
+                    }
                 };
                 (params, Type::Text, format!("session/{name}"))
             };

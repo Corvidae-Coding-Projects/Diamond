@@ -1,5 +1,7 @@
 //! Connected loopback serving with exact-origin RPC and shared `PostgreSQL` identity.
 
+mod profiles;
+
 use super::{
     CheckedProject, artifact, identity::Session, input, server::response as asset_response,
     storage::PostgresStore, wire,
@@ -9,7 +11,7 @@ use crate::error::{Error, Result};
 use axum::{
     Router,
     body::to_bytes,
-    extract::{Request, State},
+    extract::{ConnectInfo, Request, State},
     http::{StatusCode, Uri, header},
     response::Response,
 };
@@ -41,6 +43,7 @@ struct Server {
     secrets: Arc<Secrets>,
     permits: Arc<Semaphore>,
     pool: Option<Arc<crate::relational::Pool>>,
+    mailbox: Option<super::accounts::Mailbox>,
 }
 
 #[derive(Deserialize)]
@@ -67,6 +70,7 @@ pub(super) fn serve(
     address: SocketAddr,
     origin: &str,
     configuration: &str,
+    mailbox: Option<&std::path::Path>,
 ) -> Result<()> {
     if !address.ip().is_loopback() {
         return Err(input("connected development serving is loopback-only"));
@@ -93,6 +97,15 @@ pub(super) fn serve(
             "W2 requires an exact http://localhost:PORT loopback development origin",
         ));
     }
+    let mailbox = match (&project.manifest.identity, mailbox) {
+        (Some(_), Some(path)) => Some(super::accounts::Mailbox::open(path)?),
+        (None, None) => None,
+        _ => {
+            return Err(input(
+                "accounts-v1 serving requires an explicit private identity mailbox",
+            ));
+        }
+    };
     let mut store = PostgresStore::open(project, configuration, false)?;
     store.finish_request(Ok(()))?;
     let secrets = Arc::new(Secrets {
@@ -102,6 +115,7 @@ pub(super) fn serve(
         )?),
     });
     let state = Arc::new(Server {
+        mailbox,
         project: project.clone(),
         files: artifact::files(project)?
             .into_iter()
@@ -141,12 +155,15 @@ pub(super) fn serve(
             .fallback(handler)
             .with_state(Arc::clone(&state));
         eprintln!("Diamond connected development server: {origin}");
-        axum::serve(listener, app)
-            .with_graceful_shutdown(async {
-                let _signal = tokio::signal::ctrl_c().await;
-            })
-            .await
-            .map_err(Error::Io)
+        axum::serve(
+            listener,
+            app.into_make_service_with_connect_info::<SocketAddr>(),
+        )
+        .with_graceful_shutdown(async {
+            let _signal = tokio::signal::ctrl_c().await;
+        })
+        .await
+        .map_err(Error::Io)
     });
     // Retain the pool until the outer runtime has joined all owned blocking work.
     // Its synchronous drivers must be destroyed outside an async runtime context.
@@ -155,14 +172,25 @@ pub(super) fn serve(
     result
 }
 
-async fn handler(State(server): State<Arc<Server>>, request: Request) -> Response {
+async fn handler(
+    State(server): State<Arc<Server>>,
+    ConnectInfo(peer): ConnectInfo<SocketAddr>,
+    request: Request,
+) -> Response {
     let Ok(permit) = Arc::clone(&server.permits).try_acquire_owned() else {
         return failure(&Error::Limit("request capacity"));
     };
     if !valid_request(&server, &request) {
         return json_response(StatusCode::BAD_REQUEST, &json!({"error":"invalid_request"}));
     }
+    let peer = peer.ip().to_string();
     let path = request.uri().path().to_owned();
+    if path.starts_with("/api/") {
+        return profiles::api_request(server, request, peer, permit).await;
+    }
+    if request.headers().contains_key(header::AUTHORIZATION) {
+        return failure(&Error::Denied);
+    }
     if request.method() == "GET" || request.method() == "HEAD" {
         if path != "/_diamond/session" {
             let key = server
@@ -190,11 +218,13 @@ async fn handler(State(server): State<Arc<Server>>, request: Request) -> Respons
     } else if request.method() != "POST" {
         return json_response(StatusCode::METHOD_NOT_ALLOWED, &json!({"error":"method"}));
     }
-    if !["/_diamond/session", "/_diamond/login", "/_diamond/logout"].contains(&path.as_str())
-        && !path
+    let known = ["/_diamond/session", "/_diamond/login", "/_diamond/logout"]
+        .contains(&path.as_str())
+        || path
             .strip_prefix("/_diamond/rpc/")
             .is_some_and(|name| server.project.rpc.contains_key(name))
-    {
+        || (server.project.manifest.identity.is_some() && super::accounts::route(&path));
+    if !known {
         return json_response(StatusCode::NOT_FOUND, &json!({"error":"not_found"}));
     }
     let post = request.method() == "POST";
@@ -231,7 +261,7 @@ async fn handler(State(server): State<Arc<Server>>, request: Request) -> Respons
             );
         }
     };
-    dispatch(server, path, token, csrf, body, permit).await
+    dispatch(server, path, token, csrf, body, peer, permit).await
 }
 
 async fn dispatch(
@@ -240,6 +270,7 @@ async fn dispatch(
     token: Option<Zeroizing<String>>,
     csrf: String,
     body: Zeroizing<Vec<u8>>,
+    peer: String,
     permit: tokio::sync::OwnedSemaphorePermit,
 ) -> Response {
     let work_server = Arc::clone(&server);
@@ -253,6 +284,7 @@ async fn dispatch(
             token.as_deref().map(String::as_str),
             &csrf,
             &body,
+            &peer,
         )
     });
     match job.await {
@@ -279,7 +311,21 @@ fn work(
     token: Option<&str>,
     csrf: &str,
     body: &[u8],
+    peer: &str,
 ) -> Result<(Json, Option<String>)> {
+    if server.project.manifest.identity.is_some() && !path.starts_with("/_diamond/rpc/") {
+        super::accounts::charge(
+            &server.project,
+            &server.secrets.configuration,
+            server.pool.as_ref(),
+            "auth",
+            peer,
+            &super::accounts::subject(path, body),
+        )?;
+        if !path.starts_with("/_diamond/rpc/") {
+            return profiles::account_work(server, path, token, csrf, body);
+        }
+    }
     // Decode public input/contract before opening an application transaction.
     let decoded = if let Some(name) = path.strip_prefix("/_diamond/rpc/") {
         let op = &server.project.rpc[name];
@@ -288,16 +334,7 @@ fn work(
         if envelope.contract != server.contract {
             return Err(input_error_contract());
         }
-        if envelope.arguments.len() != op.arguments.len() {
-            return Err(input("RPC argument count"));
-        }
-        Some(
-            op.arguments
-                .iter()
-                .zip(&envelope.arguments)
-                .map(|(ty, value)| wire::decode(ty, value, &server.project.server))
-                .collect::<Result<Vec<_>>>()?,
-        )
+        Some(profiles::decode(op, &envelope.arguments, &server.project)?)
     } else {
         None
     };
@@ -364,25 +401,14 @@ fn work(
     let op = &server.project.rpc[name];
     let grants = &server.project.server.functions[&op.function].effects;
     let scope = Scope::new(&principal, grants);
-    let result = crate::eval::Interpreter::new(&server.project.server, &scope, None, None)
-        .with_postgres(&mut store)
-        .function(&op.function, &decoded.ok_or(Error::Denied)?);
-    if matches!(op.result, crate::value::Type::AppResult(..)) {
-        let result = result.and_then(|v| match v.0 {
-            crate::value::ValueKind::AppErr(e) => Err(Error::Application(*e)),
-            _ => Ok(v),
-        });
-        let value = match store.finish_request(result) {
-            Err(Error::Application(e)) => {
-                crate::Value(crate::value::ValueKind::AppErr(Box::new(e)))
-            }
-            other => other?,
-        };
-        Ok((json!({"value":wire::encode(&value)?}), None))
-    } else {
-        let value = store.finish_request(result.and_then(crate::Value::into_result))?;
-        Ok((json!({"value":wire::encode(&value)?}), None))
-    }
+    let value = profiles::invoke(
+        &server.project,
+        op,
+        &decoded.ok_or(Error::Denied)?,
+        &scope,
+        &mut store,
+    )?;
+    Ok((json!({"value":value}), None))
 }
 
 fn one_header<'a>(request: &'a Request, name: &str) -> Option<&'a str> {
@@ -472,6 +498,7 @@ fn response(status: StatusCode, kind: &'static str, text: &str, head: bool) -> R
 
 fn failure(error: &Error) -> Response {
     let (status, code) = match error {
+        Error::Unauthenticated => (StatusCode::UNAUTHORIZED, "authentication_required"),
         Error::Denied => (StatusCode::FORBIDDEN, "denied"),
         Error::Aborted | Error::Conflict => (StatusCode::CONFLICT, "aborted"),
         Error::OutcomeUnknown(_) => (StatusCode::SERVICE_UNAVAILABLE, "outcome_unknown"),
@@ -482,8 +509,17 @@ fn failure(error: &Error) -> Response {
             (StatusCode::SERVICE_UNAVAILABLE, "unavailable")
         }
         Error::Input(_) => (StatusCode::BAD_REQUEST, "invalid_input"),
-        Error::Limit("shared login rate") => (StatusCode::TOO_MANY_REQUESTS, "rate_limited"),
+        Error::Limit("shared login rate" | "identity rate") => {
+            (StatusCode::TOO_MANY_REQUESTS, "rate_limited")
+        }
         _ => (StatusCode::SERVICE_UNAVAILABLE, "unavailable"),
     };
-    json_response(status, &json!({"error":code}))
+    let mut response = json_response(status, &json!({"error":code}));
+    if status == StatusCode::UNAUTHORIZED {
+        response.headers_mut().insert(
+            header::WWW_AUTHENTICATE,
+            header::HeaderValue::from_static("Bearer realm=\"diamond\""),
+        );
+    }
+    response
 }

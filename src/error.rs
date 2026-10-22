@@ -71,6 +71,13 @@ pub enum Error {
     /// A missing or expired capability, policy denial, or protected record absence.
     #[error("access denied or resource not found")]
     Denied,
+    /// A required current account/API credential was absent, expired or revoked.
+    ///
+    /// ```
+    /// assert!(diamond::Error::Unauthenticated.to_string().contains("authentication"));
+    /// ```
+    #[error("authentication required")]
+    Unauthenticated,
     /// Input failed its declared shape or bounds.
     #[error("invalid input: {0}")]
     Input(String),

@@ -641,3 +641,31 @@ Rebuild trusted project source for language 0.9.0/wire version 2. PostgreSQL rem
 the W2 bounded document/lock development profile; production deployment, binary
 assets, relational query planning and the full account lifecycle are not implied.
 Seven checkpoints remain, W4–W10; W4 is the relational data/authorization slice.
+
+
+## General-web expansion W4 — complete
+
+Diamond 0.10.0 added typed relational PostgreSQL storage, scoped membership and
+relationships, indexed cursor queries, authorized joins/aggregates, serializable
+mutations, bounded pooled connections and explicit stopped-server migrations.
+The [W4 evidence](verification/web_four_results.md) defines its qualified profile.
+One current schema is supported; deployed-version upgrade coexistence is outside
+the requested scope.
+
+## General-web expansion W5 — complete
+
+Diamond 0.11.0 adds opt-in shared accounts with explicit enrollment policy,
+invitations, verification/recovery/change, disablement, shared revocation/rates,
+scoped API credentials and explicit versioned JSON bindings. Account controls are
+authored in Diamond; development delivery uses an explicitly granted private
+mail directory. Token scope attenuates current resource policy on every base
+relation and mutation pre/post/return-read path.
+
+The [W5 evidence](verification/web_five_results.md) records 294 independent
+observations and 1,956 HTTP requests, real browser identity/cache recovery,
+retained before/after failures, current-source W3/W4 preservation, final artifact
+hashes and coverage gaps. The [accounts/API guide](docs/accounts-and-apis.md)
+documents the precise development boundaries and commands.
+
+Five expansion checkpoints remain, W6–W10. W6 adds files and external integrations;
+public deployment, SMTP, durable jobs and release qualification remain later work.

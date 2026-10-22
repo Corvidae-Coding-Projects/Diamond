@@ -1,0 +1,13 @@
+{
+  "binary_sha256": "a9a73f51e193e90cf62b12d0fd8343f40177301541ababa93131a482fb349d74",
+  "cleanup_errors": [],
+  "shutdowns": [
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ]
+}

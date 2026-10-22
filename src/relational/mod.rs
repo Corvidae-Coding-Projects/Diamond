@@ -3,6 +3,7 @@ pub(crate) mod config;
 mod migration;
 mod pool;
 pub(crate) mod query;
+mod restriction;
 mod runtime;
 pub(crate) mod schema;
 pub(crate) mod types;

@@ -61,7 +61,7 @@ fn try_main() -> Result<()> {
     }
     if command == "--version" {
         println!(
-            "diamond {} (W3 frontend; checkpoint six compatibility)",
+            "diamond {} (W5 accounts and explicit API development profile)",
             env!("CARGO_PKG_VERSION")
         );
         return Ok(());
@@ -77,6 +77,7 @@ fn try_main() -> Result<()> {
         "serve",
         "project-init",
         "project-user-add",
+        "project-admin-add",
         "project-status",
         "project-migrate",
         "project-backfill",
@@ -144,6 +145,8 @@ struct ProjectOptions<'a> {
     postgres_env: Option<&'a str>,
     username: Option<&'a str>,
     password_stdin: bool,
+    email: Option<&'a str>,
+    mailbox: Option<PathBuf>,
     batch: usize,
 }
 
@@ -155,6 +158,8 @@ fn project_options<'a>(command: &str, arguments: &'a [String]) -> Result<Project
         postgres_env: None,
         username: None,
         password_stdin: false,
+        email: None,
+        mailbox: None,
         batch: 100,
     };
     let mut seen = BTreeSet::new();
@@ -164,7 +169,9 @@ fn project_options<'a>(command: &str, arguments: &'a [String]) -> Result<Project
         if !seen.insert(option) {
             bail!("repeated project option {}", safe_text(option));
         }
-        if command == "project-user-add" && option == "--password-stdin" {
+        if ["project-user-add", "project-admin-add"].contains(&command)
+            && option == "--password-stdin"
+        {
             parsed.password_stdin = true;
             cursor += 1;
             continue;
@@ -179,10 +186,12 @@ fn project_options<'a>(command: &str, arguments: &'a [String]) -> Result<Project
             ("build", "--out") => parsed.output = Some(PathBuf::from(value)),
             ("serve", "--listen") => parsed.listen = value,
             ("serve", "--origin") => parsed.origin = Some(value),
-            ("project-user-add", "--user") => parsed.username = Some(value),
+            ("project-user-add" | "project-admin-add", "--user") => parsed.username = Some(value),
+            ("project-admin-add", "--email") => parsed.email = Some(value),
+            ("serve", "--identity-mailbox") => parsed.mailbox = Some(PathBuf::from(value)),
             (
-                "run" | "serve" | "project-init" | "project-user-add" | "project-status"
-                | "project-migrate" | "project-backfill" | "project-audit",
+                "run" | "serve" | "project-init" | "project-user-add" | "project-admin-add"
+                | "project-status" | "project-migrate" | "project-backfill" | "project-audit",
                 "--postgres-env",
             ) => {
                 if value.is_empty()
@@ -241,28 +250,11 @@ fn project_command(command: &str, arguments: &[String]) -> Result<()> {
                 .into_result()?;
             println!("{}", safe_text(&value.display_text()?));
         }
-        "serve" => {
-            let address = options
-                .listen
-                .parse()
-                .context("invalid project listener address")?;
-            if let Some(configuration) = configuration {
-                project
-                    .serve_connected(
-                        address,
-                        options
-                            .origin
-                            .context("connected serving requires --origin URL")?,
-                        &configuration,
-                    )
-                    .context("serve connected project")?;
-            } else {
-                if options.origin.is_some() {
-                    bail!("--origin requires an explicit PostgreSQL grant");
-                }
-                project.serve(address).context("serve project assets")?;
-            }
-        }
+        "serve" => serve_project(
+            &project,
+            &options,
+            configuration.as_deref().map(String::as_str),
+        )?,
         "project-init" => project
             .initialize_postgres(
                 configuration
@@ -282,6 +274,24 @@ fn project_command(command: &str, arguments: &[String]) -> Result<()> {
             }?;
             println!("{report}");
         }
+        "project-admin-add" => {
+            let password = read_password(options.password_stdin)?;
+            project
+                .add_postgres_administrator(
+                    configuration
+                        .as_deref()
+                        .context("project-admin-add requires --postgres-env VARIABLE")?,
+                    options
+                        .username
+                        .context("project-admin-add requires --user USERNAME")?,
+                    options
+                        .email
+                        .context("project-admin-add requires --email ADDRESS")?,
+                    &password,
+                )
+                .context("provision accounts administrator")?;
+            println!("shared administrator created");
+        }
         "project-user-add" => {
             let password = read_password(options.password_stdin)?;
             project
@@ -298,6 +308,34 @@ fn project_command(command: &str, arguments: &[String]) -> Result<()> {
             println!("shared project account created");
         }
         _ => bail!("unsupported project command"),
+    }
+    Ok(())
+}
+
+fn serve_project(
+    project: &diamond::CheckedProject,
+    options: &ProjectOptions<'_>,
+    configuration: Option<&str>,
+) -> Result<()> {
+    let address = options
+        .listen
+        .parse()
+        .context("invalid project listener address")?;
+    if let Some(configuration) = configuration {
+        let origin = options
+            .origin
+            .context("connected serving requires --origin URL")?;
+        if let Some(mailbox) = options.mailbox.as_deref() {
+            project.serve_accounts(address, origin, configuration, mailbox)
+        } else {
+            project.serve_connected(address, origin, configuration)
+        }
+        .context("serve connected project")?;
+    } else {
+        if options.origin.is_some() || options.mailbox.is_some() {
+            bail!("--origin and --identity-mailbox require an explicit PostgreSQL grant");
+        }
+        project.serve(address).context("serve project assets")?;
     }
     Ok(())
 }
@@ -565,7 +603,7 @@ fn read_password(password_stdin: bool) -> Result<Zeroizing<String>> {
 
 fn help() {
     println!(
-        "Diamond {} — W4 relational data and interpreted MVP\n\n  diamond check FILE_OR_PROJECT\n  diamond build PROJECT --out NEW_DIRECTORY\n  diamond serve PROJECT_OR_BUILD [--listen 127.0.0.1:PORT] [--postgres-env VARIABLE --origin http://localhost:PORT]\n  diamond run PROJECT_OR_BUILD [--postgres-env VARIABLE]\n  diamond project-init PROJECT --postgres-env VARIABLE\n  diamond project-user-add PROJECT --postgres-env VARIABLE --user USERNAME [--password-stdin]\n  diamond project-status PROJECT --postgres-env VARIABLE\n  diamond project-migrate PROJECT --postgres-env VARIABLE\n  diamond project-backfill PROJECT --postgres-env VARIABLE [--batch 100]\n  diamond project-audit PROJECT --postgres-env VARIABLE\n  diamond run FILE [--database PATH] [--auth PATH] [--listen 127.0.0.1:PORT] [--max-requests N]\n  diamond db-init FILE --database PATH\n  diamond user-add --auth PATH --user USERNAME [--password-stdin]\n  diamond explain CODE\n\nOpen http://localhost:PORT for browser secure-cookie support.\nSee README.md for installation, examples, supported language, and limits.",
+        "Diamond {} — W5 shared accounts, APIs and interpreted MVP\n\n  diamond check FILE_OR_PROJECT\n  diamond build PROJECT --out NEW_DIRECTORY\n  diamond serve PROJECT_OR_BUILD [--listen 127.0.0.1:PORT] [--postgres-env VARIABLE --origin http://localhost:PORT] [--identity-mailbox PRIVATE_DIRECTORY]\n  diamond run PROJECT_OR_BUILD [--postgres-env VARIABLE]\n  diamond project-init PROJECT --postgres-env VARIABLE\n  diamond project-user-add PROJECT --postgres-env VARIABLE --user USERNAME [--password-stdin]\n  diamond project-admin-add PROJECT --postgres-env VARIABLE --user USERNAME --email ADDRESS [--password-stdin]\n  diamond project-status PROJECT --postgres-env VARIABLE\n  diamond project-migrate PROJECT --postgres-env VARIABLE\n  diamond project-backfill PROJECT --postgres-env VARIABLE [--batch 100]\n  diamond project-audit PROJECT --postgres-env VARIABLE\n  diamond run FILE [--database PATH] [--auth PATH] [--listen 127.0.0.1:PORT] [--max-requests N]\n  diamond db-init FILE --database PATH\n  diamond user-add --auth PATH --user USERNAME [--password-stdin]\n  diamond explain CODE\n\nOpen http://localhost:PORT for browser secure-cookie support.\nSee README.md for installation, examples, supported language, and limits.",
         env!("CARGO_PKG_VERSION")
     );
 }

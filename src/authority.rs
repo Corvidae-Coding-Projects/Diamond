@@ -1,7 +1,8 @@
 //! Explicit request authority. Effects describe requirements and never mint grants.
 
 use crate::error::{Error, Result};
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
+pub(crate) type Restrictions = BTreeMap<String, BTreeSet<String>>;
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub(crate) enum Effect {
@@ -43,11 +44,37 @@ impl Principal {
 pub(crate) struct Scope<'a> {
     principal: &'a Principal,
     grants: &'a Effects,
+    restrictions: Option<&'a Restrictions>,
+    unscoped: bool,
 }
 
 impl<'a> Scope<'a> {
     pub fn new(principal: &'a Principal, grants: &'a Effects) -> Self {
-        Self { principal, grants }
+        Self {
+            principal,
+            grants,
+            restrictions: None,
+            unscoped: true,
+        }
+    }
+    pub fn restricted(
+        principal: &'a Principal,
+        grants: &'a Effects,
+        restrictions: &'a Restrictions,
+        unscoped: bool,
+    ) -> Self {
+        Self {
+            principal,
+            grants,
+            restrictions: Some(restrictions),
+            unscoped,
+        }
+    }
+    pub fn restrictions(&self) -> Option<&Restrictions> {
+        self.restrictions
+    }
+    pub fn allows_unscoped(&self) -> bool {
+        self.unscoped
     }
     pub fn principal(&self) -> &Principal {
         self.principal

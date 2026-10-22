@@ -33,6 +33,7 @@ impl Context<'_, '_> {
             app,
             scope,
         } = self;
+        super::restriction::check(scope, p, r, rows)?;
         p.policies.get(r).ok_or(Error::Denied)?.check_with(
             action,
             rows,
@@ -172,6 +173,7 @@ impl Context<'_, '_> {
         crate::data::validate_id(record, id)?;
         let mut params = Parameters::default();
         let id_sql = params.add(id, &record.fields["id"].ty)?;
+        let restriction = super::restriction::sql(scope, p, r, "a", &mut params)?;
         let read_policy = if method == "get" {
             format!(
                 " AND {}",
@@ -189,7 +191,7 @@ impl Context<'_, '_> {
         };
         let rows = self.connection.relational_query(
             &format!(
-                "SELECT {} FROM {} AS a WHERE a.\"id\"={id_sql}{read_policy}{}",
+                "SELECT {} FROM {} AS a WHERE a.\"id\"={id_sql} AND {restriction}{read_policy}{}",
                 query::projection(p, r, "a"),
                 table(app, r),
                 if method == "get" { "" } else { " FOR UPDATE" }
@@ -200,6 +202,11 @@ impl Context<'_, '_> {
         let ValueKind::Record(_, fields) = &before.0 else {
             return Err(Error::Denied);
         };
+        // The row lookup bound its credential/policy predicates. Mutation SQL has
+        // its own parameter list; reusing lookup-only bindings would shift fields
+        // or send parameters the mutation statement does not accept.
+        let mut params = Parameters::default();
+        let id_sql = params.add(id, &record.fields["id"].ty)?;
         match method {
             "get" => {
                 self.authorize(r, Action::Read, &[fields])?;

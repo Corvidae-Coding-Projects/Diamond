@@ -29,11 +29,12 @@ enum TransactionFailure {
 pub(crate) struct PostgresStore {
     pub(super) connection: crate::relational::Connection,
     pub(super) app: String,
-    program: CheckedProgram,
+    pub(super) program: CheckedProgram,
+    pub(super) identity: Option<super::accounts::Config>,
     active: bool,
     nested: bool,
     failure: TransactionFailure,
-    operation_id: String,
+    pub(super) operation_id: String,
 }
 
 impl PostgresStore {
@@ -50,6 +51,22 @@ impl PostgresStore {
         initialize: bool,
         pool: Option<&std::sync::Arc<crate::relational::Pool>>,
     ) -> Result<Self> {
+        Self::open_mode(project, configuration, initialize, pool, true)
+    }
+    pub(super) fn open_control(
+        project: &CheckedProject,
+        configuration: &str,
+        pool: Option<&std::sync::Arc<crate::relational::Pool>>,
+    ) -> Result<Self> {
+        Self::open_mode(project, configuration, false, pool, false)
+    }
+    fn open_mode(
+        project: &CheckedProject,
+        configuration: &str,
+        initialize: bool,
+        pool: Option<&std::sync::Arc<crate::relational::Pool>>,
+        serializable: bool,
+    ) -> Result<Self> {
         let connection = if let Some(pool) = pool {
             pool.acquire()?
         } else {
@@ -59,6 +76,7 @@ impl PostgresStore {
             connection,
             app: artifact::hash(project.manifest.name.as_bytes()),
             program: project.server.clone(),
+            identity: project.manifest.identity.clone(),
             active: false,
             nested: false,
             failure: TransactionFailure::Clean,
@@ -66,11 +84,13 @@ impl PostgresStore {
         };
         if store.program.storage.is_some() {
             store.connection.runtime()?.enable_relational();
-            store.connection.relational_batch(if initialize {
-                "BEGIN"
-            } else {
-                "BEGIN ISOLATION LEVEL SERIALIZABLE"
-            })?;
+            store
+                .connection
+                .relational_batch(if initialize || !serializable {
+                    "BEGIN"
+                } else {
+                    "BEGIN ISOLATION LEVEL SERIALIZABLE"
+                })?;
             store.active = true;
             if initialize {
                 store.connection.query(
@@ -89,6 +109,13 @@ impl PostgresStore {
                     &store.program,
                     &store.app,
                 )?;
+            }
+            if let Some(config) = &store.identity {
+                if initialize {
+                    super::accounts::initialize(store.connection.runtime()?, &store.app, config)?;
+                } else {
+                    super::accounts::validate(store.connection.runtime()?, &store.app)?;
+                }
             }
             return Ok(store);
         }

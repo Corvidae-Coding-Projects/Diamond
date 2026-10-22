@@ -1,0 +1,93 @@
+schema_version = 1
+name = "IndependentAccountsAPI"
+server = "server"
+browser = "ui"
+component = "App"
+provides = ["DbRead<Issues>", "DbWrite<Issues>", "DbRead<Projects>", "DbRead<Globals>"]
+[modules.server]
+path = "server.dia"
+target = "server"
+provides = ["DbRead<Issues>", "DbWrite<Issues>", "DbRead<Projects>", "DbRead<Globals>"]
+[modules.ui]
+path = "ui.dia"
+target = "browser"
+[rpc]
+read = "server.read"
+page = "server.page"
+count = "server.count"
+joined = "server.joined"
+create = "server.create"
+move = "server.move"
+edit = "server.edit"
+delete = "server.delete"
+write_then_hidden = "server.write_then_hidden"
+codec = "server.codec"
+[identity]
+profile = "accounts-v1"
+enrollment = "open"
+[storage]
+profile = "relational-v1"
+version = 1
+[storage.resources.Globals]
+[storage.resources.Memberships]
+scope = "workspace"
+unique = [["workspace", "user"]]
+[storage.resources.Projects]
+scope = "workspace"
+unique = [["workspace", "id"]]
+[storage.resources.Issues]
+scope = "workspace"
+indexes = [["workspace", "rank", "id"]]
+[storage.resources.Issues.references.project]
+resource = "Projects"
+fields = { workspace = "workspace", project = "id" }
+[storage.lookups.member]
+resource = "Memberships"
+scope = "workspace"
+principal = "user"
+role = "role"
+purpose = "Authorize workspace operations without a general membership directory read grant"
+[storage.joins.issue_project]
+resource = "Issues"
+reference = "project"
+output = "server.IssueProject"
+
+[http_api]
+version = 1
+[http_api.operations._contract]
+function = "server.read"
+auth = "token"
+[http_api.operations.page]
+function = "server.page"
+auth = "token"
+[http_api.operations.count]
+function = "server.count"
+auth = "token"
+[http_api.operations.joined]
+function = "server.joined"
+auth = "token"
+[http_api.operations.create]
+function = "server.create"
+auth = "token"
+[http_api.operations.move]
+function = "server.move"
+auth = "token"
+[http_api.operations.edit]
+function = "server.edit"
+auth = "token"
+[http_api.operations.delete]
+function = "server.delete"
+auth = "token"
+[http_api.operations.write_then_hidden]
+function = "server.write_then_hidden"
+auth = "token"
+[http_api.operations.codec]
+function = "server.codec"
+auth = "token"
+[http_api.operations.public_value]
+function = "server.public_value"
+auth = "public"
+[http_api.operations.global_count_allowed]
+function = "server.global_count"
+auth = "token"
+allow_unscoped = true

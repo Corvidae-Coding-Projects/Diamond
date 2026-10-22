@@ -1,0 +1,22 @@
+{
+  "users": [
+    {
+      "username": "alice",
+      "email": "alice@browser.invalid",
+      "verified": true,
+      "disabled": false,
+      "administrator": true,
+      "epoch": 1
+    }
+  ],
+  "sessions": [],
+  "credentials": [],
+  "trace": [
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/",
+      "status": 200
+    }
+  ]
+}

@@ -267,6 +267,7 @@ pub(crate) fn execute(
     let mut params = Parameters::default();
     let mut conditions =
         vec![p.policies[r].postgres(Action::Read, scope.principal(), "a", &mut params, p, app)?];
+    conditions.push(super::restriction::sql(scope, p, r, "a", &mut params)?);
     conditions.extend(filters(p, r, &named, &mut params)?);
     let order = text(&named, "order", "id")?;
     let descending = boolean(&named, "descending")?;
@@ -293,7 +294,7 @@ pub(crate) fn execute(
         } else {
             None
         },
-        scope.principal(),
+        scope,
         &mut params,
         &mut conditions,
     )?;
@@ -431,7 +432,7 @@ fn sources(
     app: &str,
     r: &str,
     relation: Option<&str>,
-    principal: &crate::authority::Principal,
+    scope: &crate::authority::Scope<'_>,
     params: &mut Parameters,
     conditions: &mut Vec<String>,
 ) -> Result<Sources> {
@@ -456,11 +457,18 @@ fn sources(
         .map_err(|_| invalid("query formatting"))?;
         conditions.push(p.policies[&reference.resource].postgres(
             Action::Read,
-            principal,
+            scope.principal(),
             "b",
             params,
             p,
             app,
+        )?);
+        conditions.push(super::restriction::sql(
+            scope,
+            p,
+            &reference.resource,
+            "b",
+            params,
         )?);
         fields.push(',');
         fields.push_str(&projection(p, &reference.resource, "b"));

@@ -1,0 +1,216 @@
+{
+  "status": "PASS",
+  "binary_sha256": "778ce2e23f2a4e8d4a55052efe2f2f303d9efb89fe292b98533e0bdcb136e34b",
+  "error": null,
+  "results": [
+    {
+      "name": "issue-scoped-credential-Independent synthetic credential",
+      "status": "PASS",
+      "observed": {
+        "status": 200,
+        "shape": [
+          "id",
+          "value"
+        ],
+        "id": "61dce1c5f62075bd5f53366e5f5f6068cf0034fb63847ac52f2bcf7fe91818b3"
+      },
+      "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+    },
+    {
+      "name": "update-rpc-restricted-False",
+      "status": "PASS",
+      "observed": {
+        "before": "11",
+        "after": "49",
+        "http": [
+          200,
+          {
+            "value": {
+              "id": {
+                "tag": "issue",
+                "value": "issue-red-one"
+              },
+              "project": {
+                "tag": "project",
+                "value": "project-red-visible"
+              },
+              "rank": "49",
+              "title": "red exact \u96ea",
+              "workspace": {
+                "tag": "workspace",
+                "value": "red"
+              }
+            }
+          }
+        ]
+      },
+      "expected": "valid authorized update commits rank49"
+    },
+    {
+      "name": "update-api-restricted-False",
+      "status": "PASS",
+      "observed": {
+        "before": "11",
+        "after": "49",
+        "http": [
+          200,
+          {
+            "api_version": 1,
+            "value": {
+              "id": {
+                "tag": "issue",
+                "value": "issue-red-one"
+              },
+              "project": {
+                "tag": "project",
+                "value": "project-red-visible"
+              },
+              "rank": "49",
+              "title": "red exact \u96ea",
+              "workspace": {
+                "tag": "workspace",
+                "value": "red"
+              }
+            }
+          }
+        ]
+      },
+      "expected": "valid authorized update commits rank49"
+    },
+    {
+      "name": "delete-api-restricted-False",
+      "status": "PASS",
+      "observed": {
+        "remaining_rows": "0",
+        "http": [
+          200,
+          {
+            "api_version": 1,
+            "value": "Deleted"
+          }
+        ]
+      },
+      "expected": "valid authorized deletion commits once"
+    },
+    {
+      "name": "postgres-error-log-False",
+      "status": "PASS",
+      "observed": [],
+      "expected": "raw owned PG errors retained; parameter logging is not enabled"
+    },
+    {
+      "name": "issue-scoped-credential-Independent synthetic credential",
+      "status": "PASS",
+      "observed": {
+        "status": 200,
+        "shape": [
+          "id",
+          "value"
+        ],
+        "id": "92fae6c679df2a20b3313e2bd0003afe54db1b9e5726082e2cf97ffb8fa0887d"
+      },
+      "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+    },
+    {
+      "name": "update-rpc-restricted-True",
+      "status": "PASS",
+      "observed": {
+        "before": "11",
+        "after": "49",
+        "http": [
+          200,
+          {
+            "value": {
+              "id": {
+                "tag": "issue",
+                "value": "issue-red-one"
+              },
+              "project": {
+                "tag": "project",
+                "value": "project-red-visible"
+              },
+              "rank": "49",
+              "title": "red exact \u96ea",
+              "workspace": {
+                "tag": "workspace",
+                "value": "red"
+              }
+            }
+          }
+        ]
+      },
+      "expected": "valid authorized update commits rank49"
+    },
+    {
+      "name": "update-api-restricted-True",
+      "status": "PASS",
+      "observed": {
+        "before": "11",
+        "after": "49",
+        "http": [
+          200,
+          {
+            "api_version": 1,
+            "value": {
+              "id": {
+                "tag": "issue",
+                "value": "issue-red-one"
+              },
+              "project": {
+                "tag": "project",
+                "value": "project-red-visible"
+              },
+              "rank": "49",
+              "title": "red exact \u96ea",
+              "workspace": {
+                "tag": "workspace",
+                "value": "red"
+              }
+            }
+          }
+        ]
+      },
+      "expected": "valid authorized update commits rank49"
+    },
+    {
+      "name": "delete-api-restricted-True",
+      "status": "PASS",
+      "observed": {
+        "remaining_rows": "0",
+        "http": [
+          200,
+          {
+            "api_version": 1,
+            "value": "Deleted"
+          }
+        ]
+      },
+      "expected": "valid authorized deletion commits once"
+    },
+    {
+      "name": "postgres-error-log-True",
+      "status": "PASS",
+      "observed": [],
+      "expected": "raw owned PG errors retained; parameter logging is not enabled"
+    }
+  ],
+  "shutdowns": [
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "http_requests": 8,
+  "temporary_root": "/tmp/diamond-w5-api-mutation-replay-v8dp9wij"
+}

@@ -1,0 +1,92 @@
+{
+  "status": "PASS",
+  "method": "actual Chrome via cua_repl, generated Diamond UI, real PostgreSQL, transparent response gate; manual action record",
+  "origin": "http://127.0.0.1:39171",
+  "binary_sha256": "a9a73f51e193e90cf62b12d0fd8343f40177301541ababa93131a482fb349d74",
+  "library_sha256": "f80a41e7c633896324e82b26b8d97a30d802be2d9819ef0c449eadd0e19a66ed",
+  "initial_user_assisted_binary_sha256": "27885b74e9c10147cc39c7dfd470f1b3b96aa9e0b08d7bf7c398701547ac9880",
+  "cases": [
+    {
+      "name": "initial-signin-create-workspace-project-issue",
+      "status": "PASS",
+      "observed": "Signed in as alice; actual UI created workspace/project/issue and displayed exactly one authorized issue."
+    },
+    {
+      "name": "user-assisted-scoped-credential-issuance",
+      "status": "PASS",
+      "observed": "User clicked one-hour read credential; metadata names three declared read operations, owner alice, epoch1. Raw secret was hidden and is not retained in this receipt."
+    },
+    {
+      "name": "empty-password-change-rejection",
+      "status": "PASS",
+      "observed": "Both password fields empty; click rejected and existing private workspace remained available."
+    },
+    {
+      "name": "user-assisted-password-change",
+      "status": "PASS",
+      "observed": "User entered disposable current/new passwords and submitted; UI reported Password changed. Sign in again.; all password fields and private data cleared. Independent DB epoch2, zero sessions, credential epoch1."
+    },
+    {
+      "name": "persisted-password-change-after-restart",
+      "status": "PASS",
+      "observed": "Old password rejected; new password signed in and read persisted authorized issue after real server restart.",
+      "tested_binary_sha256": "0555b7dc90a9247b50735eb6aef69cf6c31bf95f4747c44f47241efa49f54c02"
+    },
+    {
+      "name": "initial-competing-event-regression",
+      "status": "FAIL_THEN_FIXED",
+      "binary_sha256": "ebc09281ed8de79dc08d49b14e0abd505c8f2ef298277946c72ee0a43329a047",
+      "observed": "Held actual logout_all200 after commit; competing First page canceled client logout. Read denied but private issue and workspace remained in DOM. DB independently had zero sessions."
+    },
+    {
+      "name": "final-held-identity-competing-click-and-input",
+      "status": "PASS",
+      "observed": "Held actual committed logout_all200; clicked First page and edited bound workspace input. Working remained pending and no competing RPC was forwarded. Release completed logout; private issue absent, workspace and credential empty, All account sessions ended visible.",
+      "tested_binary_sha256": "a9a73f51e193e90cf62b12d0fd8343f40177301541ababa93131a482fb349d74"
+    },
+    {
+      "name": "final-truncated-identity-reply",
+      "status": "PASS",
+      "observed": "Real committed200 headers and first byte delivered, remainder dropped. UI displayed mutation uncertainty; private issue, signed-in state, workspace and credential were all cleared.",
+      "tested_binary_sha256": "a9a73f51e193e90cf62b12d0fd8343f40177301541ababa93131a482fb349d74"
+    },
+    {
+      "name": "zero-byte-identity-connection-loss",
+      "status": "PASS",
+      "observed": "Gate closed before response bytes. Chrome repeated the transport request: actual first logout_all200, repeated logout_all401. UI displayed denial and cleared private issue, signed-in state and workspace. No claim of transport exactly-once delivery.",
+      "tested_binary_sha256": "0555b7dc90a9247b50735eb6aef69cf6c31bf95f4747c44f47241efa49f54c02"
+    },
+    {
+      "name": "final-recovery-after-identity-loss",
+      "status": "PASS",
+      "observed": "Fresh sign-in with the changed test password and authorized issue read succeeded; final held logout replay cleared caches again.",
+      "tested_binary_sha256": "a9a73f51e193e90cf62b12d0fd8343f40177301541ababa93131a482fb349d74"
+    },
+    {
+      "name": "frozen-final-fresh-fixture-full-app-and-recovery",
+      "status": "PASS",
+      "tested_binary_sha256": "a9a73f51e193e90cf62b12d0fd8343f40177301541ababa93131a482fb349d74",
+      "observed": "Documented --gated fixture started real PG plus final Diamond. Actual Chrome signed in, created workspace/project/issue, loaded one authorized issue, passed held logout competing click/input and truncated200 body clearing, then freshly signed in/read and signed out with private data cleared."
+    }
+  ],
+  "regression": "verification/regressions/w5_identity_transition.md",
+  "sources": {
+    "examples/accounts-workspace/README.md": "2c3fe019430870efa8066b38a5a674b8d9a5a1e4caf60c8c808eb87ba1392371",
+    "examples/accounts-workspace/cards.dia": "742f1b454a5aee25017e0c16d4678d4aed57908be614ff8c10117ce923fc4e45",
+    "examples/accounts-workspace/diamond.svg": "5f295145c59d12fda9e777d4d864349e38b7c7dc03ce00cca00fc45033b3f534",
+    "examples/accounts-workspace/diamond.toml": "2fab1111fa22859e27dc7117eb53d5c834713c69137c61030053ca73e5ce8ac7",
+    "examples/accounts-workspace/server.dia": "f73b0949d22450c6723f4695e90a00a253a5df3521240ddf3acabd14fc4aeb74",
+    "examples/accounts-workspace/shared.dia": "07f627276d57394b71a310ac7759ffc1a747a8c0d7e330d70a428120dad50a05",
+    "examples/accounts-workspace/tracker.css": "8b1ea71e79055455c795967d31e08daa234400e9276bac4bb4d84408285c7870",
+    "examples/accounts-workspace/tracker.dia": "101fb080057b58b8d5edd65d9723e8130998aa19ae3600c82463bbc88ce59068"
+  },
+  "runtime_sha256": "de3239c310256c39e4264c84958d37501f5e77b3cb8d1a5bb2044fd5ce393336",
+  "gate_sha256": "6e40f3c6e71811fc03087a28e47c4c71581ecb8fbf14fa892ad3e96b849f7c1d",
+  "gaps": [
+    "Enrollment/verification/recovery/disable/API lifecycle exercised in the bounded independent real HTTP/PG campaign, not every control in Chrome.",
+    "Password change and credential issuance required user browser handoff on the intermediate artifact; final artifact rechecked persisted password authentication and account state.",
+    "No public TLS/proxy deployment or production capacity qualification.",
+    "The zero-byte transport-repeat case ran on the immediately preceding artifact; the final epoch guard additionally prevents stale identity failures from clearing a newer identity. Cross-component stale401 cleanup was reviewed but not separately forced in Chrome."
+  ],
+  "pre_freeze_browser_binary_sha256": "0555b7dc90a9247b50735eb6aef69cf6c31bf95f4747c44f47241efa49f54c02"
+}

@@ -1,0 +1,34 @@
+{
+  "users": [
+    {
+      "username": "alice",
+      "email": "alice@browser.invalid",
+      "verified": true,
+      "disabled": false,
+      "administrator": true,
+      "epoch": 2
+    }
+  ],
+  "sessions": [],
+  "credentials": [
+    {
+      "username": "alice",
+      "label": "Workspace reader",
+      "operations": [
+        "read_issue",
+        "issue_page",
+        "joined_projects"
+      ],
+      "revoked": false,
+      "epoch": 1
+    }
+  ],
+  "trace": [
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/",
+      "status": 200
+    }
+  ]
+}

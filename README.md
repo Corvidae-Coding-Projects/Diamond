@@ -1,6 +1,6 @@
 # Diamond
 
-Diamond 0.10.0 is a language prototype implemented in Rust. Its existing
+Diamond 0.11.0 is a language prototype implemented in Rust. Its existing
 single-file interpreter connects checked evaluation, policies, SQLite, forms,
 typed HTML, local accounts, and sessions. The W1 expansion adds multi-file
 projects, checked server/browser boundaries, a first reactive component compiled
@@ -12,7 +12,9 @@ keyed updates, forms, routes, server rendering/hydration, CSS/assets, source map
 and checked decimal/time/text/list utilities. W4 adds typed relational PostgreSQL
 storage, scoped roles and relationships, indexed cursor queries, authorized
 joins/counts/aggregates, serializable mutations, a bounded connection pool and
-explicit migrations/backfills. See the [relational app guide](docs/relational-apps.md),
+explicit migrations/backfills. W5 adds opt-in enrollment, invitations, verification,
+recovery, shared revocation/rate limits, scoped API credentials and explicit
+versioned JSON operations. See the [accounts/API guide](docs/accounts-and-apis.md), the [relational app guide](docs/relational-apps.md),
 [reactive app guide](docs/reactive-apps.md) and [connected application guide](docs/connected-apps.md).
 
 Checkpoint six completes the accepted MVP passes with source-span diagnostics,
@@ -24,11 +26,11 @@ guarantees or production readiness.
 The next phase is described in the [general web application expansion plan](.design/general-web-apps.md).
 It targets a reactive frontend written in Diamond, PostgreSQL and multiple
 application servers, shared identity and permissions, typed APIs, uploads,
-external integrations, and durable jobs. W1–W4 are implemented within their
-documented development profiles; W5–W10 remain planned. The full account lifecycle,
-production deployment and other later capabilities are not implied. W4 uses one
+external integrations, and durable jobs. W1–W5 are implemented within their
+documented development profiles; W6–W10 remain planned. Production deployment,
+SMTP, shared uploads, outbound integrations and durable jobs remain later work. W4 uses one
 current schema with stopped-server migrations; old/new upgrade compatibility is
-outside the requested scope. See the [W4 evidence](verification/web_four_results.md).
+outside the requested scope. See the [W5 evidence](verification/web_five_results.md).
 
 Start the new project example with:
 

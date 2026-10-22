@@ -1,0 +1,182 @@
+{
+  "status": "FAIL",
+  "binary_sha256": "fb29b8cea364c181bdfe102421a8e5759537a9069277ce17411e1fb6aa26b843",
+  "error": null,
+  "results": [
+    {
+      "name": "issue-scoped-credential-Independent synthetic credential",
+      "status": "PASS",
+      "observed": {
+        "status": 200,
+        "shape": [
+          "id",
+          "value"
+        ],
+        "id": "a7490c27c3a3028199517d8b68a4d25c3ea66c6465c01b2eb9b9dbfe9b2feb58"
+      },
+      "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+    },
+    {
+      "name": "update-rpc-restricted-False",
+      "status": "PASS",
+      "observed": {
+        "before": "11",
+        "after": "49",
+        "http": [
+          200,
+          {
+            "value": {
+              "id": {
+                "tag": "issue",
+                "value": "issue-red-one"
+              },
+              "project": {
+                "tag": "project",
+                "value": "project-red-visible"
+              },
+              "rank": "49",
+              "title": "red exact \u96ea",
+              "workspace": {
+                "tag": "workspace",
+                "value": "red"
+              }
+            }
+          }
+        ]
+      },
+      "expected": "valid authorized update commits rank49"
+    },
+    {
+      "name": "update-api-restricted-False",
+      "status": "FAIL",
+      "observed": {
+        "before": "11",
+        "after": "11",
+        "http": [
+          503,
+          {
+            "error": "unavailable"
+          }
+        ]
+      },
+      "expected": "valid authorized update commits rank49"
+    },
+    {
+      "name": "delete-api-restricted-False",
+      "status": "FAIL",
+      "observed": {
+        "remaining_rows": "1",
+        "http": [
+          503,
+          {
+            "error": "unavailable"
+          }
+        ]
+      },
+      "expected": "valid authorized deletion commits once"
+    },
+    {
+      "name": "postgres-error-log-False",
+      "status": "PASS",
+      "observed": [],
+      "expected": "raw owned PG errors retained; parameter logging is not enabled"
+    },
+    {
+      "name": "issue-scoped-credential-Independent synthetic credential",
+      "status": "PASS",
+      "observed": {
+        "status": 200,
+        "shape": [
+          "id",
+          "value"
+        ],
+        "id": "cb8a47da09a493d8e193bb2497b0d694a49bf95bf839f4388880611ac0393270"
+      },
+      "expected": "one visible raw dia_ credential plus separate nominal metadata ID"
+    },
+    {
+      "name": "update-rpc-restricted-True",
+      "status": "PASS",
+      "observed": {
+        "before": "11",
+        "after": "49",
+        "http": [
+          200,
+          {
+            "value": {
+              "id": {
+                "tag": "issue",
+                "value": "issue-red-one"
+              },
+              "project": {
+                "tag": "project",
+                "value": "project-red-visible"
+              },
+              "rank": "49",
+              "title": "red exact \u96ea",
+              "workspace": {
+                "tag": "workspace",
+                "value": "red"
+              }
+            }
+          }
+        ]
+      },
+      "expected": "valid authorized update commits rank49"
+    },
+    {
+      "name": "update-api-restricted-True",
+      "status": "FAIL",
+      "observed": {
+        "before": "11",
+        "after": "11",
+        "http": [
+          503,
+          {
+            "error": "unavailable"
+          }
+        ]
+      },
+      "expected": "valid authorized update commits rank49"
+    },
+    {
+      "name": "delete-api-restricted-True",
+      "status": "FAIL",
+      "observed": {
+        "remaining_rows": "1",
+        "http": [
+          503,
+          {
+            "error": "unavailable"
+          }
+        ]
+      },
+      "expected": "valid authorized deletion commits once"
+    },
+    {
+      "name": "postgres-error-log-True",
+      "status": "PASS",
+      "observed": [],
+      "expected": "raw owned PG errors retained; parameter logging is not enabled"
+    }
+  ],
+  "shutdowns": [
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "http_requests": 8,
+  "temporary_root": "/tmp/diamond-w5-api-mutation-replay-g1o6t7hx"
+}

@@ -33,6 +33,7 @@ struct Contract<'a> {
     rpc: BTreeMap<String, super::rpc::Contract>,
     rpc_id: String,
     wire_version: u32,
+    http_api: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Serialize)]
@@ -108,6 +109,11 @@ pub(super) fn files(project: &CheckedProject) -> Result<BTreeMap<String, String>
         rpc: super::rpc::contracts(&project.rpc, &project.server),
         rpc_id: contract_id(project)?,
         wire_version: 3,
+        http_api: project
+            .manifest
+            .http_api
+            .as_ref()
+            .map(|_| super::api::contract(&project.api, &project.server)),
     };
     files.insert(
         "contract.json".into(),

@@ -18,6 +18,14 @@ struct VerifiedSession {
 
 impl PostgresStore {
     pub(super) fn add_user(&mut self, username: &str, password: &str) -> Result<()> {
+        if self.identity.is_some() {
+            return self.provision_account(
+                username,
+                &format!("{username}@development.invalid"),
+                password,
+                false,
+            );
+        }
         if !crate::auth::valid_id(username) || !(12..=256).contains(&password.len()) {
             return Err(input(
                 "use a valid 1..128-character username and a 12..256-byte password",
@@ -61,6 +69,9 @@ impl PostgresStore {
     }
 
     pub(super) fn session(&mut self, token: Option<&str>) -> Result<Session> {
+        if self.identity.is_some() {
+            return self.account_session(token);
+        }
         if let Some(token) = token
             && let Some(user) = self.find_session(token)?
         {
@@ -94,6 +105,9 @@ impl PostgresStore {
         token: Option<&str>,
         supplied_csrf: &str,
     ) -> Result<Principal> {
+        if self.identity.is_some() {
+            return self.account_principal(token, supplied_csrf);
+        }
         let token = token.ok_or(Error::Denied)?;
         let user = self.find_session(token)?.ok_or(Error::Denied)?;
         if !constant_equal(&csrf(&self.app, token), supplied_csrf) {
@@ -115,6 +129,9 @@ impl PostgresStore {
         password: &str,
         dummy_hash: &str,
     ) -> Result<Session> {
+        if self.identity.is_some() {
+            return self.account_login(token, supplied_csrf, username, password, dummy_hash);
+        }
         self.principal(Some(token), supplied_csrf)?;
         if password.len() > 256 || !crate::auth::valid_id(username) {
             return Err(Error::Denied);
@@ -156,6 +173,9 @@ impl PostgresStore {
     }
 
     pub(super) fn logout(&mut self, token: &str, supplied_csrf: &str) -> Result<()> {
+        if self.identity.is_some() {
+            return self.account_logout(token, supplied_csrf);
+        }
         self.principal(Some(token), supplied_csrf)?;
         self.connection.query(
             "DELETE FROM diamond_w2.sessions WHERE app=$1 AND digest=$2",
@@ -165,11 +185,11 @@ impl PostgresStore {
     }
 }
 
-fn csrf(app: &str, token: &str) -> String {
+pub(super) fn csrf(app: &str, token: &str) -> String {
     artifact::hash(format!("diamond-w2-csrf:{app}:{token}").as_bytes())
 }
 
-fn constant_equal(a: &str, b: &str) -> bool {
+pub(super) fn constant_equal(a: &str, b: &str) -> bool {
     use subtle::ConstantTimeEq;
     a.as_bytes().ct_eq(b.as_bytes()).into()
 }

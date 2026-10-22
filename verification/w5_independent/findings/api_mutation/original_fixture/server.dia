@@ -1,0 +1,124 @@
+type UserId = Id<"user">
+type WorkspaceId = Id<"workspace">
+type MembershipId = Id<"membership">
+type ProjectId = Id<"project">
+type IssueId = Id<"issue">
+
+enum Role:
+  Reader
+  Editor
+
+type Membership:
+  id: MembershipId
+  workspace: WorkspaceId
+  user: UserId
+  role: Role
+
+type Project:
+  id: ProjectId
+  workspace: WorkspaceId
+  owner: UserId
+  public: Bool
+
+type Issue:
+  id: IssueId
+  workspace: WorkspaceId
+  project: ProjectId
+  rank: Int
+  title: Text<length: 1..100>
+
+type NewIssue:
+  workspace: WorkspaceId
+  project: ProjectId
+  rank: Int
+  title: Text<length: 1..100>
+
+type IssueEdit:
+  rank: Int
+
+type IssueMove:
+  workspace: WorkspaceId
+  project: ProjectId
+
+type IssueProject:
+  left: Issue
+  right: Project
+
+enum Status:
+  Ready
+  Detail(detail: Text)
+
+type Codec:
+  number: Int
+  text: Text<length: 0..80>
+  active: Bool
+  amount: Decimal
+  timestamp: Timestamp
+  duration: Duration
+  workspace: WorkspaceId
+  optional: Option<Text>
+  status: Status
+
+resource Memberships: Membership
+resource Projects: Project
+resource Issues: Issue
+
+policy Memberships:
+  read(row, by principal):
+    false
+
+policy Projects:
+  read(project, by principal):
+    principal.is_related("member", project.workspace) and (project.public or principal.is_user(project.owner))
+
+policy Issues:
+  read(issue, by principal):
+    principal.is_related("member", issue.workspace) and issue.rank < 1000
+  create(issue, by principal):
+    principal.has_role_in("member", issue.workspace, .Editor)
+  update(before, after, by principal):
+    principal.has_role_in("member", before.workspace, .Editor) and principal.has_role_in("member", after.workspace, .Editor)
+  delete(issue, by principal):
+    principal.has_role_in("member", issue.workspace, .Editor)
+
+export fn main() -> Text:
+  "Independent W5 actual application"
+
+export fn public_value() -> Text:
+  "Public declared read"
+
+export fn hidden() -> Text:
+  "W5_SERVER_ONLY_CANARY_9cb3e0a4"
+
+export fn codec(value: Codec) -> Codec:
+  value
+
+export fn read(id: IssueId) -> Result<Issue, DataError>:
+  issues.get(id)
+
+export fn page(workspace: WorkspaceId, after: Text) -> Result<List<Issue>, DataError>:
+  issues.page(workspace: workspace, order: "rank", after: after, limit: 2)
+
+export fn count() -> Result<Int, DataError>:
+  issues.count()
+
+export fn joined(workspace: WorkspaceId) -> Result<List<IssueProject>, DataError>:
+  issues.join(relation: "issue_project", workspace: workspace, order: "rank", limit: 100)
+
+export fn create(value: NewIssue) -> Result<Issue, DataError>:
+  issues.create(value)
+
+export fn move(id: IssueId, value: IssueMove) -> Result<Issue, DataError>:
+  issues.update(id, value)
+
+export fn edit(id: IssueId, value: IssueEdit) -> Result<Issue, DataError>:
+  issues.update(id, value)
+
+export fn delete(id: IssueId) -> Result<Text, DataError>:
+  issues.delete(id)?
+  Ok("Deleted")
+
+export fn write_then_hidden(id: IssueId) -> Result<Issue, DataError>:
+  let row = issues.get(id)?
+  let changed = issues.update(row.id, IssueEdit(rank: row.rank + 1))?
+  issues.update(changed.id, IssueEdit(rank: 1001))
