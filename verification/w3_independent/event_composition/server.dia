@@ -1,0 +1,23 @@
+export fn main() -> Int:
+  17
+
+export fn add(a: Int, b: Int) -> Int:
+  a + b
+
+export fn double(value: Int) -> Int:
+  value * 2
+
+export fn echo_text(value: Text) -> Text:
+  value
+
+export fn fail_int() -> Int:
+  1 / 0
+
+export fn fail_bool() -> Bool:
+  1 / 0 == 0
+
+export fn inspect_data(value: Result<Int, DataError>) -> Text:
+  describe_data(value)
+
+export fn echo_data(value: Result<Int, DataError>) -> Result<Result<Int, DataError>, ApplicationError>:
+  Ok(value)

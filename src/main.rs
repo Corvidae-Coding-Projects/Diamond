@@ -61,7 +61,7 @@ fn try_main() -> Result<()> {
     }
     if command == "--version" {
         println!(
-            "diamond {} (W2 connected apps; checkpoint six compatibility)",
+            "diamond {} (W3 frontend; checkpoint six compatibility)",
             env!("CARGO_PKG_VERSION")
         );
         return Ok(());
@@ -534,7 +534,7 @@ fn read_password(password_stdin: bool) -> Result<Zeroizing<String>> {
 
 fn help() {
     println!(
-        "Diamond {} — W2 connected apps and interpreted MVP\n\n  diamond check FILE_OR_PROJECT\n  diamond build PROJECT --out NEW_DIRECTORY\n  diamond serve PROJECT_OR_BUILD [--listen 127.0.0.1:PORT] [--postgres-env VARIABLE --origin http://localhost:PORT]\n  diamond run PROJECT_OR_BUILD [--postgres-env VARIABLE]\n  diamond project-init PROJECT --postgres-env VARIABLE\n  diamond project-user-add PROJECT --postgres-env VARIABLE --user USERNAME [--password-stdin]\n  diamond run FILE [--database PATH] [--auth PATH] [--listen 127.0.0.1:PORT] [--max-requests N]\n  diamond db-init FILE --database PATH\n  diamond user-add --auth PATH --user USERNAME [--password-stdin]\n  diamond explain CODE\n\nOpen http://localhost:PORT for browser secure-cookie support.\nSee README.md for installation, examples, supported language, and limits.",
+        "Diamond {} — W3 frontend and interpreted MVP\n\n  diamond check FILE_OR_PROJECT\n  diamond build PROJECT --out NEW_DIRECTORY\n  diamond serve PROJECT_OR_BUILD [--listen 127.0.0.1:PORT] [--postgres-env VARIABLE --origin http://localhost:PORT]\n  diamond run PROJECT_OR_BUILD [--postgres-env VARIABLE]\n  diamond project-init PROJECT --postgres-env VARIABLE\n  diamond project-user-add PROJECT --postgres-env VARIABLE --user USERNAME [--password-stdin]\n  diamond run FILE [--database PATH] [--auth PATH] [--listen 127.0.0.1:PORT] [--max-requests N]\n  diamond db-init FILE --database PATH\n  diamond user-add --auth PATH --user USERNAME [--password-stdin]\n  diamond explain CODE\n\nOpen http://localhost:PORT for browser secure-cookie support.\nSee README.md for installation, examples, supported language, and limits.",
         env!("CARGO_PKG_VERSION")
     );
 }

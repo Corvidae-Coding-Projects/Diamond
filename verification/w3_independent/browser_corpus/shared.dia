@@ -1,0 +1,876 @@
+fn case_000() -> Text:
+  decimal_text(decimal_units((-9223372036854775807 - 1)))
+
+fn case_001() -> Text:
+  int_text(time_millis(timestamp((-9223372036854775807 - 1))))
+
+fn case_002() -> Text:
+  int_text(duration_millis(duration((-9223372036854775807 - 1))))
+
+fn case_003() -> Text:
+  decimal_text(decimal_units(-9223372036854775807))
+
+fn case_004() -> Text:
+  int_text(time_millis(timestamp(-9223372036854775807)))
+
+fn case_005() -> Text:
+  int_text(duration_millis(duration(-9223372036854775807)))
+
+fn case_006() -> Text:
+  decimal_text(decimal_units(-1000001))
+
+fn case_007() -> Text:
+  int_text(time_millis(timestamp(-1000001)))
+
+fn case_008() -> Text:
+  int_text(duration_millis(duration(-1000001)))
+
+fn case_009() -> Text:
+  decimal_text(decimal_units(-1000000))
+
+fn case_010() -> Text:
+  int_text(time_millis(timestamp(-1000000)))
+
+fn case_011() -> Text:
+  int_text(duration_millis(duration(-1000000)))
+
+fn case_012() -> Text:
+  decimal_text(decimal_units(-999999))
+
+fn case_013() -> Text:
+  int_text(time_millis(timestamp(-999999)))
+
+fn case_014() -> Text:
+  int_text(duration_millis(duration(-999999)))
+
+fn case_015() -> Text:
+  decimal_text(decimal_units(-1))
+
+fn case_016() -> Text:
+  int_text(time_millis(timestamp(-1)))
+
+fn case_017() -> Text:
+  int_text(duration_millis(duration(-1)))
+
+fn case_018() -> Text:
+  decimal_text(decimal_units(0))
+
+fn case_019() -> Text:
+  int_text(time_millis(timestamp(0)))
+
+fn case_020() -> Text:
+  int_text(duration_millis(duration(0)))
+
+fn case_021() -> Text:
+  decimal_text(decimal_units(1))
+
+fn case_022() -> Text:
+  int_text(time_millis(timestamp(1)))
+
+fn case_023() -> Text:
+  int_text(duration_millis(duration(1)))
+
+fn case_024() -> Text:
+  decimal_text(decimal_units(999999))
+
+fn case_025() -> Text:
+  int_text(time_millis(timestamp(999999)))
+
+fn case_026() -> Text:
+  int_text(duration_millis(duration(999999)))
+
+fn case_027() -> Text:
+  decimal_text(decimal_units(1000000))
+
+fn case_028() -> Text:
+  int_text(time_millis(timestamp(1000000)))
+
+fn case_029() -> Text:
+  int_text(duration_millis(duration(1000000)))
+
+fn case_030() -> Text:
+  decimal_text(decimal_units(9223372036854775806))
+
+fn case_031() -> Text:
+  int_text(time_millis(timestamp(9223372036854775806)))
+
+fn case_032() -> Text:
+  int_text(duration_millis(duration(9223372036854775806)))
+
+fn case_033() -> Text:
+  decimal_text(decimal_units(9223372036854775807))
+
+fn case_034() -> Text:
+  int_text(time_millis(timestamp(9223372036854775807)))
+
+fn case_035() -> Text:
+  int_text(duration_millis(duration(9223372036854775807)))
+
+fn case_036() -> Text:
+  decimal_text(decimal_multiply(decimal_units(1), decimal_units(500000), "half_even"))
+
+fn case_037() -> Text:
+  decimal_text(decimal_multiply(decimal_units(1), decimal_units(500000), "half_away"))
+
+fn case_038() -> Text:
+  decimal_text(decimal_divide(decimal_units(1), decimal_units(500000), "half_even"))
+
+fn case_039() -> Text:
+  decimal_text(decimal_divide(decimal_units(1), decimal_units(500000), "half_away"))
+
+fn case_040() -> Text:
+  decimal_text(decimal_multiply(decimal_units(3), decimal_units(500000), "half_even"))
+
+fn case_041() -> Text:
+  decimal_text(decimal_multiply(decimal_units(3), decimal_units(500000), "half_away"))
+
+fn case_042() -> Text:
+  decimal_text(decimal_divide(decimal_units(3), decimal_units(500000), "half_even"))
+
+fn case_043() -> Text:
+  decimal_text(decimal_divide(decimal_units(3), decimal_units(500000), "half_away"))
+
+fn case_044() -> Text:
+  decimal_text(decimal_multiply(decimal_units(-1), decimal_units(500000), "half_even"))
+
+fn case_045() -> Text:
+  decimal_text(decimal_multiply(decimal_units(-1), decimal_units(500000), "half_away"))
+
+fn case_046() -> Text:
+  decimal_text(decimal_divide(decimal_units(-1), decimal_units(500000), "half_even"))
+
+fn case_047() -> Text:
+  decimal_text(decimal_divide(decimal_units(-1), decimal_units(500000), "half_away"))
+
+fn case_048() -> Text:
+  decimal_text(decimal_multiply(decimal_units(-3), decimal_units(500000), "half_even"))
+
+fn case_049() -> Text:
+  decimal_text(decimal_multiply(decimal_units(-3), decimal_units(500000), "half_away"))
+
+fn case_050() -> Text:
+  decimal_text(decimal_divide(decimal_units(-3), decimal_units(500000), "half_even"))
+
+fn case_051() -> Text:
+  decimal_text(decimal_divide(decimal_units(-3), decimal_units(500000), "half_away"))
+
+fn case_052() -> Text:
+  decimal_text(decimal_multiply(decimal_units(500000), decimal_units(-1), "half_even"))
+
+fn case_053() -> Text:
+  decimal_text(decimal_multiply(decimal_units(500000), decimal_units(-1), "half_away"))
+
+fn case_054() -> Text:
+  decimal_text(decimal_divide(decimal_units(500000), decimal_units(-1), "half_even"))
+
+fn case_055() -> Text:
+  decimal_text(decimal_divide(decimal_units(500000), decimal_units(-1), "half_away"))
+
+fn case_056() -> Text:
+  decimal_text(decimal_multiply(decimal_units(1234567890123), decimal_units(1999999), "half_even"))
+
+fn case_057() -> Text:
+  decimal_text(decimal_multiply(decimal_units(1234567890123), decimal_units(1999999), "half_away"))
+
+fn case_058() -> Text:
+  decimal_text(decimal_divide(decimal_units(1234567890123), decimal_units(1999999), "half_even"))
+
+fn case_059() -> Text:
+  decimal_text(decimal_divide(decimal_units(1234567890123), decimal_units(1999999), "half_away"))
+
+fn case_060() -> Text:
+  decimal_text(decimal_multiply(decimal_units(-816162388372), decimal_units(93221122), "half_even"))
+
+fn case_061() -> Text:
+  decimal_text(decimal_multiply(decimal_units(-816162388372), decimal_units(93221122), "half_away"))
+
+fn case_062() -> Text:
+  decimal_text(decimal_divide(decimal_units(-816162388372), decimal_units(93221122), "half_even"))
+
+fn case_063() -> Text:
+  decimal_text(decimal_divide(decimal_units(-816162388372), decimal_units(93221122), "half_away"))
+
+fn case_064() -> Text:
+  decimal_text(decimal_multiply(decimal_units(799397430828), decimal_units(48929538), "half_even"))
+
+fn case_065() -> Text:
+  decimal_text(decimal_multiply(decimal_units(799397430828), decimal_units(48929538), "half_away"))
+
+fn case_066() -> Text:
+  decimal_text(decimal_divide(decimal_units(799397430828), decimal_units(48929538), "half_even"))
+
+fn case_067() -> Text:
+  decimal_text(decimal_divide(decimal_units(799397430828), decimal_units(48929538), "half_away"))
+
+fn case_068() -> Text:
+  decimal_text(decimal_multiply(decimal_units(-624241233781), decimal_units(-8998756), "half_even"))
+
+fn case_069() -> Text:
+  decimal_text(decimal_multiply(decimal_units(-624241233781), decimal_units(-8998756), "half_away"))
+
+fn case_070() -> Text:
+  decimal_text(decimal_divide(decimal_units(-624241233781), decimal_units(-8998756), "half_even"))
+
+fn case_071() -> Text:
+  decimal_text(decimal_divide(decimal_units(-624241233781), decimal_units(-8998756), "half_away"))
+
+fn case_072() -> Text:
+  decimal_text(decimal_multiply(decimal_units(-316436985699), decimal_units(-6190319), "half_even"))
+
+fn case_073() -> Text:
+  decimal_text(decimal_multiply(decimal_units(-316436985699), decimal_units(-6190319), "half_away"))
+
+fn case_074() -> Text:
+  decimal_text(decimal_divide(decimal_units(-316436985699), decimal_units(-6190319), "half_even"))
+
+fn case_075() -> Text:
+  decimal_text(decimal_divide(decimal_units(-316436985699), decimal_units(-6190319), "half_away"))
+
+fn case_076() -> Text:
+  decimal_text(decimal_multiply(decimal_units(-757658061741), decimal_units(-63380118), "half_even"))
+
+fn case_077() -> Text:
+  decimal_text(decimal_multiply(decimal_units(-757658061741), decimal_units(-63380118), "half_away"))
+
+fn case_078() -> Text:
+  decimal_text(decimal_divide(decimal_units(-757658061741), decimal_units(-63380118), "half_even"))
+
+fn case_079() -> Text:
+  decimal_text(decimal_divide(decimal_units(-757658061741), decimal_units(-63380118), "half_away"))
+
+fn case_080() -> Text:
+  decimal_text(decimal_multiply(decimal_units(93374187697), decimal_units(-9028585), "half_even"))
+
+fn case_081() -> Text:
+  decimal_text(decimal_multiply(decimal_units(93374187697), decimal_units(-9028585), "half_away"))
+
+fn case_082() -> Text:
+  decimal_text(decimal_divide(decimal_units(93374187697), decimal_units(-9028585), "half_even"))
+
+fn case_083() -> Text:
+  decimal_text(decimal_divide(decimal_units(93374187697), decimal_units(-9028585), "half_away"))
+
+fn case_084() -> Text:
+  decimal_text(decimal_multiply(decimal_units(-657419130872), decimal_units(43177316), "half_even"))
+
+fn case_085() -> Text:
+  decimal_text(decimal_multiply(decimal_units(-657419130872), decimal_units(43177316), "half_away"))
+
+fn case_086() -> Text:
+  decimal_text(decimal_divide(decimal_units(-657419130872), decimal_units(43177316), "half_even"))
+
+fn case_087() -> Text:
+  decimal_text(decimal_divide(decimal_units(-657419130872), decimal_units(43177316), "half_away"))
+
+fn case_088() -> Text:
+  decimal_text(decimal_multiply(decimal_units(479739379931), decimal_units(-39341111), "half_even"))
+
+fn case_089() -> Text:
+  decimal_text(decimal_multiply(decimal_units(479739379931), decimal_units(-39341111), "half_away"))
+
+fn case_090() -> Text:
+  decimal_text(decimal_divide(decimal_units(479739379931), decimal_units(-39341111), "half_even"))
+
+fn case_091() -> Text:
+  decimal_text(decimal_divide(decimal_units(479739379931), decimal_units(-39341111), "half_away"))
+
+fn case_092() -> Text:
+  decimal_text(decimal_multiply(decimal_units(-861351092751), decimal_units(-91891269), "half_even"))
+
+fn case_093() -> Text:
+  decimal_text(decimal_multiply(decimal_units(-861351092751), decimal_units(-91891269), "half_away"))
+
+fn case_094() -> Text:
+  decimal_text(decimal_divide(decimal_units(-861351092751), decimal_units(-91891269), "half_even"))
+
+fn case_095() -> Text:
+  decimal_text(decimal_divide(decimal_units(-861351092751), decimal_units(-91891269), "half_away"))
+
+fn case_096() -> Text:
+  decimal_text(decimal_multiply(decimal_units(269829543431), decimal_units(-70280465), "half_even"))
+
+fn case_097() -> Text:
+  decimal_text(decimal_multiply(decimal_units(269829543431), decimal_units(-70280465), "half_away"))
+
+fn case_098() -> Text:
+  decimal_text(decimal_divide(decimal_units(269829543431), decimal_units(-70280465), "half_even"))
+
+fn case_099() -> Text:
+  decimal_text(decimal_divide(decimal_units(269829543431), decimal_units(-70280465), "half_away"))
+
+fn case_100() -> Text:
+  decimal_text(decimal_multiply(decimal_units(62019309914), decimal_units(57340524), "half_even"))
+
+fn case_101() -> Text:
+  decimal_text(decimal_multiply(decimal_units(62019309914), decimal_units(57340524), "half_away"))
+
+fn case_102() -> Text:
+  decimal_text(decimal_divide(decimal_units(62019309914), decimal_units(57340524), "half_even"))
+
+fn case_103() -> Text:
+  decimal_text(decimal_divide(decimal_units(62019309914), decimal_units(57340524), "half_away"))
+
+fn case_104() -> Text:
+  decimal_text(decimal_multiply(decimal_units(-134534119613), decimal_units(-63044866), "half_even"))
+
+fn case_105() -> Text:
+  decimal_text(decimal_multiply(decimal_units(-134534119613), decimal_units(-63044866), "half_away"))
+
+fn case_106() -> Text:
+  decimal_text(decimal_divide(decimal_units(-134534119613), decimal_units(-63044866), "half_even"))
+
+fn case_107() -> Text:
+  decimal_text(decimal_divide(decimal_units(-134534119613), decimal_units(-63044866), "half_away"))
+
+fn case_108() -> Text:
+  decimal_text(decimal_multiply(decimal_units(441034120293), decimal_units(-1375740), "half_even"))
+
+fn case_109() -> Text:
+  decimal_text(decimal_multiply(decimal_units(441034120293), decimal_units(-1375740), "half_away"))
+
+fn case_110() -> Text:
+  decimal_text(decimal_divide(decimal_units(441034120293), decimal_units(-1375740), "half_even"))
+
+fn case_111() -> Text:
+  decimal_text(decimal_divide(decimal_units(441034120293), decimal_units(-1375740), "half_away"))
+
+fn case_112() -> Text:
+  decimal_text(decimal_multiply(decimal_units(-392208283902), decimal_units(-56078036), "half_even"))
+
+fn case_113() -> Text:
+  decimal_text(decimal_multiply(decimal_units(-392208283902), decimal_units(-56078036), "half_away"))
+
+fn case_114() -> Text:
+  decimal_text(decimal_divide(decimal_units(-392208283902), decimal_units(-56078036), "half_even"))
+
+fn case_115() -> Text:
+  decimal_text(decimal_divide(decimal_units(-392208283902), decimal_units(-56078036), "half_away"))
+
+fn case_116() -> Text:
+  decimal_text(decimal_multiply(decimal_units(79033146621), decimal_units(-66181348), "half_even"))
+
+fn case_117() -> Text:
+  decimal_text(decimal_multiply(decimal_units(79033146621), decimal_units(-66181348), "half_away"))
+
+fn case_118() -> Text:
+  decimal_text(decimal_divide(decimal_units(79033146621), decimal_units(-66181348), "half_even"))
+
+fn case_119() -> Text:
+  decimal_text(decimal_divide(decimal_units(79033146621), decimal_units(-66181348), "half_away"))
+
+fn case_120() -> Text:
+  decimal_text(decimal_multiply(decimal_units(882442674847), decimal_units(-93596264), "half_even"))
+
+fn case_121() -> Text:
+  decimal_text(decimal_multiply(decimal_units(882442674847), decimal_units(-93596264), "half_away"))
+
+fn case_122() -> Text:
+  decimal_text(decimal_divide(decimal_units(882442674847), decimal_units(-93596264), "half_even"))
+
+fn case_123() -> Text:
+  decimal_text(decimal_divide(decimal_units(882442674847), decimal_units(-93596264), "half_away"))
+
+fn case_124() -> Text:
+  int_text(len(""))
+
+fn case_125() -> Text:
+  text_slice("", 0, 0)
+
+fn case_126() -> Text:
+  text_trim("")
+
+fn case_127() -> Text:
+  text_replace("", "", "X😀")
+
+fn case_128() -> Text:
+  text_replace("", "a", "X😀")
+
+fn case_129() -> Text:
+  text_replace("", "雪", "X😀")
+
+fn case_130() -> Text:
+  int_text(len("a"))
+
+fn case_131() -> Text:
+  text_slice("a", 0, 1)
+
+fn case_132() -> Text:
+  text_trim("a")
+
+fn case_133() -> Text:
+  text_replace("a", "", "X😀")
+
+fn case_134() -> Text:
+  text_replace("a", "a", "X😀")
+
+fn case_135() -> Text:
+  text_replace("a", "雪", "X😀")
+
+fn case_136() -> Text:
+  int_text(len("雪😀é"))
+
+fn case_137() -> Text:
+  text_slice("雪😀é", 2, 2)
+
+fn case_138() -> Text:
+  text_trim("雪😀é")
+
+fn case_139() -> Text:
+  text_replace("雪😀é", "", "X😀")
+
+fn case_140() -> Text:
+  text_replace("雪😀é", "a", "X😀")
+
+fn case_141() -> Text:
+  text_replace("雪😀é", "雪", "X😀")
+
+fn case_142() -> Text:
+  int_text(len("𝄞Az"))
+
+fn case_143() -> Text:
+  text_slice("𝄞Az", 2, 2)
+
+fn case_144() -> Text:
+  text_trim("𝄞Az")
+
+fn case_145() -> Text:
+  text_replace("𝄞Az", "", "X😀")
+
+fn case_146() -> Text:
+  text_replace("𝄞Az", "a", "X😀")
+
+fn case_147() -> Text:
+  text_replace("𝄞Az", "雪", "X😀")
+
+fn case_148() -> Text:
+  int_text(len("a雪b😀"))
+
+fn case_149() -> Text:
+  text_slice("a雪b😀", 2, 2)
+
+fn case_150() -> Text:
+  text_trim("a雪b😀")
+
+fn case_151() -> Text:
+  text_replace("a雪b😀", "", "X😀")
+
+fn case_152() -> Text:
+  text_replace("a雪b😀", "a", "X😀")
+
+fn case_153() -> Text:
+  text_replace("a雪b😀", "雪", "X😀")
+
+fn case_154() -> Text:
+  int_text(len("  hello 　"))
+
+fn case_155() -> Text:
+  text_slice("  hello 　", 5, 5)
+
+fn case_156() -> Text:
+  text_trim("  hello 　")
+
+fn case_157() -> Text:
+  text_replace("  hello 　", "", "X😀")
+
+fn case_158() -> Text:
+  text_replace("  hello 　", "a", "X😀")
+
+fn case_159() -> Text:
+  text_replace("  hello 　", "雪", "X😀")
+
+fn case_160() -> Text:
+  int_text(len("<script>& literal"))
+
+fn case_161() -> Text:
+  text_slice("<script>& literal", 8, 9)
+
+fn case_162() -> Text:
+  text_trim("<script>& literal")
+
+fn case_163() -> Text:
+  text_replace("<script>& literal", "", "X😀")
+
+fn case_164() -> Text:
+  text_replace("<script>& literal", "a", "X😀")
+
+fn case_165() -> Text:
+  text_replace("<script>& literal", "雪", "X😀")
+
+fn case_166() -> Bool:
+  "😀" > ""
+
+fn case_167() -> Text:
+  match list_get([31, 7], -1):
+    Some(v) => int_text(v)
+    None => "absent"
+
+fn case_168() -> Text:
+  let values = for x in list_slice(list_reverse([31, 7, -2, 90]), 1, 2):
+    int_text(x)
+  join_text(values, ":")
+
+enum AppError:
+  Rejected(reason: Text)
+
+fn fail() -> Result<Int, AppError>:
+  Err(Rejected("detail"))
+
+fn relay() -> Result<Int, AppError>:
+  let value = fail()?
+  Ok(value + 1)
+
+fn case_169() -> Text:
+  match relay():
+    Ok(value) => int_text(value)
+    Err(error) => match error:
+      Rejected(reason) => "rejected:" + reason
+
+export fn probe_170() -> Text:
+  decimal_text(decimal_add(decimal_units(9223372036854775807), decimal_units(1)))
+
+export fn probe_171() -> Text:
+  decimal_text(decimal_divide(decimal_units(1), decimal_units(0), "half_even"))
+
+export fn probe_172() -> Text:
+  decimal_text(decimal_multiply(decimal_units(1), decimal_units(2), "random"))
+
+export fn probe_173() -> Text:
+  int_text(time_millis(timestamp_add(timestamp(9223372036854775807), duration(1))))
+
+export fn probe_174() -> Text:
+  text_slice("😀", 1, 1)
+
+export fn probe_175() -> Text:
+  text_slice("abc", -1, 1)
+
+export fn probe_176() -> Text:
+  int_text(duration_millis(timestamp_diff(timestamp(9223372036854775807), timestamp(-1))))
+
+fn failure_text() -> Result<Int, DataError>:
+  Err("safe detail")
+
+fn case_177() -> Text:
+  match failure_text():
+    Ok(number) => int_text(number)
+    Err(error) => error_message(error)
+
+fn describe_data_result(value: Result<Int, DataError>) -> Text:
+  match value:
+    Ok(number) => int_text(number)
+    Err(error) => error_message(error)
+
+fn case_178() -> Text:
+  describe_data_result(Err("argument detail"))
+
+fn failure_for_try() -> Result<Int, DataError>:
+  Err("propagated detail")
+
+fn relay_data_result() -> Result<Int, DataError>:
+  let number = failure_for_try()?
+  Ok(number + 1)
+
+fn case_179() -> Text:
+  match relay_data_result():
+    Ok(number) => int_text(number)
+    Err(error) => error_message(error)
+
+fn case_180() -> Text:
+  let text_0 = "a"
+  let text_1 = text_0 + text_0
+  let text_2 = text_1 + text_1
+  let text_3 = text_2 + text_2
+  let text_4 = text_3 + text_3
+  let text_5 = text_4 + text_4
+  let text_6 = text_5 + text_5
+  let text_7 = text_6 + text_6
+  let text_8 = text_7 + text_7
+  let text_9 = text_8 + text_8
+  let text_10 = text_9 + text_9
+  let text_11 = text_10 + text_10
+  let text_12 = text_11 + text_11
+  let text_13 = text_12 + text_12
+  let text_14 = text_13 + text_13
+  let text_15 = text_14 + text_14
+  let text_16 = text_15 + text_15
+  let text_17 = text_16 + text_16
+  let text_18 = text_17 + text_17
+  let text_19 = text_18 + text_18
+  let text_20 = text_19 + text_19
+  int_text(len(text_replace(text_20, "aa", "b")))
+
+fn case_181() -> Text:
+  let text_0 = "a"
+  let text_1 = text_0 + text_0
+  let text_2 = text_1 + text_1
+  let text_3 = text_2 + text_2
+  let text_4 = text_3 + text_3
+  let text_5 = text_4 + text_4
+  let text_6 = text_5 + text_5
+  let text_7 = text_6 + text_6
+  let text_8 = text_7 + text_7
+  let text_9 = text_8 + text_8
+  let text_10 = text_9 + text_9
+  let text_11 = text_10 + text_10
+  let text_12 = text_11 + text_11
+  let text_13 = text_12 + text_12
+  let text_14 = text_13 + text_13
+  let text_15 = text_14 + text_14
+  let text_16 = text_15 + text_15
+  let text_17 = text_16 + text_16
+  let text_18 = text_17 + text_17
+  let text_19 = text_18 + text_18
+  let text_20 = text_19 + text_19
+  int_text(len(text_replace(text_20, "a", "b")))
+
+fn case_182() -> Text:
+  let text_0 = "a"
+  let text_1 = text_0 + text_0
+  let text_2 = text_1 + text_1
+  let text_3 = text_2 + text_2
+  let text_4 = text_3 + text_3
+  let text_5 = text_4 + text_4
+  let text_6 = text_5 + text_5
+  let text_7 = text_6 + text_6
+  let text_8 = text_7 + text_7
+  let text_9 = text_8 + text_8
+  let text_10 = text_9 + text_9
+  let text_11 = text_10 + text_10
+  let text_12 = text_11 + text_11
+  let text_13 = text_12 + text_12
+  let text_14 = text_13 + text_13
+  let text_15 = text_14 + text_14
+  let text_16 = text_15 + text_15
+  let text_17 = text_16 + text_16
+  let text_18 = text_17 + text_17
+  let text_19 = text_18 + text_18
+  let text_20 = text_19 + text_19
+  int_text(len(text_replace(text_20, "a", "")))
+
+fn case_183() -> Text:
+  let text_0 = "😀"
+  let text_1 = text_0 + text_0
+  let text_2 = text_1 + text_1
+  let text_3 = text_2 + text_2
+  let text_4 = text_3 + text_3
+  let text_5 = text_4 + text_4
+  let text_6 = text_5 + text_5
+  let text_7 = text_6 + text_6
+  let text_8 = text_7 + text_7
+  let text_9 = text_8 + text_8
+  let text_10 = text_9 + text_9
+  let text_11 = text_10 + text_10
+  let text_12 = text_11 + text_11
+  let text_13 = text_12 + text_12
+  let text_14 = text_13 + text_13
+  let text_15 = text_14 + text_14
+  let text_16 = text_15 + text_15
+  let text_17 = text_16 + text_16
+  let text_18 = text_17 + text_17
+  int_text(len(text_replace(text_18, "😀😀", "雪")))
+
+export fn probe_184() -> Text:
+  let text_0 = "a"
+  let text_1 = text_0 + text_0
+  let text_2 = text_1 + text_1
+  let text_3 = text_2 + text_2
+  let text_4 = text_3 + text_3
+  let text_5 = text_4 + text_4
+  let text_6 = text_5 + text_5
+  let text_7 = text_6 + text_6
+  let text_8 = text_7 + text_7
+  let text_9 = text_8 + text_8
+  let text_10 = text_9 + text_9
+  let text_11 = text_10 + text_10
+  let text_12 = text_11 + text_11
+  let text_13 = text_12 + text_12
+  let text_14 = text_13 + text_13
+  let text_15 = text_14 + text_14
+  let text_16 = text_15 + text_15
+  let text_17 = text_16 + text_16
+  let text_18 = text_17 + text_17
+  let text_19 = text_18 + text_18
+  let text_20 = text_19 + text_19
+  int_text(len(text_replace(text_20, "a", "bb")))
+
+fn format_bool(value: Bool) -> Text:
+  match value:
+    true => "true"
+    false => "false"
+
+
+enum CorpusPhase:
+  Waiting
+  Assigned(owner: Text, count: Int)
+
+type CorpusKey = Id<"CorpusKey">
+
+type CorpusRecord:
+  label: Text = "default <text>"
+  count: Int = 17
+
+fn option_text(value: Option<Int>) -> Text:
+  match value:
+    Some(number) => "some:" + int_text(number)
+    None => "none"
+
+fn phase_text(value: CorpusPhase) -> Text:
+  match value:
+    Waiting => "waiting"
+    Assigned(owner, count) => owner + ":" + int_text(count)
+
+fn default_record_text() -> Text:
+  let value = CorpusRecord()
+  value.label + ":" + int_text(value.count)
+
+fn overridden_record_text() -> Text:
+  let value = CorpusRecord(label: "custom 雪")
+  value.label + ":" + int_text(value.count)
+
+
+export fn corpus() -> List<Text>:
+  let values_0 = ["000-decimal-format--9223372036854775808:" + case_000(), "001-time-roundtrip--9223372036854775808:" + case_001(), "002-duration-roundtrip--9223372036854775808:" + case_002(), "003-decimal-format--9223372036854775807:" + case_003(), "004-time-roundtrip--9223372036854775807:" + case_004(), "005-duration-roundtrip--9223372036854775807:" + case_005(), "006-decimal-format--1000001:" + case_006(), "007-time-roundtrip--1000001:" + case_007(), "008-duration-roundtrip--1000001:" + case_008(), "009-decimal-format--1000000:" + case_009(), "010-time-roundtrip--1000000:" + case_010(), "011-duration-roundtrip--1000000:" + case_011(), "012-decimal-format--999999:" + case_012(), "013-time-roundtrip--999999:" + case_013(), "014-duration-roundtrip--999999:" + case_014(), "015-decimal-format--1:" + case_015(), "016-time-roundtrip--1:" + case_016(), "017-duration-roundtrip--1:" + case_017(), "018-decimal-format-0:" + case_018(), "019-time-roundtrip-0:" + case_019(), "020-duration-roundtrip-0:" + case_020(), "021-decimal-format-1:" + case_021(), "022-time-roundtrip-1:" + case_022(), "023-duration-roundtrip-1:" + case_023(), "024-decimal-format-999999:" + case_024(), "025-time-roundtrip-999999:" + case_025(), "026-duration-roundtrip-999999:" + case_026(), "027-decimal-format-1000000:" + case_027(), "028-time-roundtrip-1000000:" + case_028(), "029-duration-roundtrip-1000000:" + case_029(), "030-decimal-format-9223372036854775806:" + case_030(), "031-time-roundtrip-9223372036854775806:" + case_031(), "032-duration-roundtrip-9223372036854775806:" + case_032(), "033-decimal-format-9223372036854775807:" + case_033(), "034-time-roundtrip-9223372036854775807:" + case_034(), "035-duration-roundtrip-9223372036854775807:" + case_035(), "036-decimal-0-multiply-half_even:" + case_036(), "037-decimal-0-multiply-half_away:" + case_037(), "038-decimal-0-divide-half_even:" + case_038(), "039-decimal-0-divide-half_away:" + case_039()]
+  let values_1 = list_append(values_0, "040-decimal-1-multiply-half_even:" + case_040())
+  let values_2 = list_append(values_1, "041-decimal-1-multiply-half_away:" + case_041())
+  let values_3 = list_append(values_2, "042-decimal-1-divide-half_even:" + case_042())
+  let values_4 = list_append(values_3, "043-decimal-1-divide-half_away:" + case_043())
+  let values_5 = list_append(values_4, "044-decimal-2-multiply-half_even:" + case_044())
+  let values_6 = list_append(values_5, "045-decimal-2-multiply-half_away:" + case_045())
+  let values_7 = list_append(values_6, "046-decimal-2-divide-half_even:" + case_046())
+  let values_8 = list_append(values_7, "047-decimal-2-divide-half_away:" + case_047())
+  let values_9 = list_append(values_8, "048-decimal-3-multiply-half_even:" + case_048())
+  let values_10 = list_append(values_9, "049-decimal-3-multiply-half_away:" + case_049())
+  let values_11 = list_append(values_10, "050-decimal-3-divide-half_even:" + case_050())
+  let values_12 = list_append(values_11, "051-decimal-3-divide-half_away:" + case_051())
+  let values_13 = list_append(values_12, "052-decimal-4-multiply-half_even:" + case_052())
+  let values_14 = list_append(values_13, "053-decimal-4-multiply-half_away:" + case_053())
+  let values_15 = list_append(values_14, "054-decimal-4-divide-half_even:" + case_054())
+  let values_16 = list_append(values_15, "055-decimal-4-divide-half_away:" + case_055())
+  let values_17 = list_append(values_16, "056-decimal-5-multiply-half_even:" + case_056())
+  let values_18 = list_append(values_17, "057-decimal-5-multiply-half_away:" + case_057())
+  let values_19 = list_append(values_18, "058-decimal-5-divide-half_even:" + case_058())
+  let values_20 = list_append(values_19, "059-decimal-5-divide-half_away:" + case_059())
+  let values_21 = list_append(values_20, "060-decimal-6-multiply-half_even:" + case_060())
+  let values_22 = list_append(values_21, "061-decimal-6-multiply-half_away:" + case_061())
+  let values_23 = list_append(values_22, "062-decimal-6-divide-half_even:" + case_062())
+  let values_24 = list_append(values_23, "063-decimal-6-divide-half_away:" + case_063())
+  let values_25 = list_append(values_24, "064-decimal-7-multiply-half_even:" + case_064())
+  let values_26 = list_append(values_25, "065-decimal-7-multiply-half_away:" + case_065())
+  let values_27 = list_append(values_26, "066-decimal-7-divide-half_even:" + case_066())
+  let values_28 = list_append(values_27, "067-decimal-7-divide-half_away:" + case_067())
+  let values_29 = list_append(values_28, "068-decimal-8-multiply-half_even:" + case_068())
+  let values_30 = list_append(values_29, "069-decimal-8-multiply-half_away:" + case_069())
+  let values_31 = list_append(values_30, "070-decimal-8-divide-half_even:" + case_070())
+  let values_32 = list_append(values_31, "071-decimal-8-divide-half_away:" + case_071())
+  let values_33 = list_append(values_32, "072-decimal-9-multiply-half_even:" + case_072())
+  let values_34 = list_append(values_33, "073-decimal-9-multiply-half_away:" + case_073())
+  let values_35 = list_append(values_34, "074-decimal-9-divide-half_even:" + case_074())
+  let values_36 = list_append(values_35, "075-decimal-9-divide-half_away:" + case_075())
+  let values_37 = list_append(values_36, "076-decimal-10-multiply-half_even:" + case_076())
+  let values_38 = list_append(values_37, "077-decimal-10-multiply-half_away:" + case_077())
+  let values_39 = list_append(values_38, "078-decimal-10-divide-half_even:" + case_078())
+  let values_40 = list_append(values_39, "079-decimal-10-divide-half_away:" + case_079())
+  let values_41 = list_append(values_40, "080-decimal-11-multiply-half_even:" + case_080())
+  let values_42 = list_append(values_41, "081-decimal-11-multiply-half_away:" + case_081())
+  let values_43 = list_append(values_42, "082-decimal-11-divide-half_even:" + case_082())
+  let values_44 = list_append(values_43, "083-decimal-11-divide-half_away:" + case_083())
+  let values_45 = list_append(values_44, "084-decimal-12-multiply-half_even:" + case_084())
+  let values_46 = list_append(values_45, "085-decimal-12-multiply-half_away:" + case_085())
+  let values_47 = list_append(values_46, "086-decimal-12-divide-half_even:" + case_086())
+  let values_48 = list_append(values_47, "087-decimal-12-divide-half_away:" + case_087())
+  let values_49 = list_append(values_48, "088-decimal-13-multiply-half_even:" + case_088())
+  let values_50 = list_append(values_49, "089-decimal-13-multiply-half_away:" + case_089())
+  let values_51 = list_append(values_50, "090-decimal-13-divide-half_even:" + case_090())
+  let values_52 = list_append(values_51, "091-decimal-13-divide-half_away:" + case_091())
+  let values_53 = list_append(values_52, "092-decimal-14-multiply-half_even:" + case_092())
+  let values_54 = list_append(values_53, "093-decimal-14-multiply-half_away:" + case_093())
+  let values_55 = list_append(values_54, "094-decimal-14-divide-half_even:" + case_094())
+  let values_56 = list_append(values_55, "095-decimal-14-divide-half_away:" + case_095())
+  let values_57 = list_append(values_56, "096-decimal-15-multiply-half_even:" + case_096())
+  let values_58 = list_append(values_57, "097-decimal-15-multiply-half_away:" + case_097())
+  let values_59 = list_append(values_58, "098-decimal-15-divide-half_even:" + case_098())
+  let values_60 = list_append(values_59, "099-decimal-15-divide-half_away:" + case_099())
+  let values_61 = list_append(values_60, "100-decimal-16-multiply-half_even:" + case_100())
+  let values_62 = list_append(values_61, "101-decimal-16-multiply-half_away:" + case_101())
+  let values_63 = list_append(values_62, "102-decimal-16-divide-half_even:" + case_102())
+  let values_64 = list_append(values_63, "103-decimal-16-divide-half_away:" + case_103())
+  let values_65 = list_append(values_64, "104-decimal-17-multiply-half_even:" + case_104())
+  let values_66 = list_append(values_65, "105-decimal-17-multiply-half_away:" + case_105())
+  let values_67 = list_append(values_66, "106-decimal-17-divide-half_even:" + case_106())
+  let values_68 = list_append(values_67, "107-decimal-17-divide-half_away:" + case_107())
+  let values_69 = list_append(values_68, "108-decimal-18-multiply-half_even:" + case_108())
+  let values_70 = list_append(values_69, "109-decimal-18-multiply-half_away:" + case_109())
+  let values_71 = list_append(values_70, "110-decimal-18-divide-half_even:" + case_110())
+  let values_72 = list_append(values_71, "111-decimal-18-divide-half_away:" + case_111())
+  let values_73 = list_append(values_72, "112-decimal-19-multiply-half_even:" + case_112())
+  let values_74 = list_append(values_73, "113-decimal-19-multiply-half_away:" + case_113())
+  let values_75 = list_append(values_74, "114-decimal-19-divide-half_even:" + case_114())
+  let values_76 = list_append(values_75, "115-decimal-19-divide-half_away:" + case_115())
+  let values_77 = list_append(values_76, "116-decimal-20-multiply-half_even:" + case_116())
+  let values_78 = list_append(values_77, "117-decimal-20-multiply-half_away:" + case_117())
+  let values_79 = list_append(values_78, "118-decimal-20-divide-half_even:" + case_118())
+  let values_80 = list_append(values_79, "119-decimal-20-divide-half_away:" + case_119())
+  let values_81 = list_append(values_80, "120-decimal-21-multiply-half_even:" + case_120())
+  let values_82 = list_append(values_81, "121-decimal-21-multiply-half_away:" + case_121())
+  let values_83 = list_append(values_82, "122-decimal-21-divide-half_even:" + case_122())
+  let values_84 = list_append(values_83, "123-decimal-21-divide-half_away:" + case_123())
+  let values_85 = list_append(values_84, "124-unicode-len-0:" + case_124())
+  let values_86 = list_append(values_85, "125-unicode-slice-0:" + case_125())
+  let values_87 = list_append(values_86, "126-unicode-trim-0:" + case_126())
+  let values_88 = list_append(values_87, "127-unicode-replace-0-0:" + case_127())
+  let values_89 = list_append(values_88, "128-unicode-replace-0-1:" + case_128())
+  let values_90 = list_append(values_89, "129-unicode-replace-0-2:" + case_129())
+  let values_91 = list_append(values_90, "130-unicode-len-1:" + case_130())
+  let values_92 = list_append(values_91, "131-unicode-slice-1:" + case_131())
+  let values_93 = list_append(values_92, "132-unicode-trim-1:" + case_132())
+  let values_94 = list_append(values_93, "133-unicode-replace-1-0:" + case_133())
+  let values_95 = list_append(values_94, "134-unicode-replace-1-1:" + case_134())
+  let values_96 = list_append(values_95, "135-unicode-replace-1-2:" + case_135())
+  let values_97 = list_append(values_96, "136-unicode-len-2:" + case_136())
+  let values_98 = list_append(values_97, "137-unicode-slice-2:" + case_137())
+  let values_99 = list_append(values_98, "138-unicode-trim-2:" + case_138())
+  let values_100 = list_append(values_99, "139-unicode-replace-2-0:" + case_139())
+  let values_101 = list_append(values_100, "140-unicode-replace-2-1:" + case_140())
+  let values_102 = list_append(values_101, "141-unicode-replace-2-2:" + case_141())
+  let values_103 = list_append(values_102, "142-unicode-len-3:" + case_142())
+  let values_104 = list_append(values_103, "143-unicode-slice-3:" + case_143())
+  let values_105 = list_append(values_104, "144-unicode-trim-3:" + case_144())
+  let values_106 = list_append(values_105, "145-unicode-replace-3-0:" + case_145())
+  let values_107 = list_append(values_106, "146-unicode-replace-3-1:" + case_146())
+  let values_108 = list_append(values_107, "147-unicode-replace-3-2:" + case_147())
+  let values_109 = list_append(values_108, "148-unicode-len-4:" + case_148())
+  let values_110 = list_append(values_109, "149-unicode-slice-4:" + case_149())
+  let values_111 = list_append(values_110, "150-unicode-trim-4:" + case_150())
+  let values_112 = list_append(values_111, "151-unicode-replace-4-0:" + case_151())
+  let values_113 = list_append(values_112, "152-unicode-replace-4-1:" + case_152())
+  let values_114 = list_append(values_113, "153-unicode-replace-4-2:" + case_153())
+  let values_115 = list_append(values_114, "154-unicode-len-5:" + case_154())
+  let values_116 = list_append(values_115, "155-unicode-slice-5:" + case_155())
+  let values_117 = list_append(values_116, "156-unicode-trim-5:" + case_156())
+  let values_118 = list_append(values_117, "157-unicode-replace-5-0:" + case_157())
+  let values_119 = list_append(values_118, "158-unicode-replace-5-1:" + case_158())
+  let values_120 = list_append(values_119, "159-unicode-replace-5-2:" + case_159())
+  let values_121 = list_append(values_120, "160-unicode-len-6:" + case_160())
+  let values_122 = list_append(values_121, "161-unicode-slice-6:" + case_161())
+  let values_123 = list_append(values_122, "162-unicode-trim-6:" + case_162())
+  let values_124 = list_append(values_123, "163-unicode-replace-6-0:" + case_163())
+  let values_125 = list_append(values_124, "164-unicode-replace-6-1:" + case_164())
+  let values_126 = list_append(values_125, "165-unicode-replace-6-2:" + case_165())
+  let values_127 = list_append(values_126, "166-unicode-order-astral-vs-bmp:" + format_bool(case_166()))
+  let values_128 = list_append(values_127, "167-list-get-negative:" + case_167())
+  let values_129 = list_append(values_128, "168-list-reverse-slice:" + case_168())
+  let values_130 = list_append(values_129, "169-typed-result-propagation:" + case_169())
+  let values_131 = list_append(values_130, "177-legacy-data-error-text:" + case_177())
+  let values_132 = list_append(values_131, "178-legacy-data-error-argument:" + case_178())
+  let values_133 = list_append(values_132, "179-legacy-data-error-try:" + case_179())
+  let values_134 = list_append(values_133, "180-text-limit-shrink-ascii:" + case_180())
+  let values_135 = list_append(values_134, "181-text-limit-same-size-ascii:" + case_181())
+  let values_136 = list_append(values_135, "182-text-limit-delete-ascii:" + case_182())
+  let values_137 = list_append(values_136, "183-text-limit-shrink-unicode:" + case_183())
+  let values_138 = list_append(values_137, "extra-option-some:" + option_text(Some(9007199254740993)))
+  let values_139 = list_append(values_138, "extra-option-none:" + option_text(None))
+  let values_140 = list_append(values_139, "extra-enum-payload:" + phase_text(Assigned("owner 雪", 41)))
+  let values_141 = list_append(values_140, "extra-enum-unit:" + phase_text(Waiting))
+  let values_142 = list_append(values_141, "extra-nominal-id:" + id_text(CorpusKey("independent-17_x")))
+  let values_143 = list_append(values_142, "extra-record-defaults:" + default_record_text())
+  let values_144 = list_append(values_143, "extra-record-override-default:" + overridden_record_text())
+  values_144

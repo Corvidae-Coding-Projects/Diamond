@@ -1,0 +1,50 @@
+{
+  "binary_sha256": "9789de3646d744bd8dd28db3d3603935e75fd735b8c2ecb533f8a9ea02bfeb57",
+  "results": [
+    {
+      "name": "shrink-ascii",
+      "source": "fn main() -> Int:\n  let text_0 = \"a\"\n  let text_1 = text_0 + text_0\n  let text_2 = text_1 + text_1\n  let text_3 = text_2 + text_2\n  let text_4 = text_3 + text_3\n  let text_5 = text_4 + text_4\n  let text_6 = text_5 + text_5\n  let text_7 = text_6 + text_6\n  let text_8 = text_7 + text_7\n  let text_9 = text_8 + text_8\n  let text_10 = text_9 + text_9\n  let text_11 = text_10 + text_10\n  let text_12 = text_11 + text_11\n  let text_13 = text_12 + text_12\n  let text_14 = text_13 + text_13\n  let text_15 = text_14 + text_14\n  let text_16 = text_15 + text_15\n  let text_17 = text_16 + text_16\n  let text_18 = text_17 + text_17\n  let text_19 = text_18 + text_18\n  let text_20 = text_19 + text_19\n  len(text_replace(text_20, \"aa\", \"b\"))\n",
+      "expected": 524288,
+      "status": "FAIL",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: execute main: resource limit exceeded: text utility\n"
+    },
+    {
+      "name": "same-size-ascii",
+      "source": "fn main() -> Int:\n  let text_0 = \"a\"\n  let text_1 = text_0 + text_0\n  let text_2 = text_1 + text_1\n  let text_3 = text_2 + text_2\n  let text_4 = text_3 + text_3\n  let text_5 = text_4 + text_4\n  let text_6 = text_5 + text_5\n  let text_7 = text_6 + text_6\n  let text_8 = text_7 + text_7\n  let text_9 = text_8 + text_8\n  let text_10 = text_9 + text_9\n  let text_11 = text_10 + text_10\n  let text_12 = text_11 + text_11\n  let text_13 = text_12 + text_12\n  let text_14 = text_13 + text_13\n  let text_15 = text_14 + text_14\n  let text_16 = text_15 + text_15\n  let text_17 = text_16 + text_16\n  let text_18 = text_17 + text_17\n  let text_19 = text_18 + text_18\n  let text_20 = text_19 + text_19\n  len(text_replace(text_20, \"a\", \"b\"))\n",
+      "expected": 1048576,
+      "status": "FAIL",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: execute main: resource limit exceeded: text utility\n"
+    },
+    {
+      "name": "delete-ascii",
+      "source": "fn main() -> Int:\n  let text_0 = \"a\"\n  let text_1 = text_0 + text_0\n  let text_2 = text_1 + text_1\n  let text_3 = text_2 + text_2\n  let text_4 = text_3 + text_3\n  let text_5 = text_4 + text_4\n  let text_6 = text_5 + text_5\n  let text_7 = text_6 + text_6\n  let text_8 = text_7 + text_7\n  let text_9 = text_8 + text_8\n  let text_10 = text_9 + text_9\n  let text_11 = text_10 + text_10\n  let text_12 = text_11 + text_11\n  let text_13 = text_12 + text_12\n  let text_14 = text_13 + text_13\n  let text_15 = text_14 + text_14\n  let text_16 = text_15 + text_15\n  let text_17 = text_16 + text_16\n  let text_18 = text_17 + text_17\n  let text_19 = text_18 + text_18\n  let text_20 = text_19 + text_19\n  len(text_replace(text_20, \"a\", \"\"))\n",
+      "expected": 0,
+      "status": "PASS",
+      "exit": 0,
+      "stdout": "0\n",
+      "stderr": ""
+    },
+    {
+      "name": "shrink-unicode",
+      "source": "fn main() -> Int:\n  let text_0 = \"😀\"\n  let text_1 = text_0 + text_0\n  let text_2 = text_1 + text_1\n  let text_3 = text_2 + text_2\n  let text_4 = text_3 + text_3\n  let text_5 = text_4 + text_4\n  let text_6 = text_5 + text_5\n  let text_7 = text_6 + text_6\n  let text_8 = text_7 + text_7\n  let text_9 = text_8 + text_8\n  let text_10 = text_9 + text_9\n  let text_11 = text_10 + text_10\n  let text_12 = text_11 + text_11\n  let text_13 = text_12 + text_12\n  let text_14 = text_13 + text_13\n  let text_15 = text_14 + text_14\n  let text_16 = text_15 + text_15\n  let text_17 = text_16 + text_16\n  let text_18 = text_17 + text_17\n  len(text_replace(text_18, \"😀😀\", \"雪\"))\n",
+      "expected": 131072,
+      "status": "FAIL",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: execute main: resource limit exceeded: text utility\n"
+    },
+    {
+      "name": "expand-rejected",
+      "source": "fn main() -> Int:\n  let text_0 = \"a\"\n  let text_1 = text_0 + text_0\n  let text_2 = text_1 + text_1\n  let text_3 = text_2 + text_2\n  let text_4 = text_3 + text_3\n  let text_5 = text_4 + text_4\n  let text_6 = text_5 + text_5\n  let text_7 = text_6 + text_6\n  let text_8 = text_7 + text_7\n  let text_9 = text_8 + text_8\n  let text_10 = text_9 + text_9\n  let text_11 = text_10 + text_10\n  let text_12 = text_11 + text_11\n  let text_13 = text_12 + text_12\n  let text_14 = text_13 + text_13\n  let text_15 = text_14 + text_14\n  let text_16 = text_15 + text_15\n  let text_17 = text_16 + text_16\n  let text_18 = text_17 + text_17\n  let text_19 = text_18 + text_18\n  let text_20 = text_19 + text_19\n  len(text_replace(text_20, \"a\", \"bb\"))\n",
+      "expected": "runtime output byte-limit rejection",
+      "status": "PASS",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: execute main: resource limit exceeded: text utility\n"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "classification": "Historical W2 verifier fixture assumptions changed by W3; not product security failures",
+  "binary_sha256": "30e0b66ac57c6df8505d100c08575c99c2b283b17830d52644462311212a1556",
+  "observations": "AssertionError(('cli', '', [{'case': 'browser imports server', 'command': ['/tmp/diamond-w2-independent-run-0wv4fk8d/diamond', 'check', '/tmp/diamond-w2-independent-cli-shvxi2g_/browser-import-server/diamond.toml'], 'expected': 'reject', 'status': 'FAIL', 'exit': 0, 'stdout': 'project WorkspaceTracker: 4 modules; server server; browser ui / Tracker; capabilities {\"DbRead<Issues>\", \"DbWrite<Issues>\"}\\n', 'stderr': ''}, {'case': 'non-scalar RPC signature', 'command': ['/tmp/diamond-w2-independent-run-0wv4fk8d/diamond', 'check', '/tmp/diamond-w2-independent-cli-shvxi2g_/non-scalar-rpc/diamond.toml'], 'expected': 'reject', 'status': 'FAIL', 'exit': 0, 'stdout': 'project WorkspaceTracker: 4 modules; server server; browser ui / Tracker; capabilities {\"DbRead<Issues>\", \"DbWrite<Issues>\"}\\n', 'stderr': ''}]))",
+  "causes": [
+    "W2 browser import mutation searched for imports=[shared], but W3 entry imports shared and parts, so the mutation was a no-op.",
+    "W2 expected all non-scalar RPC to reject; W3 explicitly admits checked wire-safe records."
+  ],
+  "resolution": "Assert browser import mutation applies exactly once; select W3 expected record acceptance with explicit --profile w3. Historical W2 remains the default profile."
+}

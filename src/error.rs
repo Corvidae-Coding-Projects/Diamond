@@ -3,7 +3,7 @@
 use std::fmt;
 
 /// A source location, measured in one-based Unicode character columns.
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+#[derive(serde::Serialize, Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct Location {
     pub(crate) line: usize,
     pub(crate) column: usize,
@@ -32,6 +32,15 @@ impl fmt::Display for Location {
 /// A compiler or execution error. HTTP adapters sanitize internal failures.
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
+    /// A declared Diamond application error propagating through a typed Result.
+    ///
+    /// ```
+    /// let program=diamond::compile("enum Problem:\n  Invalid\nfn main() -> Result<Int, Problem>:\n  Err(Invalid)\n")?;
+    /// assert!(matches!(program.evaluate()?.into_result(),Err(diamond::Error::Application(_))));
+    /// # Ok::<(),diamond::Error>(())
+    /// ```
+    #[error("declared application error")]
+    Application(crate::Value),
     /// A project-module failure with its originating source path.
     #[error("{path}: {source}")]
     Source {

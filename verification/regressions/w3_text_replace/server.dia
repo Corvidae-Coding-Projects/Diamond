@@ -1,0 +1,2 @@
+export fn main() -> Text:
+  "server private canary W3 19570"

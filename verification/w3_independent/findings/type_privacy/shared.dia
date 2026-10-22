@@ -1,0 +1,5 @@
+type PrivateRecord:
+  secret: Text
+
+export fn make_record() -> PrivateRecord:
+  PrivateRecord(secret: "public-factory-result")

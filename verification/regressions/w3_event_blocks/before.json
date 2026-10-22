@@ -1,0 +1,6 @@
+{
+  "binary_sha256": "a3136cd877c3e328b97033eb428135927aab63af28d0841ab705a8ae67225ee3",
+  "command": "diamond check /tmp/diamond-w3-full-browser/project/diamond.toml",
+  "expected": "accept block expressions in component event assignments",
+  "observed": "error: probes.dia: D010 at 42:3: expected Newline, found Dedent"
+}

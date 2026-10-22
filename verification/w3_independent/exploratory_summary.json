@@ -1,0 +1,30 @@
+{
+  "phase": "exploratory; final build qualification remains outstanding",
+  "reports": {
+    "semantics": {
+      "status": "PASS",
+      "cases": 185,
+      "binary_sha256": "88e71d42ff5e05261b578549dc3dae5fae8341befd3789655e9b054585ca7703",
+      "unresolved_failures": []
+    },
+    "checker": {
+      "status": "PASS",
+      "cases": 30,
+      "binary_sha256": "8f07de3c508a9c1ea95d67c366c6cd5a0e1ace591dfd22655c3c00045b88be70",
+      "unresolved_failures": []
+    },
+    "wire": {
+      "status": "PASS",
+      "cases": 121,
+      "binary_sha256": "8f07de3c508a9c1ea95d67c366c6cd5a0e1ace591dfd22655c3c00045b88be70",
+      "unresolved_failures": []
+    }
+  },
+  "native_checks": 5,
+  "driver_corrections": [
+    "moved block-form for expression out of function argument",
+    "encoded Unicode raw HTTP duplicate-key body as UTF-8",
+    "used a pure helper for component state match initializer instead of unconfirmed multiline initializer syntax"
+  ],
+  "native_corpus_values": 184
+}

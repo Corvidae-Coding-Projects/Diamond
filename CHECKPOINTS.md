@@ -622,3 +622,22 @@ and compatibility observations, plus repaired failures. The
 
 Eight checkpoints remain, W3–W10. W3 completes the language/frontend slice;
 production release qualification remains W10.
+
+
+## General-web expansion W3 — complete
+
+Diamond 0.9.0 completes the bounded language/frontend slice: typed shared values
+and application errors, checked decimal/time/text/list utilities, nested reactive
+components, derived values, lifecycle, keyed updates, validated native forms,
+client routes, SSR/hydration, loading/error handling, CSS/SVG assets, and
+function-entry source maps. The actual multi-page PostgreSQL tracker was operated
+in Chrome; stale parent/property/unmount replies were deliberately released and
+rejected. A 184-value independent corpus agrees exactly between native evaluation
+and Chrome; the [W3 evidence](verification/web_three_results.md) records checks,
+regressions, fingerprints and the actual screenshot.
+
+The [W3 guide](docs/reactive-apps.md) states the precise frontend and wire subset.
+Rebuild trusted project source for language 0.9.0/wire version 2. PostgreSQL remains
+the W2 bounded document/lock development profile; production deployment, binary
+assets, relational query planning and the full account lifecycle are not implied.
+Seven checkpoints remain, W4–W10; W4 is the relational data/authorization slice.

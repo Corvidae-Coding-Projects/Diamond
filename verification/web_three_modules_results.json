@@ -1,0 +1,1639 @@
+{
+  "result": "PASS",
+  "binary_sha256": "2adc6d9894d66c80c089245a678fa238cd1d0a3342b431bbacfb3f5f97abff45",
+  "error": null,
+  "cases": [
+    {
+      "label": "base-check",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/base/diamond.toml"
+      ],
+      "expected_success": true,
+      "expected_stdout": null,
+      "exit": 0,
+      "stdout": "project Verify: 3 modules; server server; browser ui / Counter; capabilities {}\n",
+      "stderr": ""
+    },
+    {
+      "label": "base-run",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "run",
+        "/tmp/diamond-w1-modules-zo7b13uk/base/diamond.toml"
+      ],
+      "expected_success": true,
+      "expected_stdout": "17\n",
+      "exit": 0,
+      "stdout": "17\n",
+      "stderr": ""
+    },
+    {
+      "label": "private-export",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/private-export/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: server.dia: D116 at 2:3: unknown function private_value\n"
+    },
+    {
+      "label": "missing-function",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/missing-function/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: server.dia: D116 at 2:3: unknown function missing_value\n"
+    },
+    {
+      "label": "missing-import",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/missing-import/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: every declared module must be reachable from an entry\n"
+    },
+    {
+      "label": "duplicate-import",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/duplicate-import/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: duplicate module import\n"
+    },
+    {
+      "label": "unknown-module-import",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/unknown-module-import/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: import refers to an undeclared module\n"
+    },
+    {
+      "label": "cycle",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/cycle/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: module import cycle\n"
+    },
+    {
+      "label": "browser-server-boundary",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/browser-server-boundary/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: module import crosses a forbidden browser/server target boundary\n"
+    },
+    {
+      "label": "server-browser-boundary",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/server-browser-boundary/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: module import crosses a forbidden browser/server target boundary\n"
+    },
+    {
+      "label": "invalid-target",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/invalid-target/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: invalid project manifest: TOML parse error at line 9, column 10�  |�9 | target = \"worker\"�  |          ^^^^^^^^�unknown variant `worker`, expected one of `server`, `browser`, `shared`�\n"
+    },
+    {
+      "label": "wrong-entry-target",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/wrong-entry-target/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: entry module is missing or has the wrong target\n"
+    },
+    {
+      "label": "private-component",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/private-component/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: root browser component must be exported\n"
+    },
+    {
+      "label": "private-main",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/private-main/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: server entry module must export fn main\n"
+    },
+    {
+      "label": "module-budget-exceeds-app",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/module-budget-exceeds-app/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: module host budget exceeds the application budget\n"
+    },
+    {
+      "label": "browser-host-source",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/browser-host-source/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: ui.dia: D900 unsupported at 2:23: host operations require a server project module\n"
+    },
+    {
+      "label": "shared-host-source",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/shared-host-source/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: shared.dia: D301 at 4:1: effects {Host(\"PostgresRead\")} exceed the application's declared authority\n"
+    },
+    {
+      "label": "unknown-app-budget",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/unknown-app-budget/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: unknown application capability\n"
+    },
+    {
+      "label": "parent-path",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/parent-path/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: module source paths must be relative and cannot contain parent/root components\n"
+    },
+    {
+      "label": "absolute-path",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/absolute-path/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: module source paths must be relative and cannot contain parent/root components\n"
+    },
+    {
+      "label": "backslash-path",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/backslash-path/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: module source paths must be relative and cannot contain parent/root components\n"
+    },
+    {
+      "label": "reserved-module",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/reserved-module/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: module names/paths must be valid and unique; imports are bounded\n"
+    },
+    {
+      "label": "reserved-function",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/reserved-function/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: invalid or reserved project function name\n"
+    },
+    {
+      "label": "reserved-state",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/reserved-state/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: invalid or reserved project local name\n"
+    },
+    {
+      "label": "host-state",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/host-state/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: invalid or reserved project local name\n"
+    },
+    {
+      "label": "duplicate-state",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/duplicate-state/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: duplicate component state\n"
+    },
+    {
+      "label": "duplicate-event",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/duplicate-event/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: duplicate state/event name\n"
+    },
+    {
+      "label": "duplicate-function",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/duplicate-function/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: shared.dia: D010 at 9:1: duplicate module declaration\n"
+    },
+    {
+      "label": "local-import-ambiguity",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/local-import-ambiguity/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: ambiguous imported/local declaration name\n"
+    },
+    {
+      "label": "browser-host-budget",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/browser-host-budget/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: browser/shared modules cannot receive host capabilities\n"
+    },
+    {
+      "label": "missing-module-budget",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/missing-module-budget/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: server.dia: invalid input: function effects exceed its module budget\n"
+    },
+    {
+      "label": "missing-app-budget",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/missing-app-budget/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: server.dia: D301 at 1:1: effects {Host(\"PostgresRead\")} exceed the application's declared authority\n"
+    },
+    {
+      "label": "host-source-check",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/host-source-check/diamond.toml"
+      ],
+      "expected_success": true,
+      "expected_stdout": null,
+      "exit": 0,
+      "stdout": "project Verify: 3 modules; server server; browser ui / Counter; capabilities {\"PostgresRead\"}\n",
+      "stderr": ""
+    },
+    {
+      "label": "missing-runtime-host-grant",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "run",
+        "/tmp/diamond-w1-modules-zo7b13uk/host-source-check/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: evaluate project: access denied or resource not found\n"
+    },
+    {
+      "label": "symlink-source",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/symlink-source/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: module path escapes the project root\n"
+    },
+    {
+      "label": "fifo-source",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/fifo-source/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: project inputs must be regular files\n"
+    },
+    {
+      "label": "directory-source",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/directory-source/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: project inputs must be regular files\n"
+    },
+    {
+      "label": "invalid-source-utf8",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/invalid-source-utf8/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: project inputs must be valid UTF-8\n"
+    },
+    {
+      "label": "import-import-ambiguity",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/import-import-ambiguity/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: ambiguous imported/local declaration name\n"
+    },
+    {
+      "label": "state-name-constructor",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/state-name-constructor/diamond.toml"
+      ],
+      "expected_success": true,
+      "expected_stdout": null,
+      "exit": 0,
+      "stdout": "project Verify: 3 modules; server server; browser ui / Counter; capabilities {}\n",
+      "stderr": ""
+    },
+    {
+      "label": "state-name-prototype",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/state-name-prototype/diamond.toml"
+      ],
+      "expected_success": true,
+      "expected_stdout": null,
+      "exit": 0,
+      "stdout": "project Verify: 3 modules; server server; browser ui / Counter; capabilities {}\n",
+      "stderr": ""
+    },
+    {
+      "label": "state-name-__proto__",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/state-name-__proto__/diamond.toml"
+      ],
+      "expected_success": true,
+      "expected_stdout": null,
+      "exit": 0,
+      "stdout": "project Verify: 3 modules; server server; browser ui / Counter; capabilities {}\n",
+      "stderr": ""
+    },
+    {
+      "label": "state-name-toString",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/state-name-toString/diamond.toml"
+      ],
+      "expected_success": true,
+      "expected_stdout": null,
+      "exit": 0,
+      "stdout": "project Verify: 3 modules; server server; browser ui / Counter; capabilities {}\n",
+      "stderr": ""
+    },
+    {
+      "label": "state-name-valueOf",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/state-name-valueOf/diamond.toml"
+      ],
+      "expected_success": true,
+      "expected_stdout": null,
+      "exit": 0,
+      "stdout": "project Verify: 3 modules; server server; browser ui / Counter; capabilities {}\n",
+      "stderr": ""
+    },
+    {
+      "label": "state-name-then",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/state-name-then/diamond.toml"
+      ],
+      "expected_success": true,
+      "expected_stdout": null,
+      "exit": 0,
+      "stdout": "project Verify: 3 modules; server server; browser ui / Counter; capabilities {}\n",
+      "stderr": ""
+    },
+    {
+      "label": "state-name-null",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/state-name-null/diamond.toml"
+      ],
+      "expected_success": true,
+      "expected_stdout": null,
+      "exit": 0,
+      "stdout": "project Verify: 3 modules; server server; browser ui / Counter; capabilities {}\n",
+      "stderr": ""
+    },
+    {
+      "label": "state-name-undefined",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/state-name-undefined/diamond.toml"
+      ],
+      "expected_success": true,
+      "expected_stdout": null,
+      "exit": 0,
+      "stdout": "project Verify: 3 modules; server server; browser ui / Counter; capabilities {}\n",
+      "stderr": ""
+    },
+    {
+      "label": "state-name-arguments",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/state-name-arguments/diamond.toml"
+      ],
+      "expected_success": true,
+      "expected_stdout": null,
+      "exit": 0,
+      "stdout": "project Verify: 3 modules; server server; browser ui / Counter; capabilities {}\n",
+      "stderr": ""
+    },
+    {
+      "label": "state-name-eval",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/state-name-eval/diamond.toml"
+      ],
+      "expected_success": true,
+      "expected_stdout": null,
+      "exit": 0,
+      "stdout": "project Verify: 3 modules; server server; browser ui / Counter; capabilities {}\n",
+      "stderr": ""
+    },
+    {
+      "label": "state-name-await",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/state-name-await/diamond.toml"
+      ],
+      "expected_success": true,
+      "expected_stdout": null,
+      "exit": 0,
+      "stdout": "project Verify: 3 modules; server server; browser ui / Counter; capabilities {}\n",
+      "stderr": ""
+    },
+    {
+      "label": "state-name-class",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/state-name-class/diamond.toml"
+      ],
+      "expected_success": true,
+      "expected_stdout": null,
+      "exit": 0,
+      "stdout": "project Verify: 3 modules; server server; browser ui / Counter; capabilities {}\n",
+      "stderr": ""
+    },
+    {
+      "label": "function-name-constructor",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/function-name-constructor/diamond.toml"
+      ],
+      "expected_success": true,
+      "expected_stdout": null,
+      "exit": 0,
+      "stdout": "project Verify: 3 modules; server server; browser ui / Counter; capabilities {}\n",
+      "stderr": ""
+    },
+    {
+      "label": "function-name-prototype",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/function-name-prototype/diamond.toml"
+      ],
+      "expected_success": true,
+      "expected_stdout": null,
+      "exit": 0,
+      "stdout": "project Verify: 3 modules; server server; browser ui / Counter; capabilities {}\n",
+      "stderr": ""
+    },
+    {
+      "label": "function-name-__proto__",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/function-name-__proto__/diamond.toml"
+      ],
+      "expected_success": true,
+      "expected_stdout": null,
+      "exit": 0,
+      "stdout": "project Verify: 3 modules; server server; browser ui / Counter; capabilities {}\n",
+      "stderr": ""
+    },
+    {
+      "label": "function-name-toString",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/function-name-toString/diamond.toml"
+      ],
+      "expected_success": true,
+      "expected_stdout": null,
+      "exit": 0,
+      "stdout": "project Verify: 3 modules; server server; browser ui / Counter; capabilities {}\n",
+      "stderr": ""
+    },
+    {
+      "label": "function-name-valueOf",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/function-name-valueOf/diamond.toml"
+      ],
+      "expected_success": true,
+      "expected_stdout": null,
+      "exit": 0,
+      "stdout": "project Verify: 3 modules; server server; browser ui / Counter; capabilities {}\n",
+      "stderr": ""
+    },
+    {
+      "label": "function-name-then",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/function-name-then/diamond.toml"
+      ],
+      "expected_success": true,
+      "expected_stdout": null,
+      "exit": 0,
+      "stdout": "project Verify: 3 modules; server server; browser ui / Counter; capabilities {}\n",
+      "stderr": ""
+    },
+    {
+      "label": "function-name-arguments",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/function-name-arguments/diamond.toml"
+      ],
+      "expected_success": true,
+      "expected_stdout": null,
+      "exit": 0,
+      "stdout": "project Verify: 3 modules; server server; browser ui / Counter; capabilities {}\n",
+      "stderr": ""
+    },
+    {
+      "label": "function-name-eval",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/function-name-eval/diamond.toml"
+      ],
+      "expected_success": true,
+      "expected_stdout": null,
+      "exit": 0,
+      "stdout": "project Verify: 3 modules; server server; browser ui / Counter; capabilities {}\n",
+      "stderr": ""
+    },
+    {
+      "label": "function-name-await",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/function-name-await/diamond.toml"
+      ],
+      "expected_success": true,
+      "expected_stdout": null,
+      "exit": 0,
+      "stdout": "project Verify: 3 modules; server server; browser ui / Counter; capabilities {}\n",
+      "stderr": ""
+    },
+    {
+      "label": "function-name-class",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/function-name-class/diamond.toml"
+      ],
+      "expected_success": true,
+      "expected_stdout": null,
+      "exit": 0,
+      "stdout": "project Verify: 3 modules; server server; browser ui / Counter; capabilities {}\n",
+      "stderr": ""
+    },
+    {
+      "label": "source-size-1048575",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/source-size-1048575/diamond.toml"
+      ],
+      "expected_success": true,
+      "expected_stdout": null,
+      "exit": 0,
+      "stdout": "project Verify: 3 modules; server server; browser ui / Counter; capabilities {}\n",
+      "stderr": ""
+    },
+    {
+      "label": "source-size-1048576",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/source-size-1048576/diamond.toml"
+      ],
+      "expected_success": true,
+      "expected_stdout": null,
+      "exit": 0,
+      "stdout": "project Verify: 3 modules; server server; browser ui / Counter; capabilities {}\n",
+      "stderr": ""
+    },
+    {
+      "label": "source-size-1048577",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/source-size-1048577/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: resource limit exceeded: project input bytes\n"
+    },
+    {
+      "label": "manifest-size-1048576",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/manifest-size-1048576/diamond.toml"
+      ],
+      "expected_success": true,
+      "expected_stdout": null,
+      "exit": 0,
+      "stdout": "project Verify: 3 modules; server server; browser ui / Counter; capabilities {}\n",
+      "stderr": ""
+    },
+    {
+      "label": "manifest-size-1048577",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/manifest-size-1048577/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: resource limit exceeded: project input bytes\n"
+    },
+    {
+      "label": "module-name-128",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/module-name-128/diamond.toml"
+      ],
+      "expected_success": true,
+      "expected_stdout": null,
+      "exit": 0,
+      "stdout": "project Verify: 3 modules; server server; browser ui / Counter; capabilities {}\n",
+      "stderr": ""
+    },
+    {
+      "label": "module-name-129",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/module-name-129/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: module names/paths must be valid and unique; imports are bounded\n"
+    },
+    {
+      "label": "module-count-64",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/module-count-64/diamond.toml"
+      ],
+      "expected_success": true,
+      "expected_stdout": null,
+      "exit": 0,
+      "stdout": "project Verify: 64 modules; server server; browser ui / Counter; capabilities {}\n",
+      "stderr": ""
+    },
+    {
+      "label": "module-count-65",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/module-count-65/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: project needs a valid name and 1..64 modules\n"
+    },
+    {
+      "label": "project-total-8388608",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/project-total-8388608/diamond.toml"
+      ],
+      "expected_success": true,
+      "expected_stdout": null,
+      "exit": 0,
+      "stdout": "project Verify: 9 modules; server server; browser ui / Counter; capabilities {}\n",
+      "stderr": ""
+    },
+    {
+      "label": "project-total-8388609",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/project-total-8388609/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: resource limit exceeded: project source bytes\n"
+    },
+    {
+      "label": "declarations-4096",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/declarations-4096/diamond.toml"
+      ],
+      "expected_success": true,
+      "expected_stdout": null,
+      "exit": 0,
+      "stdout": "project Verify: 3 modules; server server; browser ui / Counter; capabilities {}\n",
+      "stderr": ""
+    },
+    {
+      "label": "declarations-4097",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/declarations-4097/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: resource limit exceeded: project declarations\n"
+    },
+    {
+      "label": "let-shadowing-check",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/let-shadowing/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: shared.dia: D101 at 3:3: duplicate declaration x\n"
+    },
+    {
+      "label": "let-shadowing-run",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "run",
+        "/tmp/diamond-w1-modules-zo7b13uk/let-shadowing/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: shared.dia: D101 at 3:3: duplicate declaration x\n"
+    },
+    {
+      "label": "let-shadowing-build",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "build",
+        "/tmp/diamond-w1-modules-zo7b13uk/let-shadowing/diamond.toml",
+        "--out",
+        "/tmp/diamond-w1-modules-zo7b13uk/let-shadowing/build"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: shared.dia: D101 at 3:3: duplicate declaration x\n"
+    },
+    {
+      "label": "param-shadowing-check",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/param-shadowing/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: shared.dia: D101 at 2:3: duplicate declaration value\n"
+    },
+    {
+      "label": "param-shadowing-run",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "run",
+        "/tmp/diamond-w1-modules-zo7b13uk/param-shadowing/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: shared.dia: D101 at 2:3: duplicate declaration value\n"
+    },
+    {
+      "label": "param-shadowing-build",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "build",
+        "/tmp/diamond-w1-modules-zo7b13uk/param-shadowing/diamond.toml",
+        "--out",
+        "/tmp/diamond-w1-modules-zo7b13uk/param-shadowing/build"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: shared.dia: D101 at 2:3: duplicate declaration value\n"
+    },
+    {
+      "label": "call-shadowing-check",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/call-shadowing/diamond.toml"
+      ],
+      "expected_success": true,
+      "expected_stdout": null,
+      "exit": 0,
+      "stdout": "project Verify: 3 modules; server server; browser ui / Counter; capabilities {}\n",
+      "stderr": ""
+    },
+    {
+      "label": "call-shadowing-run",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "run",
+        "/tmp/diamond-w1-modules-zo7b13uk/call-shadowing/diamond.toml"
+      ],
+      "expected_success": true,
+      "expected_stdout": "17\n",
+      "exit": 0,
+      "stdout": "17\n",
+      "stderr": ""
+    },
+    {
+      "label": "call-shadowing-build",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "build",
+        "/tmp/diamond-w1-modules-zo7b13uk/call-shadowing/diamond.toml",
+        "--out",
+        "/tmp/diamond-w1-modules-zo7b13uk/call-shadowing/build"
+      ],
+      "expected_success": true,
+      "expected_stdout": null,
+      "exit": 0,
+      "stdout": "built project at /tmp/diamond-w1-modules-zo7b13uk/call-shadowing/build\n",
+      "stderr": ""
+    },
+    {
+      "label": "duplicate-param-check",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/duplicate-param/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: shared.dia: D101 at 1:1: duplicate declaration value\n"
+    },
+    {
+      "label": "duplicate-param-run",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "run",
+        "/tmp/diamond-w1-modules-zo7b13uk/duplicate-param/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: shared.dia: D101 at 1:1: duplicate declaration value\n"
+    },
+    {
+      "label": "duplicate-param-build",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "build",
+        "/tmp/diamond-w1-modules-zo7b13uk/duplicate-param/diamond.toml",
+        "--out",
+        "/tmp/diamond-w1-modules-zo7b13uk/duplicate-param/build"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: shared.dia: D101 at 1:1: duplicate declaration value\n"
+    },
+    {
+      "label": "own-private-normal",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "run",
+        "/tmp/diamond-w1-modules-zo7b13uk/own-private-normal/diamond.toml"
+      ],
+      "expected_success": true,
+      "expected_stdout": "99193\n",
+      "exit": 0,
+      "stdout": "99193\n",
+      "stderr": ""
+    },
+    {
+      "label": "transitive-effect-denied",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/transitive-effect-budget/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: server.dia: invalid input: function effects exceed its module budget\n"
+    },
+    {
+      "label": "transitive-effect-allowed",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/transitive-effect-budget/diamond.toml"
+      ],
+      "expected_success": true,
+      "expected_stdout": null,
+      "exit": 0,
+      "stdout": "project Verify: 4 modules; server server; browser ui / Counter; capabilities {\"PostgresRead\"}\n",
+      "stderr": ""
+    },
+    {
+      "label": "transitive-runtime-grant-missing",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "run",
+        "/tmp/diamond-w1-modules-zo7b13uk/transitive-effect-budget/diamond.toml"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: evaluate project: access denied or resource not found\n"
+    },
+    {
+      "label": "build-one",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "build",
+        "/tmp/diamond-w1-modules-zo7b13uk/base/diamond.toml",
+        "--out",
+        "/tmp/diamond-w1-modules-zo7b13uk/build-one"
+      ],
+      "expected_success": true,
+      "expected_stdout": null,
+      "exit": 0,
+      "stdout": "built project at /tmp/diamond-w1-modules-zo7b13uk/build-one\n",
+      "stderr": ""
+    },
+    {
+      "label": "build-two",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "build",
+        "/tmp/diamond-w1-modules-zo7b13uk/base/diamond.toml",
+        "--out",
+        "/tmp/diamond-w1-modules-zo7b13uk/build-two"
+      ],
+      "expected_success": true,
+      "expected_stdout": null,
+      "exit": 0,
+      "stdout": "built project at /tmp/diamond-w1-modules-zo7b13uk/build-two\n",
+      "stderr": ""
+    },
+    {
+      "label": "deterministic-tree",
+      "accepted": true,
+      "files": {
+        "server.json": "4d04c730414f7f01e1a3f1972fc6d087e15513299e998b048082bd0a5f642733",
+        "index.html": "9a1edad75f4f192150b9e7ce7b49b8802d9f133eda7502d00d794568a0c79d2a",
+        "contract.json": "022ea3c2d98ab6af085926def1bfba5dab5563dd59e24096fa56256bef330fa0",
+        "assets/db641baefaa037cd97fbb77296cc2323df3bf46ff77112728eaac1d2e0fcfec4.js": "db641baefaa037cd97fbb77296cc2323df3bf46ff77112728eaac1d2e0fcfec4",
+        "assets/5e04328fd18532a49f8d03a757e515db51af816715d74dc2dd55d4b375b16fbe.css": "5e04328fd18532a49f8d03a757e515db51af816715d74dc2dd55d4b375b16fbe",
+        "assets/1a8bd75f805d6b3983adb0b27914e35c5f4b1cb0f83e6ce5dac2e0ace47c8457.js.map": "1a8bd75f805d6b3983adb0b27914e35c5f4b1cb0f83e6ce5dac2e0ace47c8457"
+      }
+    },
+    {
+      "label": "artifact-hashes",
+      "accepted": true,
+      "files": {
+        "assets/1a8bd75f805d6b3983adb0b27914e35c5f4b1cb0f83e6ce5dac2e0ace47c8457.js.map": true,
+        "assets/5e04328fd18532a49f8d03a757e515db51af816715d74dc2dd55d4b375b16fbe.css": true,
+        "assets/db641baefaa037cd97fbb77296cc2323df3bf46ff77112728eaac1d2e0fcfec4.js": true,
+        "index.html": true,
+        "server.json": true
+      }
+    },
+    {
+      "label": "input-hash",
+      "accepted": true
+    },
+    {
+      "label": "browser-excludes-server",
+      "accepted": true
+    },
+    {
+      "label": "browser-excludes-unused-shared",
+      "accepted": true
+    },
+    {
+      "label": "load-build-check",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/build-one"
+      ],
+      "expected_success": true,
+      "expected_stdout": null,
+      "exit": 0,
+      "stdout": "project Verify: 3 modules; server server; browser ui / Counter; capabilities {}\n",
+      "stderr": ""
+    },
+    {
+      "label": "load-build-run",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "run",
+        "/tmp/diamond-w1-modules-zo7b13uk/build-one"
+      ],
+      "expected_success": true,
+      "expected_stdout": "17\n",
+      "exit": 0,
+      "stdout": "17\n",
+      "stderr": ""
+    },
+    {
+      "label": "existing-output-refused",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "build",
+        "/tmp/diamond-w1-modules-zo7b13uk/base/diamond.toml",
+        "--out",
+        "/tmp/diamond-w1-modules-zo7b13uk/build-one"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: build project: invalid input: build output already exists; choose a new directory\n"
+    },
+    {
+      "label": "tamper-page",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/tamper-page"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: build artifact mismatch; rebuild from trusted project sources\n"
+    },
+    {
+      "label": "tamper-js",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/tamper-js"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: build artifact mismatch; rebuild from trusted project sources\n"
+    },
+    {
+      "label": "tamper-contract",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/tamper-contract"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: build artifact mismatch; rebuild from trusted project sources\n"
+    },
+    {
+      "label": "server-version",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/server-version"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: incompatible server artifact format/language version\n"
+    },
+    {
+      "label": "server-format",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/server-format"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: incompatible server artifact format/language version\n"
+    },
+    {
+      "label": "server-unknown-field",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/server-unknown-field"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: invalid server artifact\n"
+    },
+    {
+      "label": "tamper-source",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/tamper-source"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: I/O operation failed: No such file or directory (os error 2)\n"
+    },
+    {
+      "label": "invalid-source",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/invalid-source"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: server.dia: D110 at 1:1: expected Int, found Text\n"
+    },
+    {
+      "label": "missing-page",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/missing-page"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: I/O operation failed: No such file or directory (os error 2)\n"
+    },
+    {
+      "label": "artifact-fifo",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/artifact-fifo"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: project inputs must be regular files\n"
+    },
+    {
+      "label": "artifact-symlink",
+      "accepted": true,
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/tmp/diamond-w1-modules-zo7b13uk/artifact-symlink"
+      ],
+      "expected_success": false,
+      "expected_stdout": null,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: I/O operation failed: Too many levels of symbolic links (os error 40)\n"
+    },
+    {
+      "label": "retained-resolution-regressions",
+      "accepted": true,
+      "cases": [
+        {
+          "fixture": "qualified-name-collision",
+          "pass_": true,
+          "command": [
+            "/home/doll/diamond/target/debug/diamond",
+            "run",
+            "/home/doll/diamond/verification/regressions/w1_resolution/qualified-name-collision/diamond.toml"
+          ],
+          "binary_sha256": "2adc6d9894d66c80c089245a678fa238cd1d0a3342b431bbacfb3f5f97abff45",
+          "returncode": 0,
+          "stdout": "117\n",
+          "stderr": ""
+        },
+        {
+          "fixture": "mangled-private-server",
+          "pass_": true,
+          "command": [
+            "/home/doll/diamond/target/debug/diamond",
+            "run",
+            "/home/doll/diamond/verification/regressions/w1_resolution/mangled-private-server/diamond.toml"
+          ],
+          "binary_sha256": "2adc6d9894d66c80c089245a678fa238cd1d0a3342b431bbacfb3f5f97abff45",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: server.dia: D320 at 2:3: compiler-generated names are reserved and cannot be referenced by source\n"
+        },
+        {
+          "fixture": "mangled-private-browser",
+          "pass_": true,
+          "command": [
+            "/home/doll/diamond/target/debug/diamond",
+            "check",
+            "/home/doll/diamond/verification/regressions/w1_resolution/mangled-private-browser/diamond.toml"
+          ],
+          "binary_sha256": "2adc6d9894d66c80c089245a678fa238cd1d0a3342b431bbacfb3f5f97abff45",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: ui.dia: D320 at 2:22: compiler-generated names are reserved and cannot be referenced by source\n"
+        },
+        {
+          "fixture": "mangled-missing-direct-import",
+          "pass_": true,
+          "command": [
+            "/home/doll/diamond/target/debug/diamond",
+            "run",
+            "/home/doll/diamond/verification/regressions/w1_resolution/mangled-missing-direct-import/diamond.toml"
+          ],
+          "binary_sha256": "2adc6d9894d66c80c089245a678fa238cd1d0a3342b431bbacfb3f5f97abff45",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: server.dia: D320 at 2:3: compiler-generated names are reserved and cannot be referenced by source\n"
+        },
+        {
+          "fixture": "current-mangled-private-server",
+          "pass_": true,
+          "command": [
+            "/home/doll/diamond/target/debug/diamond",
+            "run",
+            "/home/doll/diamond/verification/regressions/w1_resolution/current-mangled-private-server/diamond.toml"
+          ],
+          "binary_sha256": "2adc6d9894d66c80c089245a678fa238cd1d0a3342b431bbacfb3f5f97abff45",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: server.dia: D320 at 2:3: compiler-generated names are reserved and cannot be referenced by source\n"
+        },
+        {
+          "fixture": "current-mangled-private-browser",
+          "pass_": true,
+          "command": [
+            "/home/doll/diamond/target/debug/diamond",
+            "check",
+            "/home/doll/diamond/verification/regressions/w1_resolution/current-mangled-private-browser/diamond.toml"
+          ],
+          "binary_sha256": "2adc6d9894d66c80c089245a678fa238cd1d0a3342b431bbacfb3f5f97abff45",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: ui.dia: D320 at 2:22: compiler-generated names are reserved and cannot be referenced by source\n"
+        },
+        {
+          "fixture": "current-mangled-missing-direct-import",
+          "pass_": true,
+          "command": [
+            "/home/doll/diamond/target/debug/diamond",
+            "run",
+            "/home/doll/diamond/verification/regressions/w1_resolution/current-mangled-missing-direct-import/diamond.toml"
+          ],
+          "binary_sha256": "2adc6d9894d66c80c089245a678fa238cd1d0a3342b431bbacfb3f5f97abff45",
+          "returncode": 1,
+          "stdout": "",
+          "stderr": "error: server.dia: D320 at 2:3: compiler-generated names are reserved and cannot be referenced by source\n"
+        }
+      ],
+      "stderr": ""
+    }
+  ],
+  "retained_directory": null
+}

@@ -1,0 +1,14 @@
+enum AppError:
+  Rejected(reason: Text)
+
+fn data_failure() -> Result<Int, DataError>:
+  Err("safe data failure")
+
+fn wrong() -> Result<Int, AppError>:
+  data_failure()
+
+fn main() -> Text:
+  match wrong():
+    Ok(value) => int_text(value)
+    Err(error) => match error:
+      Rejected(reason) => reason

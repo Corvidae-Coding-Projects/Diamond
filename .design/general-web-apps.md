@@ -4,7 +4,7 @@
 
 Expand Diamond's completed 0.6.0 interpreted MVP into a platform for general web applications with a reactive frontend authored in Diamond, PostgreSQL, and multiple application servers. Deliver working breadth first, connect a real application early, then complete semantics, exercise failures, and finish developer experience and performance.
 
-**Status:** W1 and W2 complete, 21 October 2026; W3–W10 remain planned. Diamond 0.8.0 retains the bounded [W1 profile](../docs/projects.md) and adds the [W2 connected development profile](../docs/connected-apps.md), with [W1](../verification/web_one_results.md) and [W2](../verification/web_two_results.md) evidence. The unchecked acceptance criteria below remain full-release gates; these increments do not satisfy them in full or imply production readiness.
+**Status:** W1–W3 complete, 22 October 2026; W4–W10 remain planned. Diamond 0.9.0 retains the bounded [W1 profile](../docs/projects.md) and [W2 connected development profile](../docs/connected-apps.md), and adds the [W3 reactive frontend](../docs/reactive-apps.md), with [W3 evidence](../verification/web_three_results.md). The unchecked acceptance criteria below remain full-release gates; these increments do not satisfy them in full or imply production readiness.
 
 The user selected all three release targets: a full reactive Diamond frontend; PostgreSQL and multiple application servers from the first release; and accounts, permissions, APIs, uploads, outbound HTTP, and durable jobs. The user also selected MIT licensing and publication at https://github.com/Corvidae-Coding-Projects/Diamond using SSH. Publication of this plan does not authorize deploying infrastructure or beginning implementation automatically.
 

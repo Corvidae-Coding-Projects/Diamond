@@ -57,9 +57,14 @@ pub(super) fn operations(
             } else {
                 &checked.result
             };
-            if !wire::scalar(result) || checked.parameters.iter().any(|(_, ty)| !wire::scalar(ty)) {
+            if !wire::safe_type(result, program)
+                || checked
+                    .parameters
+                    .iter()
+                    .any(|(_, ty)| !wire::safe_type(ty, program))
+            {
                 return Err(input(
-                    "W2 RPC signatures support only Int, Bool and Text (including bounded Text)",
+                    "RPC signatures require finite managed wire-safe types",
                 ));
             }
             if checked

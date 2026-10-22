@@ -1,0 +1,1385 @@
+{
+  "seed": 3516961559,
+  "valid_values": 184,
+  "error_probes": [
+    {
+      "function": "probe_170",
+      "case": "runtime-reject-0",
+      "expected": "uncaught runtime failure; event preserves prior state"
+    },
+    {
+      "function": "probe_171",
+      "case": "runtime-reject-1",
+      "expected": "uncaught runtime failure; event preserves prior state"
+    },
+    {
+      "function": "probe_172",
+      "case": "runtime-reject-2",
+      "expected": "uncaught runtime failure; event preserves prior state"
+    },
+    {
+      "function": "probe_173",
+      "case": "runtime-reject-3",
+      "expected": "uncaught runtime failure; event preserves prior state"
+    },
+    {
+      "function": "probe_174",
+      "case": "runtime-reject-4",
+      "expected": "uncaught runtime failure; event preserves prior state"
+    },
+    {
+      "function": "probe_175",
+      "case": "runtime-reject-5",
+      "expected": "uncaught runtime failure; event preserves prior state"
+    },
+    {
+      "function": "probe_176",
+      "case": "runtime-reject-6",
+      "expected": "uncaught runtime failure; event preserves prior state"
+    },
+    {
+      "function": "probe_184",
+      "case": "text-limit-expand-rejected",
+      "expected": "uncaught runtime failure; event preserves prior state"
+    }
+  ],
+  "exact_cases": [
+    {
+      "name": "decimal-format--9223372036854775808",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_units((-9223372036854775807 - 1)))\n",
+      "expected": "-9223372036854.775808",
+      "reject": false,
+      "function": "case_000"
+    },
+    {
+      "name": "time-roundtrip--9223372036854775808",
+      "source": "fn main() -> Text:\n  int_text(time_millis(timestamp((-9223372036854775807 - 1))))\n",
+      "expected": "-9223372036854775808",
+      "reject": false,
+      "function": "case_001"
+    },
+    {
+      "name": "duration-roundtrip--9223372036854775808",
+      "source": "fn main() -> Text:\n  int_text(duration_millis(duration((-9223372036854775807 - 1))))\n",
+      "expected": "-9223372036854775808",
+      "reject": false,
+      "function": "case_002"
+    },
+    {
+      "name": "decimal-format--9223372036854775807",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_units(-9223372036854775807))\n",
+      "expected": "-9223372036854.775807",
+      "reject": false,
+      "function": "case_003"
+    },
+    {
+      "name": "time-roundtrip--9223372036854775807",
+      "source": "fn main() -> Text:\n  int_text(time_millis(timestamp(-9223372036854775807)))\n",
+      "expected": "-9223372036854775807",
+      "reject": false,
+      "function": "case_004"
+    },
+    {
+      "name": "duration-roundtrip--9223372036854775807",
+      "source": "fn main() -> Text:\n  int_text(duration_millis(duration(-9223372036854775807)))\n",
+      "expected": "-9223372036854775807",
+      "reject": false,
+      "function": "case_005"
+    },
+    {
+      "name": "decimal-format--1000001",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_units(-1000001))\n",
+      "expected": "-1.000001",
+      "reject": false,
+      "function": "case_006"
+    },
+    {
+      "name": "time-roundtrip--1000001",
+      "source": "fn main() -> Text:\n  int_text(time_millis(timestamp(-1000001)))\n",
+      "expected": "-1000001",
+      "reject": false,
+      "function": "case_007"
+    },
+    {
+      "name": "duration-roundtrip--1000001",
+      "source": "fn main() -> Text:\n  int_text(duration_millis(duration(-1000001)))\n",
+      "expected": "-1000001",
+      "reject": false,
+      "function": "case_008"
+    },
+    {
+      "name": "decimal-format--1000000",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_units(-1000000))\n",
+      "expected": "-1.000000",
+      "reject": false,
+      "function": "case_009"
+    },
+    {
+      "name": "time-roundtrip--1000000",
+      "source": "fn main() -> Text:\n  int_text(time_millis(timestamp(-1000000)))\n",
+      "expected": "-1000000",
+      "reject": false,
+      "function": "case_010"
+    },
+    {
+      "name": "duration-roundtrip--1000000",
+      "source": "fn main() -> Text:\n  int_text(duration_millis(duration(-1000000)))\n",
+      "expected": "-1000000",
+      "reject": false,
+      "function": "case_011"
+    },
+    {
+      "name": "decimal-format--999999",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_units(-999999))\n",
+      "expected": "-0.999999",
+      "reject": false,
+      "function": "case_012"
+    },
+    {
+      "name": "time-roundtrip--999999",
+      "source": "fn main() -> Text:\n  int_text(time_millis(timestamp(-999999)))\n",
+      "expected": "-999999",
+      "reject": false,
+      "function": "case_013"
+    },
+    {
+      "name": "duration-roundtrip--999999",
+      "source": "fn main() -> Text:\n  int_text(duration_millis(duration(-999999)))\n",
+      "expected": "-999999",
+      "reject": false,
+      "function": "case_014"
+    },
+    {
+      "name": "decimal-format--1",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_units(-1))\n",
+      "expected": "-0.000001",
+      "reject": false,
+      "function": "case_015"
+    },
+    {
+      "name": "time-roundtrip--1",
+      "source": "fn main() -> Text:\n  int_text(time_millis(timestamp(-1)))\n",
+      "expected": "-1",
+      "reject": false,
+      "function": "case_016"
+    },
+    {
+      "name": "duration-roundtrip--1",
+      "source": "fn main() -> Text:\n  int_text(duration_millis(duration(-1)))\n",
+      "expected": "-1",
+      "reject": false,
+      "function": "case_017"
+    },
+    {
+      "name": "decimal-format-0",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_units(0))\n",
+      "expected": "0.000000",
+      "reject": false,
+      "function": "case_018"
+    },
+    {
+      "name": "time-roundtrip-0",
+      "source": "fn main() -> Text:\n  int_text(time_millis(timestamp(0)))\n",
+      "expected": "0",
+      "reject": false,
+      "function": "case_019"
+    },
+    {
+      "name": "duration-roundtrip-0",
+      "source": "fn main() -> Text:\n  int_text(duration_millis(duration(0)))\n",
+      "expected": "0",
+      "reject": false,
+      "function": "case_020"
+    },
+    {
+      "name": "decimal-format-1",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_units(1))\n",
+      "expected": "0.000001",
+      "reject": false,
+      "function": "case_021"
+    },
+    {
+      "name": "time-roundtrip-1",
+      "source": "fn main() -> Text:\n  int_text(time_millis(timestamp(1)))\n",
+      "expected": "1",
+      "reject": false,
+      "function": "case_022"
+    },
+    {
+      "name": "duration-roundtrip-1",
+      "source": "fn main() -> Text:\n  int_text(duration_millis(duration(1)))\n",
+      "expected": "1",
+      "reject": false,
+      "function": "case_023"
+    },
+    {
+      "name": "decimal-format-999999",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_units(999999))\n",
+      "expected": "0.999999",
+      "reject": false,
+      "function": "case_024"
+    },
+    {
+      "name": "time-roundtrip-999999",
+      "source": "fn main() -> Text:\n  int_text(time_millis(timestamp(999999)))\n",
+      "expected": "999999",
+      "reject": false,
+      "function": "case_025"
+    },
+    {
+      "name": "duration-roundtrip-999999",
+      "source": "fn main() -> Text:\n  int_text(duration_millis(duration(999999)))\n",
+      "expected": "999999",
+      "reject": false,
+      "function": "case_026"
+    },
+    {
+      "name": "decimal-format-1000000",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_units(1000000))\n",
+      "expected": "1.000000",
+      "reject": false,
+      "function": "case_027"
+    },
+    {
+      "name": "time-roundtrip-1000000",
+      "source": "fn main() -> Text:\n  int_text(time_millis(timestamp(1000000)))\n",
+      "expected": "1000000",
+      "reject": false,
+      "function": "case_028"
+    },
+    {
+      "name": "duration-roundtrip-1000000",
+      "source": "fn main() -> Text:\n  int_text(duration_millis(duration(1000000)))\n",
+      "expected": "1000000",
+      "reject": false,
+      "function": "case_029"
+    },
+    {
+      "name": "decimal-format-9223372036854775806",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_units(9223372036854775806))\n",
+      "expected": "9223372036854.775806",
+      "reject": false,
+      "function": "case_030"
+    },
+    {
+      "name": "time-roundtrip-9223372036854775806",
+      "source": "fn main() -> Text:\n  int_text(time_millis(timestamp(9223372036854775806)))\n",
+      "expected": "9223372036854775806",
+      "reject": false,
+      "function": "case_031"
+    },
+    {
+      "name": "duration-roundtrip-9223372036854775806",
+      "source": "fn main() -> Text:\n  int_text(duration_millis(duration(9223372036854775806)))\n",
+      "expected": "9223372036854775806",
+      "reject": false,
+      "function": "case_032"
+    },
+    {
+      "name": "decimal-format-9223372036854775807",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_units(9223372036854775807))\n",
+      "expected": "9223372036854.775807",
+      "reject": false,
+      "function": "case_033"
+    },
+    {
+      "name": "time-roundtrip-9223372036854775807",
+      "source": "fn main() -> Text:\n  int_text(time_millis(timestamp(9223372036854775807)))\n",
+      "expected": "9223372036854775807",
+      "reject": false,
+      "function": "case_034"
+    },
+    {
+      "name": "duration-roundtrip-9223372036854775807",
+      "source": "fn main() -> Text:\n  int_text(duration_millis(duration(9223372036854775807)))\n",
+      "expected": "9223372036854775807",
+      "reject": false,
+      "function": "case_035"
+    },
+    {
+      "name": "decimal-0-multiply-half_even",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(1), decimal_units(500000), \"half_even\"))\n",
+      "expected": "0.000000",
+      "reject": false,
+      "function": "case_036"
+    },
+    {
+      "name": "decimal-0-multiply-half_away",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(1), decimal_units(500000), \"half_away\"))\n",
+      "expected": "0.000001",
+      "reject": false,
+      "function": "case_037"
+    },
+    {
+      "name": "decimal-0-divide-half_even",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(1), decimal_units(500000), \"half_even\"))\n",
+      "expected": "0.000002",
+      "reject": false,
+      "function": "case_038"
+    },
+    {
+      "name": "decimal-0-divide-half_away",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(1), decimal_units(500000), \"half_away\"))\n",
+      "expected": "0.000002",
+      "reject": false,
+      "function": "case_039"
+    },
+    {
+      "name": "decimal-1-multiply-half_even",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(3), decimal_units(500000), \"half_even\"))\n",
+      "expected": "0.000002",
+      "reject": false,
+      "function": "case_040"
+    },
+    {
+      "name": "decimal-1-multiply-half_away",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(3), decimal_units(500000), \"half_away\"))\n",
+      "expected": "0.000002",
+      "reject": false,
+      "function": "case_041"
+    },
+    {
+      "name": "decimal-1-divide-half_even",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(3), decimal_units(500000), \"half_even\"))\n",
+      "expected": "0.000006",
+      "reject": false,
+      "function": "case_042"
+    },
+    {
+      "name": "decimal-1-divide-half_away",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(3), decimal_units(500000), \"half_away\"))\n",
+      "expected": "0.000006",
+      "reject": false,
+      "function": "case_043"
+    },
+    {
+      "name": "decimal-2-multiply-half_even",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(-1), decimal_units(500000), \"half_even\"))\n",
+      "expected": "0.000000",
+      "reject": false,
+      "function": "case_044"
+    },
+    {
+      "name": "decimal-2-multiply-half_away",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(-1), decimal_units(500000), \"half_away\"))\n",
+      "expected": "-0.000001",
+      "reject": false,
+      "function": "case_045"
+    },
+    {
+      "name": "decimal-2-divide-half_even",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(-1), decimal_units(500000), \"half_even\"))\n",
+      "expected": "-0.000002",
+      "reject": false,
+      "function": "case_046"
+    },
+    {
+      "name": "decimal-2-divide-half_away",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(-1), decimal_units(500000), \"half_away\"))\n",
+      "expected": "-0.000002",
+      "reject": false,
+      "function": "case_047"
+    },
+    {
+      "name": "decimal-3-multiply-half_even",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(-3), decimal_units(500000), \"half_even\"))\n",
+      "expected": "-0.000002",
+      "reject": false,
+      "function": "case_048"
+    },
+    {
+      "name": "decimal-3-multiply-half_away",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(-3), decimal_units(500000), \"half_away\"))\n",
+      "expected": "-0.000002",
+      "reject": false,
+      "function": "case_049"
+    },
+    {
+      "name": "decimal-3-divide-half_even",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(-3), decimal_units(500000), \"half_even\"))\n",
+      "expected": "-0.000006",
+      "reject": false,
+      "function": "case_050"
+    },
+    {
+      "name": "decimal-3-divide-half_away",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(-3), decimal_units(500000), \"half_away\"))\n",
+      "expected": "-0.000006",
+      "reject": false,
+      "function": "case_051"
+    },
+    {
+      "name": "decimal-4-multiply-half_even",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(500000), decimal_units(-1), \"half_even\"))\n",
+      "expected": "0.000000",
+      "reject": false,
+      "function": "case_052"
+    },
+    {
+      "name": "decimal-4-multiply-half_away",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(500000), decimal_units(-1), \"half_away\"))\n",
+      "expected": "-0.000001",
+      "reject": false,
+      "function": "case_053"
+    },
+    {
+      "name": "decimal-4-divide-half_even",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(500000), decimal_units(-1), \"half_even\"))\n",
+      "expected": "-500000.000000",
+      "reject": false,
+      "function": "case_054"
+    },
+    {
+      "name": "decimal-4-divide-half_away",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(500000), decimal_units(-1), \"half_away\"))\n",
+      "expected": "-500000.000000",
+      "reject": false,
+      "function": "case_055"
+    },
+    {
+      "name": "decimal-5-multiply-half_even",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(1234567890123), decimal_units(1999999), \"half_even\"))\n",
+      "expected": "2469134.545678",
+      "reject": false,
+      "function": "case_056"
+    },
+    {
+      "name": "decimal-5-multiply-half_away",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(1234567890123), decimal_units(1999999), \"half_away\"))\n",
+      "expected": "2469134.545678",
+      "reject": false,
+      "function": "case_057"
+    },
+    {
+      "name": "decimal-5-divide-half_even",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(1234567890123), decimal_units(1999999), \"half_even\"))\n",
+      "expected": "617284.253704",
+      "reject": false,
+      "function": "case_058"
+    },
+    {
+      "name": "decimal-5-divide-half_away",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(1234567890123), decimal_units(1999999), \"half_away\"))\n",
+      "expected": "617284.253704",
+      "reject": false,
+      "function": "case_059"
+    },
+    {
+      "name": "decimal-6-multiply-half_even",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(-816162388372), decimal_units(93221122), \"half_even\"))\n",
+      "expected": "-76083573.578238",
+      "reject": false,
+      "function": "case_060"
+    },
+    {
+      "name": "decimal-6-multiply-half_away",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(-816162388372), decimal_units(93221122), \"half_away\"))\n",
+      "expected": "-76083573.578238",
+      "reject": false,
+      "function": "case_061"
+    },
+    {
+      "name": "decimal-6-divide-half_even",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(-816162388372), decimal_units(93221122), \"half_even\"))\n",
+      "expected": "-8755.122990",
+      "reject": false,
+      "function": "case_062"
+    },
+    {
+      "name": "decimal-6-divide-half_away",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(-816162388372), decimal_units(93221122), \"half_away\"))\n",
+      "expected": "-8755.122990",
+      "reject": false,
+      "function": "case_063"
+    },
+    {
+      "name": "decimal-7-multiply-half_even",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(799397430828), decimal_units(48929538), \"half_even\"))\n",
+      "expected": "39114146.968801",
+      "reject": false,
+      "function": "case_064"
+    },
+    {
+      "name": "decimal-7-multiply-half_away",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(799397430828), decimal_units(48929538), \"half_away\"))\n",
+      "expected": "39114146.968801",
+      "reject": false,
+      "function": "case_065"
+    },
+    {
+      "name": "decimal-7-divide-half_even",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(799397430828), decimal_units(48929538), \"half_even\"))\n",
+      "expected": "16337.726934",
+      "reject": false,
+      "function": "case_066"
+    },
+    {
+      "name": "decimal-7-divide-half_away",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(799397430828), decimal_units(48929538), \"half_away\"))\n",
+      "expected": "16337.726934",
+      "reject": false,
+      "function": "case_067"
+    },
+    {
+      "name": "decimal-8-multiply-half_even",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(-624241233781), decimal_units(-8998756), \"half_even\"))\n",
+      "expected": "5617394.547934",
+      "reject": false,
+      "function": "case_068"
+    },
+    {
+      "name": "decimal-8-multiply-half_away",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(-624241233781), decimal_units(-8998756), \"half_away\"))\n",
+      "expected": "5617394.547934",
+      "reject": false,
+      "function": "case_069"
+    },
+    {
+      "name": "decimal-8-divide-half_even",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(-624241233781), decimal_units(-8998756), \"half_even\"))\n",
+      "expected": "69369.725524",
+      "reject": false,
+      "function": "case_070"
+    },
+    {
+      "name": "decimal-8-divide-half_away",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(-624241233781), decimal_units(-8998756), \"half_away\"))\n",
+      "expected": "69369.725524",
+      "reject": false,
+      "function": "case_071"
+    },
+    {
+      "name": "decimal-9-multiply-half_even",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(-316436985699), decimal_units(-6190319), \"half_even\"))\n",
+      "expected": "1958845.884875",
+      "reject": false,
+      "function": "case_072"
+    },
+    {
+      "name": "decimal-9-multiply-half_away",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(-316436985699), decimal_units(-6190319), \"half_away\"))\n",
+      "expected": "1958845.884875",
+      "reject": false,
+      "function": "case_073"
+    },
+    {
+      "name": "decimal-9-divide-half_even",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(-316436985699), decimal_units(-6190319), \"half_even\"))\n",
+      "expected": "51118.041849",
+      "reject": false,
+      "function": "case_074"
+    },
+    {
+      "name": "decimal-9-divide-half_away",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(-316436985699), decimal_units(-6190319), \"half_away\"))\n",
+      "expected": "51118.041849",
+      "reject": false,
+      "function": "case_075"
+    },
+    {
+      "name": "decimal-10-multiply-half_even",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(-757658061741), decimal_units(-63380118), \"half_even\"))\n",
+      "expected": "48020457.356796",
+      "reject": false,
+      "function": "case_076"
+    },
+    {
+      "name": "decimal-10-multiply-half_away",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(-757658061741), decimal_units(-63380118), \"half_away\"))\n",
+      "expected": "48020457.356796",
+      "reject": false,
+      "function": "case_077"
+    },
+    {
+      "name": "decimal-10-divide-half_even",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(-757658061741), decimal_units(-63380118), \"half_even\"))\n",
+      "expected": "11954.191403",
+      "reject": false,
+      "function": "case_078"
+    },
+    {
+      "name": "decimal-10-divide-half_away",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(-757658061741), decimal_units(-63380118), \"half_away\"))\n",
+      "expected": "11954.191403",
+      "reject": false,
+      "function": "case_079"
+    },
+    {
+      "name": "decimal-11-multiply-half_even",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(93374187697), decimal_units(-9028585), \"half_even\"))\n",
+      "expected": "-843036.790428",
+      "reject": false,
+      "function": "case_080"
+    },
+    {
+      "name": "decimal-11-multiply-half_away",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(93374187697), decimal_units(-9028585), \"half_away\"))\n",
+      "expected": "-843036.790428",
+      "reject": false,
+      "function": "case_081"
+    },
+    {
+      "name": "decimal-11-divide-half_even",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(93374187697), decimal_units(-9028585), \"half_even\"))\n",
+      "expected": "-10342.062205",
+      "reject": false,
+      "function": "case_082"
+    },
+    {
+      "name": "decimal-11-divide-half_away",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(93374187697), decimal_units(-9028585), \"half_away\"))\n",
+      "expected": "-10342.062205",
+      "reject": false,
+      "function": "case_083"
+    },
+    {
+      "name": "decimal-12-multiply-half_even",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(-657419130872), decimal_units(43177316), \"half_even\"))\n",
+      "expected": "-28385593.558106",
+      "reject": false,
+      "function": "case_084"
+    },
+    {
+      "name": "decimal-12-multiply-half_away",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(-657419130872), decimal_units(43177316), \"half_away\"))\n",
+      "expected": "-28385593.558106",
+      "reject": false,
+      "function": "case_085"
+    },
+    {
+      "name": "decimal-12-divide-half_even",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(-657419130872), decimal_units(43177316), \"half_even\"))\n",
+      "expected": "-15226.030513",
+      "reject": false,
+      "function": "case_086"
+    },
+    {
+      "name": "decimal-12-divide-half_away",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(-657419130872), decimal_units(43177316), \"half_away\"))\n",
+      "expected": "-15226.030513",
+      "reject": false,
+      "function": "case_087"
+    },
+    {
+      "name": "decimal-13-multiply-half_even",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(479739379931), decimal_units(-39341111), \"half_even\"))\n",
+      "expected": "-18873480.196937",
+      "reject": false,
+      "function": "case_088"
+    },
+    {
+      "name": "decimal-13-multiply-half_away",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(479739379931), decimal_units(-39341111), \"half_away\"))\n",
+      "expected": "-18873480.196937",
+      "reject": false,
+      "function": "case_089"
+    },
+    {
+      "name": "decimal-13-divide-half_even",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(479739379931), decimal_units(-39341111), \"half_even\"))\n",
+      "expected": "-12194.352618",
+      "reject": false,
+      "function": "case_090"
+    },
+    {
+      "name": "decimal-13-divide-half_away",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(479739379931), decimal_units(-39341111), \"half_away\"))\n",
+      "expected": "-12194.352618",
+      "reject": false,
+      "function": "case_091"
+    },
+    {
+      "name": "decimal-14-multiply-half_even",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(-861351092751), decimal_units(-91891269), \"half_even\"))\n",
+      "expected": "79150644.967426",
+      "reject": false,
+      "function": "case_092"
+    },
+    {
+      "name": "decimal-14-multiply-half_away",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(-861351092751), decimal_units(-91891269), \"half_away\"))\n",
+      "expected": "79150644.967426",
+      "reject": false,
+      "function": "case_093"
+    },
+    {
+      "name": "decimal-14-divide-half_even",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(-861351092751), decimal_units(-91891269), \"half_even\"))\n",
+      "expected": "9373.590137",
+      "reject": false,
+      "function": "case_094"
+    },
+    {
+      "name": "decimal-14-divide-half_away",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(-861351092751), decimal_units(-91891269), \"half_away\"))\n",
+      "expected": "9373.590137",
+      "reject": false,
+      "function": "case_095"
+    },
+    {
+      "name": "decimal-15-multiply-half_even",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(269829543431), decimal_units(-70280465), \"half_even\"))\n",
+      "expected": "-18963745.783068",
+      "reject": false,
+      "function": "case_096"
+    },
+    {
+      "name": "decimal-15-multiply-half_away",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(269829543431), decimal_units(-70280465), \"half_away\"))\n",
+      "expected": "-18963745.783068",
+      "reject": false,
+      "function": "case_097"
+    },
+    {
+      "name": "decimal-15-divide-half_even",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(269829543431), decimal_units(-70280465), \"half_even\"))\n",
+      "expected": "-3839.324959",
+      "reject": false,
+      "function": "case_098"
+    },
+    {
+      "name": "decimal-15-divide-half_away",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(269829543431), decimal_units(-70280465), \"half_away\"))\n",
+      "expected": "-3839.324959",
+      "reject": false,
+      "function": "case_099"
+    },
+    {
+      "name": "decimal-16-multiply-half_even",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(62019309914), decimal_units(57340524), \"half_even\"))\n",
+      "expected": "3556219.728587",
+      "reject": false,
+      "function": "case_100"
+    },
+    {
+      "name": "decimal-16-multiply-half_away",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(62019309914), decimal_units(57340524), \"half_away\"))\n",
+      "expected": "3556219.728587",
+      "reject": false,
+      "function": "case_101"
+    },
+    {
+      "name": "decimal-16-divide-half_even",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(62019309914), decimal_units(57340524), \"half_even\"))\n",
+      "expected": "1081.596497",
+      "reject": false,
+      "function": "case_102"
+    },
+    {
+      "name": "decimal-16-divide-half_away",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(62019309914), decimal_units(57340524), \"half_away\"))\n",
+      "expected": "1081.596497",
+      "reject": false,
+      "function": "case_103"
+    },
+    {
+      "name": "decimal-17-multiply-half_even",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(-134534119613), decimal_units(-63044866), \"half_even\"))\n",
+      "expected": "8481685.543430",
+      "reject": false,
+      "function": "case_104"
+    },
+    {
+      "name": "decimal-17-multiply-half_away",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(-134534119613), decimal_units(-63044866), \"half_away\"))\n",
+      "expected": "8481685.543430",
+      "reject": false,
+      "function": "case_105"
+    },
+    {
+      "name": "decimal-17-divide-half_even",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(-134534119613), decimal_units(-63044866), \"half_even\"))\n",
+      "expected": "2133.942510",
+      "reject": false,
+      "function": "case_106"
+    },
+    {
+      "name": "decimal-17-divide-half_away",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(-134534119613), decimal_units(-63044866), \"half_away\"))\n",
+      "expected": "2133.942510",
+      "reject": false,
+      "function": "case_107"
+    },
+    {
+      "name": "decimal-18-multiply-half_even",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(441034120293), decimal_units(-1375740), \"half_even\"))\n",
+      "expected": "-606748.280652",
+      "reject": false,
+      "function": "case_108"
+    },
+    {
+      "name": "decimal-18-multiply-half_away",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(441034120293), decimal_units(-1375740), \"half_away\"))\n",
+      "expected": "-606748.280652",
+      "reject": false,
+      "function": "case_109"
+    },
+    {
+      "name": "decimal-18-divide-half_even",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(441034120293), decimal_units(-1375740), \"half_even\"))\n",
+      "expected": "-320579.557397",
+      "reject": false,
+      "function": "case_110"
+    },
+    {
+      "name": "decimal-18-divide-half_away",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(441034120293), decimal_units(-1375740), \"half_away\"))\n",
+      "expected": "-320579.557397",
+      "reject": false,
+      "function": "case_111"
+    },
+    {
+      "name": "decimal-19-multiply-half_even",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(-392208283902), decimal_units(-56078036), \"half_even\"))\n",
+      "expected": "21994270.264155",
+      "reject": false,
+      "function": "case_112"
+    },
+    {
+      "name": "decimal-19-multiply-half_away",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(-392208283902), decimal_units(-56078036), \"half_away\"))\n",
+      "expected": "21994270.264155",
+      "reject": false,
+      "function": "case_113"
+    },
+    {
+      "name": "decimal-19-divide-half_even",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(-392208283902), decimal_units(-56078036), \"half_even\"))\n",
+      "expected": "6993.973254",
+      "reject": false,
+      "function": "case_114"
+    },
+    {
+      "name": "decimal-19-divide-half_away",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(-392208283902), decimal_units(-56078036), \"half_away\"))\n",
+      "expected": "6993.973254",
+      "reject": false,
+      "function": "case_115"
+    },
+    {
+      "name": "decimal-20-multiply-half_even",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(79033146621), decimal_units(-66181348), \"half_even\"))\n",
+      "expected": "-5230520.180059",
+      "reject": false,
+      "function": "case_116"
+    },
+    {
+      "name": "decimal-20-multiply-half_away",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(79033146621), decimal_units(-66181348), \"half_away\"))\n",
+      "expected": "-5230520.180059",
+      "reject": false,
+      "function": "case_117"
+    },
+    {
+      "name": "decimal-20-divide-half_even",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(79033146621), decimal_units(-66181348), \"half_even\"))\n",
+      "expected": "-1194.190644",
+      "reject": false,
+      "function": "case_118"
+    },
+    {
+      "name": "decimal-20-divide-half_away",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(79033146621), decimal_units(-66181348), \"half_away\"))\n",
+      "expected": "-1194.190644",
+      "reject": false,
+      "function": "case_119"
+    },
+    {
+      "name": "decimal-21-multiply-half_even",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(882442674847), decimal_units(-93596264), \"half_even\"))\n",
+      "expected": "-82593337.559846",
+      "reject": false,
+      "function": "case_120"
+    },
+    {
+      "name": "decimal-21-multiply-half_away",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(882442674847), decimal_units(-93596264), \"half_away\"))\n",
+      "expected": "-82593337.559846",
+      "reject": false,
+      "function": "case_121"
+    },
+    {
+      "name": "decimal-21-divide-half_even",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(882442674847), decimal_units(-93596264), \"half_even\"))\n",
+      "expected": "-9428.182677",
+      "reject": false,
+      "function": "case_122"
+    },
+    {
+      "name": "decimal-21-divide-half_away",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(882442674847), decimal_units(-93596264), \"half_away\"))\n",
+      "expected": "-9428.182677",
+      "reject": false,
+      "function": "case_123"
+    },
+    {
+      "name": "unicode-len-0",
+      "source": "fn main() -> Text:\n  int_text(len(\"\"))\n",
+      "expected": "0",
+      "reject": false,
+      "function": "case_124"
+    },
+    {
+      "name": "unicode-slice-0",
+      "source": "fn main() -> Text:\n  text_slice(\"\", 0, 0)\n",
+      "expected": "",
+      "reject": false,
+      "function": "case_125"
+    },
+    {
+      "name": "unicode-trim-0",
+      "source": "fn main() -> Text:\n  text_trim(\"\")\n",
+      "expected": "",
+      "reject": false,
+      "function": "case_126"
+    },
+    {
+      "name": "unicode-replace-0-0",
+      "source": "fn main() -> Text:\n  text_replace(\"\", \"\", \"X😀\")\n",
+      "expected": "X😀",
+      "reject": false,
+      "function": "case_127"
+    },
+    {
+      "name": "unicode-replace-0-1",
+      "source": "fn main() -> Text:\n  text_replace(\"\", \"a\", \"X😀\")\n",
+      "expected": "",
+      "reject": false,
+      "function": "case_128"
+    },
+    {
+      "name": "unicode-replace-0-2",
+      "source": "fn main() -> Text:\n  text_replace(\"\", \"雪\", \"X😀\")\n",
+      "expected": "",
+      "reject": false,
+      "function": "case_129"
+    },
+    {
+      "name": "unicode-len-1",
+      "source": "fn main() -> Text:\n  int_text(len(\"a\"))\n",
+      "expected": "1",
+      "reject": false,
+      "function": "case_130"
+    },
+    {
+      "name": "unicode-slice-1",
+      "source": "fn main() -> Text:\n  text_slice(\"a\", 0, 1)\n",
+      "expected": "a",
+      "reject": false,
+      "function": "case_131"
+    },
+    {
+      "name": "unicode-trim-1",
+      "source": "fn main() -> Text:\n  text_trim(\"a\")\n",
+      "expected": "a",
+      "reject": false,
+      "function": "case_132"
+    },
+    {
+      "name": "unicode-replace-1-0",
+      "source": "fn main() -> Text:\n  text_replace(\"a\", \"\", \"X😀\")\n",
+      "expected": "X😀aX😀",
+      "reject": false,
+      "function": "case_133"
+    },
+    {
+      "name": "unicode-replace-1-1",
+      "source": "fn main() -> Text:\n  text_replace(\"a\", \"a\", \"X😀\")\n",
+      "expected": "X😀",
+      "reject": false,
+      "function": "case_134"
+    },
+    {
+      "name": "unicode-replace-1-2",
+      "source": "fn main() -> Text:\n  text_replace(\"a\", \"雪\", \"X😀\")\n",
+      "expected": "a",
+      "reject": false,
+      "function": "case_135"
+    },
+    {
+      "name": "unicode-len-2",
+      "source": "fn main() -> Text:\n  int_text(len(\"雪😀é\"))\n",
+      "expected": "4",
+      "reject": false,
+      "function": "case_136"
+    },
+    {
+      "name": "unicode-slice-2",
+      "source": "fn main() -> Text:\n  text_slice(\"雪😀é\", 2, 2)\n",
+      "expected": "é",
+      "reject": false,
+      "function": "case_137"
+    },
+    {
+      "name": "unicode-trim-2",
+      "source": "fn main() -> Text:\n  text_trim(\"雪😀é\")\n",
+      "expected": "雪😀é",
+      "reject": false,
+      "function": "case_138"
+    },
+    {
+      "name": "unicode-replace-2-0",
+      "source": "fn main() -> Text:\n  text_replace(\"雪😀é\", \"\", \"X😀\")\n",
+      "expected": "X😀雪X😀😀X😀eX😀́X😀",
+      "reject": false,
+      "function": "case_139"
+    },
+    {
+      "name": "unicode-replace-2-1",
+      "source": "fn main() -> Text:\n  text_replace(\"雪😀é\", \"a\", \"X😀\")\n",
+      "expected": "雪😀é",
+      "reject": false,
+      "function": "case_140"
+    },
+    {
+      "name": "unicode-replace-2-2",
+      "source": "fn main() -> Text:\n  text_replace(\"雪😀é\", \"雪\", \"X😀\")\n",
+      "expected": "X😀😀é",
+      "reject": false,
+      "function": "case_141"
+    },
+    {
+      "name": "unicode-len-3",
+      "source": "fn main() -> Text:\n  int_text(len(\"𝄞Az\"))\n",
+      "expected": "4",
+      "reject": false,
+      "function": "case_142"
+    },
+    {
+      "name": "unicode-slice-3",
+      "source": "fn main() -> Text:\n  text_slice(\"𝄞Az\", 2, 2)\n",
+      "expected": "z",
+      "reject": false,
+      "function": "case_143"
+    },
+    {
+      "name": "unicode-trim-3",
+      "source": "fn main() -> Text:\n  text_trim(\"𝄞Az\")\n",
+      "expected": "𝄞Az",
+      "reject": false,
+      "function": "case_144"
+    },
+    {
+      "name": "unicode-replace-3-0",
+      "source": "fn main() -> Text:\n  text_replace(\"𝄞Az\", \"\", \"X😀\")\n",
+      "expected": "X😀𝄞X😀AX😀X😀zX😀",
+      "reject": false,
+      "function": "case_145"
+    },
+    {
+      "name": "unicode-replace-3-1",
+      "source": "fn main() -> Text:\n  text_replace(\"𝄞Az\", \"a\", \"X😀\")\n",
+      "expected": "𝄞Az",
+      "reject": false,
+      "function": "case_146"
+    },
+    {
+      "name": "unicode-replace-3-2",
+      "source": "fn main() -> Text:\n  text_replace(\"𝄞Az\", \"雪\", \"X😀\")\n",
+      "expected": "𝄞Az",
+      "reject": false,
+      "function": "case_147"
+    },
+    {
+      "name": "unicode-len-4",
+      "source": "fn main() -> Text:\n  int_text(len(\"a雪b😀\"))\n",
+      "expected": "4",
+      "reject": false,
+      "function": "case_148"
+    },
+    {
+      "name": "unicode-slice-4",
+      "source": "fn main() -> Text:\n  text_slice(\"a雪b😀\", 2, 2)\n",
+      "expected": "b😀",
+      "reject": false,
+      "function": "case_149"
+    },
+    {
+      "name": "unicode-trim-4",
+      "source": "fn main() -> Text:\n  text_trim(\"a雪b😀\")\n",
+      "expected": "a雪b😀",
+      "reject": false,
+      "function": "case_150"
+    },
+    {
+      "name": "unicode-replace-4-0",
+      "source": "fn main() -> Text:\n  text_replace(\"a雪b😀\", \"\", \"X😀\")\n",
+      "expected": "X😀aX😀雪X😀bX😀😀X😀",
+      "reject": false,
+      "function": "case_151"
+    },
+    {
+      "name": "unicode-replace-4-1",
+      "source": "fn main() -> Text:\n  text_replace(\"a雪b😀\", \"a\", \"X😀\")\n",
+      "expected": "X😀雪b😀",
+      "reject": false,
+      "function": "case_152"
+    },
+    {
+      "name": "unicode-replace-4-2",
+      "source": "fn main() -> Text:\n  text_replace(\"a雪b😀\", \"雪\", \"X😀\")\n",
+      "expected": "aX😀b😀",
+      "reject": false,
+      "function": "case_153"
+    },
+    {
+      "name": "unicode-len-5",
+      "source": "fn main() -> Text:\n  int_text(len(\"  hello 　\"))\n",
+      "expected": "10",
+      "reject": false,
+      "function": "case_154"
+    },
+    {
+      "name": "unicode-slice-5",
+      "source": "fn main() -> Text:\n  text_slice(\"  hello 　\", 5, 5)\n",
+      "expected": "llo 　",
+      "reject": false,
+      "function": "case_155"
+    },
+    {
+      "name": "unicode-trim-5",
+      "source": "fn main() -> Text:\n  text_trim(\"  hello 　\")\n",
+      "expected": "hello",
+      "reject": false,
+      "function": "case_156"
+    },
+    {
+      "name": "unicode-replace-5-0",
+      "source": "fn main() -> Text:\n  text_replace(\"  hello 　\", \"\", \"X😀\")\n",
+      "expected": "X😀 X😀X😀 X😀hX😀eX😀lX😀lX😀oX😀 X😀　X😀",
+      "reject": false,
+      "function": "case_157"
+    },
+    {
+      "name": "unicode-replace-5-1",
+      "source": "fn main() -> Text:\n  text_replace(\"  hello 　\", \"a\", \"X😀\")\n",
+      "expected": "  hello 　",
+      "reject": false,
+      "function": "case_158"
+    },
+    {
+      "name": "unicode-replace-5-2",
+      "source": "fn main() -> Text:\n  text_replace(\"  hello 　\", \"雪\", \"X😀\")\n",
+      "expected": "  hello 　",
+      "reject": false,
+      "function": "case_159"
+    },
+    {
+      "name": "unicode-len-6",
+      "source": "fn main() -> Text:\n  int_text(len(\"<script>& literal\"))\n",
+      "expected": "17",
+      "reject": false,
+      "function": "case_160"
+    },
+    {
+      "name": "unicode-slice-6",
+      "source": "fn main() -> Text:\n  text_slice(\"<script>& literal\", 8, 9)\n",
+      "expected": "& literal",
+      "reject": false,
+      "function": "case_161"
+    },
+    {
+      "name": "unicode-trim-6",
+      "source": "fn main() -> Text:\n  text_trim(\"<script>& literal\")\n",
+      "expected": "<script>& literal",
+      "reject": false,
+      "function": "case_162"
+    },
+    {
+      "name": "unicode-replace-6-0",
+      "source": "fn main() -> Text:\n  text_replace(\"<script>& literal\", \"\", \"X😀\")\n",
+      "expected": "X😀<X😀sX😀cX😀rX😀iX😀pX😀tX😀>X😀&X😀 X😀lX😀iX😀tX😀eX😀rX😀aX😀lX😀",
+      "reject": false,
+      "function": "case_163"
+    },
+    {
+      "name": "unicode-replace-6-1",
+      "source": "fn main() -> Text:\n  text_replace(\"<script>& literal\", \"a\", \"X😀\")\n",
+      "expected": "<script>& literX😀l",
+      "reject": false,
+      "function": "case_164"
+    },
+    {
+      "name": "unicode-replace-6-2",
+      "source": "fn main() -> Text:\n  text_replace(\"<script>& literal\", \"雪\", \"X😀\")\n",
+      "expected": "<script>& literal",
+      "reject": false,
+      "function": "case_165"
+    },
+    {
+      "name": "unicode-order-astral-vs-bmp",
+      "source": "fn main() -> Bool:\n  \"😀\" > \"\"\n",
+      "expected": "true",
+      "reject": false,
+      "function": "case_166"
+    },
+    {
+      "name": "list-get-negative",
+      "source": "fn main() -> Text:\n  match list_get([31, 7], -1):\n    Some(v) => int_text(v)\n    None => \"absent\"\n",
+      "expected": "absent",
+      "reject": false,
+      "function": "case_167"
+    },
+    {
+      "name": "list-reverse-slice",
+      "source": "fn main() -> Text:\n  let values = for x in list_slice(list_reverse([31, 7, -2, 90]), 1, 2):\n    int_text(x)\n  join_text(values, \":\")\n",
+      "expected": "-2:7",
+      "reject": false,
+      "function": "case_168"
+    },
+    {
+      "name": "typed-result-propagation",
+      "source": "enum AppError:\n  Rejected(reason: Text)\n\nfn fail() -> Result<Int, AppError>:\n  Err(Rejected(\"detail\"))\n\nfn relay() -> Result<Int, AppError>:\n  let value = fail()?\n  Ok(value + 1)\n\nfn main() -> Text:\n  match relay():\n    Ok(value) => int_text(value)\n    Err(error) => match error:\n      Rejected(reason) => \"rejected:\" + reason\n",
+      "expected": "rejected:detail",
+      "reject": false,
+      "function": "case_169"
+    },
+    {
+      "name": "runtime-reject-0",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_add(decimal_units(9223372036854775807), decimal_units(1)))\n",
+      "expected": null,
+      "reject": true,
+      "function": "probe_170"
+    },
+    {
+      "name": "runtime-reject-1",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_divide(decimal_units(1), decimal_units(0), \"half_even\"))\n",
+      "expected": null,
+      "reject": true,
+      "function": "probe_171"
+    },
+    {
+      "name": "runtime-reject-2",
+      "source": "fn main() -> Text:\n  decimal_text(decimal_multiply(decimal_units(1), decimal_units(2), \"random\"))\n",
+      "expected": null,
+      "reject": true,
+      "function": "probe_172"
+    },
+    {
+      "name": "runtime-reject-3",
+      "source": "fn main() -> Text:\n  int_text(time_millis(timestamp_add(timestamp(9223372036854775807), duration(1))))\n",
+      "expected": null,
+      "reject": true,
+      "function": "probe_173"
+    },
+    {
+      "name": "runtime-reject-4",
+      "source": "fn main() -> Text:\n  text_slice(\"😀\", 1, 1)\n",
+      "expected": null,
+      "reject": true,
+      "function": "probe_174"
+    },
+    {
+      "name": "runtime-reject-5",
+      "source": "fn main() -> Text:\n  text_slice(\"abc\", -1, 1)\n",
+      "expected": null,
+      "reject": true,
+      "function": "probe_175"
+    },
+    {
+      "name": "runtime-reject-6",
+      "source": "fn main() -> Text:\n  int_text(duration_millis(timestamp_diff(timestamp(9223372036854775807), timestamp(-1))))\n",
+      "expected": null,
+      "reject": true,
+      "function": "probe_176"
+    },
+    {
+      "name": "legacy-data-error-text",
+      "source": "fn failure_text() -> Result<Int, DataError>:\n  Err(\"safe detail\")\n\nfn main() -> Text:\n  match failure_text():\n    Ok(number) => int_text(number)\n    Err(error) => error_message(error)\n",
+      "expected": "safe detail",
+      "reject": false,
+      "function": "case_177"
+    },
+    {
+      "name": "legacy-data-error-argument",
+      "source": "fn describe_data_result(value: Result<Int, DataError>) -> Text:\n  match value:\n    Ok(number) => int_text(number)\n    Err(error) => error_message(error)\n\nfn main() -> Text:\n  describe_data_result(Err(\"argument detail\"))\n",
+      "expected": "argument detail",
+      "reject": false,
+      "function": "case_178"
+    },
+    {
+      "name": "legacy-data-error-try",
+      "source": "fn failure_for_try() -> Result<Int, DataError>:\n  Err(\"propagated detail\")\n\nfn relay_data_result() -> Result<Int, DataError>:\n  let number = failure_for_try()?\n  Ok(number + 1)\n\nfn main() -> Text:\n  match relay_data_result():\n    Ok(number) => int_text(number)\n    Err(error) => error_message(error)\n",
+      "expected": "propagated detail",
+      "reject": false,
+      "function": "case_179"
+    },
+    {
+      "name": "text-limit-shrink-ascii",
+      "source": "fn main() -> Text:\n  let text_0 = \"a\"\n  let text_1 = text_0 + text_0\n  let text_2 = text_1 + text_1\n  let text_3 = text_2 + text_2\n  let text_4 = text_3 + text_3\n  let text_5 = text_4 + text_4\n  let text_6 = text_5 + text_5\n  let text_7 = text_6 + text_6\n  let text_8 = text_7 + text_7\n  let text_9 = text_8 + text_8\n  let text_10 = text_9 + text_9\n  let text_11 = text_10 + text_10\n  let text_12 = text_11 + text_11\n  let text_13 = text_12 + text_12\n  let text_14 = text_13 + text_13\n  let text_15 = text_14 + text_14\n  let text_16 = text_15 + text_15\n  let text_17 = text_16 + text_16\n  let text_18 = text_17 + text_17\n  let text_19 = text_18 + text_18\n  let text_20 = text_19 + text_19\n  int_text(len(text_replace(text_20, \"aa\", \"b\")))\n",
+      "expected": "524288",
+      "reject": false,
+      "function": "case_180"
+    },
+    {
+      "name": "text-limit-same-size-ascii",
+      "source": "fn main() -> Text:\n  let text_0 = \"a\"\n  let text_1 = text_0 + text_0\n  let text_2 = text_1 + text_1\n  let text_3 = text_2 + text_2\n  let text_4 = text_3 + text_3\n  let text_5 = text_4 + text_4\n  let text_6 = text_5 + text_5\n  let text_7 = text_6 + text_6\n  let text_8 = text_7 + text_7\n  let text_9 = text_8 + text_8\n  let text_10 = text_9 + text_9\n  let text_11 = text_10 + text_10\n  let text_12 = text_11 + text_11\n  let text_13 = text_12 + text_12\n  let text_14 = text_13 + text_13\n  let text_15 = text_14 + text_14\n  let text_16 = text_15 + text_15\n  let text_17 = text_16 + text_16\n  let text_18 = text_17 + text_17\n  let text_19 = text_18 + text_18\n  let text_20 = text_19 + text_19\n  int_text(len(text_replace(text_20, \"a\", \"b\")))\n",
+      "expected": "1048576",
+      "reject": false,
+      "function": "case_181"
+    },
+    {
+      "name": "text-limit-delete-ascii",
+      "source": "fn main() -> Text:\n  let text_0 = \"a\"\n  let text_1 = text_0 + text_0\n  let text_2 = text_1 + text_1\n  let text_3 = text_2 + text_2\n  let text_4 = text_3 + text_3\n  let text_5 = text_4 + text_4\n  let text_6 = text_5 + text_5\n  let text_7 = text_6 + text_6\n  let text_8 = text_7 + text_7\n  let text_9 = text_8 + text_8\n  let text_10 = text_9 + text_9\n  let text_11 = text_10 + text_10\n  let text_12 = text_11 + text_11\n  let text_13 = text_12 + text_12\n  let text_14 = text_13 + text_13\n  let text_15 = text_14 + text_14\n  let text_16 = text_15 + text_15\n  let text_17 = text_16 + text_16\n  let text_18 = text_17 + text_17\n  let text_19 = text_18 + text_18\n  let text_20 = text_19 + text_19\n  int_text(len(text_replace(text_20, \"a\", \"\")))\n",
+      "expected": "0",
+      "reject": false,
+      "function": "case_182"
+    },
+    {
+      "name": "text-limit-shrink-unicode",
+      "source": "fn main() -> Text:\n  let text_0 = \"😀\"\n  let text_1 = text_0 + text_0\n  let text_2 = text_1 + text_1\n  let text_3 = text_2 + text_2\n  let text_4 = text_3 + text_3\n  let text_5 = text_4 + text_4\n  let text_6 = text_5 + text_5\n  let text_7 = text_6 + text_6\n  let text_8 = text_7 + text_7\n  let text_9 = text_8 + text_8\n  let text_10 = text_9 + text_9\n  let text_11 = text_10 + text_10\n  let text_12 = text_11 + text_11\n  let text_13 = text_12 + text_12\n  let text_14 = text_13 + text_13\n  let text_15 = text_14 + text_14\n  let text_16 = text_15 + text_15\n  let text_17 = text_16 + text_16\n  let text_18 = text_17 + text_17\n  int_text(len(text_replace(text_18, \"😀😀\", \"雪\")))\n",
+      "expected": "131072",
+      "reject": false,
+      "function": "case_183"
+    },
+    {
+      "name": "text-limit-expand-rejected",
+      "source": "fn main() -> Text:\n  let text_0 = \"a\"\n  let text_1 = text_0 + text_0\n  let text_2 = text_1 + text_1\n  let text_3 = text_2 + text_2\n  let text_4 = text_3 + text_3\n  let text_5 = text_4 + text_4\n  let text_6 = text_5 + text_5\n  let text_7 = text_6 + text_6\n  let text_8 = text_7 + text_7\n  let text_9 = text_8 + text_8\n  let text_10 = text_9 + text_9\n  let text_11 = text_10 + text_10\n  let text_12 = text_11 + text_11\n  let text_13 = text_12 + text_12\n  let text_14 = text_13 + text_13\n  let text_15 = text_14 + text_14\n  let text_16 = text_15 + text_15\n  let text_17 = text_16 + text_16\n  let text_18 = text_17 + text_17\n  let text_19 = text_18 + text_18\n  let text_20 = text_19 + text_19\n  int_text(len(text_replace(text_20, \"a\", \"bb\")))\n",
+      "expected": null,
+      "reject": true,
+      "function": "probe_184"
+    },
+    {
+      "name": "option-some",
+      "expression": "option_text(Some(9007199254740993))",
+      "expected": "some:9007199254740993",
+      "reject": false
+    },
+    {
+      "name": "option-none",
+      "expression": "option_text(None)",
+      "expected": "none",
+      "reject": false
+    },
+    {
+      "name": "enum-payload",
+      "expression": "phase_text(Assigned(\"owner 雪\", 41))",
+      "expected": "owner 雪:41",
+      "reject": false
+    },
+    {
+      "name": "enum-unit",
+      "expression": "phase_text(Waiting)",
+      "expected": "waiting",
+      "reject": false
+    },
+    {
+      "name": "nominal-id",
+      "expression": "id_text(CorpusKey(\"independent-17_x\"))",
+      "expected": "independent-17_x",
+      "reject": false
+    },
+    {
+      "name": "record-defaults",
+      "expression": "default_record_text()",
+      "expected": "default <text>:17",
+      "reject": false
+    },
+    {
+      "name": "record-override-default",
+      "expression": "overridden_record_text()",
+      "expected": "custom 雪:17",
+      "reject": false
+    }
+  ]
+}

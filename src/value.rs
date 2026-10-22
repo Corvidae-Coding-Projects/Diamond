@@ -5,9 +5,12 @@ use std::fmt;
 
 use crate::error::{Error, Result};
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(serde::Serialize, Clone, Debug, PartialEq, Eq)]
 pub(crate) enum Type {
     Int,
+    Decimal,
+    Timestamp,
+    Duration,
     Bool,
     Text,
     BoundedText(usize, usize),
@@ -21,6 +24,8 @@ pub(crate) enum Type {
     List(Box<Self>),
     DataError,
     Result(Box<Self>),
+    AppResult(Box<Self>, Box<Self>),
+    Success(Box<Self>),
     Option(Box<Self>),
     Never,
 }
@@ -35,7 +40,9 @@ impl Type {
             || matches!(other, Self::Never)
             || matches!((self, other), (Self::Text, Self::BoundedText(_, _)))
             || match (self, other) {
-                (Self::Result(a), Self::Result(b))
+                (Self::AppResult(a, e), Self::AppResult(b, f)) => a.accepts(b) && e.accepts(f),
+                (Self::AppResult(a, _) | Self::Result(a) | Self::Success(a), Self::Success(b))
+                | (Self::Result(a), Self::Result(b))
                 | (Self::Option(a), Self::Option(b))
                 | (Self::List(a), Self::List(b)) => a.accepts(b),
                 _ => false,
@@ -47,6 +54,11 @@ impl fmt::Display for Type {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Int => f.write_str("Int"),
+            Self::Decimal => f.write_str("Decimal"),
+            Self::Timestamp => f.write_str("Timestamp"),
+            Self::Duration => f.write_str("Duration"),
+            Self::AppResult(a, e) => write!(f, "Result<{a}, {e}>"),
+            Self::Success(a) => write!(f, "Result<{a}, inferred error>"),
             Self::Bool => f.write_str("Bool"),
             Self::Text => f.write_str("Text"),
             Self::BoundedText(a, b) => write!(f, "Text<length: {a}..{b}>"),
@@ -78,6 +90,9 @@ pub struct Value(pub(crate) ValueKind);
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) enum ValueKind {
     Int(i64),
+    Decimal(i64),
+    Timestamp(i64),
+    Duration(i64),
     Bool(bool),
     Text(String),
     Unit,
@@ -90,6 +105,7 @@ pub(crate) enum ValueKind {
     List(Vec<Value>),
     DataError(Failure),
     Ok(Box<Value>),
+    AppErr(Box<Value>),
     Err(Failure),
     Some(Box<Value>),
     None,
@@ -230,11 +246,19 @@ fn value_weight(value: &Value, depth: usize, total: &mut usize) -> Result<()> {
                 value_weight(value, depth + 1, total)?;
             }
         }
-        ValueKind::Ok(value) | ValueKind::Some(value) => value_weight(value, depth + 1, total)?,
+        ValueKind::AppErr(value) | ValueKind::Ok(value) | ValueKind::Some(value) => {
+            value_weight(value, depth + 1, total)?;
+        }
         ValueKind::DataError(failure) | ValueKind::Err(failure) => {
             *total = total.saturating_add(failure_weight(failure));
         }
-        ValueKind::Int(_) | ValueKind::Bool(_) | ValueKind::Unit | ValueKind::None => {}
+        ValueKind::Decimal(_)
+        | ValueKind::Timestamp(_)
+        | ValueKind::Duration(_)
+        | ValueKind::Int(_)
+        | ValueKind::Bool(_)
+        | ValueKind::Unit
+        | ValueKind::None => {}
     }
     ValueBudget::check_weight(*total)
 }
@@ -255,6 +279,7 @@ impl Value {
         match self.0 {
             ValueKind::Ok(value) => Ok(*value),
             ValueKind::Err(failure) => Err(failure.into_error()),
+            ValueKind::AppErr(value) => Err(Error::Application(*value)),
             _ => Ok(self),
         }
     }
@@ -294,7 +319,10 @@ impl Value {
 
     pub(crate) fn fits(&self, ty: &Type) -> bool {
         match (&self.0, ty) {
-            (ValueKind::Int(_), Type::Int)
+            (ValueKind::Decimal(_), Type::Decimal)
+            | (ValueKind::Timestamp(_), Type::Timestamp)
+            | (ValueKind::Duration(_), Type::Duration)
+            | (ValueKind::Int(_), Type::Int)
             | (ValueKind::Bool(_), Type::Bool)
             | (ValueKind::Text(_), Type::Text)
             | (ValueKind::Unit, Type::Unit)
@@ -320,6 +348,10 @@ impl Value {
             | (ValueKind::Variant(tag, _, _), Type::Enum(expected)) => tag == expected,
             (ValueKind::List(values), Type::List(inner)) => {
                 values.iter().all(|value| value.fits(inner))
+            }
+            (ValueKind::AppErr(value), Type::AppResult(_, error)) => value.fits(error),
+            (ValueKind::Ok(value), Type::AppResult(inner, _) | Type::Success(inner)) => {
+                value.fits(inner)
             }
             (ValueKind::Some(value), Type::Option(inner))
             | (ValueKind::Ok(value), Type::Result(inner)) => value.fits(inner),

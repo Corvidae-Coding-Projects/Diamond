@@ -19,6 +19,7 @@ mod lexer;
 mod parser;
 mod policy;
 mod project;
+mod standard;
 mod syntax;
 mod template;
 mod value;

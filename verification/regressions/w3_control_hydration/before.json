@@ -1,0 +1,15 @@
+{
+  "binary_sha256": "7b54853ba48a047ae86bafba01a0d9761847986c8dfb1d5bd54ecaac9fa5f38c",
+  "contract": "c5f6f631836166226c2b0dc81fdd8d9a80636ecdb3fa7005b5893d01dc5f93e3",
+  "interface": "actual user-opened Chrome tab 2141263527",
+  "expected": "SSR tracker hydrates with empty native credential controls",
+  "observed": {
+    "ready": "false",
+    "error": "Application version or initial content changed. Reload this page.",
+    "server_username_value_attribute": "",
+    "browser_username_value_attribute": null,
+    "server_password_value_attribute": "",
+    "browser_password_value_attribute": null
+  },
+  "note": "The actual HTTP HTML contained value=\"\"; the observed Chrome DOM lacked those empty attributes. This would fail attribute matching. The same tracker also had a separate adjacent-text-node mismatch, retained under w3_text_nodes."
+}

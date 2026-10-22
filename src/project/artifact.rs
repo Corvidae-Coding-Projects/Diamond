@@ -5,6 +5,7 @@ use crate::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::collections::BTreeMap;
+use std::fmt::Write as _;
 use std::fs::{self, OpenOptions};
 use std::io::{Read, Write};
 use std::path::Path;
@@ -44,12 +45,22 @@ struct ModuleContract<'a> {
 }
 
 pub(super) fn files(project: &CheckedProject) -> Result<BTreeMap<String, String>> {
-    let js = super::browser::emit(&project.browser, &contract_id(project)?)?;
+    let mut js = super::browser::emit(&project.browser, &contract_id(project)?)?;
+    let source_map = super::browser::source_map(project, &js)?;
+    let map_asset = format!("assets/{}.js.map", hash(source_map.as_bytes()));
+    write!(js, "\n//# sourceMappingURL=/{map_asset}\n").map_err(|_| input("browser formatting"))?;
     let asset = format!("assets/{}.js", hash(js.as_bytes()));
-    let page = format!(
-        "<!doctype html>\n<html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>{}</title></head><body><div id=\"diamond-app\"></div><p id=\"diamond-error\" role=\"alert\" hidden></p><script type=\"module\" src=\"/{asset}\"></script></body></html>\n",
-        crate::template::escape(&project.manifest.name)
-    );
+    let (static_files, style) = super::assets::files(project)?;
+    let mut pages = BTreeMap::new();
+    for route in &project.browser.routes {
+        let content = project.render_page(route)?;
+        let page = format!(
+            "<!doctype html>\n<html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>{}</title><link rel=\"stylesheet\" href=\"/{style}\"></head><body><div id=\"diamond-app\" data-contract=\"{}\">{content}</div><p id=\"diamond-error\" role=\"alert\" hidden></p><script type=\"module\" src=\"/{asset}\"></script></body></html>\n",
+            crate::template::escape(&project.manifest.name),
+            contract_id(project)?
+        );
+        pages.insert(page_key(route), page);
+    }
     let server = ServerArtifact {
         format_version: FORMAT_VERSION,
         language_version: env!("CARGO_PKG_VERSION").into(),
@@ -61,9 +72,11 @@ pub(super) fn files(project: &CheckedProject) -> Result<BTreeMap<String, String>
         + "\n";
     let mut files = BTreeMap::from([
         ("server.json".into(), encoded),
-        ("index.html".into(), page),
         (asset, js),
+        (map_asset, source_map),
     ]);
+    files.extend(static_files);
+    files.extend(pages);
     let inputs = serde_json::to_vec(&(&project.manifest_source, &project.sources))
         .map_err(|_| input("input hashing failed"))?;
     let contract = Contract {
@@ -94,7 +107,7 @@ pub(super) fn files(project: &CheckedProject) -> Result<BTreeMap<String, String>
             .collect(),
         rpc: super::rpc::contracts(&project.rpc, &project.server),
         rpc_id: contract_id(project)?,
-        wire_version: 1,
+        wire_version: 2,
     };
     files.insert(
         "contract.json".into(),
@@ -221,4 +234,28 @@ pub(super) fn hash(bytes: &[u8]) -> String {
         output.push(char::from(alphabet[usize::from(byte & 15)]));
     }
     output
+}
+
+pub(super) fn page_key(path: &str) -> String {
+    if path == "/" {
+        "index.html".into()
+    } else {
+        format!("pages/{}.html", hash(path.as_bytes()))
+    }
+}
+pub(super) fn content_type(path: &str) -> &'static str {
+    match Path::new(path)
+        .extension()
+        .and_then(|e| e.to_str())
+        .unwrap_or_default()
+        .to_ascii_lowercase()
+        .as_str()
+    {
+        "html" => "text/html; charset=utf-8",
+        "css" => "text/css; charset=utf-8",
+        "svg" => "image/svg+xml",
+        "map" => "application/json; charset=utf-8",
+        "js" => "text/javascript; charset=utf-8",
+        _ => "text/plain; charset=utf-8",
+    }
 }

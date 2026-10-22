@@ -1,13 +1,16 @@
 # Diamond
 
-Diamond 0.8.0 is a language prototype implemented in Rust. Its existing
+Diamond 0.9.0 is a language prototype implemented in Rust. Its existing
 single-file interpreter connects checked evaluation, policies, SQLite, forms,
 typed HTML, local accounts, and sessions. The W1 expansion adds multi-file
 projects, checked server/browser boundaries, a first reactive component compiled
 to JavaScript, explicit PostgreSQL host operations, versioned artifacts, and a
 concurrent loopback project server. W2 connects explicit generated RPC, shared
 PostgreSQL accounts/sessions, policy-enforced CRUD, and a Diamond workspace
-tracker across two application processes. See the [connected application guide](docs/connected-apps.md).
+tracker across two application processes. W3 adds typed components and shared values,
+keyed updates, forms, routes, server rendering/hydration, CSS/assets, source maps,
+and checked decimal/time/text/list utilities. See the [reactive app guide](docs/reactive-apps.md)
+and [connected application guide](docs/connected-apps.md).
 
 Checkpoint six completes the accepted MVP passes with source-span diagnostics,
 parser edge handling, a checked installation and startup path, focused guides,
@@ -18,8 +21,8 @@ guarantees or production readiness.
 The next phase is described in the [general web application expansion plan](.design/general-web-apps.md).
 It targets a reactive frontend written in Diamond, PostgreSQL and multiple
 application servers, shared identity and permissions, typed APIs, uploads,
-external integrations, and durable jobs. W1 and W2 are complete within their
-documented development profiles; W3–W10 remain planned. Full frontend semantics,
+external integrations, and durable jobs. W1–W3 are complete within their
+documented development profiles; W4–W10 remain planned.
 relational query planning/migrations, the full account lifecycle, production
 deployment and other later capabilities are not implied.
 
@@ -238,9 +241,9 @@ repository policies independently enforce all mutations.
 
 The following storage, account and transport limits describe the single-file
 SQLite compatibility profile. The [W1 project guide](docs/projects.md) and
-[W2 connected guide](docs/connected-apps.md) state the separate project profiles.
+[W2 connected guide](docs/connected-apps.md) and [W3 frontend guide](docs/reactive-apps.md) state the separate project profiles.
 
-Generic enums, nested/or/literal patterns, general error-type parameters,
+Generic enums, nested/or/literal patterns, unrestricted error-type parameters,
 general closures/callbacks, general mutable variables, language-level
 concurrent tasks, generational GC, streams/WebSockets/uploads, general
 query syntax beyond the selection subset, joins/aggregates/bulk APIs, schema migrations, external networking,

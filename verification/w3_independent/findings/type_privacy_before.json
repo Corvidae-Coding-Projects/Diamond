@@ -1,0 +1,7 @@
+{
+  "binary_sha256": "7df79d679ea13c1ed027b563829f7f8b919f5ccc25d850629336cecc1f72a745",
+  "expected": "compile rejection of direct compiler-generated private type name",
+  "exit": 0,
+  "stdout": "project IndependentPrivateTypeProbe: 3 modules; server server; browser ui / App; capabilities {}\n",
+  "stderr": ""
+}

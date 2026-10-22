@@ -31,6 +31,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--binary", type=Path, default=ROOT / "target/debug/diamond")
     parser.add_argument("--report", type=Path, default=ROOT / "verification/web_two_independent_results.json")
+    parser.add_argument("--profile", choices=["w2", "w3"], default="w2", help="Explicit versioned signature expectations; does not relax authority checks.")
     options = parser.parse_args()
     root = Path(tempfile.mkdtemp(prefix="diamond-w2-independent-run-"))
     binary = root / "diamond"
@@ -52,7 +53,7 @@ def main():
             script = ROOT / f"verification/w2_independent/{name}.py"
             arguments = [str(fixture_root / "state.json")] if name == "http_cases" else []
             result = subprocess.run(["python3", str(script), *arguments], cwd=ROOT,
-                                    env=os.environ | {"DIAMOND_W2_BINARY": str(binary)},
+                                    env=os.environ | {"DIAMOND_W2_BINARY": str(binary), "DIAMOND_FRONTEND_PROFILE": options.profile},
                                     capture_output=True, text=True, timeout=180)
             if not result.stdout.strip():
                 raise AssertionError((name,result.returncode,result.stderr))
@@ -69,7 +70,7 @@ def main():
         error = repr(failure)
     finally:
         fixture.close()
-        receipt = {"status": "FAIL" if error else "PASS", "binary_sha256": digest,
+        receipt = {"profile": options.profile, "status": "FAIL" if error else "PASS", "binary_sha256": digest,
                    "error": error, "reports": reports, "driver_sha256": {
                        path.name: hashlib.sha256(path.read_bytes()).hexdigest()
                        for path in (ROOT / "verification/w2_independent").glob("*.py")},

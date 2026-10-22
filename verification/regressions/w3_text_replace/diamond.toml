@@ -1,0 +1,11 @@
+schema_version=1
+name="FrontendProbe"
+server="server"
+browser="ui"
+component="Probe"
+[modules.server]
+path="server.dia"
+target="server"
+[modules.ui]
+path="ui.dia"
+target="browser"

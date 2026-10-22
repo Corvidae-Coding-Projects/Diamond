@@ -1,0 +1,33 @@
+{
+  "binary_sha256": "f3b9b2382f07f73985cb7cdf637a0af8836e6feae61342654bbe87e159aeac7d",
+  "expected": {
+    "result_error_bridge": "check rejects incompatible declared errors before execution",
+    "text_replace_empty": "x"
+  },
+  "results": {
+    "result_error_bridge": {
+      "check": {
+        "exit": 0,
+        "stdout": "checked /tmp/diamond-w3-independent/result_error_bridge.dia: 3 functions, 0 records, 0 resources, 0 routes, 0 policies\n",
+        "stderr": ""
+      },
+      "run": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "error: execute main: invalid input: function result violates its declared type\n"
+      }
+    },
+    "text_replace_empty": {
+      "check": {
+        "exit": 0,
+        "stdout": "checked /tmp/diamond-w3-independent/text_replace_empty.dia: 1 functions, 0 records, 0 resources, 0 routes, 0 policies\n",
+        "stderr": ""
+      },
+      "run": {
+        "exit": 0,
+        "stdout": "x\n",
+        "stderr": ""
+      }
+    }
+  }
+}

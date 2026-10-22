@@ -80,10 +80,11 @@ impl Parser {
                     module.components.push(component);
                     name
                 }
-                "type" | "resource" | "policy" if !exported => {
+                "type" | "enum" | "resource" | "policy" => {
                     let declaration = match keyword.as_str() {
                         "type" => self.record_or_alias(location)?,
                         "policy" => Declaration::Policy(self.policy(location)?),
+                        "enum" => Declaration::Enum(self.enumeration(location)?),
                         _ => {
                             let resource = self.name()?;
                             self.symbol(":")?;
@@ -92,6 +93,22 @@ impl Parser {
                             Declaration::Resource(resource, record, location)
                         }
                     };
+                    let declared = match &declaration {
+                        Declaration::Alias(name, _, _) => Some(name.clone()),
+                        Declaration::Record(record) => Some(record.name.clone()),
+                        Declaration::Enum(enumeration) => Some(enumeration.name.clone()),
+                        _ => None,
+                    };
+                    if let Some(name) = declared {
+                        if !names.insert(name.clone()) {
+                            return Err(self.error("duplicate module declaration"));
+                        }
+                        if exported {
+                            module.exports.insert(name);
+                        }
+                    } else if exported {
+                        return Err(self.error("resources and policies are private"));
+                    }
                     module.program.declarations.push(declaration);
                     if module.program.declarations.len() > 4096 {
                         return Err(Error::Limit("module declarations"));
@@ -124,11 +141,27 @@ impl Parser {
     fn component(&mut self, location: Location) -> Result<crate::syntax::Component> {
         let mut component = crate::syntax::Component {
             name: self.name()?,
+            properties: Vec::new(),
+            derived: Vec::new(),
             states: Vec::new(),
             events: Vec::new(),
             template: Vec::new(),
             location,
         };
+        if self.is_symbol("(") {
+            self.take();
+            while !self.is_symbol(")") {
+                let name = self.name()?;
+                self.symbol(":")?;
+                let ty = self.ty(0)?;
+                component.properties.push((name, ty));
+                if !self.is_symbol(",") {
+                    break;
+                }
+                self.take();
+            }
+            self.symbol(")")?;
+        }
         self.block_start()?;
         let mut has_template = false;
         while !self.at(&Kind::Dedent) && !self.at(&Kind::End) {
@@ -140,18 +173,23 @@ impl Parser {
                 component.template = crate::template::parse_browser(&source, here)?;
                 has_template = true;
                 self.newline()?;
-            } else if self.is_name("state") {
+            } else if self.is_name("state") || self.is_name("derived") {
                 if !component.events.is_empty() {
                     return Err(self.error("state declarations precede event handlers"));
                 }
+                let derived = self.is_name("derived");
                 self.take();
                 let name = self.name()?;
                 self.symbol(":")?;
                 let ty = self.ty(0)?;
                 self.symbol("=")?;
                 let value = self.expr(0)?;
-                self.newline()?;
-                component.states.push((name, ty, value));
+                self.statement_end()?;
+                if derived {
+                    component.derived.push((name, ty, value));
+                } else {
+                    component.states.push((name, ty, value));
+                }
             } else if self.is_name("on") {
                 self.take();
                 let name = self.name()?;
@@ -161,7 +199,7 @@ impl Parser {
                     let state = self.name()?;
                     self.symbol("=")?;
                     assignments.push((state, self.expr(0)?));
-                    self.newline()?;
+                    self.statement_end()?;
                     if assignments.len() > 256 {
                         return Err(Error::Limit("event assignments"));
                     }
@@ -174,7 +212,9 @@ impl Parser {
             } else {
                 return Err(self.error("expected state, on event, or html in component"));
             }
-            if component.states.len() > 64 || component.events.len() > 64 {
+            if component.states.len() + component.derived.len() + component.properties.len() > 64
+                || component.events.len() > 64
+            {
                 return Err(Error::Limit("component state/events"));
             }
         }

@@ -1,0 +1,2693 @@
+{
+  "profile": "w3",
+  "status": "PASS",
+  "binary_sha256": "2adc6d9894d66c80c089245a678fa238cd1d0a3342b431bbacfb3f5f97abff45",
+  "error": null,
+  "reports": {
+    "http_cases": {
+      "state": "/tmp/diamond-w2-independent-run-xvklrjwa/fixture/state.json",
+      "root": "/tmp/diamond-w2-independent-http-r8pp6o8d",
+      "binary_sha256": "2adc6d9894d66c80c089245a678fa238cd1d0a3342b431bbacfb3f5f97abff45",
+      "seed": "0x22c0de",
+      "accounts": [
+        "iv2025749a",
+        "iv2025749b"
+      ],
+      "third_port": 41315,
+      "results": [
+        {
+          "case": "bootstrap iv2025749a",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": null,
+          "observed_value": {
+            "csrf": "[redacted]",
+            "user": null
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "login iv2025749a",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "iv2025749a"
+          },
+          "observed_value": {
+            "csrf": "[redacted]",
+            "value": "iv2025749a"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "bootstrap iv2025749b",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": null,
+          "observed_value": {
+            "csrf": "[redacted]",
+            "user": null
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "login iv2025749b",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "iv2025749b"
+          },
+          "observed_value": {
+            "csrf": "[redacted]",
+            "value": "iv2025749b"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "cookie mandatory flags",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": null,
+          "observed_value": "__Host-diamond_9cb2af498bc87f8d=f032235023c00bf0d6af37fd8c8fe8333d8a5f386cc156db0aa5563161d1e7e7; Path=/; Secure; HttpOnly; SameSite=Strict; Max-Age=1800",
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "rotated anonymous session cannot dispatch",
+          "expected_status": 403,
+          "observed_status": 403,
+          "expected_value": null,
+          "observed_value": {
+            "error": "denied"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "create Unicode/injection through B",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": null,
+          "observed_value": {
+            "value": "056a16c1edc19e5239927e8f2d80972f6f184a953418030ead1fca0f57069324"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "read exact Unicode through A",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "independent | 🦉 é 漢字 '); DROP TABLE diamond_w2.rows; -- <script>\n\\\"\nfrom B"
+          },
+          "observed_value": {
+            "value": "independent | 🦉 é 漢字 '); DROP TABLE diamond_w2.rows; -- <script>\n\\\"\nfrom B"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "DB independently derives owner",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": "iv2025749a",
+          "observed_value": "iv2025749a",
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "other user read_issue",
+          "expected_status": 403,
+          "observed_status": 403,
+          "expected_value": null,
+          "observed_value": {
+            "error": "denied"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "other user update_issue",
+          "expected_status": 403,
+          "observed_status": 403,
+          "expected_value": null,
+          "observed_value": {
+            "error": "denied"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "other user delete_issue",
+          "expected_status": 403,
+          "observed_status": 403,
+          "expected_value": null,
+          "observed_value": {
+            "error": "denied"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "anonymous session read_issue",
+          "expected_status": 403,
+          "observed_status": 403,
+          "expected_value": null,
+          "observed_value": {
+            "error": "denied"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "anonymous session update_issue",
+          "expected_status": 403,
+          "observed_status": 403,
+          "expected_value": null,
+          "observed_value": {
+            "error": "denied"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "anonymous session delete_issue",
+          "expected_status": 403,
+          "observed_status": 403,
+          "expected_value": null,
+          "observed_value": {
+            "error": "denied"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "no session read_issue",
+          "expected_status": 403,
+          "observed_status": 403,
+          "expected_value": null,
+          "observed_value": {
+            "error": "denied"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "no session update_issue",
+          "expected_status": 403,
+          "observed_status": 403,
+          "expected_value": null,
+          "observed_value": {
+            "error": "denied"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "no session delete_issue",
+          "expected_status": 403,
+          "observed_status": 403,
+          "expected_value": null,
+          "observed_value": {
+            "error": "denied"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "other user selection excludes row",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": ""
+          },
+          "observed_value": {
+            "value": ""
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "update owner through A",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "independent | updated\nsaved A"
+          },
+          "observed_value": {
+            "value": "independent | updated\nsaved A"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "fresh node B reads commit",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "independent | updated\nsaved A"
+          },
+          "observed_value": {
+            "value": "independent | updated\nsaved A"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "unknown envelope field owner",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "unknown envelope field user",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "unknown envelope field id",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "unknown envelope field wire_version",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "undeclared RPC private_probe",
+          "expected_status": 404,
+          "observed_status": 404,
+          "expected_value": null,
+          "observed_value": {
+            "error": "not_found"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "undeclared RPC main",
+          "expected_status": 404,
+          "observed_status": 404,
+          "expected_value": null,
+          "observed_value": {
+            "error": "not_found"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "undeclared RPC server.create_issue",
+          "expected_status": 404,
+          "observed_status": 404,
+          "expected_value": null,
+          "observed_value": {
+            "error": "not_found"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "undeclared RPC __diamond_server_create_issue",
+          "expected_status": 404,
+          "observed_status": 404,
+          "expected_value": null,
+          "observed_value": {
+            "error": "not_found"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "undeclared RPC not_declared",
+          "expected_status": 404,
+          "observed_status": 404,
+          "expected_value": null,
+          "observed_value": {
+            "error": "not_found"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "private/invalid path /server.json",
+          "expected_status": 404,
+          "observed_status": 404,
+          "expected_value": null,
+          "observed_value": {
+            "error": "not_found"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "private/invalid path /contract.json",
+          "expected_status": 404,
+          "observed_status": 404,
+          "expected_value": null,
+          "observed_value": {
+            "error": "not_found"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "private/invalid path /server.dia",
+          "expected_status": 404,
+          "observed_status": 404,
+          "expected_value": null,
+          "observed_value": {
+            "error": "not_found"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "private/invalid path /project/server.dia",
+          "expected_status": 404,
+          "observed_status": 404,
+          "expected_value": null,
+          "observed_value": {
+            "error": "not_found"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "private/invalid path /_diamond/rpc/create_issue?x=1",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_request"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "private/invalid path /%73erver.json",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_request"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "private/invalid path //server.json",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_request"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "connected HTML CSP allows same-origin fetch and keeps default deny",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": null,
+          "observed_value": {
+            "default-src": [
+              "'none'"
+            ],
+            "script-src": [
+              "'self'"
+            ],
+            "style-src": [
+              "'self'"
+            ],
+            "img-src": [
+              "'self'"
+            ],
+            "connect-src": [
+              "'self'"
+            ],
+            "base-uri": [
+              "'none'"
+            ],
+            "form-action": [
+              "'self'"
+            ],
+            "frame-ancestors": [
+              "'none'"
+            ]
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "private canary omitted from page and JS",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": null,
+          "observed_value": "<!doctype html>\n<html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>WorkspaceTracker</title><link rel=\"stylesheet\" href=\"/assets/af2640451387bf1383a7ff0a8b8bb79cf8e14e2e48287211b5a59a7f5cf69b46.css\"></head><body><div id=\"diamond-app\" data-contract=\"c5f6f631836166226c2b0dc81fdd8d9a80636ecdb3fa7005b5893d01dc5f93e3\"><diamond-component data-diamond-component=\"__diamond_component_2_ui_Tracker\" aria-busy=\"false\">    <main>\n      <header class=\"masthead\"><img src=\"/assets/5f295145c59d12fda9e777d4d864349e38b7c7dc03ce00cca00fc45033b3f534.svg\" alt=\"Diamond\" width=\"40\" height=\"40\"><div><p class=\"eyebrow\">DIAMOND · CONNECTED WORKSPACE</p><h1>Workspace tracker</h1></div></header>\n      <nav><a href=\"/\">Issues</a><a href=\"/about\">About</a></nav>\n      \n      \n      <section class=\"panel\">\n        <h2>Account</h2>\n        <p><label for=\"username\">Username</label><input id=\"username\" type=\"text\" value=\"\" maxlength=\"128\"></p>\n        <p><label for=\"password\">Password</label><input id=\"password\" type=\"password\" value=\"\" maxlength=\"256\"></p>\n        <button type=\"button\">Sign in</button>\n        <button type=\"button\">Current user</button>\n        <button type=\"button\">Sign out</button>\n        <p>Signed in: <strong id=\"signed-in\"></strong></p>\n      </section>\n      \n      <section class=\"panel\">\n        <h2>Issues</h2>\n        <p><label for=\"workspace\">Workspace</label><input id=\"workspace\" type=\"text\" value=\"team-one\" maxlength=\"64\"></p>\n        <form><p><label for=\"title\">Title</label><input id=\"title\" type=\"text\" value=\"\" required=\"\" minlength=\"1\" maxlength=\"120\"></p>\n        <p><label for=\"details\">Details</label><textarea id=\"details\" maxlength=\"4000\"></textarea></p>\n        <button type=\"submit\">Create issue</button></form><button type=\"button\">Check title</button><p id=\"title-status\">Check a title before creating an issue.</p>\n        <p><label for=\"selected\">Issue ID</label><input id=\"selected\" type=\"text\" value=\"\" maxlength=\"128\"></p>\n        <button type=\"button\">Read issue</button>\n        <button type=\"button\">Save changes</button>\n        <button type=\"button\">Delete issue</button>\n        <button type=\"button\">Refresh list</button>\n        <pre id=\"issue-output\">Sign in to create and manage your issues.</pre>\n        <h2>Your issues in this workspace</h2>\n        <pre id=\"issue-list\"></pre>\n        <div class=\"list-toolbar\"><p id=\"card-total\">0 issues</p><button type=\"button\">Reverse order</button><button type=\"button\">Show/hide cards</button></div>\n        \n      </section>\n      \n      \n    </main></diamond-component></div><p id=\"diamond-error\" role=\"alert\" hidden></p><script type=\"module\" src=\"/assets/293e0f5d487bc5f572804eeeb895e1b846bb1c6a5ad00e6e92d54bde5bef1f1a.js\"></script></body></html>\n<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"40\" height=\"40\" viewBox=\"0 0 40 40\"><path fill=\"#a9a3ff\" d=\"M20 2 38 20 20 38 2 20Z\"/><path fill=\"#292343\" d=\"m20 10 10 10-10 10-10-10Z\"/></svg>\n",
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "missing origin",
+          "expected_status": 403,
+          "observed_status": 403,
+          "expected_value": null,
+          "observed_value": {
+            "error": "origin"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "wrong origin",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_request"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "origin trailing slash",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_request"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "wrong Host",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_request"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "forwarded host",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_request"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "Forwarded",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_request"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "cross-site fetch",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_request"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "missing CSRF",
+          "expected_status": 403,
+          "observed_status": 403,
+          "expected_value": null,
+          "observed_value": {
+            "error": "denied"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "other session CSRF",
+          "expected_status": 403,
+          "observed_status": 403,
+          "expected_value": null,
+          "observed_value": {
+            "error": "denied"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "other cookie with owner CSRF",
+          "expected_status": 403,
+          "observed_status": 403,
+          "expected_value": null,
+          "observed_value": {
+            "error": "denied"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "duplicate cookie",
+          "expected_status": 403,
+          "observed_status": 403,
+          "expected_value": null,
+          "observed_value": {
+            "error": "denied"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "uppercase cookie",
+          "expected_status": 403,
+          "observed_status": 403,
+          "expected_value": null,
+          "observed_value": {
+            "error": "denied"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "unsupported media suffix",
+          "expected_status": 415,
+          "observed_status": 415,
+          "expected_value": null,
+          "observed_value": {
+            "error": "content_type"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "oversize body",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_request"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "wrong contract",
+          "expected_status": 409,
+          "observed_status": 409,
+          "expected_value": null,
+          "observed_value": {
+            "error": "contract_mismatch"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "invalid argument shape []",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "invalid argument shape ['x']",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "invalid argument shape ['x', 'y']",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "invalid argument shape ['x', 'y', 'z', 'extra']",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "invalid argument shape [True, 'y', 'z']",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "invalid argument shape ['x', 0, 'z']",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "invalid argument shape ['x', {}, 'z']",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "invalid argument shape ['x', ['y'], 'z']",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "invalid argument shape ['x', None, 'z']",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "declared text bound workspace 0",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "declared text bound workspace 65",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "declared text bound title 0",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "declared text bound title 121",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "declared text bound details 4001",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "maximum scalar lengths",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": null,
+          "observed_value": {
+            "value": "a39e278c9f0b3f190bf77d3845fa572b157998976496c23ed04721900ce8a0d7"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "maximum scalar lengths exact fresh read",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww | 🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉\ndddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+          },
+          "observed_value": {
+            "value": "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww | 🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉\ndddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "4000 astral details",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": null,
+          "observed_value": {
+            "value": "29b961e5a8023893c79dca35e12049bb56ce069130844338232b0db05c7ce9b5"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "4000 astral details exact fresh read",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "w | t\n🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉"
+          },
+          "observed_value": {
+            "value": "w | t\n🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "Int64 canonical -9223372036854775808",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "-9223372036854775808"
+          },
+          "observed_value": {
+            "value": "-9223372036854775808"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "Int64 canonical -1",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "-1"
+          },
+          "observed_value": {
+            "value": "-1"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "Int64 canonical 0",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "0"
+          },
+          "observed_value": {
+            "value": "0"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "Int64 canonical 1",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "1"
+          },
+          "observed_value": {
+            "value": "1"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "Int64 canonical 9223372036854775807",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "9223372036854775807"
+          },
+          "observed_value": {
+            "value": "9223372036854775807"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "Int64 canonical -6815759969911324577",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "-6815759969911324577"
+          },
+          "observed_value": {
+            "value": "-6815759969911324577"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "Int64 canonical 9036095381958983949",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "9036095381958983949"
+          },
+          "observed_value": {
+            "value": "9036095381958983949"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "Int64 canonical 8267383412859996059",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "8267383412859996059"
+          },
+          "observed_value": {
+            "value": "8267383412859996059"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "Int64 canonical 5478372009276537073",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "5478372009276537073"
+          },
+          "observed_value": {
+            "value": "5478372009276537073"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "Int64 canonical -5990827730377514081",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "-5990827730377514081"
+          },
+          "observed_value": {
+            "value": "-5990827730377514081"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "Int64 canonical 2874205389489765513",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "2874205389489765513"
+          },
+          "observed_value": {
+            "value": "2874205389489765513"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "Int64 canonical -5270190981030401573",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "-5270190981030401573"
+          },
+          "observed_value": {
+            "value": "-5270190981030401573"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "Int64 canonical -8326812587093449006",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "-8326812587093449006"
+          },
+          "observed_value": {
+            "value": "-8326812587093449006"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "Int64 canonical -7906223222004851812",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "-7906223222004851812"
+          },
+          "observed_value": {
+            "value": "-7906223222004851812"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "Int64 canonical 8052064025071625155",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "8052064025071625155"
+          },
+          "observed_value": {
+            "value": "8052064025071625155"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "Int64 canonical -6536426356829123015",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "-6536426356829123015"
+          },
+          "observed_value": {
+            "value": "-6536426356829123015"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "Int64 canonical -8390071940115788349",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "-8390071940115788349"
+          },
+          "observed_value": {
+            "value": "-8390071940115788349"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "Int64 canonical 3438029174481114437",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "3438029174481114437"
+          },
+          "observed_value": {
+            "value": "3438029174481114437"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "Int64 canonical -8060357574162991105",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "-8060357574162991105"
+          },
+          "observed_value": {
+            "value": "-8060357574162991105"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "Int64 canonical 3547862824516057859",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "3547862824516057859"
+          },
+          "observed_value": {
+            "value": "3547862824516057859"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "Int64 canonical -2182931516510399963",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "-2182931516510399963"
+          },
+          "observed_value": {
+            "value": "-2182931516510399963"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "Int64 canonical 4381510120192784701",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "4381510120192784701"
+          },
+          "observed_value": {
+            "value": "4381510120192784701"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "Int64 canonical 2639765111047324866",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "2639765111047324866"
+          },
+          "observed_value": {
+            "value": "2639765111047324866"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "Int64 canonical -6833398553259821622",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "-6833398553259821622"
+          },
+          "observed_value": {
+            "value": "-6833398553259821622"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "Int64 canonical -7524720609856611721",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "-7524720609856611721"
+          },
+          "observed_value": {
+            "value": "-7524720609856611721"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "Int64 canonical 4851091815000475476",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "4851091815000475476"
+          },
+          "observed_value": {
+            "value": "4851091815000475476"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "Int64 canonical -5484823274953668560",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "-5484823274953668560"
+          },
+          "observed_value": {
+            "value": "-5484823274953668560"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "Int64 canonical 6516479685866995015",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "6516479685866995015"
+          },
+          "observed_value": {
+            "value": "6516479685866995015"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "Int64 canonical 3263362357742064647",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "3263362357742064647"
+          },
+          "observed_value": {
+            "value": "3263362357742064647"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "Int64 canonical -2451133634617969663",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "-2451133634617969663"
+          },
+          "observed_value": {
+            "value": "-2451133634617969663"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "Int64 canonical 4824836177349458013",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "4824836177349458013"
+          },
+          "observed_value": {
+            "value": "4824836177349458013"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "Int64 canonical -124059548774098887",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "-124059548774098887"
+          },
+          "observed_value": {
+            "value": "-124059548774098887"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "Int64 canonical 8536850493397899015",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "8536850493397899015"
+          },
+          "observed_value": {
+            "value": "8536850493397899015"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "Int64 canonical -5830741929307707721",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "-5830741929307707721"
+          },
+          "observed_value": {
+            "value": "-5830741929307707721"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "Int64 canonical 6719817576186149249",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "6719817576186149249"
+          },
+          "observed_value": {
+            "value": "6719817576186149249"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "Int64 canonical 4784864347277160318",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "4784864347277160318"
+          },
+          "observed_value": {
+            "value": "4784864347277160318"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "Int64 canonical 7576982843905533848",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "7576982843905533848"
+          },
+          "observed_value": {
+            "value": "7576982843905533848"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "Int64 canonical -4220497106182839629",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "-4220497106182839629"
+          },
+          "observed_value": {
+            "value": "-4220497106182839629"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "Int64 canonical 7336031206126533990",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "7336031206126533990"
+          },
+          "observed_value": {
+            "value": "7336031206126533990"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "Int64 canonical 2217556692929589292",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "2217556692929589292"
+          },
+          "observed_value": {
+            "value": "2217556692929589292"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "Int64 rejects ''",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "Int64 rejects '+1'",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "Int64 rejects '01'",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "Int64 rejects '-0'",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "Int64 rejects '-01'",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "Int64 rejects ' 1'",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "Int64 rejects '1 '",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "Int64 rejects '1.0'",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "Int64 rejects '1e0'",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "Int64 rejects '9223372036854775808'",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "Int64 rejects '-9223372036854775809'",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "Int64 rejects '١'",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "Int64 rejects 0",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "Int64 rejects 1",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "Int64 rejects True",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "Int64 rejects None",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "Int64 rejects []",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "Int64 rejects {}",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "boolean False",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": false
+          },
+          "observed_value": {
+            "value": false
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "boolean True",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": true
+          },
+          "observed_value": {
+            "value": true
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "Bool rejects 'true'",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "Bool rejects 'false'",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "Bool rejects '0'",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "Bool rejects 0",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "Bool rejects 1",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "Bool rejects None",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "Bool rejects []",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "Bool rejects {}",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "JSON text exact ''",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": ""
+          },
+          "observed_value": {
+            "value": ""
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "JSON text exact \"🦉 é 漢字 '); DROP TABLE diamond_w2.r\"",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "🦉 é 漢字 '); DROP TABLE diamond_w2.rows; -- <script>\n\\\""
+          },
+          "observed_value": {
+            "value": "🦉 é 漢字 '); DROP TABLE diamond_w2.rows; -- <script>\n\\\""
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "JSON text exact '\\x00'",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "\u0000"
+          },
+          "observed_value": {
+            "value": "\u0000"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "JSON text exact '\\r\\n\\t'",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "\r\n\t"
+          },
+          "observed_value": {
+            "value": "\r\n\t"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "JSON text exact '🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉'",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉"
+          },
+          "observed_value": {
+            "value": "🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉🦉"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "valid bounded NUL text storage",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": null,
+          "observed_value": {
+            "value": "3fa54a44444671a3acece84d89b73ac2d70958fa8210bae318353ed3e1580b0e"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": false
+        },
+        {
+          "case": "NUL exact read",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "independent | nul-probe\n\u0000"
+          },
+          "observed_value": {
+            "value": "independent | nul-probe\n\u0000"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "stored text special workspace",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": null,
+          "observed_value": {
+            "value": "45d6bf8f95bff4f75c9f727947da88d83f21e98c992a18a2682ad6b2f90f2483"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "stored text exact workspace",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "\u0000 | t\nd"
+          },
+          "observed_value": {
+            "value": "\u0000 | t\nd"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "SQL raw JSON exact workspace",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": [
+            "\u0000",
+            "t",
+            "d"
+          ],
+          "observed_value": [
+            "\u0000",
+            "t",
+            "d"
+          ],
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "NUL-bearing update workspace",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "\u0000 | updated\u0000\nbody\u0000"
+          },
+          "observed_value": {
+            "value": "\u0000 | updated\u0000\nbody\u0000"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "NUL-bearing read after update workspace",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "\u0000 | updated\u0000\nbody\u0000"
+          },
+          "observed_value": {
+            "value": "\u0000 | updated\u0000\nbody\u0000"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "NUL-bearing delete workspace",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "Issue deleted."
+          },
+          "observed_value": {
+            "value": "Issue deleted."
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "NUL-bearing delete SQL absence workspace",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": false,
+          "observed_value": false,
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "stored text special title",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": null,
+          "observed_value": {
+            "value": "daeffada97704700b74f172ae0218ce2902c39668f7c6426950f9953a30054cf"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "stored text exact title",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "nul-workspace | \u0000\nd"
+          },
+          "observed_value": {
+            "value": "nul-workspace | \u0000\nd"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "SQL raw JSON exact title",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": [
+            "nul-workspace",
+            "\u0000",
+            "d"
+          ],
+          "observed_value": [
+            "nul-workspace",
+            "\u0000",
+            "d"
+          ],
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "NUL list exact",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "daeffada97704700b74f172ae0218ce2902c39668f7c6426950f9953a30054cf | \u0000"
+          },
+          "observed_value": {
+            "value": "daeffada97704700b74f172ae0218ce2902c39668f7c6426950f9953a30054cf | \u0000"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "NUL-bearing update title",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "nul-workspace | updated\u0000\nbody\u0000"
+          },
+          "observed_value": {
+            "value": "nul-workspace | updated\u0000\nbody\u0000"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "NUL-bearing read after update title",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "nul-workspace | updated\u0000\nbody\u0000"
+          },
+          "observed_value": {
+            "value": "nul-workspace | updated\u0000\nbody\u0000"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "NUL-bearing delete title",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "Issue deleted."
+          },
+          "observed_value": {
+            "value": "Issue deleted."
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "NUL-bearing delete SQL absence title",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": false,
+          "observed_value": false,
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "stored text special details",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": null,
+          "observed_value": {
+            "value": "72cb9d7afbea8193eac4fb2ee449db9bcc0c84a4440b9cabbafa08978083bbf1"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "stored text exact details",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "nul-workspace | t\n\u0000"
+          },
+          "observed_value": {
+            "value": "nul-workspace | t\n\u0000"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "SQL raw JSON exact details",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": [
+            "nul-workspace",
+            "t",
+            "\u0000"
+          ],
+          "observed_value": [
+            "nul-workspace",
+            "t",
+            "\u0000"
+          ],
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "NUL-bearing update details",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "nul-workspace | updated\u0000\nbody\u0000"
+          },
+          "observed_value": {
+            "value": "nul-workspace | updated\u0000\nbody\u0000"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "NUL-bearing read after update details",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "nul-workspace | updated\u0000\nbody\u0000"
+          },
+          "observed_value": {
+            "value": "nul-workspace | updated\u0000\nbody\u0000"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "NUL-bearing delete details",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "Issue deleted."
+          },
+          "observed_value": {
+            "value": "Issue deleted."
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "NUL-bearing delete SQL absence details",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": false,
+          "observed_value": false,
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "stored text special literal escape",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": null,
+          "observed_value": {
+            "value": "697497417d0d4520d3a93f44314905833aeb7061964151b5f99eff68997f16ae"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "stored text exact literal escape",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "nul-workspace | literal\n\\u0000"
+          },
+          "observed_value": {
+            "value": "nul-workspace | literal\n\\u0000"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "SQL raw JSON exact literal escape",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": [
+            "nul-workspace",
+            "literal",
+            "\\u0000"
+          ],
+          "observed_value": [
+            "nul-workspace",
+            "literal",
+            "\\u0000"
+          ],
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "NUL-bearing update literal escape",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "nul-workspace | updated\u0000\nbody\u0000"
+          },
+          "observed_value": {
+            "value": "nul-workspace | updated\u0000\nbody\u0000"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "NUL-bearing read after update literal escape",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "nul-workspace | updated\u0000\nbody\u0000"
+          },
+          "observed_value": {
+            "value": "nul-workspace | updated\u0000\nbody\u0000"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "NUL-bearing delete literal escape",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "Issue deleted."
+          },
+          "observed_value": {
+            "value": "Issue deleted."
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "NUL-bearing delete SQL absence literal escape",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": false,
+          "observed_value": false,
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "missing bootstrap marker",
+          "expected_status": 403,
+          "observed_status": 403,
+          "expected_value": null,
+          "observed_value": {
+            "error": "bootstrap_header"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "missing bootstrap marker no session minted",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": true,
+          "observed_value": true,
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "wrong bootstrap marker",
+          "expected_status": 403,
+          "observed_status": 403,
+          "expected_value": null,
+          "observed_value": {
+            "error": "bootstrap_header"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "wrong bootstrap marker no session minted",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": true,
+          "observed_value": true,
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "HEAD session",
+          "expected_status": 405,
+          "observed_status": 405,
+          "expected_value": null,
+          "observed_value": "",
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "HEAD session no session minted",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": true,
+          "observed_value": true,
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "POST session",
+          "expected_status": 403,
+          "observed_status": 403,
+          "expected_value": null,
+          "observed_value": {
+            "error": "origin"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "POST session no session minted",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": true,
+          "observed_value": true,
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "nonempty GET session body",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "nonempty GET session body no session minted",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": true,
+          "observed_value": true,
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "duplicate arguments",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "duplicate contract",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "unpaired surrogate",
+          "expected_status": 400,
+          "observed_status": 400,
+          "expected_value": null,
+          "observed_value": {
+            "error": "invalid_input"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "logout through A",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": ""
+          },
+          "observed_value": {
+            "value": ""
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "logout revocation across B",
+          "expected_status": 403,
+          "observed_status": 403,
+          "expected_value": null,
+          "observed_value": {
+            "error": "denied"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "bootstrap iv2025749b",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": null,
+          "observed_value": {
+            "csrf": "[redacted]",
+            "user": null
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "login iv2025749b",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "iv2025749b"
+          },
+          "observed_value": {
+            "csrf": "[redacted]",
+            "value": "iv2025749b"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "database expiry observed by A",
+          "expected_status": 403,
+          "observed_status": 403,
+          "expected_value": null,
+          "observed_value": {
+            "error": "denied"
+          },
+          "status": "PASS",
+          "input": null,
+          "owned_rows_unchanged": true
+        },
+        {
+          "case": "failed password denied",
+          "expected_status": 403,
+          "observed_status": 403,
+          "expected_value": {
+            "error": "denied"
+          },
+          "observed_value": {
+            "error": "denied"
+          },
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "failed login leaves rows unchanged",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": true,
+          "observed_value": true,
+          "status": "PASS",
+          "input": null
+        },
+        {
+          "case": "service recovery after negatives",
+          "expected_status": 200,
+          "observed_status": 200,
+          "expected_value": {
+            "value": "independent | updated\nsaved A"
+          },
+          "observed_value": {
+            "value": "independent | updated\nsaved A"
+          },
+          "status": "PASS",
+          "input": null
+        }
+      ],
+      "log": "Diamond connected development server: http://localhost:60483\n"
+    },
+    "cli": {
+      "binary_sha256": "2adc6d9894d66c80c089245a678fa238cd1d0a3342b431bbacfb3f5f97abff45",
+      "root": "/tmp/diamond-w2-independent-cli-ix8kcpot",
+      "results": [
+        {
+          "case": "baseline checked project",
+          "command": [
+            "/tmp/diamond-w2-independent-run-xvklrjwa/diamond",
+            "check",
+            "/tmp/diamond-w2-independent-cli-ix8kcpot/baseline/diamond.toml"
+          ],
+          "expected": "accept",
+          "status": "PASS",
+          "exit": 0,
+          "stdout": "project WorkspaceTracker: 4 modules; server server; browser ui / Tracker; capabilities {\"DbRead<Issues>\", \"DbWrite<Issues>\"}\n",
+          "stderr": ""
+        },
+        {
+          "case": "server module lacks transitive write budget",
+          "command": [
+            "/tmp/diamond-w2-independent-run-xvklrjwa/diamond",
+            "check",
+            "/tmp/diamond-w2-independent-cli-ix8kcpot/server-no-write/diamond.toml"
+          ],
+          "expected": "reject",
+          "status": "PASS",
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: server.dia: invalid input: function effects exceed its module budget\n"
+        },
+        {
+          "case": "application and module lack write budget",
+          "command": [
+            "/tmp/diamond-w2-independent-run-xvklrjwa/diamond",
+            "check",
+            "/tmp/diamond-w2-independent-cli-ix8kcpot/app-no-write/diamond.toml"
+          ],
+          "expected": "reject",
+          "status": "PASS",
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: server.dia: D301 at 35:1: effects {Read(\"Issues\"), Write(\"Issues\")} exceed the application's declared authority\n"
+        },
+        {
+          "case": "module grant exceeds application budget",
+          "command": [
+            "/tmp/diamond-w2-independent-run-xvklrjwa/diamond",
+            "check",
+            "/tmp/diamond-w2-independent-cli-ix8kcpot/module-exceeds-app/diamond.toml"
+          ],
+          "expected": "reject",
+          "status": "PASS",
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: invalid input: module host budget exceeds the application budget\n"
+        },
+        {
+          "case": "RPC private target",
+          "command": [
+            "/tmp/diamond-w2-independent-run-xvklrjwa/diamond",
+            "check",
+            "/tmp/diamond-w2-independent-cli-ix8kcpot/private-rpc/diamond.toml"
+          ],
+          "expected": "reject",
+          "status": "PASS",
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: invalid input: RPC requires an explicitly exported server function\n"
+        },
+        {
+          "case": "RPC shared target",
+          "command": [
+            "/tmp/diamond-w2-independent-run-xvklrjwa/diamond",
+            "check",
+            "/tmp/diamond-w2-independent-cli-ix8kcpot/shared-rpc/diamond.toml"
+          ],
+          "expected": "reject",
+          "status": "PASS",
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: invalid input: RPC requires an explicitly exported server function\n"
+        },
+        {
+          "case": "browser imports server",
+          "command": [
+            "/tmp/diamond-w2-independent-run-xvklrjwa/diamond",
+            "check",
+            "/tmp/diamond-w2-independent-cli-ix8kcpot/browser-import-server/diamond.toml"
+          ],
+          "expected": "reject",
+          "status": "PASS",
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: invalid input: module import crosses a forbidden browser/server target boundary\n"
+        },
+        {
+          "case": "shared host authority",
+          "command": [
+            "/tmp/diamond-w2-independent-run-xvklrjwa/diamond",
+            "check",
+            "/tmp/diamond-w2-independent-cli-ix8kcpot/shared-grant/diamond.toml"
+          ],
+          "expected": "reject",
+          "status": "PASS",
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: invalid input: browser/shared modules cannot receive host capabilities\n"
+        },
+        {
+          "case": "browser host authority",
+          "command": [
+            "/tmp/diamond-w2-independent-run-xvklrjwa/diamond",
+            "check",
+            "/tmp/diamond-w2-independent-cli-ix8kcpot/browser-grant/diamond.toml"
+          ],
+          "expected": "reject",
+          "status": "PASS",
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: invalid input: browser/shared modules cannot receive host capabilities\n"
+        },
+        {
+          "case": "wire-safe record RPC signature",
+          "command": [
+            "/tmp/diamond-w2-independent-run-xvklrjwa/diamond",
+            "check",
+            "/tmp/diamond-w2-independent-cli-ix8kcpot/non-scalar-rpc/diamond.toml"
+          ],
+          "expected": "accept",
+          "status": "PASS",
+          "exit": 0,
+          "stdout": "project WorkspaceTracker: 4 modules; server server; browser ui / Tracker; capabilities {\"DbRead<Issues>\", \"DbWrite<Issues>\"}\n",
+          "stderr": ""
+        },
+        {
+          "case": "exact one MiB source accepted",
+          "command": [
+            "/tmp/diamond-w2-independent-run-xvklrjwa/diamond",
+            "check",
+            "/tmp/diamond-w2-independent-cli-ix8kcpot/single-file-boundary/diamond.toml"
+          ],
+          "expected": "accept",
+          "status": "PASS",
+          "exit": 0,
+          "stdout": "project WorkspaceTracker: 4 modules; server server; browser ui / Tracker; capabilities {\"DbRead<Issues>\", \"DbWrite<Issues>\"}\n",
+          "stderr": ""
+        },
+        {
+          "case": "one MiB plus one source rejected",
+          "command": [
+            "/tmp/diamond-w2-independent-run-xvklrjwa/diamond",
+            "check",
+            "/tmp/diamond-w2-independent-cli-ix8kcpot/single-file-over/diamond.toml"
+          ],
+          "expected": "reject",
+          "status": "PASS",
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: resource limit exceeded: project input bytes\n"
+        },
+        {
+          "case": "aggregate source over eight MiB rejected",
+          "command": [
+            "/tmp/diamond-w2-independent-run-xvklrjwa/diamond",
+            "check",
+            "/tmp/diamond-w2-independent-cli-ix8kcpot/aggregate-over/diamond.toml"
+          ],
+          "expected": "reject",
+          "status": "PASS",
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: resource limit exceeded: project source bytes\n"
+        },
+        {
+          "case": "connected RPC server missing PostgreSQL grant",
+          "command": [
+            "/tmp/diamond-w2-independent-run-xvklrjwa/diamond",
+            "serve",
+            "/home/doll/diamond/examples/workspace/diamond.toml",
+            "--listen",
+            "127.0.0.1:0"
+          ],
+          "expected": "reject",
+          "status": "PASS",
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: serve project assets: invalid input: RPC projects require serve_connected with an explicit PostgreSQL grant and origin\n"
+        }
+      ]
+    },
+    "transitive": {
+      "root": "/tmp/diamond-w2-independent-transitive-bak_hyfi",
+      "binary_sha256": "2adc6d9894d66c80c089245a678fa238cd1d0a3342b431bbacfb3f5f97abff45",
+      "results": [
+        {
+          "case": "full",
+          "command": [
+            "/tmp/diamond-w2-independent-run-xvklrjwa/diamond",
+            "check",
+            "/tmp/diamond-w2-independent-transitive-bak_hyfi/project/diamond.toml"
+          ],
+          "status": "PASS",
+          "exit": 0,
+          "stdout": "project Transitive: 3 modules; server server; browser ui / UI; capabilities {\"DbRead<Issues>\", \"DbWrite<Issues>\"}\n",
+          "stderr": ""
+        },
+        {
+          "case": "wrapper_without_write",
+          "command": [
+            "/tmp/diamond-w2-independent-run-xvklrjwa/diamond",
+            "check",
+            "/tmp/diamond-w2-independent-transitive-bak_hyfi/project/diamond.toml"
+          ],
+          "status": "PASS",
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: server.dia: invalid input: function effects exceed its module budget\n"
+        },
+        {
+          "case": "helper_without_write",
+          "command": [
+            "/tmp/diamond-w2-independent-run-xvklrjwa/diamond",
+            "check",
+            "/tmp/diamond-w2-independent-transitive-bak_hyfi/project/diamond.toml"
+          ],
+          "status": "PASS",
+          "exit": 1,
+          "stdout": "",
+          "stderr": "error: helper.dia: invalid input: function effects exceed its module budget\n"
+        }
+      ]
+    }
+  },
+  "driver_sha256": {
+    "cli.py": "bc9b2333aa5847e494232f138702d55fd96169c487722af7ca5eaa42fdd15015",
+    "transitive.py": "ff486837ba9c3da6b4df370a0e26d75850c3cf7ae867da201e1344d699d59184",
+    "http_cases.py": "7e93dc85e6101b830d62526cd34f59378c9bd97ba520617d3e9deba820c45324"
+  },
+  "retained_directory": null
+}

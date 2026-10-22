@@ -1,2 +1,20 @@
 export fn heading() -> Text:
   "Workspace tracker"
+
+export type CardId = Id<"issue">
+
+export type IssueCard:
+  id: CardId
+  title: Text
+  details: Text
+
+export enum DisplayError:
+  InvalidTitle(reason: Text)
+  Unavailable
+
+export fn display_result(value: Result<Text, DisplayError>) -> Text:
+  match value:
+    Ok(text) => text
+    Err(problem) => match problem:
+      InvalidTitle(reason) => "Title: " + reason
+      Unavailable => "Unavailable"

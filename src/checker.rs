@@ -116,6 +116,9 @@ fn declare_types(
         if let Some((name, location)) = declared_type
             && (!type_names.insert(name.clone())
                 || [
+                    "Decimal",
+                    "Timestamp",
+                    "Duration",
                     "Int",
                     "Bool",
                     "Text",
@@ -191,6 +194,9 @@ fn resolve(
     Ok(match ty {
         TypeName::Named(name) => match name.as_str() {
             "Int" => Type::Int,
+            "Decimal" => Type::Decimal,
+            "Timestamp" => Type::Timestamp,
+            "Duration" => Type::Duration,
             "Bool" => Type::Bool,
             "Text" => Type::Text,
             "Unit" => Type::Unit,
@@ -249,6 +255,27 @@ fn resolve(
                 location,
             )?))
         }
+        TypeName::Generic(name, args) if name == "Result" && args.len() == 2 => {
+            let error = resolve(&args[1], aliases, records, enums, depth + 1, location)?;
+            if !matches!(error, Type::Enum(_)) {
+                return Err(Error::diagnostic(
+                    "D103",
+                    location,
+                    "application Result errors must be enums",
+                ));
+            }
+            Type::AppResult(
+                Box::new(resolve(
+                    &args[0],
+                    aliases,
+                    records,
+                    enums,
+                    depth + 1,
+                    location,
+                )?),
+                Box::new(error),
+            )
+        }
         _ => {
             return Err(Error::unsupported(location, format!("type {ty:?}")));
         }
@@ -263,6 +290,24 @@ pub(crate) fn resolve_type(
     match ty {
         TypeName::Named(name) if program.aliases.contains_key(name) => {
             Ok(program.aliases[name].clone())
+        }
+        TypeName::Generic(name, args)
+            if name == "Result"
+                && args.len() == 2
+                && args[1] != TypeName::Named("DataError".into()) =>
+        {
+            let error = resolve_type(&args[1], program, location)?;
+            if !matches!(error, Type::Enum(_)) {
+                return Err(Error::diagnostic(
+                    "D103",
+                    location,
+                    "application Result errors must be enums",
+                ));
+            }
+            Ok(Type::AppResult(
+                Box::new(resolve_type(&args[0], program, location)?),
+                Box::new(error),
+            ))
         }
         TypeName::Generic(name, args) if name == "Option" && args.len() == 1 => Ok(Type::Option(
             Box::new(resolve_type(&args[0], program, location)?),
@@ -375,7 +420,8 @@ fn resolve_enums(source: &syntax::Program, program: &mut CheckedProgram) -> Resu
             }
             let mut variants = BTreeMap::new();
             for (name, fields) in &enumeration.variants {
-                if !name.chars().next().is_some_and(char::is_uppercase)
+                if !(name.chars().next().is_some_and(char::is_uppercase)
+                    || name.starts_with("__diamond_variant_"))
                     || !constructors.insert(name.clone())
                 {
                     return Err(duplicate(enumeration.location, name));
@@ -455,7 +501,8 @@ fn resolve_resources(source: &syntax::Program, program: &mut CheckedProgram) -> 
 fn resolve_functions(source: &syntax::Program, program: &mut CheckedProgram) -> Result<()> {
     for declaration in &source.declarations {
         if let Declaration::Function(function) = declaration {
-            if program.records.contains_key(&function.name)
+            if crate::standard::is_builtin(&function.name)
+                || program.records.contains_key(&function.name)
                 || program.aliases.contains_key(&function.name)
                 || program
                     .enums
@@ -749,6 +796,18 @@ fn mismatch(location: Location, expected: &Type, actual: &Type) -> Error {
 }
 
 fn common_type(a: &Type, b: &Type, location: Location) -> Result<Type> {
+    match (a, b) {
+        (Type::Success(a), Type::AppResult(b, e)) | (Type::AppResult(b, e), Type::Success(a)) => {
+            return Ok(Type::AppResult(
+                Box::new(common_type(a, b, location)?),
+                e.clone(),
+            ));
+        }
+        (Type::Success(a), Type::Result(b)) | (Type::Result(b), Type::Success(a)) => {
+            return Ok(Type::Result(Box::new(common_type(a, b, location)?)));
+        }
+        _ => {}
+    }
     if a.accepts(b) {
         Ok(a.clone())
     } else if b.accepts(a) {
@@ -787,6 +846,7 @@ struct Checker<'a> {
     transaction_context: TransactionContext,
     route: bool,
     fallible: bool,
+    application_error: Option<Type>,
     branch_depth: usize,
 }
 
@@ -801,12 +861,20 @@ impl<'a> Checker<'a> {
             transaction_context: TransactionContext::Outside,
             route,
             fallible,
+            application_error: None,
             branch_depth: 0,
         }
     }
 
     fn function(program: &'a CheckedProgram, function: &hir::Function) -> Result<Self> {
-        let mut checker = Self::new(program, false, matches!(function.result, Type::Result(_)));
+        let mut checker = Self::new(
+            program,
+            false,
+            matches!(function.result, Type::Result(_) | Type::AppResult(_, _)),
+        );
+        if let Type::AppResult(_, error) = &function.result {
+            checker.application_error = Some((**error).clone());
+        }
         for (parameter, ty) in &function.parameters {
             if checker
                 .locals
@@ -944,6 +1012,26 @@ impl<'a> Checker<'a> {
                     ));
                 }
                 let actual = self.expr(value)?;
+                if let Type::Success(inner) = &actual {
+                    return Ok((**inner).clone());
+                }
+                if let Type::AppResult(inner, error) = &actual {
+                    if self.application_error.as_ref() != Some(error.as_ref()) {
+                        return Err(Error::diagnostic(
+                            "D114",
+                            expression.location,
+                            "? must preserve the declared application error type",
+                        ));
+                    }
+                    return Ok((**inner).clone());
+                }
+                if self.application_error.is_some() {
+                    return Err(Error::diagnostic(
+                        "D114",
+                        expression.location,
+                        "DataError cannot propagate as an application error",
+                    ));
+                }
                 let Type::Result(inner) = actual else {
                     return Err(Error::diagnostic(
                         "D114",
@@ -1065,7 +1153,12 @@ impl<'a> Checker<'a> {
                 })
                 .collect(),
             Type::Bool => [("true".into(), Vec::new()), ("false".into(), Vec::new())].into(),
-            Type::Result(inner) => [
+            Type::AppResult(inner, error) => [
+                ("Ok".into(), vec![(**inner).clone()]),
+                ("Err".into(), vec![(**error).clone()]),
+            ]
+            .into(),
+            Type::Result(inner) | Type::Success(inner) => [
                 ("Ok".into(), vec![(**inner).clone()]),
                 ("Err".into(), vec![Type::DataError]),
             ]
@@ -1331,6 +1424,24 @@ impl<'a> Checker<'a> {
         if !types.is_empty() {
             return Err(Error::unsupported(location, "generic function calls"));
         }
+        if crate::standard::is_builtin(name) {
+            let types = args
+                .iter()
+                .map(|(named, expr)| {
+                    if named.is_some() {
+                        return Err(Error::diagnostic(
+                            "D117",
+                            location,
+                            "utilities take positional arguments",
+                        ));
+                    }
+                    self.expr(expr)
+                })
+                .collect::<Result<Vec<_>>>()?;
+            return crate::standard::signature(name, &types).ok_or_else(|| {
+                Error::diagnostic("D117", location, "utility argument types do not match")
+            });
+        }
         if self.program.host_operations
             && let Some(ty) = self.project_intrinsic(name, args, location)?
         {
@@ -1367,10 +1478,13 @@ impl<'a> Checker<'a> {
         if ["Ok", "Err", "Some"].contains(&name) {
             let ty = self.expr(one(args, location)?)?;
             return match name {
-                "Ok" => Ok(Type::Result(Box::new(ty))),
+                "Ok" => Ok(Type::Success(Box::new(ty))),
                 "Some" => Ok(Type::Option(Box::new(ty))),
                 _ if matches!(ty, Type::Text | Type::DataError) => {
                     Ok(Type::Result(Box::new(Type::Never)))
+                }
+                _ if matches!(ty, Type::Enum(_)) => {
+                    Ok(Type::AppResult(Box::new(Type::Never), Box::new(ty)))
                 }
                 _ => Err(mismatch(location, &Type::Text, &ty)),
             };

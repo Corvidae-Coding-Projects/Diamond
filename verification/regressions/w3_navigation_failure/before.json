@@ -1,0 +1,16 @@
+{
+  "binary_sha256": "30e0b66ac57c6df8505d100c08575c99c2b283b17830d52644462311212a1556",
+  "actions": [
+    "Initial root state divisor=1; About component initial quotient=10/divisor",
+    "Prepare route failure sets divisor=0 while remaining on /",
+    "Click About link"
+  ],
+  "expected": "Remain on prior route with visible bounded error; recover divisor and retry navigation successfully",
+  "observed": {
+    "url": "/about",
+    "old_issues_dom": true,
+    "errorHidden": true,
+    "uncaught_console_error": "division by zero"
+  },
+  "cause": "Client navigation changed history before rendering but did not handle initialization failures"
+}

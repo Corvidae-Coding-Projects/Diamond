@@ -1,0 +1,44 @@
+{
+  "initial": {
+    "a/1/first": 0,
+    "a/1/nested": 0,
+    "a/first": 0,
+    "a/nested": 0
+  },
+  "actions": [
+    {
+      "button": "Bump a/nested",
+      "expected": {
+        "a/1/first": 0,
+        "a/1/nested": 0,
+        "a/first": 0,
+        "a/nested": 1
+      }
+    },
+    {
+      "button": "Bump a/1/first",
+      "expected": {
+        "a/1/first": 1,
+        "a/1/nested": 0,
+        "a/first": 0,
+        "a/nested": 1
+      }
+    },
+    {
+      "button": "Reverse key paths",
+      "expected": {
+        "a/1/first": 1,
+        "a/1/nested": 0,
+        "a/first": 0,
+        "a/nested": 1
+      },
+      "expected_order": [
+        "a/first",
+        "a/nested",
+        "a/1/first",
+        "a/1/nested"
+      ]
+    }
+  ],
+  "rationale": "Arbitrary Text keys are legal. Key a/1 at first child and key a at div/child used to concatenate to the same internal frame path; they must remain independent component instances."
+}

@@ -1,11 +1,13 @@
 # W1 project foundations
 
-Diamond 0.7.0 added the first general-web expansion checkpoint, retained in 0.8.0. It keeps the
+Diamond 0.7.0 added the first general-web expansion checkpoint, retained in 0.9.0. It keeps the
 single-file interpreter and its SQLite/browser-account behavior. The project
 entry is a separate, deliberately small initial subset: modules, scalar browser
 functions, one reactive component, checked host operations, and a concurrent
 loopback asset server. The [W2 guide](connected-apps.md) describes the now-implemented
-connected application path, its additional syntax, grants and limits.
+connected application path, its additional syntax, grants and limits. This page
+describes the W1 baseline; the [W3 guide](reactive-apps.md) supersedes its browser,
+shared-type, asset, route, and artifact restrictions in 0.9.0.
 
 ## Check, build, and serve
 
@@ -57,8 +59,8 @@ W1 project declarations are functions and browser components. Server functions
 use the existing function checker; browser-reachable functions currently support
 Int, Bool, Text, immutable local bindings, returns, arithmetic/comparisons,
 Boolean logic, pure calls, and text `len`. Other constructs fail explicitly when
-browser lowering needs them. Project resources/CRUD, shared record interfaces,
-and multiple/nested components arrive in subsequent checkpoints. Use a `.dia`
+browser lowering needs them in the original W1 profile. W2 adds project CRUD,
+and W3 adds shared types and multiple/nested components. Use a `.dia`
 single-file entry for the existing interpreter's full supported surface.
 
 ## Component contract
@@ -133,7 +135,8 @@ CRUD, migrations, a pool, or shared authentication. Those are W2/W4/W5 work.
 
 ## Artifacts and native API
 
-A build contains `server.json`, `index.html`, `assets/HASH.js`, and `contract.json`.
+A W1 build contains `server.json`, `index.html`, `assets/HASH.js`, and `contract.json`.
+W3 also emits hashed CSS, explicit static assets, maps, and declared route pages.
 The server artifact retains the checked program's source inputs for rechecking.
 It is a private deployment artifact and must not be put in a public static asset
 directory. The supplied project server exposes only the public browser files.

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from pathlib import Path
-import hashlib,json,os,shutil,subprocess,tempfile
+import hashlib,json,os,re,shutil,subprocess,tempfile
 R=Path(__file__).resolve().parents[2]; B=Path(os.environ['DIAMOND_W2_BINARY']); D=Path(tempfile.mkdtemp(prefix='diamond-w2-independent-cli-')); results=[]
 def fixture(name):
  p=D/name; shutil.copytree(R/'examples/workspace',p); return p
@@ -14,10 +14,10 @@ p=fixture('app-no-write');edit(p,'diamond.toml','provides = ["DbRead<Issues>", "
 p=fixture('module-exceeds-app');edit(p,'diamond.toml','provides = ["DbRead<Issues>", "DbWrite<Issues>"]','provides = ["DbRead<Issues>"]');f=p/'diamond.toml';s=f.read_text();i=s.index('[modules.server]');s=s[:i]+s[i:].replace('provides = ["DbRead<Issues>"]','provides = ["DbRead<Issues>", "DbWrite<Issues>"]',1);f.write_text(s);check('module grant exceeds application budget',p,False,'module host budget exceeds the application budget')
 p=fixture('private-rpc');edit(p,'diamond.toml','create_issue = "server.create_issue"','create_issue = "server.private_probe"');check('RPC private target',p,False,'explicitly exported server function')
 p=fixture('shared-rpc');edit(p,'diamond.toml','create_issue = "server.create_issue"','create_issue = "shared.heading"');check('RPC shared target',p,False,'explicitly exported server function')
-p=fixture('browser-import-server');f=p/'diamond.toml';s=f.read_text();i=s.index('[modules.ui]');s=s[:i]+s[i:].replace('imports = ["shared"]','imports = ["shared", "server"]',1);f.write_text(s);check('browser imports server',p,False,'forbidden browser/server target boundary')
+p=fixture('browser-import-server');f=p/'diamond.toml';s=f.read_text();i=s.index('[modules.ui]');tail,count=re.subn(r'imports\s*=\s*\[[^\]]*\]', 'imports = ["shared", "parts", "server"]' if '[modules.parts]' in s else 'imports = ["shared", "server"]', s[i:], count=1);assert count==1;s=s[:i]+tail;f.write_text(s);check('browser imports server',p,False,'forbidden browser/server target boundary')
 p=fixture('shared-grant');edit(p,'diamond.toml','target = "shared"','target = "shared"\nprovides = ["DbRead<Issues>"]');check('shared host authority',p,False,'browser/shared modules cannot receive host capabilities')
 p=fixture('browser-grant');edit(p,'diamond.toml','target = "browser"','target = "browser"\nprovides = ["DbRead<Issues>"]');check('browser host authority',p,False,'browser/shared modules cannot receive host capabilities')
-p=fixture('non-scalar-rpc');f=p/'server.dia';f.write_text(f.read_text()+'\nexport fn return_record() -> NewIssue:\n  NewIssue(workspace: "a", title: "b", details: "c")\n');f=p/'diamond.toml';f.write_text(f.read_text()+'record = "server.return_record"\n');check('non-scalar RPC signature',p,False,'support only Int, Bool and Text')
+p=fixture('non-scalar-rpc');f=p/'server.dia';f.write_text(f.read_text()+'\nexport fn return_record() -> NewIssue:\n  NewIssue(workspace: "a", title: "b", details: "c")\n');f=p/'diamond.toml';f.write_text(f.read_text()+'record = "server.return_record"\n');check('wire-safe record RPC signature' if os.environ.get('DIAMOND_FRONTEND_PROFILE')=='w3' else 'non-scalar RPC signature',p,os.environ.get('DIAMOND_FRONTEND_PROFILE')=='w3',None if os.environ.get('DIAMOND_FRONTEND_PROFILE')=='w3' else 'support only Int, Bool and Text')
 p=fixture('single-file-boundary');f=p/'shared.dia';s=f.read_bytes();f.write_bytes(s+b'#'+b'x'*(1048576-len(s)-2)+b'\n');check('exact one MiB source accepted',p,True,None)
 p=fixture('single-file-over');f=p/'shared.dia';s=f.read_bytes();f.write_bytes(s+b'#'+b'x'*(1048576-len(s)-1)+b'\n');check('one MiB plus one source rejected',p,False,None)
 p=fixture('aggregate-over');f=p/'diamond.toml';s=f.read_text();s=s.replace('imports = ["shared"]','imports = ["shared", "pad0", "pad1", "pad2", "pad3", "pad4", "pad5", "pad6", "pad7"]',1)

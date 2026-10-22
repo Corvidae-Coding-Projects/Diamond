@@ -1,0 +1,13 @@
+component Counter(caption: Text):
+  state count: Int = 0
+  on bump:
+    count = count + 1
+  html:
+    <section><p>{caption}: <strong>{count}</strong></p><button type="button" on-click={bump}>Bump {caption}</button></section>
+
+export component App:
+  state keys: List<Text> = ["a/1", "a"]
+  on reverse:
+    keys = list_reverse(keys)
+  html:
+    <main><h1>Independent key paths</h1><button type="button" on-click={reverse}>Reverse key paths</button><each items={keys} as="item" key={item}><use component="Counter" caption={item + "/first"}></use><div><use component="Counter" caption={item + "/nested"}></use></div></each></main>

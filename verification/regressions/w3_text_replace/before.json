@@ -1,0 +1,12 @@
+{
+  "binary_sha256": "f213157fd639cbb15d688fc7c2f2427e670e5dd0ce37c9a4e3dfdd5ec5b83afb",
+  "interface": "actual Chrome 2141263518 at http://127.0.0.1:39171/",
+  "input": "text_replace(\"\", \"\", \"x\")",
+  "expected": "x, compatible hydration",
+  "observed": {
+    "SSR replacement": "x",
+    "ready": "false",
+    "error": "Application version or initial content changed. Reload this page."
+  },
+  "cause": "browser empty-needle implementation inserts two copies for an empty haystack"
+}

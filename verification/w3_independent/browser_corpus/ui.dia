@@ -1,0 +1,36 @@
+export component App:
+  state values: List<Text> = []
+  state output: Text = "prior value preserved"
+  derived count: Int = len(values)
+  on run:
+    values = corpus()
+  on recover:
+    output = "recovered"
+  on probe_170:
+    output = probe_170()
+  on probe_171:
+    output = probe_171()
+  on probe_172:
+    output = probe_172()
+  on probe_173:
+    output = probe_173()
+  on probe_174:
+    output = probe_174()
+  on probe_175:
+    output = probe_175()
+  on probe_176:
+    output = probe_176()
+  on probe_184:
+    output = probe_184()
+  html:
+    <main><h1>Independent browser semantic corpus</h1><button id="run-corpus" type="button" on-click={run}>Run independent corpus</button><p>Values: <strong id="corpus-count">{count}</strong></p><pre id="probe-output">{output}</pre><button type="button" on-click={recover}>Recover</button>
+      <button type="button" on-click={probe_170}>Failure runtime-reject-0</button>
+      <button type="button" on-click={probe_171}>Failure runtime-reject-1</button>
+      <button type="button" on-click={probe_172}>Failure runtime-reject-2</button>
+      <button type="button" on-click={probe_173}>Failure runtime-reject-3</button>
+      <button type="button" on-click={probe_174}>Failure runtime-reject-4</button>
+      <button type="button" on-click={probe_175}>Failure runtime-reject-5</button>
+      <button type="button" on-click={probe_176}>Failure runtime-reject-6</button>
+      <button type="button" on-click={probe_184}>Failure text-limit-expand-rejected</button>
+      <ul id="corpus-values"><each items={values} as="item" key={item}><li>{item}</li></each></ul>
+    </main>

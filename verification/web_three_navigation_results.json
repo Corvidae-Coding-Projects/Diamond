@@ -1,0 +1,33 @@
+{
+  "failedClick": {
+    "url": "http://127.0.0.1:39171/",
+    "error": "Diamond component update failed; previous local state was preserved.",
+    "errorHidden": false,
+    "issues": true
+  },
+  "recovery": {
+    "url": "http://127.0.0.1:39171/about",
+    "mounts": "1"
+  },
+  "failedHistory": {
+    "url": "http://127.0.0.1:39171/",
+    "errorHidden": false,
+    "issues": true
+  },
+  "status": "PASS",
+  "binary_sha256": "2adc6d9894d66c80c089245a678fa238cd1d0a3342b431bbacfb3f5f97abff45",
+  "fixture_sha256": {
+    "key_paths.dia": "79658ad59968f8f8efd1d27827aaf13be8fb17077c435a638c177f10d637b82d",
+    "composition.dia": "3f8bed1bb76b17c7714e8d9a10da95998eea236b548cd3f20703158b73d0cc7b",
+    "composition_shared.dia": "201d8cdb1f21a7995fc5a667241b2b3ef54a15a603a00eaaae927a198eada8dc",
+    "probes.dia": "583b68eccb45ce579bd384fc300cf2c679af11840a4c31d75b17f8cfd53b3bdc",
+    "corpus.dia": "03a6fd2a692ed8ae760b9e39c4c089f6884b46d30d443bbb111013897821d518",
+    "tracker.css": "8b1ea71e79055455c795967d31e08daa234400e9276bac4bb4d84408285c7870",
+    "diamond.svg": "5f295145c59d12fda9e777d4d864349e38b7c7dc03ce00cca00fc45033b3f534",
+    "cards.dia": "dc4da04c9ff50e4145a830bb2a050c090dd3cd64276324fac5ff83317f331d81",
+    "tracker.dia": "6da07e5fcff0fffae1fdb54487db2a313617115b7162c4b43c4e5ee59ef5f535",
+    "server.dia": "c74146c99c726ca487d3f97ad7043815227c7aa2610a61bbca3456af1505c6f1",
+    "shared.dia": "c6b355e6ddb12f1411a43fc9dd46a33422b45c9e24c353777c129575ce4ea0db",
+    "diamond.toml": "b7a67df3d021d016456cf4bb1f2ded40b6db69a171871dcb7a40cd04875d85e2"
+  }
+}

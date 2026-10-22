@@ -1,0 +1,60 @@
+{
+  "status": "PASS",
+  "binary_sha256": "2adc6d9894d66c80c089245a678fa238cd1d0a3342b431bbacfb3f5f97abff45",
+  "results": [
+    {
+      "name": "static-reserved-id",
+      "source": "export component App:\n  html:\n    <p id=\"diamond-error\">visible</p>\n",
+      "expected_accept": false,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: D330 at 0:0: component id is reserved by the runtime\n",
+      "status": "PASS"
+    },
+    {
+      "name": "dynamic-reserved-id",
+      "source": "export component App:\n  state name: Text = \"diamond-\" + \"app\"\n  html:\n    <p id={name}>visible</p>\n",
+      "expected_accept": false,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: build project: invalid input: component id is reserved by the runtime\n",
+      "status": "PASS"
+    },
+    {
+      "name": "valid-dynamic-id",
+      "source": "export component App:\n  state name: Text = \"app-content\"\n  html:\n    <p id={name}>visible</p>\n",
+      "expected_accept": true,
+      "exit": 0,
+      "stdout": "built project at /tmp/diamond-w3-front-boundaries-1tfgf05f/valid-dynamic-id/build\n",
+      "stderr": "",
+      "status": "PASS"
+    },
+    {
+      "name": "stylesheet-extension",
+      "source": "export component App:\n  html:\n    <p>visible</p>\n",
+      "expected_accept": false,
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: styles require CSS inputs\n",
+      "status": "PASS"
+    },
+    {
+      "name": "unreachable-route",
+      "source": "component Hidden:\n  html:\n    <route path=\"/unused-canary\"><p>Unused route</p></route>\n\nexport component App:\n  html:\n    <p>visible</p>\n",
+      "expected_accept": true,
+      "exit": 0,
+      "stdout": "built project at /tmp/diamond-w3-front-boundaries-1tfgf05f/unreachable-route/build\n",
+      "stderr": "",
+      "status": "PASS"
+    },
+    {
+      "name": "html-normalization",
+      "source": "export component App:\n  state value: Text = \"\\r\\nA\\rB\u0000\"\n  html:\n    <p title={value}>{value}</p>\n",
+      "expected_accept": true,
+      "exit": 0,
+      "stdout": "built project at /tmp/diamond-w3-front-boundaries-1tfgf05f/html-normalization/build\n",
+      "stderr": "",
+      "status": "PASS"
+    }
+  ]
+}

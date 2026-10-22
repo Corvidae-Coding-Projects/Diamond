@@ -123,20 +123,7 @@ impl Template<'_> {
     fn element(&mut self, depth: usize) -> Result<HtmlNode> {
         self.consume("<")?;
         let tag = self.name()?;
-        if ![
-            "html", "head", "title", "body", "main", "header", "footer", "nav", "section",
-            "article", "div", "span", "p", "h1", "h2", "h3", "ul", "ol", "li", "a", "strong", "em",
-            "pre", "code", "form", "label", "input", "textarea", "button", "br", "hr",
-        ]
-        .contains(&tag.as_str())
-        {
-            return Err(Error::unsupported(
-                self.location(),
-                format!(
-                    "HTML tag {tag}; scripts, raw HTML, SVG, CSS, and custom elements are outside the initial template subset"
-                ),
-            ));
-        }
+        self.validate_tag(&tag)?;
         let mut attributes = Vec::new();
         loop {
             self.whitespace();
@@ -144,29 +131,7 @@ impl Template<'_> {
                 break;
             }
             let name = self.name()?;
-            if !([
-                "id",
-                "class",
-                "title",
-                "href",
-                "action",
-                "method",
-                "name",
-                "value",
-                "type",
-                "for",
-                "placeholder",
-                "maxlength",
-                "aria-label",
-            ]
-            .contains(&name.as_str())
-                || self.browser && ["on-click", "bind-value"].contains(&name.as_str()))
-            {
-                return Err(Error::unsupported(
-                    self.location(),
-                    format!("HTML attribute {name}"),
-                ));
-            }
+            self.validate_attribute(&tag, &name)?;
             if attributes.iter().any(|(previous, _)| previous == &name) {
                 return Err(self.error("duplicate HTML attribute"));
             }
@@ -199,7 +164,7 @@ impl Template<'_> {
         }
         let self_closing = self.rest().starts_with("/>");
         self.cursor += if self_closing { 2 } else { 1 };
-        let void = ["input", "br", "hr"].contains(&tag.as_str());
+        let void = ["input", "br", "hr", "img"].contains(&tag.as_str());
         if self_closing && !void {
             return Err(self.error("only void HTML elements may use />"));
         }
@@ -213,6 +178,76 @@ impl Template<'_> {
             attributes,
             children,
         })
+    }
+    fn validate_attribute(&self, tag: &str, name: &str) -> Result<()> {
+        if !([
+            "id",
+            "class",
+            "title",
+            "href",
+            "action",
+            "method",
+            "name",
+            "value",
+            "type",
+            "for",
+            "placeholder",
+            "maxlength",
+            "aria-label",
+        ]
+        .contains(&name)
+            || self.browser
+                && ([
+                    "on-click",
+                    "on-submit",
+                    "bind-value",
+                    "bind-checked",
+                    "test",
+                    "items",
+                    "as",
+                    "key",
+                    "component",
+                    "path",
+                    "src",
+                    "alt",
+                    "required",
+                    "minlength",
+                    "disabled",
+                    "checked",
+                    "role",
+                    "aria-live",
+                    "aria-describedby",
+                    "width",
+                    "height",
+                ]
+                .contains(&name)
+                    || tag == "use"))
+        {
+            return Err(Error::unsupported(
+                self.location(),
+                format!("HTML attribute {name}"),
+            ));
+        }
+        Ok(())
+    }
+    fn validate_tag(&self, tag: &str) -> Result<()> {
+        if !([
+            "html", "head", "title", "body", "main", "header", "footer", "nav", "section",
+            "article", "div", "span", "p", "h1", "h2", "h3", "ul", "ol", "li", "a", "strong", "em",
+            "pre", "code", "form", "label", "input", "textarea", "button", "br", "hr",
+        ]
+        .contains(&tag)
+            || (self.browser
+                && ["when", "each", "use", "route", "img", "select", "option"].contains(&tag)))
+        {
+            return Err(Error::unsupported(
+                self.location(),
+                format!(
+                    "HTML tag {tag}; scripts, raw HTML, SVG, CSS, and custom elements are outside the initial template subset"
+                ),
+            ));
+        }
+        Ok(())
     }
     fn interpolation(&mut self) -> Result<crate::syntax::Expr> {
         self.consume("{")?;

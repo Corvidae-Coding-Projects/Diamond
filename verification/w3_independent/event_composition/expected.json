@@ -1,0 +1,126 @@
+{
+  "initial": {
+    "number": "0",
+    "label": "prior",
+    "ready": "true",
+    "values": "",
+    "initial_legacy": "local initial detail"
+  },
+  "actions": [
+    {
+      "button": "Composition pure helper",
+      "changed": {
+        "label": "wrapped <snow 雪>"
+      },
+      "error": false
+    },
+    {
+      "button": "Composition nested arguments",
+      "changed": {
+        "number": "23"
+      },
+      "error": false
+    },
+    {
+      "button": "Composition lazy match",
+      "changed": {
+        "number": "26"
+      },
+      "error": false
+    },
+    {
+      "button": "Composition lazy and",
+      "changed": {
+        "ready": "false"
+      },
+      "error": false
+    },
+    {
+      "button": "Composition lazy or",
+      "changed": {
+        "ready": "true"
+      },
+      "error": false
+    },
+    {
+      "button": "Composition list calls",
+      "changed": {
+        "values": "5,14"
+      },
+      "error": false
+    },
+    {
+      "button": "Composition for calls",
+      "changed": {
+        "values": "6,16,22"
+      },
+      "error": false
+    },
+    {
+      "button": "Composition empty for",
+      "changed": {
+        "values": ""
+      },
+      "error": false
+    },
+    {
+      "button": "Composition nested for",
+      "changed": {
+        "values": "9,24"
+      },
+      "error": false
+    },
+    {
+      "button": "Composition sequential",
+      "changed": {
+        "number": "3",
+        "label": "wrapped <3>"
+      },
+      "error": false
+    },
+    {
+      "button": "Composition failure",
+      "changed": {},
+      "preserved": {
+        "number": "3",
+        "label": "wrapped <3>"
+      },
+      "error": true
+    },
+    {
+      "button": "Composition recover",
+      "changed": {
+        "label": "recovered"
+      },
+      "error": false
+    },
+    {
+      "button": "Composition local legacy error",
+      "changed": {
+        "label": "local detail"
+      },
+      "error": false
+    },
+    {
+      "button": "Composition remote legacy error",
+      "changed": {
+        "label": "Application failed."
+      },
+      "error": false
+    },
+    {
+      "button": "Composition nested remote legacy error",
+      "changed": {
+        "label": "Application failed."
+      },
+      "error": false
+    }
+  ],
+  "notes": [
+    "Sign in with the synthetic fixture account before RPC controls.",
+    "Lazy branches include valid server operations that deterministically fail; accidental evaluation would surface an error.",
+    "The failure handler proposes number=41 before a later nested call fails; all proposed local state must be discarded.",
+    "Raw HTTP and compile/build checks do not establish these browser runtime outcomes.",
+    "Pure Err(Text) preserves exact text locally. Crossing the DataError wire maps Message to ApplicationFailure; error_message then returns generic Application failed."
+  ]
+}

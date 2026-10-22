@@ -1,0 +1,393 @@
+{
+  "schema_version": 1,
+  "finalBinary": "2adc6d9894d66c80c089245a678fa238cd1d0a3342b431bbacfb3f5f97abff45",
+  "normalization": {
+    "errorHidden": true,
+    "ready": "true",
+    "text": [
+      13,
+      10,
+      65,
+      13,
+      66,
+      0
+    ],
+    "title": [
+      13,
+      10,
+      65,
+      13,
+      66,
+      0
+    ]
+  },
+  "composition": [
+    {
+      "button": "Composition pure helper",
+      "error": false,
+      "label": "wrapped <snow 雪>",
+      "number": "0",
+      "ready": "true",
+      "values": ""
+    },
+    {
+      "button": "Composition nested arguments",
+      "error": false,
+      "label": "wrapped <snow 雪>",
+      "number": "23",
+      "ready": "true",
+      "values": ""
+    },
+    {
+      "button": "Composition lazy match",
+      "error": false,
+      "label": "wrapped <snow 雪>",
+      "number": "26",
+      "ready": "true",
+      "values": ""
+    },
+    {
+      "button": "Composition lazy and",
+      "error": false,
+      "label": "wrapped <snow 雪>",
+      "number": "26",
+      "ready": "false",
+      "values": ""
+    },
+    {
+      "button": "Composition lazy or",
+      "error": false,
+      "label": "wrapped <snow 雪>",
+      "number": "26",
+      "ready": "true",
+      "values": ""
+    },
+    {
+      "button": "Composition list calls",
+      "error": false,
+      "label": "wrapped <snow 雪>",
+      "number": "26",
+      "ready": "true",
+      "values": "5,14"
+    },
+    {
+      "button": "Composition for calls",
+      "error": false,
+      "label": "wrapped <snow 雪>",
+      "number": "26",
+      "ready": "true",
+      "values": "6,16,22"
+    },
+    {
+      "button": "Composition empty for",
+      "error": false,
+      "label": "wrapped <snow 雪>",
+      "number": "26",
+      "ready": "true",
+      "values": ""
+    },
+    {
+      "button": "Composition nested for",
+      "error": false,
+      "label": "wrapped <snow 雪>",
+      "number": "26",
+      "ready": "true",
+      "values": "9,24"
+    },
+    {
+      "button": "Composition sequential",
+      "error": false,
+      "label": "wrapped <3>",
+      "number": "3",
+      "ready": "true",
+      "values": "9,24"
+    },
+    {
+      "button": "Composition failure",
+      "error": true,
+      "label": "wrapped <3>",
+      "number": "3",
+      "ready": "true",
+      "values": "9,24"
+    },
+    {
+      "button": "Composition recover",
+      "error": false,
+      "label": "recovered",
+      "number": "3",
+      "ready": "true",
+      "values": "9,24"
+    },
+    {
+      "button": "Composition local legacy error",
+      "error": false,
+      "label": "local detail",
+      "number": "3",
+      "ready": "true",
+      "values": "9,24"
+    },
+    {
+      "button": "Composition remote legacy error",
+      "error": false,
+      "label": "Application failed.",
+      "number": "3",
+      "ready": "true",
+      "values": "9,24"
+    },
+    {
+      "button": "Composition nested remote legacy error",
+      "error": false,
+      "label": "Application failed.",
+      "number": "3",
+      "ready": "true",
+      "values": "9,24"
+    }
+  ],
+  "keys": [
+    "a/first: 0",
+    "a/nested: 1",
+    "a/1/first: 1",
+    "a/1/nested: 0"
+  ],
+  "duplicate": {
+    "error": true,
+    "items": [
+      "first",
+      "second"
+    ]
+  },
+  "overflow": {
+    "error": true,
+    "number": "5"
+  },
+  "initialControls": {
+    "agreed": true,
+    "choice": "blue",
+    "note": "\nInitial textarea 雪 <literal>"
+  },
+  "invalidForm": {
+    "count": "0",
+    "valid": false
+  },
+  "focus": {
+    "active": "form-note",
+    "output": "Edited 雪😀\n<script>still literal</script>",
+    "value": "Edited 雪😀\n<script>still literal</script>"
+  },
+  "form": {
+    "agreed": "false",
+    "choice": "red",
+    "count": "1",
+    "note": "Edited 雪😀\n<script>still literal</script>"
+  },
+  "staleParent": "Echo: new-response",
+  "staleProps": {
+    "answer": "No response yet.",
+    "mounts": "1",
+    "source": "props-new"
+  },
+  "unmounted": 0,
+  "staleUnmount": {
+    "answer": "No response yet.",
+    "mounts": "1",
+    "source": "unmount-old"
+  },
+  "failures": [
+    {
+      "answer": "Echo: new-response",
+      "error": true,
+      "number": "8",
+      "recovery": {
+        "errorHidden": true,
+        "number": "11"
+      }
+    },
+    {
+      "answer": "Echo: new-response",
+      "error": true,
+      "number": "11",
+      "recovery": {
+        "errorHidden": true,
+        "number": "14"
+      }
+    },
+    {
+      "answer": "Echo: new-response",
+      "error": true,
+      "number": "14",
+      "recovery": {
+        "errorHidden": true,
+        "number": "17"
+      }
+    },
+    {
+      "answer": "Echo: new-response",
+      "error": true,
+      "number": "17",
+      "recovery": {
+        "errorHidden": true,
+        "number": "20"
+      }
+    },
+    {
+      "answer": "Echo: new-response",
+      "error": true,
+      "number": "20",
+      "recovery": {
+        "errorHidden": true,
+        "number": "23"
+      }
+    },
+    {
+      "answer": "Echo: new-response",
+      "error": true,
+      "number": "23",
+      "recovery": {
+        "errorHidden": true,
+        "number": "26"
+      }
+    },
+    {
+      "answer": "Echo: new-response",
+      "error": true,
+      "number": "26",
+      "recovery": {
+        "errorHidden": true,
+        "number": "29"
+      }
+    },
+    {
+      "answer": "Echo: new-response",
+      "error": true,
+      "number": "29",
+      "recovery": {
+        "errorHidden": true,
+        "number": "32"
+      }
+    }
+  ],
+  "corpus": {
+    "count": 184,
+    "sha256": "91349f24c66b6d67016891d48ea66b04d0124654917bb5dc963505222278cda4"
+  },
+  "expectedErrorMessages": [
+    "Diamond component update failed Error: Request rejected. Check your session, input, and permissions. Earlier server calls may already have committed.",
+    "Diamond component update failed Error: duplicate key",
+    "Diamond component update failed Error: integer overflow",
+    "Diamond component update failed Error: integer overflow",
+    "Diamond component update failed Error: rounding mode or divisor",
+    "Diamond component update failed Error: rounding mode or divisor",
+    "Diamond component update failed Error: integer overflow",
+    "Diamond component update failed Error: slice bounds",
+    "Diamond component update failed Error: slice bounds",
+    "Diamond component update failed Error: integer overflow",
+    "Diamond component update failed Error: text budget or Unicode"
+  ],
+  "badContract": {
+    "error": "Application version or initial content changed. Reload this page.",
+    "hidden": false,
+    "ready": "false"
+  },
+  "badStructure": {
+    "error": "Application version or initial content changed. Reload this page.",
+    "heading": "Changed initial heading",
+    "ready": "false"
+  },
+  "hydrationRecovery": {
+    "errorHidden": true,
+    "ready": "true"
+  },
+  "reorder": [
+    {
+      "draft": "Second distinct issue",
+      "mounts": "1",
+      "title": "Second distinct issue"
+    },
+    {
+      "details": "First details\n<script>literal, not markup</script>",
+      "draft": "Unsaved draft α",
+      "mounts": "1",
+      "title": "First typed card 雪"
+    }
+  ],
+  "insertion": [
+    {
+      "draft": "Third inserted issue",
+      "expanded": false,
+      "id": "card-0ec13f03de283034e2d43c4a42ded57e159bd711ca41509647082d14abba3671",
+      "mounts": "1",
+      "title": "Third inserted issue"
+    },
+    {
+      "draft": "Unsaved draft α",
+      "expanded": true,
+      "id": "card-8fc591cc13d1cc308dd3c9c2080ea86af8bd50482ec8aa30be7cad7af0514fbf",
+      "mounts": "1",
+      "title": "First typed card 雪"
+    },
+    {
+      "draft": "Second distinct issue",
+      "expanded": false,
+      "id": "card-c042706aa4aa63772083d124cc87bd37a2ebcd2e6f55905fd44e403396018621",
+      "mounts": "1",
+      "title": "Second distinct issue"
+    }
+  ],
+  "hiddenCardCount": 0,
+  "remount": [
+    {
+      "draft": "Third inserted issue",
+      "expanded": false,
+      "mounts": "1",
+      "title": "Third inserted issue"
+    },
+    {
+      "draft": "First typed card 雪",
+      "expanded": false,
+      "mounts": "1",
+      "title": "First typed card 雪"
+    },
+    {
+      "draft": "Second distinct issue",
+      "expanded": false,
+      "mounts": "1",
+      "title": "Second distinct issue"
+    }
+  ],
+  "about": {
+    "mounts": "1"
+  },
+  "historyBack": {
+    "cards": 3,
+    "workspace": "w3-final"
+  },
+  "aboutReload": {
+    "errorHidden": true,
+    "mounts": "1",
+    "ready": "true"
+  },
+  "screenshot": {
+    "path": "verification/web_three_browser.jpg",
+    "sha256": "dfc33c6f193579d37c180276eea04f1a41fa45f2d14454beb85145fcf9b7c40a"
+  },
+  "normalJourneyLogs": [],
+  "finalPage": {
+    "cards": 3,
+    "errorHidden": true,
+    "image": {
+      "complete": true,
+      "width": 40
+    },
+    "ready": "true",
+    "scripts": [
+      "/assets/d8a02bb4efd857ff8b31b3773e2e71c488ee14396ca00585fbb06cefc37bdad5.js"
+    ],
+    "styles": [
+      "/assets/af2640451387bf1383a7ff0a8b8bb79cf8e14e2e48287211b5a59a7f5cf69b46.css"
+    ]
+  },
+  "observed_utc": "2026-10-22T06:04:34.560Z",
+  "status": "PASS",
+  "interface": "Actual Chrome controls via CUA; real compiled Diamond UI; two actual app servers, PostgreSQL, forwarding/response-gate proxy. Read-only DOM observations.",
+  "oracle": "Independent expected.json for composed events and corpus; explicit W3 lifecycle, forms, wire, rollback, route and delayed-reply invariants."
+}

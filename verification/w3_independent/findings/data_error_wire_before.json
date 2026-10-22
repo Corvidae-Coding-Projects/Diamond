@@ -1,0 +1,42 @@
+{
+  "binary_sha256": "88e71d42ff5e05261b578549dc3dae5fae8341befd3789655e9b054585ca7703",
+  "cases": [
+    {
+      "operation": "inspect_data",
+      "arguments": [
+        {
+          "tag": "Err",
+          "value": "ApplicationFailure"
+        }
+      ],
+      "expected_status": 200,
+      "expected_value": "Application failed.",
+      "observed_status": 400,
+      "observed_value": {
+        "error": "invalid_input"
+      }
+    },
+    {
+      "operation": "echo_data",
+      "arguments": [
+        {
+          "tag": "Err",
+          "value": "ApplicationFailure"
+        }
+      ],
+      "expected_status": 200,
+      "expected_value": {
+        "tag": "Ok",
+        "value": {
+          "tag": "Err",
+          "value": "ApplicationFailure"
+        }
+      },
+      "observed_status": 400,
+      "observed_value": {
+        "error": "invalid_input"
+      }
+    }
+  ],
+  "replay": "python3 verification/w3_independent/wire.py --binary PATH --report REPORT"
+}

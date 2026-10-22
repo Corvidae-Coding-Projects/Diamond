@@ -1,10 +1,12 @@
 //! Checked project graphs, target separation, and versioned application builds.
 
 mod artifact;
+mod assets;
 mod browser;
 mod connected;
 mod identity;
 mod lower;
+mod render;
 mod resolve;
 mod rpc;
 mod server;
@@ -59,6 +61,10 @@ struct Manifest {
     modules: BTreeMap<String, ModuleConfig>,
     #[serde(default)]
     rpc: BTreeMap<String, String>,
+    #[serde(default)]
+    styles: Vec<String>,
+    #[serde(default)]
+    assets: BTreeMap<String, String>,
 }
 
 #[derive(Clone, Debug)]
@@ -85,6 +91,7 @@ pub struct CheckedProject {
     modules: BTreeMap<String, Module>,
     server: CheckedProgram,
     browser: lower::BrowserProgram,
+    browser_checked: CheckedProgram,
     rpc: BTreeMap<String, rpc::Operation>,
 }
 
@@ -107,9 +114,16 @@ pub fn compile_project(path: &Path) -> Result<CheckedProject> {
     let manifest = manifest(&manifest_source)?;
     let mut sources = BTreeMap::new();
     let mut total = manifest_source.len();
-    for module in manifest.modules.values() {
-        resolve::relative_path(&module.path)?;
-        let source_path = root.join(&module.path).canonicalize()?;
+    let paths = manifest
+        .modules
+        .values()
+        .map(|m| m.path.clone())
+        .chain(manifest.styles.iter().cloned())
+        .chain(manifest.assets.values().cloned())
+        .collect::<BTreeSet<_>>();
+    for input_path in paths {
+        resolve::relative_path(&input_path)?;
+        let source_path = root.join(&input_path).canonicalize()?;
         if !source_path.starts_with(root) {
             return Err(input("module path escapes the project root"));
         }
@@ -118,7 +132,7 @@ pub fn compile_project(path: &Path) -> Result<CheckedProject> {
         if total > MAX_PROJECT_BYTES {
             return Err(Error::Limit("project source bytes"));
         }
-        sources.insert(module.path.clone(), source);
+        sources.insert(input_path, source);
     }
     compile_sources(manifest_source, sources)
 }
@@ -195,6 +209,24 @@ impl CheckedProject {
         } else {
             interpreter.main()
         }
+    }
+
+    /// Render a declared route's public initial component content without host authority.
+    ///
+    /// # Errors
+    /// Rejects unknown routes, invalid initial values and resource-budget failures.
+    ///
+    /// ```
+    /// let project=diamond::compile_project(std::path::Path::new("examples/foundations/diamond.toml"))?;
+    /// assert!(project.render_page("/")?.contains("diamond-component"));
+    /// assert!(project.render_page("/not-declared").is_err());
+    /// # Ok::<(),diamond::Error>(())
+    /// ```
+    pub fn render_page(&self, path: &str) -> Result<String> {
+        if !self.browser.routes.contains(path) {
+            return Err(input("unknown browser route"));
+        }
+        render::render(self, path)
     }
 
     /// Write deterministic server/browser artifacts to a new output directory.
@@ -350,6 +382,32 @@ fn manifest(source: &str) -> Result<Manifest> {
             return Err(input("entry module is missing or has the wrong target"));
         }
     }
+    if manifest.styles.len() + manifest.assets.len() > 64 {
+        return Err(input("at most 64 style/asset inputs"));
+    }
+    if manifest
+        .styles
+        .iter()
+        .any(|path| Path::new(path).extension().and_then(|e| e.to_str()) != Some("css"))
+    {
+        return Err(input("styles require CSS inputs"));
+    }
+    for path in manifest.styles.iter().chain(manifest.assets.values()) {
+        resolve::relative_path(path)?;
+        if !["css", "svg", "txt"].contains(
+            &Path::new(path)
+                .extension()
+                .and_then(|e| e.to_str())
+                .unwrap_or_default(),
+        ) {
+            return Err(input("W3 static inputs support UTF-8 CSS, SVG and text"));
+        }
+    }
+    for (name, path) in &manifest.assets {
+        if !resolve::identifier(name) || manifest.modules.values().any(|m| &m.path == path) {
+            return Err(input("invalid asset name or module/asset collision"));
+        }
+    }
     resolve::order(&manifest.modules)?;
     Ok(manifest)
 }
@@ -359,7 +417,14 @@ fn compile_sources(
     sources: BTreeMap<String, String>,
 ) -> Result<CheckedProject> {
     let manifest = manifest(&manifest_source)?;
-    if sources.len() != manifest.modules.len()
+    let paths = manifest
+        .modules
+        .values()
+        .map(|m| m.path.as_str())
+        .chain(manifest.styles.iter().map(String::as_str))
+        .chain(manifest.assets.values().map(String::as_str))
+        .collect::<BTreeSet<_>>();
+    if sources.keys().map(String::as_str).collect::<BTreeSet<_>>() != paths
         || sources.values().map(String::len).sum::<usize>() + manifest_source.len()
             > MAX_PROJECT_BYTES
     {
@@ -380,10 +445,16 @@ fn compile_sources(
         .parsed
         .components
         .iter()
-        .find(|component| component.name == manifest.component)
+        .find(|component| root.symbols.get(&manifest.component) == Some(&component.name))
         .ok_or_else(|| input("root browser export is not a component"))?;
-    let browser =
-        lower::lower(&browser_checked, component, &rpc).map_err(|error| locate(&modules, error))?;
+    let components = browser_names
+        .iter()
+        .flat_map(|n| modules[n].parsed.components.clone())
+        .collect::<Vec<_>>();
+    let mut browser = lower::lower(&browser_checked, &component.name, &components, &rpc)
+        .map_err(|error| locate(&modules, error))?;
+    let urls = assets::urls(&manifest, &sources)?;
+    assets::resolve(&mut browser, &urls)?;
     Ok(CheckedProject {
         manifest_source,
         sources,
@@ -391,6 +462,7 @@ fn compile_sources(
         modules,
         server,
         browser,
+        browser_checked,
         rpc,
     })
 }
@@ -407,6 +479,7 @@ fn parse_modules(
         let parsed = crate::parser::project_module(source)
             .map_err(|error| source_error(&config.path, error))?;
         if name != &manifest.server
+            && config.target != Target::Shared
             && parsed
                 .program
                 .declarations
@@ -416,6 +489,19 @@ fn parse_modules(
             return Err(input(
                 "W2 type/resource/policy declarations belong to the server entry module",
             ));
+        }
+        if config.target == Target::Shared
+            && parsed.program.declarations.iter().any(|d| {
+                !matches!(
+                    d,
+                    Declaration::Function(_)
+                        | Declaration::Alias(..)
+                        | Declaration::Record(_)
+                        | Declaration::Enum(_)
+                )
+            })
+        {
+            return Err(input("shared modules contain pure types/functions only"));
         }
         if config.target != Target::Browser && !parsed.components.is_empty() {
             return Err(input("components belong to browser modules"));
@@ -450,11 +536,9 @@ fn parse_modules(
         .values()
         .map(|module| module.parsed.components.len())
         .sum::<usize>()
-        != 1
+        > 64
     {
-        return Err(input(
-            "W1 projects require exactly one root browser component",
-        ));
+        return Err(input("at most 64 browser components"));
     }
     Ok(modules)
 }

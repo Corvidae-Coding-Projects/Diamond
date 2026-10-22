@@ -16,6 +16,7 @@ use tokio::sync::Semaphore;
 struct Server {
     address: SocketAddr,
     files: BTreeMap<String, String>,
+    pages: BTreeMap<String, String>,
     permits: Semaphore,
 }
 
@@ -32,7 +33,15 @@ pub(super) fn serve(project: &CheckedProject, address: SocketAddr) -> Result<()>
     }
     let files = artifact::files(project)?
         .into_iter()
-        .filter(|(path, _)| path == "index.html" || path.starts_with("assets/"))
+        .filter(|(path, _)| {
+            path == "index.html" || path.starts_with("assets/") || path.starts_with("pages/")
+        })
+        .collect();
+    let pages = project
+        .browser
+        .routes
+        .iter()
+        .map(|p| (p.clone(), artifact::page_key(p)))
         .collect();
     let runtime = tokio::runtime::Builder::new_multi_thread()
         .worker_threads(2)
@@ -45,6 +54,7 @@ pub(super) fn serve(project: &CheckedProject, address: SocketAddr) -> Result<()>
         let state = Arc::new(Server {
             address,
             files,
+            pages,
             permits: Semaphore::new(16),
         });
         let application = Router::new().fallback(handler).with_state(state);
@@ -121,17 +131,12 @@ async fn handler(State(server): State<Arc<Server>>, request: Request) -> Respons
             head,
         );
     }
-    let path = if request.uri().path() == "/" {
-        "index.html"
-    } else {
-        request.uri().path().trim_start_matches('/')
-    };
+    let path = server.pages.get(request.uri().path()).map_or_else(
+        || request.uri().path().trim_start_matches('/'),
+        String::as_str,
+    );
     if let Some(content) = server.files.get(path) {
-        let kind = if path == "index.html" {
-            "text/html; charset=utf-8"
-        } else {
-            "text/javascript; charset=utf-8"
-        };
+        let kind = artifact::content_type(path);
         return response(StatusCode::OK, kind, content, head);
     }
     response(
@@ -170,6 +175,12 @@ pub(super) fn response(status: StatusCode, kind: &'static str, text: &str, head:
         "cross-origin-resource-policy",
         header::HeaderValue::from_static("same-origin"),
     );
-    headers.insert("content-security-policy",header::HeaderValue::from_static("default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"));
+    headers.insert("content-security-policy",header::HeaderValue::from_static("default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"));
+    if kind == "image/svg+xml" {
+        headers.insert(
+            "content-security-policy",
+            header::HeaderValue::from_static("sandbox; default-src 'none'"),
+        );
+    }
     response
 }

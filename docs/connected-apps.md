@@ -5,6 +5,11 @@ protected CRUD and a minimal workspace tracker authored in Diamond. This is the
 local two-server slice of the expansion plan. Full frontend semantics, relational
 query planning, enrollment/recovery and production deployment remain later work.
 
+The W2 sections below preserve the original connected profile. In 0.9.0, the
+[W3 guide](reactive-apps.md) supersedes the scalar-only RPC, direct-only remote
+expressions, replace-on-update renderer, and wire-version-1 restrictions. The
+PostgreSQL, account, transport, and authority limits here still apply.
+
 ## Try the complete local demonstration
 
 With Rust 1.96, Python 3 and PostgreSQL's `initdb`, `pg_ctl` and `psql` installed:

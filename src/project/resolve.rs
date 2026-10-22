@@ -97,21 +97,18 @@ pub(super) fn reachable(root: &str, configs: &BTreeMap<String, ModuleConfig>) ->
 }
 
 pub(super) fn symbols(modules: &mut BTreeMap<String, Module>) -> Result<()> {
-    let mut own = BTreeMap::new();
-    for (name, module) in modules.iter() {
-        let mut symbols = BTreeMap::new();
+    public_interfaces(modules)?;
+    let own = own_symbols(modules)?;
+    for module in modules.values_mut() {
         for declaration in &module.parsed.program.declarations {
-            if let Declaration::Function(function) = declaration {
-                if !identifier(&function.name) {
-                    return Err(input("invalid or reserved project function name"));
+            if let Declaration::Enum(e) = declaration
+                && module.parsed.exports.contains(&e.name)
+            {
+                for (name, _) in &e.variants {
+                    module.parsed.exports.insert(name.clone());
                 }
-                symbols.insert(
-                    function.name.clone(),
-                    format!("__diamond_fn_{}_{name}_{}", name.len(), function.name),
-                );
             }
         }
-        own.insert(name.clone(), symbols);
     }
     for (name, module) in modules.iter() {
         let mut visible = own[name].clone();
@@ -160,6 +157,10 @@ pub(super) fn symbols(modules: &mut BTreeMap<String, Module>) -> Result<()> {
                     local(parameter)?;
                     locals.insert(parameter.clone());
                 }
+                for (_, ty) in &mut function.parameters {
+                    resolve_type_name(ty, &visible)?;
+                }
+                resolve_type_name(&mut function.result, &visible)?;
                 function.name = own[name][&function.name].clone();
                 function.location.line += module.line_base;
                 block(&mut function.body, &visible, &mut locals, module.line_base)?;
@@ -168,6 +169,9 @@ pub(super) fn symbols(modules: &mut BTreeMap<String, Module>) -> Result<()> {
             }
         }
         components(module, &visible)?;
+        for component in &mut module.parsed.components {
+            component.name = own[name][&component.name].clone();
+        }
     }
     Ok(())
 }
@@ -178,15 +182,45 @@ fn server_declaration(
     base: usize,
 ) -> Result<()> {
     match declaration {
-        Declaration::Alias(name, _, location) | Declaration::Resource(name, _, location) => {
+        Declaration::Alias(name, ty, location) => {
             local(name)?;
+            if let Some(n) = visible.get(name) {
+                *name = n.clone();
+            }
+            resolve_type_name(ty, visible)?;
             location.line += base;
+        }
+        Declaration::Resource(name, record, location) => {
+            local(name)?;
+            if let Some(n) = visible.get(record) {
+                *record = n.clone();
+            }
+            location.line += base;
+        }
+        Declaration::Enum(e) => {
+            local(&e.name)?;
+            if let Some(n) = visible.get(&e.name) {
+                e.name = n.clone();
+            }
+            e.location.line += base;
+            for (name, fields) in &mut e.variants {
+                if let Some(n) = visible.get(name) {
+                    *name = n.clone();
+                }
+                for (_, ty) in fields {
+                    resolve_type_name(ty, visible)?;
+                }
+            }
         }
         Declaration::Record(record) => {
             local(&record.name)?;
+            if let Some(n) = visible.get(&record.name) {
+                record.name = n.clone();
+            }
             record.location.line += base;
             for field in &mut record.fields {
                 local(&field.name)?;
+                resolve_type_name(&mut field.ty, visible)?;
                 field.location.line += base;
                 if let Some(value) = &mut field.default {
                     expression(value, visible, &BTreeSet::new(), base)?;
@@ -215,7 +249,7 @@ fn components(module: &mut Module, visible: &BTreeMap<String, String>) -> Result
     for component in &mut module.parsed.components {
         local(&component.name)?;
         component.location.line += module.line_base;
-        let locals: BTreeSet<_> = component
+        let mut locals: BTreeSet<_> = component
             .states
             .iter()
             .map(|(name, _, _)| name.clone())
@@ -223,9 +257,36 @@ fn components(module: &mut Module, visible: &BTreeMap<String, String>) -> Result
         if locals.len() != component.states.len() {
             return Err(input("duplicate component state"));
         }
-        for (name, _, value) in &mut component.states {
+        for (name, ty) in &mut component.properties {
             local(name)?;
-            expression(value, visible, &BTreeSet::new(), module.line_base)?;
+            resolve_type_name(ty, visible)?;
+            if !locals.insert(name.clone()) {
+                return Err(input("duplicate component property/state"));
+            }
+        }
+        let mut initial = component
+            .properties
+            .iter()
+            .map(|(n, _)| n.clone())
+            .collect::<BTreeSet<_>>();
+        for (name, ty, value) in &mut component.states {
+            resolve_type_name(ty, visible)?;
+            local(name)?;
+            expression(value, visible, &initial, module.line_base)?;
+            initial.insert(name.clone());
+        }
+        for builtin in ["pending", "error", "route"] {
+            if !locals.insert(builtin.into()) {
+                return Err(input("reserved component state name"));
+            }
+        }
+        for (name, ty, value) in &mut component.derived {
+            local(name)?;
+            resolve_type_name(ty, visible)?;
+            expression(value, visible, &locals, module.line_base)?;
+            if !locals.insert(name.clone()) {
+                return Err(input("duplicate derived name"));
+            }
         }
         let events: BTreeSet<_> = component
             .events
@@ -308,8 +369,13 @@ fn expression(
             expression(b, symbols, locals, base)?;
         }
         ExprKind::Call {
-            callee, arguments, ..
+            callee,
+            arguments,
+            types,
         } => {
+            for ty in types {
+                resolve_type_name(ty, symbols)?;
+            }
             expression(callee, symbols, locals, base)?;
             for (_, argument) in arguments {
                 expression(argument, symbols, locals, base)?;
@@ -333,12 +399,18 @@ fn expression(
             for arm in arms {
                 arm.location.line += base;
                 let mut nested = locals.clone();
-                match &arm.pattern {
+                match &mut arm.pattern {
                     Pattern::Binding(name) => {
                         local(name)?;
                         nested.insert(name.clone());
                     }
-                    Pattern::Constructor(_, names) => {
+                    Pattern::Constructor(constructor, names) => {
+                        if constructor.starts_with("__diamond_") {
+                            return Err(input("compiler-generated variant names are reserved"));
+                        }
+                        if let Some(n) = symbols.get(constructor) {
+                            *constructor = n.clone();
+                        }
                         for name in names {
                             local(name)?;
                             nested.insert(name.clone());
@@ -369,18 +441,201 @@ fn html(
                 children,
                 ..
             } => {
+                let mut nested = locals.clone();
+                for (name, attribute) in attributes.iter() {
+                    if name == "as"
+                        && let HtmlAttribute::Literal(n) = attribute
+                    {
+                        local(n)?;
+                        nested.insert(n.clone());
+                    }
+                }
                 for (name, attribute) in attributes {
+                    if name == "component"
+                        && let HtmlAttribute::Literal(n) = attribute
+                    {
+                        if n.starts_with("__diamond_") {
+                            return Err(input("compiler-generated component names are reserved"));
+                        }
+                        if let Some(resolved) = symbols.get(n) {
+                            *n = resolved.clone();
+                        }
+                    }
                     if let HtmlAttribute::Expression(value) = attribute {
-                        if ["on-click", "bind-value"].contains(&name.as_str()) {
+                        if ["on-click", "on-submit", "bind-value", "bind-checked"]
+                            .contains(&name.as_str())
+                        {
                             value.location.line += base;
                         } else {
-                            expression(value, symbols, locals, base)?;
+                            expression(value, symbols, &nested, base)?;
                         }
                     }
                 }
-                html(children, symbols, locals, base)?;
+                html(children, symbols, &nested, base)?;
             }
         }
     }
     Ok(())
+}
+
+fn resolve_type_name(
+    ty: &mut crate::syntax::TypeName,
+    symbols: &BTreeMap<String, String>,
+) -> Result<()> {
+    match ty {
+        crate::syntax::TypeName::Named(n) => {
+            if n.starts_with("__diamond_") {
+                return Err(input("compiler-generated type names are reserved"));
+            }
+            if let Some(resolved) = symbols.get(n) {
+                *n = resolved.clone();
+            }
+        }
+        crate::syntax::TypeName::Generic(name, args) => {
+            if name.starts_with("__diamond_") {
+                return Err(input("compiler-generated type names are reserved"));
+            }
+            for arg in args {
+                resolve_type_name(arg, symbols)?;
+            }
+        }
+        _ => {}
+    }
+    Ok(())
+}
+
+fn public_interfaces(modules: &BTreeMap<String, Module>) -> Result<()> {
+    use crate::syntax::TypeName;
+    fn check(ty: &TypeName, private: &BTreeSet<String>) -> Result<()> {
+        match ty {
+            TypeName::Named(n) if private.contains(n) => {
+                return Err(input("public interfaces cannot expose private types"));
+            }
+            TypeName::Generic(_, args) => {
+                for a in args {
+                    check(a, private)?;
+                }
+            }
+            _ => {}
+        }
+        Ok(())
+    }
+    for module in modules.values() {
+        let private = module
+            .parsed
+            .program
+            .declarations
+            .iter()
+            .filter_map(|d| match d {
+                Declaration::Alias(n, ..) => Some(n),
+                Declaration::Record(r) => Some(&r.name),
+                Declaration::Enum(e) => Some(&e.name),
+                _ => None,
+            })
+            .filter(|n| !module.parsed.exports.contains(*n))
+            .cloned()
+            .collect();
+        if module.config.target != Target::Shared {
+            continue;
+        }
+        for d in &module.parsed.program.declarations {
+            match d {
+                Declaration::Function(f) if module.parsed.exports.contains(&f.name) => {
+                    check(&f.result, &private)?;
+                    for (_, t) in &f.parameters {
+                        check(t, &private)?;
+                    }
+                }
+                Declaration::Alias(n, t, _) if module.parsed.exports.contains(n) => {
+                    check(t, &private)?;
+                }
+                Declaration::Record(r) if module.parsed.exports.contains(&r.name) => {
+                    for f in &r.fields {
+                        check(&f.ty, &private)?;
+                    }
+                }
+                Declaration::Enum(e) if module.parsed.exports.contains(&e.name) => {
+                    for (_, fs) in &e.variants {
+                        for (_, t) in fs {
+                            check(t, &private)?;
+                        }
+                    }
+                }
+                _ => {}
+            }
+        }
+    }
+    Ok(())
+}
+pub(super) fn public_name(name: &str) -> &str {
+    let Some(rest) = name.strip_prefix("__diamond_variant_") else {
+        return name;
+    };
+    let Some((length, rest)) = rest.split_once('_') else {
+        return name;
+    };
+    let Ok(length) = length.parse::<usize>() else {
+        return name;
+    };
+    rest.get(length + 1..).unwrap_or(name)
+}
+
+fn own_symbols(
+    modules: &BTreeMap<String, Module>,
+) -> Result<BTreeMap<String, BTreeMap<String, String>>> {
+    let mut own = BTreeMap::new();
+    for (name, module) in modules {
+        let mut symbols = BTreeMap::new();
+        for declaration in &module.parsed.program.declarations {
+            if let Declaration::Function(function) = declaration {
+                if !identifier(&function.name) || crate::standard::is_builtin(&function.name) {
+                    return Err(input("invalid or reserved project function name"));
+                }
+                symbols.insert(
+                    function.name.clone(),
+                    format!("__diamond_fn_{}_{name}_{}", name.len(), function.name),
+                );
+            }
+        }
+        for declaration in &module.parsed.program.declarations {
+            let typed = match declaration {
+                Declaration::Alias(n, _, _) if module.config.target == Target::Shared => Some(n),
+                Declaration::Record(r) if module.config.target == Target::Shared => Some(&r.name),
+                Declaration::Enum(e) if module.config.target == Target::Shared => Some(&e.name),
+                _ => None,
+            };
+            if let Some(n) = typed {
+                symbols.insert(
+                    n.clone(),
+                    format!("__diamond_type_{}_{name}_{n}", name.len()),
+                );
+            }
+            if let Declaration::Enum(e) = declaration {
+                for (variant, _) in &e.variants {
+                    if !identifier(variant)
+                        || !variant.chars().next().is_some_and(char::is_uppercase)
+                        || symbols.contains_key(variant)
+                    {
+                        return Err(input("invalid or conflicting enum constructor"));
+                    }
+                    symbols.insert(
+                        variant.clone(),
+                        format!("__diamond_variant_{}_{name}_{variant}", name.len()),
+                    );
+                }
+            }
+        }
+        for component in &module.parsed.components {
+            symbols.insert(
+                component.name.clone(),
+                format!(
+                    "__diamond_component_{}_{name}_{}",
+                    name.len(),
+                    component.name
+                ),
+            );
+        }
+        own.insert(name.clone(), symbols);
+    }
+    Ok(own)
 }

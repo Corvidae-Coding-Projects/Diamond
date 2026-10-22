@@ -1,70 +1,41 @@
-//! Scalar browser IR with resolved symbols, explicit types, and source locations.
+//! Checked browser IR, with the same expression tree used by reference evaluation.
 
+mod asynchronous;
+mod reach;
 use crate::checker::expression_type;
 use crate::error::{Error, Location, Result};
 use crate::hir::CheckedProgram;
-use crate::syntax::{
-    self, Binary, Expr, ExprKind, HtmlAttribute, HtmlNode, Statement, StatementKind, Unary,
-};
+use crate::syntax::{self, Expr, ExprKind, HtmlAttribute, HtmlNode, Statement};
 use crate::value::Type;
 use serde::Serialize;
 use std::collections::{BTreeMap, BTreeSet};
 
-#[derive(Clone, Copy, Debug, Serialize, PartialEq, Eq)]
-pub(super) enum Scalar {
-    Int,
-    Bool,
-    Text,
-}
-
-impl Scalar {
-    fn from_type(ty: &Type, location: Location) -> Result<Self> {
-        match ty {
-            Type::Int => Ok(Self::Int),
-            Type::Bool => Ok(Self::Bool),
-            Type::Text | Type::BoundedText(_, _) => Ok(Self::Text),
-            _ => Err(Error::unsupported(
-                location,
-                "W1 browser values support Int, Bool and Text",
-            )),
-        }
-    }
-}
-
 #[derive(Clone, Debug, Serialize)]
 pub(super) struct Expression {
-    pub ty: Scalar,
-    pub line: usize,
-    pub column: usize,
-    pub kind: Kind,
+    pub ty: Type,
+    pub ast: Expr,
 }
-
 #[derive(Clone, Debug, Serialize)]
-pub(super) enum Kind {
-    Int(String),
-    Text(String),
-    Bool(bool),
-    Name(String),
-    Unary(String, Box<Expression>),
-    Binary(Box<Expression>, String, Box<Expression>),
-    Call(String, Vec<Expression>),
-    Remote(String, Vec<Expression>, Vec<Scalar>),
+pub(super) enum EventValue {
+    Async {
+        expression: Expression,
+        remotes: BTreeMap<String, EventValue>,
+    },
+    Pure(Expression),
+    Remote {
+        operation: String,
+        arguments: Vec<Expression>,
+        types: Vec<Type>,
+        result: Type,
+    },
 }
-
-#[derive(Clone, Debug, Serialize)]
-pub(super) enum Instruction {
-    Let(String, Expression),
-    Value(Expression),
-    Return(Expression),
-}
-
 #[derive(Clone, Debug, Serialize)]
 pub(super) struct Function {
-    pub parameters: Vec<(String, Scalar)>,
-    pub result: Scalar,
-    pub body: Vec<Instruction>,
+    pub parameters: Vec<(String, Type)>,
+    pub result: Type,
+    pub body: Vec<Statement>,
+    pub location: Location,
 }
-
 #[derive(Clone, Debug, Serialize)]
 pub(super) enum Node {
     Text(String),
@@ -74,330 +45,467 @@ pub(super) enum Node {
         attributes: Vec<(String, Attribute)>,
         children: Vec<Self>,
     },
+    When(Expression, Vec<Self>),
+    Each {
+        items: Expression,
+        binding: String,
+        key: Expression,
+        children: Vec<Self>,
+    },
+    Use {
+        component: String,
+        properties: Vec<(String, Expression)>,
+    },
+    Route(String, Vec<Self>),
 }
-
 #[derive(Clone, Debug, Serialize)]
 pub(super) enum Attribute {
     Text(String),
     Value(Expression),
     Event(String),
     Binding(String),
+    Checked(String),
 }
-
+#[derive(Clone, Debug, Serialize)]
+pub(super) struct Component {
+    pub properties: Vec<(String, Type)>,
+    pub state: Vec<(String, Expression)>,
+    pub derived: Vec<(String, Expression)>,
+    pub events: BTreeMap<String, Vec<(String, EventValue)>>,
+    pub template: Vec<Node>,
+}
 #[derive(Clone, Debug, Serialize)]
 pub(super) struct BrowserProgram {
     pub component: String,
-    pub state: Vec<(String, Expression)>,
-    pub events: BTreeMap<String, Vec<(String, Expression)>>,
-    pub template: Vec<Node>,
+    pub components: BTreeMap<String, Component>,
     pub functions: BTreeMap<String, Function>,
+    pub records: BTreeMap<String, BTreeMap<String, Type>>,
+    pub enums: BTreeMap<String, BTreeMap<String, Vec<Type>>>,
+    pub defaults: BTreeMap<String, BTreeMap<String, serde_json::Value>>,
+    pub wire_names: BTreeMap<String, String>,
+    pub aliases: BTreeMap<String, Type>,
+    pub routes: BTreeSet<String>,
 }
-
+struct Lower<'a> {
+    program: &'a CheckedProgram,
+    signatures: BTreeMap<String, Vec<(String, Type)>>,
+    routes: BTreeSet<String>,
+}
 pub(super) fn lower(
     program: &CheckedProgram,
-    component: &syntax::Component,
+    root: &str,
+    components: &[syntax::Component],
     rpc: &BTreeMap<String, super::rpc::Operation>,
 ) -> Result<BrowserProgram> {
     let mut lower = Lower {
         program,
-        calls: BTreeSet::new(),
+        signatures: BTreeMap::new(),
+        routes: BTreeSet::from(["/".into()]),
     };
-    let mut locals = BTreeMap::new();
-    let mut state = Vec::new();
-    for (name, ty, value) in &component.states {
-        let ty = crate::checker::resolve_type(ty, program, value.location)?;
-        let scalar = Scalar::from_type(&ty, value.location)?;
-        let value = lower.expression(value, &BTreeMap::new())?;
-        if value.ty != scalar {
-            return Err(error(
-                component.location,
-                "state initializer does not match its declared type",
-            ));
-        }
-        locals.insert(name.clone(), ty);
-        state.push((name.clone(), value));
+    lower.signatures = property_signatures(program, components)?;
+    if !lower.signatures.get(root).is_some_and(Vec::is_empty) {
+        return Err(error(
+            Location::default(),
+            "root component must exist and take no properties",
+        ));
     }
-    let mut events = BTreeMap::new();
-    for (name, assignments) in &component.events {
-        let mut event = Vec::new();
-        for (target, value) in assignments {
-            let ty = locals.get(target).ok_or_else(|| {
-                error(
-                    value.location,
-                    "event assignment must target declared component state",
-                )
-            })?;
-            let expected = Scalar::from_type(ty, value.location)?;
-            let value = lower.event_expression(value, &locals, rpc)?;
-            if value.ty != expected {
-                return Err(error(
-                    component.location,
-                    "event assignment changes a state's type",
-                ));
-            }
-            event.push((target.clone(), value));
-        }
-        events.insert(name.clone(), event);
+    let mut checked = BTreeMap::new();
+    for c in components {
+        checked.insert(c.name.clone(), lower.component(c, rpc)?);
     }
-    let template = lower.nodes(&component.template, &locals, &events)?;
-    let mut functions = BTreeMap::new();
-    while let Some(name) = lower
-        .calls
-        .iter()
-        .find(|name| !functions.contains_key(*name))
-        .cloned()
-    {
-        let function = program
-            .functions
-            .get(&name)
-            .ok_or_else(|| error(component.location, "unresolved browser call"))?;
-        if !function.effects.is_empty() {
-            return Err(error(
-                function.location,
-                "browser functions cannot carry host authority",
-            ));
-        }
-        let mut locals = BTreeMap::new();
-        let mut parameters = Vec::new();
-        for (name, ty) in &function.parameters {
-            parameters.push((name.clone(), Scalar::from_type(ty, function.location)?));
-            locals.insert(name.clone(), ty.clone());
-        }
-        let result = Scalar::from_type(&function.result, function.location)?;
-        let body = lower.block(&function.body, &mut locals)?;
-        functions.insert(
-            name,
-            Function {
-                parameters,
-                result,
-                body,
-            },
-        );
+    let mut used_components = BTreeSet::new();
+    visit(root, &checked, &mut BTreeSet::new(), &mut used_components)?;
+    checked.retain(|n, _| used_components.contains(n));
+    lower.routes = BTreeSet::from(["/".into()]);
+    for component in checked.values() {
+        collect_routes(&component.template, &mut lower.routes);
     }
+    let used = reach::used(program, &checked);
+    let functions = reachable_functions(program, &used.functions)?;
     Ok(BrowserProgram {
-        component: component.name.clone(),
-        state,
-        events,
-        template,
+        component: root.into(),
+        components: checked,
         functions,
+        records: program
+            .records
+            .iter()
+            .filter(|(n, _)| used.records.contains(*n))
+            .map(|(n, r)| {
+                (
+                    n.clone(),
+                    r.fields
+                        .iter()
+                        .map(|(n, f)| (n.clone(), f.ty.clone()))
+                        .collect(),
+                )
+            })
+            .collect(),
+        enums: program
+            .enums
+            .iter()
+            .filter(|(n, _)| used.enums.contains(*n))
+            .map(|(n, e)| {
+                (
+                    n.clone(),
+                    e.variants
+                        .iter()
+                        .map(|(n, f)| (n.clone(), f.iter().map(|(_, ty)| ty.clone()).collect()))
+                        .collect(),
+                )
+            })
+            .collect(),
+        defaults: program
+            .records
+            .iter()
+            .filter(|(n, _)| used.records.contains(*n))
+            .map(|(n, r)| {
+                Ok((
+                    n.clone(),
+                    r.fields
+                        .iter()
+                        .filter_map(|(n, f)| f.default.as_ref().map(|v| (n, v)))
+                        .map(|(n, v)| Ok((n.clone(), super::wire::encode(v)?)))
+                        .collect::<Result<_>>()?,
+                ))
+            })
+            .collect::<Result<_>>()?,
+        wire_names: program
+            .enums
+            .iter()
+            .filter(|(n, _)| used.enums.contains(*n))
+            .flat_map(|(_, e)| e.variants.keys())
+            .map(|n| (n.clone(), super::resolve::public_name(n).into()))
+            .collect(),
+        aliases: program
+            .aliases
+            .iter()
+            .filter(|(n, _)| used.aliases.contains(*n))
+            .map(|(n, t)| (n.clone(), t.clone()))
+            .collect(),
+        routes: lower.routes,
     })
 }
-
-struct Lower<'a> {
-    program: &'a CheckedProgram,
-    calls: BTreeSet<String>,
-}
-
 impl Lower<'_> {
-    fn event_expression(
+    fn expression(&self, value: &Expr, locals: &BTreeMap<String, Type>) -> Result<Expression> {
+        let ty = expression_type(self.program, locals.clone(), value)?;
+        if !super::wire::safe_type(&ty, self.program) && ty != Type::DataError && ty != Type::Never
+        {
+            return Err(error(
+                value.location,
+                "browser expression is not a managed browser value",
+            ));
+        }
+        Ok(Expression {
+            ty,
+            ast: value.clone(),
+        })
+    }
+    fn component(
         &mut self,
-        expression: &Expr,
+        c: &syntax::Component,
+        rpc: &BTreeMap<String, super::rpc::Operation>,
+    ) -> Result<Component> {
+        let properties = self.signatures[&c.name].clone();
+        let mut locals: BTreeMap<_, _> = properties.iter().cloned().collect();
+        let mut state = Vec::new();
+        for (n, t, e) in &c.states {
+            let ty = crate::checker::resolve_type(t, self.program, e.location)?;
+            let value = self.expression(e, &locals)?;
+            if !ty.accepts(&value.ty) {
+                return Err(error(e.location, "state initializer type mismatch"));
+            }
+            state.push((
+                n.clone(),
+                Expression {
+                    ty: ty.clone(),
+                    ast: value.ast,
+                },
+            ));
+            locals.insert(n.clone(), ty);
+        }
+        locals.extend([
+            ("pending".into(), Type::Bool),
+            ("error".into(), Type::Text),
+            ("route".into(), Type::Text),
+        ]);
+        let mut derived = Vec::new();
+        for (n, t, e) in &c.derived {
+            let ty = crate::checker::resolve_type(t, self.program, e.location)?;
+            let value = self.expression(e, &locals)?;
+            if !ty.accepts(&value.ty) {
+                return Err(error(e.location, "derived value type mismatch"));
+            }
+            locals.insert(n.clone(), ty.clone());
+            derived.push((n.clone(), Expression { ty, ast: value.ast }));
+        }
+        let mut events = BTreeMap::new();
+        for (name, assignments) in &c.events {
+            let mut output = Vec::new();
+            for (target, value) in assignments {
+                let expected = state
+                    .iter()
+                    .find(|(n, _)| n == target)
+                    .map(|(_, v)| &v.ty)
+                    .ok_or_else(|| {
+                        error(
+                            value.location,
+                            "event assignment targets mutable state only",
+                        )
+                    })?;
+                let event = self.event(value, &locals, rpc)?;
+                let actual = match &event {
+                    EventValue::Pure(e) | EventValue::Async { expression: e, .. } => &e.ty,
+                    EventValue::Remote { result, .. } => result,
+                };
+                if !expected.accepts(actual) {
+                    return Err(error(value.location, "event assignment changes state type"));
+                }
+                if name == "unmount" && !matches!(event, EventValue::Pure(_)) {
+                    return Err(error(
+                        value.location,
+                        "unmount cleanup cannot dispatch server mutations",
+                    ));
+                }
+                output.push((target.clone(), event));
+            }
+            events.insert(name.clone(), output);
+        }
+        let mutable = state
+            .iter()
+            .map(|(n, e)| (n.clone(), e.ty.clone()))
+            .collect();
+        let template = self.nodes(&c.template, &locals, &events, &mutable)?;
+        Ok(Component {
+            properties,
+            state,
+            derived,
+            events,
+            template,
+        })
+    }
+    fn event(
+        &self,
+        e: &Expr,
         locals: &BTreeMap<String, Type>,
-        operations: &BTreeMap<String, super::rpc::Operation>,
-    ) -> Result<Expression> {
+        rpc: &BTreeMap<String, super::rpc::Operation>,
+    ) -> Result<EventValue> {
+        asynchronous::lower(self, e, locals, rpc)
+    }
+    fn remote(
+        &self,
+        e: &Expr,
+        locals: &BTreeMap<String, Type>,
+        rpc: &BTreeMap<String, super::rpc::Operation>,
+    ) -> Result<EventValue> {
         if let ExprKind::Call {
             callee,
             arguments,
             types,
-        } = &expression.kind
+        } = &e.kind
             && let ExprKind::Field(base, name) = &callee.kind
             && let ExprKind::Name(namespace) = &base.kind
             && ["rpc", "session"].contains(&namespace.as_str())
         {
             let (parameters, result, operation) = if namespace == "rpc" {
-                let operation = operations.get(name).ok_or_else(|| {
-                    error(expression.location, "RPC is not declared in the manifest")
-                })?;
+                let op = rpc
+                    .get(name)
+                    .ok_or_else(|| error(e.location, "RPC is not declared in the manifest"))?;
                 (
-                    operation.arguments.clone(),
-                    operation.result.clone(),
+                    op.arguments.clone(),
+                    op.result.clone(),
                     format!("rpc/{name}"),
                 )
             } else {
-                let parameters = match name.as_str() {
+                let params = match name.as_str() {
                     "login" => vec![Type::Text, Type::Text],
                     "logout" | "user" => vec![],
-                    _ => return Err(error(expression.location, "unknown session operation")),
+                    _ => return Err(error(e.location, "unknown session operation")),
                 };
-                (parameters, Type::Text, format!("session/{name}"))
+                (params, Type::Text, format!("session/{name}"))
             };
             if !types.is_empty()
                 || arguments.len() != parameters.len()
-                || arguments.iter().any(|(name, _)| name.is_some())
+                || arguments.iter().any(|(n, _)| n.is_some())
             {
                 return Err(error(
-                    expression.location,
+                    e.location,
                     "remote arguments must match the declared positional signature",
                 ));
             }
             let mut values = Vec::new();
-            let mut scalars = Vec::new();
-            for ((_, value), ty) in arguments.iter().zip(&parameters) {
-                let expected = Scalar::from_type(ty, value.location)?;
-                let value = self.expression(value, locals)?;
-                if value.ty != expected {
-                    return Err(error(expression.location, "remote argument type mismatch"));
+            for ((_, e), ty) in arguments.iter().zip(&parameters) {
+                let value = self.expression(e, locals)?;
+                if !(ty.accepts(&value.ty)
+                    || matches!(ty, Type::BoundedText(..)) && value.ty == Type::Text)
+                {
+                    return Err(error(e.location, "remote argument type mismatch"));
                 }
                 values.push(value);
-                scalars.push(expected);
             }
-            return Ok(Expression {
-                ty: Scalar::from_type(&result, expression.location)?,
-                line: expression.location.line,
-                column: expression.location.column,
-                kind: Kind::Remote(operation, values, scalars),
-            });
+            Ok(EventValue::Remote {
+                operation,
+                arguments: values,
+                types: parameters,
+                result,
+            })
+        } else {
+            Ok(EventValue::Pure(self.expression(e, locals)?))
         }
-        self.expression(expression, locals)
     }
-
-    fn expression(
-        &mut self,
-        expression: &Expr,
-        locals: &BTreeMap<String, Type>,
-    ) -> Result<Expression> {
-        let ty = Scalar::from_type(
-            &expression_type(self.program, locals.clone(), expression)?,
-            expression.location,
-        )?;
-        let kind = match &expression.kind {
-            ExprKind::Int(value) => Kind::Int(value.to_string()),
-            ExprKind::Text(value) => Kind::Text(value.clone()),
-            ExprKind::Bool(value) => Kind::Bool(*value),
-            ExprKind::Name(name) => Kind::Name(name.clone()),
-            ExprKind::Unary(operator, value) => Kind::Unary(
-                match operator {
-                    Unary::Not => "not",
-                    Unary::Negate => "negate",
-                }
-                .into(),
-                Box::new(self.expression(value, locals)?),
-            ),
-            ExprKind::Binary(a, operator, b) => Kind::Binary(
-                Box::new(self.expression(a, locals)?),
-                binary(*operator).into(),
-                Box::new(self.expression(b, locals)?),
-            ),
-            ExprKind::Call {
-                callee,
-                arguments,
-                types,
-            } if types.is_empty() => {
-                let ExprKind::Name(name) = &callee.kind else {
-                    return Err(error(
-                        expression.location,
-                        "browser calls require a resolved pure function",
-                    ));
-                };
-                if name != "len" {
-                    self.calls.insert(name.clone());
-                }
-                Kind::Call(
-                    name.clone(),
-                    arguments
-                        .iter()
-                        .map(|(_, value)| self.expression(value, locals))
-                        .collect::<Result<_>>()?,
-                )
-            }
-            _ => {
-                return Err(Error::unsupported(
-                    expression.location,
-                    "this expression is outside the W1 scalar browser subset",
-                ));
-            }
-        };
-        Ok(Expression {
-            ty,
-            line: expression.location.line,
-            column: expression.location.column,
-            kind,
-        })
-    }
-
-    fn block(
-        &mut self,
-        body: &[Statement],
-        locals: &mut BTreeMap<String, Type>,
-    ) -> Result<Vec<Instruction>> {
-        let mut output = Vec::new();
-        for statement in body {
-            output.push(match &statement.kind {
-                StatementKind::Let(name, value) => {
-                    let ty = expression_type(self.program, locals.clone(), value)?;
-                    let value = self.expression(value, locals)?;
-                    locals.insert(name.clone(), ty);
-                    Instruction::Let(name.clone(), value)
-                }
-                StatementKind::Expression(value) => {
-                    Instruction::Value(self.expression(value, locals)?)
-                }
-                StatementKind::Return(value) => {
-                    Instruction::Return(self.expression(value, locals)?)
-                }
-                _ => {
-                    return Err(Error::unsupported(
-                        statement.location,
-                        "this statement is outside the W1 browser subset",
-                    ));
-                }
-            });
-        }
-        Ok(output)
-    }
-
     fn nodes(
         &mut self,
         nodes: &[HtmlNode],
         locals: &BTreeMap<String, Type>,
-        events: &BTreeMap<String, Vec<(String, Expression)>>,
+        events: &BTreeMap<String, Vec<(String, EventValue)>>,
+        mutable: &BTreeMap<String, Type>,
     ) -> Result<Vec<Node>> {
         nodes.iter().map(|node|match node {
-            HtmlNode::Text(text)=>Ok(Node::Text(text.clone())),
-            HtmlNode::Expression(value)=>Ok(Node::Value(self.expression(value,locals)?)),
-            HtmlNode::Element {tag,attributes,children}=> {
-                if ["html","head","body","title","form","textarea"].contains(&tag.as_str()) {
-                    return Err(Error::unsupported(Location::default(),"W1 components render content elements and click buttons; document elements/forms arrive in W3"));
+            HtmlNode::Text(s)=>Ok(Node::Text(s.clone())),
+            HtmlNode::Expression(e)=>{let v=self.expression(e,locals)?;if !matches!(v.ty,Type::Int|Type::Bool|Type::Text|Type::BoundedText(..)|Type::Id(_)) {return Err(error(e.location,"render compound values through explicit fields, match, each or formatting utilities"));}Ok(Node::Value(v))},
+            HtmlNode::Element{tag,attributes,children}=>{
+                let attrs:BTreeMap<_,_>=attributes.iter().map(|(n,v)|(n.as_str(),v)).collect();
+                let literal=|n:&str|match attrs.get(n) {Some(HtmlAttribute::Literal(s))=>Ok(s.clone()),_=>Err(error(Location::default(),"directive requires a static name/path"))};
+                let expr=|n:&str|match attrs.get(n) {Some(HtmlAttribute::Expression(e))=>Ok((*e).clone()),_=>Err(error(Location::default(),"directive requires an expression"))};
+                match tag.as_str() {
+                    "when"=>{if attrs.len()!=1 {return Err(error(Location::default(),"when requires only test"));}let v=self.expression(&expr("test")?,locals)?;if v.ty!=Type::Bool {return Err(error(v.ast.location,"when test must be Bool"));}return Ok(Node::When(v,self.nodes(children,locals,events,mutable)?));},
+                    "each"=>{if attrs.len()!=3 {return Err(error(Location::default(),"each requires items, as and key"));}let items=self.expression(&expr("items")?,locals)?;let Type::List(inner)=&items.ty else {return Err(error(items.ast.location,"each requires a List"));};let binding=literal("as")?;if !super::resolve::identifier(&binding) || locals.contains_key(&binding) {return Err(error(items.ast.location,"each binding must be a fresh local name"));}let mut nested=locals.clone();nested.insert(binding.clone(),(**inner).clone());let key=self.expression(&expr("key")?,&nested)?;if !matches!(key.ty,Type::Int|Type::Text|Type::BoundedText(..)|Type::Id(_)) {return Err(error(key.ast.location,"key requires Int, Text or Id"));}return Ok(Node::Each{items,binding,key,children:self.nodes(children,&nested,events,mutable)?});},
+                    "route"=>{if attrs.len()!=1 {return Err(error(Location::default(),"route requires only path"));}let path=literal("path")?;crate::template::validate_internal_url(&path,Location::default())?;if path.contains(['?','#']) || path.starts_with("/_diamond") || path.starts_with("/assets/") {return Err(error(Location::default(),"route path is reserved or not canonical"));}self.routes.insert(path.clone());return Ok(Node::Route(path,self.nodes(children,locals,events,mutable)?));},
+                    "use"=>{if !children.iter().all(|n|matches!(n,HtmlNode::Text(s) if s.trim().is_empty())) {return Err(error(Location::default(),"use takes properties only"));}let component=literal("component")?;let signature=self.signatures.get(&component).ok_or_else(||error(Location::default(),"unknown or invisible component"))?;if attrs.len()!=signature.len()+1 {return Err(error(Location::default(),"component properties must match its declared signature"));}let properties=signature.iter().map(|(n,ty)|{let e=self.expression(&expr(n)?,locals)?;if !ty.accepts(&e.ty) {return Err(error(e.ast.location,"component property type mismatch"));}Ok((n.clone(),e))}).collect::<Result<_>>()?;return Ok(Node::Use{component,properties});},
+                    "html"|"head"|"body"|"title"=>return Err(error(Location::default(),"components render inside the document body")),_=>{}
                 }
                 let mut checked=Vec::new();
-                for (name,attribute) in attributes {
-                    let attribute=match (name.as_str(),attribute) {
-                        ("bind-value",HtmlAttribute::Expression(Expr {kind:ExprKind::Name(state),..})) if tag=="input" && locals.get(state)==Some(&Type::Text)=>Attribute::Binding(state.clone()),
-                        ("bind-value",_)=>return Err(error(Location::default(),"bind-value requires Text state on an input")),
-                        ("on-click",HtmlAttribute::Expression(Expr {kind:ExprKind::Name(event),..})) if tag=="button" && events.contains_key(event)=>Attribute::Event(event.clone()),
-                        ("on-click",_)=>return Err(error(Location::default(),"on-click requires a declared event name on a button")),
-                        (_,HtmlAttribute::Literal(text))=>Attribute::Text(text.clone()),
-                        ("href"|"action",HtmlAttribute::Expression(_))=>return Err(Error::unsupported(Location::default(),"dynamic component URLs are outside W1")),
-                        (_,HtmlAttribute::Expression(value))=>Attribute::Value(self.expression(value,locals)?),
-                    };
-                    checked.push((name.clone(),attribute));
+                for (name,value) in attributes {
+                    let attr=match (name.as_str(),value) {
+                        ("on-click"|"on-submit",HtmlAttribute::Expression(Expr{kind:ExprKind::Name(event),..})) if events.contains_key(event) && ((name=="on-click" && tag=="button") || (name=="on-submit" && tag=="form"))=>Attribute::Event(event.clone()),
+                        ("on-click"|"on-submit",_)=>return Err(error(Location::default(),"event requires a declared handler on a button/form")),
+                        ("bind-value",HtmlAttribute::Expression(Expr{kind:ExprKind::Name(n),..})) if ["input","textarea","select"].contains(&tag.as_str()) && mutable.get(n)==Some(&Type::Text)=>Attribute::Binding(n.clone()),
+                        ("bind-checked",HtmlAttribute::Expression(Expr{kind:ExprKind::Name(n),..})) if tag=="input" && mutable.get(n)==Some(&Type::Bool)=>Attribute::Checked(n.clone()),
+                        ("bind-value"|"bind-checked",_)=>return Err(error(Location::default(),"binding requires compatible mutable state")),
+                        ("id",HtmlAttribute::Literal(s)) if ["diamond-app","diamond-error"].contains(&s.as_str())=>return Err(error(Location::default(),"component id is reserved by the runtime")),
+                        (_,HtmlAttribute::Literal(s))=>Attribute::Text(s.clone()),
+                        ("href"|"action"|"src",_)=>return Err(error(Location::default(),"URL attributes require static validated references")),
+                        (_,HtmlAttribute::Expression(e))=>Attribute::Value(self.expression(e,locals)?),
+                    };checked.push((name.clone(),attr));
                 }
-                if tag=="input" && (!checked.iter().any(|(name,_)| name=="bind-value") || checked.iter().any(|(name,value)| name=="value" || name=="type" && !matches!(value,Attribute::Text(v) if ["text","password"].contains(&v.as_str())))) {
-                    return Err(error(Location::default(),"W2 inputs require bind-value and a static text/password type"));
+                if tag=="input" && (!checked.iter().any(|(n,_)|["bind-value","bind-checked"].contains(&n.as_str())) || checked.iter().any(|(n,v)| n=="value" || n=="type" && !matches!(v,Attribute::Text(s) if ["text","password","checkbox"].contains(&s.as_str())))) {return Err(error(Location::default(),"inputs require a binding and a static text/password/checkbox type"));}
+                if tag=="input" {
+                    let checkbox=checked.iter().any(|(n,v)|n=="type" && matches!(v,Attribute::Text(s) if s=="checkbox"));
+                    let binding=checked.iter().any(|(_,v)|matches!(v,Attribute::Checked(_)));
+                    if checkbox!=binding {return Err(error(Location::default(),"checkbox inputs require bind-checked; text/password inputs require bind-value"));}
                 }
-                Ok(Node::Element {tag:tag.clone(),attributes:checked,children:self.nodes(children,locals,events)?})
+                if tag=="select" {
+                    if !checked.iter().any(|(_,v)|matches!(v,Attribute::Binding(_))) {return Err(error(Location::default(),"select requires bind-value"));}
+                    let mut values=BTreeSet::new();
+                    for child in children {match child {HtmlNode::Text(s) if s.trim().is_empty()=>{},HtmlNode::Element{tag,attributes,..} if tag=="option"=>{let value=attributes.iter().find_map(|(n,v)|if n=="value" {if let HtmlAttribute::Literal(v)=v {Some(v)} else {None}} else {None}).ok_or_else(||error(Location::default(),"select options need static value attributes"))?;if !values.insert(value.clone()) {return Err(error(Location::default(),"duplicate select option value"));}},_=>return Err(error(Location::default(),"select supports static option children"))}}
+                }
+                if tag=="form" && !checked.iter().any(|(n,_)|n=="on-submit") {return Err(error(Location::default(),"component forms require on-submit"));}
+                Ok(Node::Element{tag:tag.clone(),attributes:checked,children:self.nodes(children,locals,events,mutable)?})
             }
         }).collect()
     }
 }
+fn error(location: Location, message: &str) -> Error {
+    Error::diagnostic("D330", location, message)
+}
 
-fn binary(operator: Binary) -> &'static str {
-    match operator {
-        Binary::Add => "add",
-        Binary::Subtract => "subtract",
-        Binary::Multiply => "multiply",
-        Binary::Divide => "divide",
-        Binary::Equal => "equal",
-        Binary::NotEqual => "not_equal",
-        Binary::Less => "less",
-        Binary::LessEqual => "less_equal",
-        Binary::Greater => "greater",
-        Binary::GreaterEqual => "greater_equal",
-        Binary::And => "and",
-        Binary::Or => "or",
+fn collect_routes(nodes: &[Node], routes: &mut BTreeSet<String>) {
+    for node in nodes {
+        match node {
+            Node::Route(path, children) => {
+                routes.insert(path.clone());
+                collect_routes(children, routes);
+            }
+            Node::When(_, children)
+            | Node::Each { children, .. }
+            | Node::Element { children, .. } => collect_routes(children, routes),
+            _ => {}
+        }
     }
 }
 
-fn error(location: Location, message: &str) -> Error {
-    Error::diagnostic("D330", location, message)
+fn visit(
+    name: &str,
+    all: &BTreeMap<String, Component>,
+    active: &mut BTreeSet<String>,
+    done: &mut BTreeSet<String>,
+) -> Result<()> {
+    if done.contains(name) {
+        return Ok(());
+    }
+    if !active.insert(name.into()) {
+        return Err(error(Location::default(), "component cycle"));
+    }
+    let mut names = BTreeSet::new();
+    dependencies(&all[name].template, &mut names);
+    for child in names {
+        visit(&child, all, active, done)?;
+    }
+    active.remove(name);
+    done.insert(name.into());
+    Ok(())
+}
+
+fn dependencies(nodes: &[Node], names: &mut BTreeSet<String>) {
+    for node in nodes {
+        match node {
+            Node::Use { component, .. } => {
+                names.insert(component.clone());
+            }
+            Node::Element { children, .. }
+            | Node::When(_, children)
+            | Node::Each { children, .. }
+            | Node::Route(_, children) => dependencies(children, names),
+            _ => {}
+        }
+    }
+}
+
+fn property_signatures(
+    program: &CheckedProgram,
+    components: &[syntax::Component],
+) -> Result<BTreeMap<String, Vec<(String, Type)>>> {
+    let mut signatures = BTreeMap::new();
+    for c in components {
+        let props = c
+            .properties
+            .iter()
+            .map(|(n, t)| {
+                Ok((
+                    n.clone(),
+                    crate::checker::resolve_type(t, program, c.location)?,
+                ))
+            })
+            .collect::<Result<Vec<_>>>()?;
+        signatures.insert(c.name.clone(), props);
+    }
+    Ok(signatures)
+}
+
+fn reachable_functions(
+    program: &CheckedProgram,
+    names: &BTreeSet<String>,
+) -> Result<BTreeMap<String, Function>> {
+    let functions = program
+        .functions
+        .iter()
+        .filter(|(n, _)| names.contains(*n))
+        .map(|(name, f)| {
+            if !f.effects.is_empty() {
+                return Err(error(
+                    f.location,
+                    "browser functions cannot carry host authority",
+                ));
+            }
+            Ok((
+                name.clone(),
+                Function {
+                    parameters: f.parameters.clone(),
+                    result: f.result.clone(),
+                    body: f.body.clone(),
+                    location: f.location,
+                },
+            ))
+        })
+        .collect::<Result<_>>()?;
+    Ok(functions)
 }

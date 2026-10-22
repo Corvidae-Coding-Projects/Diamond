@@ -33,6 +33,7 @@ impl fmt::Debug for Secrets {
 struct Server {
     project: CheckedProject,
     files: BTreeMap<String, String>,
+    pages: BTreeMap<String, String>,
     authority: String,
     origin: String,
     contract: String,
@@ -103,7 +104,15 @@ pub(super) fn serve(
         project: project.clone(),
         files: artifact::files(project)?
             .into_iter()
-            .filter(|(p, _)| p == "index.html" || p.starts_with("assets/"))
+            .filter(|(p, _)| {
+                p == "index.html" || p.starts_with("assets/") || p.starts_with("pages/")
+            })
+            .collect(),
+        pages: project
+            .browser
+            .routes
+            .iter()
+            .map(|p| (p.clone(), artifact::page_key(p)))
             .collect(),
         authority: authority.to_string(),
         origin: origin.into(),
@@ -143,21 +152,16 @@ async fn handler(State(server): State<Arc<Server>>, request: Request) -> Respons
     let path = request.uri().path().to_owned();
     if request.method() == "GET" || request.method() == "HEAD" {
         if path != "/_diamond/session" {
-            let key = if path == "/" {
-                "index.html"
-            } else {
-                path.trim_start_matches('/')
-            };
+            let key = server
+                .pages
+                .get(&path)
+                .map_or_else(|| path.trim_start_matches('/'), String::as_str);
             return server.files.get(key).map_or_else(
                 || json_response(StatusCode::NOT_FOUND, &json!({"error":"not_found"})),
                 |text| {
                     response(
                         StatusCode::OK,
-                        if key == "index.html" {
-                            "text/html; charset=utf-8"
-                        } else {
-                            "text/javascript; charset=utf-8"
-                        },
+                        artifact::content_type(key),
                         text,
                         request.method() == "HEAD",
                     )
@@ -267,7 +271,7 @@ fn work(
     let decoded = if let Some(name) = path.strip_prefix("/_diamond/rpc/") {
         let op = &server.project.rpc[name];
         let envelope: RpcBody =
-            serde_json::from_slice(body).map_err(|_| input("invalid RPC envelope"))?;
+            super::wire::strict_from_slice(body).map_err(|_| input("invalid RPC envelope"))?;
         if envelope.contract != server.contract {
             return Err(input_error_contract());
         }
@@ -344,10 +348,23 @@ fn work(
     let scope = Scope::new(&principal, grants);
     let result = crate::eval::Interpreter::new(&server.project.server, &scope, None, None)
         .with_postgres(&mut store)
-        .function(&op.function, &decoded.ok_or(Error::Denied)?)
-        .and_then(crate::Value::into_result);
-    let value = store.finish_request(result)?;
-    Ok((json!({"value":wire::encode(&value)?}), None))
+        .function(&op.function, &decoded.ok_or(Error::Denied)?);
+    if matches!(op.result, crate::value::Type::AppResult(..)) {
+        let result = result.and_then(|v| match v.0 {
+            crate::value::ValueKind::AppErr(e) => Err(Error::Application(*e)),
+            _ => Ok(v),
+        });
+        let value = match store.finish_request(result) {
+            Err(Error::Application(e)) => {
+                crate::Value(crate::value::ValueKind::AppErr(Box::new(e)))
+            }
+            other => other?,
+        };
+        Ok((json!({"value":wire::encode(&value)?}), None))
+    } else {
+        let value = store.finish_request(result.and_then(crate::Value::into_result))?;
+        Ok((json!({"value":wire::encode(&value)?}), None))
+    }
 }
 
 fn one_header<'a>(request: &'a Request, name: &str) -> Option<&'a str> {
@@ -429,7 +446,9 @@ fn json_response(status: StatusCode, value: &Json) -> Response {
 }
 fn response(status: StatusCode, kind: &'static str, text: &str, head: bool) -> Response {
     let mut response = asset_response(status, kind, text, head);
-    response.headers_mut().insert("content-security-policy",header::HeaderValue::from_static("default-src 'none'; script-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"));
+    if kind != "image/svg+xml" {
+        response.headers_mut().insert("content-security-policy",header::HeaderValue::from_static("default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"));
+    }
     response
 }
 

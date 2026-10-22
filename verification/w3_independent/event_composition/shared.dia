@@ -1,0 +1,23 @@
+export fn decorate(value: Text) -> Text:
+  "wrapped <" + value + ">"
+
+export fn increment(value: Int) -> Int:
+  value + 1
+
+export fn format_numbers(values: List<Int>) -> Text:
+  let parts = for value in values:
+    int_text(value)
+  join_text(parts, ",")
+
+export enum ApplicationError:
+  ApplicationRejected
+
+export fn describe_data(value: Result<Int, DataError>) -> Text:
+  match value:
+    Ok(number) => int_text(number)
+    Err(error) => error_message(error)
+
+export fn describe_nested_data(value: Result<Result<Int, DataError>, ApplicationError>) -> Text:
+  match value:
+    Ok(inner) => describe_data(inner)
+    Err(error) => "explicit application error"

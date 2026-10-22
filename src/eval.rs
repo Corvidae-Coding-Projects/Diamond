@@ -24,7 +24,9 @@ fn pattern_matches(pattern: &Pattern, value: &Value) -> bool {
                     ("Ok", ValueKind::Ok(_)) | ("Some", ValueKind::Some(_))
                 )
         }
-        (Pattern::Constructor(name, names), ValueKind::Err(_)) => name == "Err" && names.len() == 1,
+        (Pattern::Constructor(name, names), ValueKind::Err(_) | ValueKind::AppErr(_)) => {
+            name == "Err" && names.len() == 1
+        }
         (Pattern::Constructor(name, names), ValueKind::None) => name == "None" && names.is_empty(),
         _ => false,
     }
@@ -46,6 +48,9 @@ fn pattern_bindings(pattern: &Pattern, value: Value) -> Option<BTreeMap<String, 
             (names, values)
         }
         (Pattern::Constructor(name, names), ValueKind::Ok(value)) if name == "Ok" => {
+            (names, vec![*value])
+        }
+        (Pattern::Constructor(name, names), ValueKind::AppErr(value)) if name == "Err" => {
             (names, vec![*value])
         }
         (Pattern::Constructor(name, names), ValueKind::Err(failure)) if name == "Err" => {
@@ -167,6 +172,9 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
         let result = self.block(&function.body, &mut locals);
         self.call_depth -= 1;
         let result = match result {
+            Err(Error::Application(value)) if matches!(function.result, Type::AppResult(_, _)) => {
+                Ok(Value(ValueKind::AppErr(Box::new(value))))
+            }
             Err(error) if matches!(function.result, Type::Result(_)) => {
                 Ok(Value(ValueKind::Err(Failure::from_error(error)?)))
             }
@@ -208,13 +216,13 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
                     } else {
                         self.database.as_deref_mut().ok_or(Error::Denied)?.begin()?;
                     }
-                    let result = self.block(body, &mut nested).and_then(|value| {
-                        if let ValueKind::Err(failure) = value.0 {
-                            Err(failure.into_error())
-                        } else {
-                            Ok(value)
-                        }
-                    });
+                    let result = self
+                        .block(body, &mut nested)
+                        .and_then(|value| match value.0 {
+                            ValueKind::Err(failure) => Err(failure.into_error()),
+                            ValueKind::AppErr(value) => Err(Error::Application(*value)),
+                            _ => Ok(value),
+                        });
                     if let Some(store) = self.postgres.as_deref_mut() {
                         store.finish(result)?
                     } else {
@@ -229,7 +237,11 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
         Ok(result)
     }
 
-    fn expr(&mut self, expression: &Expr, locals: &BTreeMap<String, Value>) -> Result<Value> {
+    pub(crate) fn expr(
+        &mut self,
+        expression: &Expr,
+        locals: &BTreeMap<String, Value>,
+    ) -> Result<Value> {
         self.step()?;
         let result = match &expression.kind {
             ExprKind::Int(value) => Value(ValueKind::Int(*value)),
@@ -295,6 +307,7 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
             ExprKind::Try(value) => match self.expr(value, locals)?.0 {
                 ValueKind::Ok(value) => *value,
                 ValueKind::Err(failure) => return Err(failure.into_error()),
+                ValueKind::AppErr(value) => return Err(Error::Application(*value)),
                 _ => return Err(Error::Denied),
             },
             ExprKind::Html(nodes) => {
@@ -615,6 +628,9 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
             }
             return Ok(Value(ValueKind::Id(tag.clone(), value)));
         }
+        if crate::standard::is_builtin(name) {
+            return crate::standard::evaluate(name, &values);
+        }
         match name {
             "join_text" if self.program.host_operations => self.join_text(&values),
             "id_text" if self.program.host_operations => {
@@ -629,6 +645,9 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
             "Some" => Ok(Value(ValueKind::Some(Box::new(
                 values.into_iter().next().ok_or(Error::Denied)?,
             )))),
+            "Err" if matches!(values.first(), Some(Value(ValueKind::Variant(..)))) => Ok(Value(
+                ValueKind::AppErr(Box::new(values.into_iter().next().ok_or(Error::Denied)?)),
+            )),
             "Err" => Ok(Value(ValueKind::Err(
                 match values.into_iter().next().ok_or(Error::Denied)?.0 {
                     ValueKind::DataError(failure) => failure,

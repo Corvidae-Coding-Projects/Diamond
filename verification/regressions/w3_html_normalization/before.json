@@ -1,0 +1,14 @@
+{
+  "binary_sha256": "8f07de3c508a9c1ea95d67c366c6cd5a0e1ace591dfd22655c3c00045b88be70",
+  "interface": "actual Chrome, compiled Diamond initial state",
+  "input": "initial Text CR LF A CR B NUL, rendered as both paragraph text and title attribute",
+  "expected": "Hydration ready true; original managed text/attribute restored after HTML parse normalization",
+  "observed": {
+    "ready": "false",
+    "text": "\nA\nB",
+    "title": "\nA\nB\ufffd",
+    "error": "Application version or initial content changed. Reload this page."
+  },
+  "cause": "HTML parsing drops literal NUL in text and normalizes CR in attributes; runtime normalized text as replacement but compared attributes verbatim",
+  "replay": "Run verification/web_three.py, open /qualification, inspect #normalization and data-ready in actual Chrome"
+}

@@ -1,0 +1,4 @@
+export component App:
+  state value: Thing = Thing()
+  html:
+    <main><p>{value.label}</p><p>{value.count}</p></main>

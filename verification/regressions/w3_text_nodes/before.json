@@ -1,0 +1,12 @@
+{
+  "binary_sha256": "2f949df22aceadc459f85eefbd3648519afc02db899a7f13a582890d1a984276",
+  "contract": "125c350b74eae7703cc835244b19bff92a516dc476107c6c071585d75f855a8f",
+  "interface": "actual Chrome tab 2141263527",
+  "expected": "hydrate the server-rendered conditional blocks",
+  "observed": {
+    "ready": "false",
+    "error": "Application version or initial content changed. Reload this page.",
+    "actual_text_after_nav": "\n      \n      \n      "
+  },
+  "cause": "HTML parsing merges adjacent text fragments around false conditionals; the virtual tree retained separate text nodes and rejected their child counts."
+}

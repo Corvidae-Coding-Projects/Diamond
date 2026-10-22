@@ -1,0 +1,8 @@
+export component Probe:
+  state count: Int = 0
+  state text: Text = ""
+  derived caption: Text = "Clicks: " + int_text(count)
+  on add:
+    count = count + 1
+  html:
+    <main><h1>Frontend probe</h1><p id="count">{caption}</p><label for="text">Text</label><input id="text" type="text" bind-value={text}><p id="text-output">{text}</p><button type="button" on-click={add}>Add</button><p id="replace-empty">{text_replace("", "", "x")}</p></main>

@@ -4,6 +4,8 @@ server = "server"
 browser = "ui"
 component = "Tracker"
 provides = ["DbRead<Issues>", "DbWrite<Issues>"]
+styles = ["tracker.css"]
+assets = { logo = "diamond.svg" }
 
 [modules.shared]
 path = "shared.dia"
@@ -15,10 +17,15 @@ target = "server"
 imports = ["shared"]
 provides = ["DbRead<Issues>", "DbWrite<Issues>"]
 
+[modules.parts]
+path = "cards.dia"
+target = "browser"
+imports = ["shared"]
+
 [modules.ui]
 path = "tracker.dia"
 target = "browser"
-imports = ["shared"]
+imports = ["shared", "parts"]
 
 [rpc]
 create_issue = "server.create_issue"
@@ -26,3 +33,5 @@ read_issue = "server.read_issue"
 update_issue = "server.update_issue"
 delete_issue = "server.delete_issue"
 list_issues = "server.list_issues"
+issue_cards = "server.issue_cards"
+check_title = "server.check_title"

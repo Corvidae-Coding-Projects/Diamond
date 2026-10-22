@@ -9,6 +9,11 @@ export component Tracker:
   state selected: Text = ""
   state output: Text = "Sign in to create and manage your issues."
   state listing: Text = ""
+  state cards: List<IssueCard> = []
+  state title_check: Result<Text, DisplayError> = Ok("Check a title before creating an issue.")
+  state show_cards: Bool = true
+  derived status: Text = display_result(title_check)
+  derived total: Text = int_text(len(cards)) + " issues"
 
   on sign_in:
     signed_in = session.login(username, password)
@@ -18,6 +23,7 @@ export component Tracker:
     details = ""
     output = "Signed in. Refresh the list to view your issues."
     listing = ""
+    cards = []
 
   on current_user:
     signed_in = session.user()
@@ -30,12 +36,14 @@ export component Tracker:
     details = ""
     selected = ""
     listing = ""
+    cards = []
     output = "Signed out."
 
   on create:
     selected = rpc.create_issue(workspace, title, details)
     output = rpc.read_issue(selected)
     listing = rpc.list_issues(workspace)
+    cards = rpc.issue_cards(workspace)
 
   on read:
     output = rpc.read_issue(selected)
@@ -43,19 +51,34 @@ export component Tracker:
   on update:
     output = rpc.update_issue(selected, title, details)
     listing = rpc.list_issues(workspace)
+    cards = rpc.issue_cards(workspace)
 
   on delete:
     output = rpc.delete_issue(selected)
     selected = ""
     listing = rpc.list_issues(workspace)
+    cards = rpc.issue_cards(workspace)
 
   on refresh:
     listing = rpc.list_issues(workspace)
+    cards = rpc.issue_cards(workspace)
+
+  on reverse:
+    cards = list_reverse(cards)
+
+  on check_title:
+    title_check = rpc.check_title(title)
+
+  on toggle_cards:
+    show_cards = not show_cards
 
   html:
     <main>
-      <h1>{caption}</h1>
-      <section>
+      <header class="masthead"><img src="asset:logo" alt="Diamond" width="40" height="40"><div><p class="eyebrow">DIAMOND · CONNECTED WORKSPACE</p><h1>{caption}</h1></div></header>
+      <nav><a href="/">Issues</a><a href="/about">About</a></nav>
+      <when test={pending}><p class="notice" role="status">Working…</p></when>
+      <when test={error != ""}><p class="notice" role="alert">{error}</p></when>
+      <section class="panel">
         <h2>Account</h2>
         <p><label for="username">Username</label><input id="username" type="text" bind-value={username} maxlength="128"></p>
         <p><label for="password">Password</label><input id="password" type="password" bind-value={password} maxlength="256"></p>
@@ -64,12 +87,13 @@ export component Tracker:
         <button type="button" on-click={sign_out}>Sign out</button>
         <p>Signed in: <strong id="signed-in">{signed_in}</strong></p>
       </section>
-      <section>
+      <route path="/">
+      <section class="panel">
         <h2>Issues</h2>
         <p><label for="workspace">Workspace</label><input id="workspace" type="text" bind-value={workspace} maxlength="64"></p>
-        <p><label for="title">Title</label><input id="title" type="text" bind-value={title} maxlength="120"></p>
-        <p><label for="details">Details</label><input id="details" type="text" bind-value={details} maxlength="4000"></p>
-        <button type="button" on-click={create}>Create issue</button>
+        <form on-submit={create}><p><label for="title">Title</label><input id="title" type="text" bind-value={title} required="true" minlength="1" maxlength="120"></p>
+        <p><label for="details">Details</label><textarea id="details" bind-value={details} maxlength="4000"></textarea></p>
+        <button type="submit" disabled={pending}>Create issue</button></form><button type="button" on-click={check_title}>Check title</button><p id="title-status">{status}</p>
         <p><label for="selected">Issue ID</label><input id="selected" type="text" bind-value={selected} maxlength="128"></p>
         <button type="button" on-click={read}>Read issue</button>
         <button type="button" on-click={update}>Save changes</button>
@@ -78,5 +102,9 @@ export component Tracker:
         <pre id="issue-output">{output}</pre>
         <h2>Your issues in this workspace</h2>
         <pre id="issue-list">{listing}</pre>
+        <div class="list-toolbar"><p id="card-total">{total}</p><button type="button" on-click={reverse}>Reverse order</button><button type="button" on-click={toggle_cards}>Show/hide cards</button></div>
+        <when test={show_cards}><each items={cards} as="card" key={card.id}><use component="Card" issue={card}></use></each></when>
       </section>
+      </route>
+      <route path="/about"><use component="About" note={"Rendered on the server, hydrated in your browser, and written in Diamond."}></use></route>
     </main>

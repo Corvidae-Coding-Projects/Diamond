@@ -24,9 +24,11 @@ Run these examples in order when learning the interpreted MVP:
    builds/loading, and explicit host grants. Run with
    `cargo run --locked --example project_embedding`; set
    `DIAMOND_EXAMPLE_POSTGRES` only for an explicit local PostgreSQL grant.
-9. `workspace/diamond.toml` — a W2 tracker with Diamond-owned browser inputs,
+9. `workspace/diamond.toml` — a W3 tracker with typed keyed cards, local drafts,
+   forms, About routing, SSR/hydration, CSS/SVG, Diamond-owned browser inputs,
    explicit generated RPC, PostgreSQL CRUD and ownership policies, and shared
-   sessions across two servers. Follow the [connected guide](../docs/connected-apps.md).
+   sessions across two servers. Follow the [reactive guide](../docs/reactive-apps.md)
+   and [connected guide](../docs/connected-apps.md).
 10. `connected_embedding.rs` — explicit PostgreSQL initialization and account
     provisioning through the public Rust API. Supply `DIAMOND_EXAMPLE_POSTGRES`,
     `DIAMOND_EXAMPLE_USER` and `DIAMOND_EXAMPLE_PASSWORD` for a disposable database

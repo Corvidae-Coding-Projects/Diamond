@@ -1,0 +1,7 @@
+fn unexported_type(value: __diamond_type_6_shared_PrivateRecord) -> Text:
+  value.secret
+
+export component App:
+  state value: Text = unexported_type(make_record())
+  html:
+    <main><p>{value}</p></main>

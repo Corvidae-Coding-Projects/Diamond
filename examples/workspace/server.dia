@@ -55,3 +55,13 @@ export fn list_issues(workspace: Text<length: 1..64>) -> Result<Text, DataError>
 
 fn private_probe() -> Text:
   "SERVER_PRIVATE_CANARY_W2_19013"
+
+export fn issue_cards(workspace: Text<length: 1..64>) -> Result<List<IssueCard>, DataError>:
+  let entries = for issue in issues.select(workspace: workspace, limit: 100)?:
+    IssueCard(id: issue.id, title: issue.title, details: issue.details)
+  Ok(entries)
+
+export fn check_title(value: Text) -> Result<Text, DisplayError>:
+  match len(text_trim(value)) == 0:
+    true => Err(InvalidTitle("Enter a nonempty title."))
+    false => Ok(text_trim(value))

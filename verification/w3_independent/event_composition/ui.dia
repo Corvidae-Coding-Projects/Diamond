@@ -1,0 +1,60 @@
+export component App:
+  state number: Int = 0
+  state label: Text = "prior"
+  state ready: Bool = true
+  state values: List<Int> = []
+  state username: Text = "alice"
+  state password: Text = ""
+  state signed_in: Text = ""
+  derived listing: Text = format_numbers(values)
+  derived initial_legacy: Text = describe_data(Err("local initial detail"))
+  on sign_in:
+    signed_in = session.login(username, password)
+    password = ""
+  on pure_helper:
+    label = decorate(rpc.echo_text("snow 雪"))
+  on nested_arguments:
+    number = rpc.add(rpc.double(6), rpc.add(2, 9))
+  on lazy_match:
+    number = match true:
+      true => rpc.add(17, 9)
+      false => rpc.fail_int()
+  on lazy_and:
+    ready = false and rpc.fail_bool()
+  on lazy_or:
+    ready = true or rpc.fail_bool()
+  on list_calls:
+    values = [rpc.add(2, 3), rpc.double(7)]
+  on for_calls:
+    values = for value in [3, 8, 11]:
+      rpc.double(value)
+  on empty_for:
+    values = for value in []:
+      rpc.fail_int()
+  on nested_for:
+    values = for value in [3, 8]:
+      rpc.add(value, rpc.double(value))
+  on sequential:
+    number = rpc.add(1, 2)
+    label = decorate(int_text(number))
+  on failure:
+    number = 41
+    label = rpc.echo_text("earlier response") + int_text(rpc.fail_int())
+  on local_legacy:
+    label = describe_data(Err("local detail"))
+  on remote_legacy:
+    label = rpc.inspect_data(Err("private detail"))
+  on nested_remote_legacy:
+    label = describe_nested_data(rpc.echo_data(Err("another private detail")))
+  on recover:
+    label = "recovered"
+  html:
+    <main>
+      <h1>Independent composed RPC events</h1><p id="composition-initial-legacy">{initial_legacy}</p>
+      <label for="composition-user">User</label><input id="composition-user" type="text" bind-value={username}>
+      <label for="composition-password">Password</label><input id="composition-password" type="password" bind-value={password}>
+      <button type="button" on-click={sign_in}>Composition sign in</button><p id="composition-user-state">{signed_in}</p>
+      <p>Number <strong id="composition-number">{number}</strong></p><p>Label <strong id="composition-label">{label}</strong></p><p>Ready <strong id="composition-ready">{ready}</strong></p><p>Values <strong id="composition-values">{listing}</strong></p>
+      <button type="button" on-click={local_legacy}>Composition local legacy error</button><button type="button" on-click={remote_legacy}>Composition remote legacy error</button><button type="button" on-click={nested_remote_legacy}>Composition nested remote legacy error</button>
+      <button type="button" on-click={pure_helper}>Composition pure helper</button><button type="button" on-click={nested_arguments}>Composition nested arguments</button><button type="button" on-click={lazy_match}>Composition lazy match</button><button type="button" on-click={lazy_and}>Composition lazy and</button><button type="button" on-click={lazy_or}>Composition lazy or</button><button type="button" on-click={list_calls}>Composition list calls</button><button type="button" on-click={for_calls}>Composition for calls</button><button type="button" on-click={empty_for}>Composition empty for</button><button type="button" on-click={nested_for}>Composition nested for</button><button type="button" on-click={sequential}>Composition sequential</button><button type="button" on-click={failure}>Composition failure</button><button type="button" on-click={recover}>Composition recover</button>
+    </main>

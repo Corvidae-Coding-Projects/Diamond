@@ -1,0 +1,496 @@
+{
+  "status": "PASS",
+  "binary_sha256": "2adc6d9894d66c80c089245a678fa238cd1d0a3342b431bbacfb3f5f97abff45",
+  "rows": [
+    {
+      "id": "0ec13f03de283034e2d43c4a42ded57e159bd711ca41509647082d14abba3671",
+      "workspace": "w3-final",
+      "title": "Third inserted issue",
+      "owner": "alice"
+    },
+    {
+      "id": "8fc591cc13d1cc308dd3c9c2080ea86af8bd50482ec8aa30be7cad7af0514fbf",
+      "workspace": "w3-final",
+      "title": "First typed card 雪",
+      "owner": "alice"
+    },
+    {
+      "id": "c042706aa4aa63772083d124cc87bd37a2ebcd2e6f55905fd44e403396018621",
+      "workspace": "w3-final",
+      "title": "Second distinct issue",
+      "owner": "alice"
+    }
+  ],
+  "proxy_trace": [
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/qualification",
+      "status": 400,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/qualification",
+      "status": 400,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/qualification",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/assets/5f295145c59d12fda9e777d4d864349e38b7c7dc03ce00cca00fc45033b3f534.svg",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/assets/af2640451387bf1383a7ff0a8b8bb79cf8e14e2e48287211b5a59a7f5cf69b46.css",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/assets/d8a02bb4efd857ff8b31b3773e2e71c488ee14396ca00585fbb06cefc37bdad5.js",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/_diamond/session",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/login",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_text",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/double",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/add",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/add",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/add",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/add",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/double",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/double",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/double",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/double",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/double",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/add",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/double",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/add",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/add",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_text",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/fail_int",
+      "status": 400,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/inspect_data",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_data",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_value",
+      "status": 200,
+      "gate": "slow-old",
+      "client_disconnected": true
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_value",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_value",
+      "status": 200,
+      "gate": "props-old",
+      "client_disconnected": true
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_value",
+      "status": 200,
+      "gate": "unmount-old",
+      "client_disconnected": true
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/qualification",
+      "status": 200,
+      "gate": null,
+      "page_fault": "contract"
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/assets/af2640451387bf1383a7ff0a8b8bb79cf8e14e2e48287211b5a59a7f5cf69b46.css",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/assets/5f295145c59d12fda9e777d4d864349e38b7c7dc03ce00cca00fc45033b3f534.svg",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/assets/d8a02bb4efd857ff8b31b3773e2e71c488ee14396ca00585fbb06cefc37bdad5.js",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/qualification",
+      "status": 200,
+      "gate": null,
+      "page_fault": "structure"
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/assets/af2640451387bf1383a7ff0a8b8bb79cf8e14e2e48287211b5a59a7f5cf69b46.css",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/assets/5f295145c59d12fda9e777d4d864349e38b7c7dc03ce00cca00fc45033b3f534.svg",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/assets/d8a02bb4efd857ff8b31b3773e2e71c488ee14396ca00585fbb06cefc37bdad5.js",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/qualification",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/assets/af2640451387bf1383a7ff0a8b8bb79cf8e14e2e48287211b5a59a7f5cf69b46.css",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/assets/d8a02bb4efd857ff8b31b3773e2e71c488ee14396ca00585fbb06cefc37bdad5.js",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/assets/5f295145c59d12fda9e777d4d864349e38b7c7dc03ce00cca00fc45033b3f534.svg",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/_diamond/session",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/create_issue",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/list_issues",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/issue_cards",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/create_issue",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/list_issues",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/issue_cards",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/create_issue",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/list_issues",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/issue_cards",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/about",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/assets/af2640451387bf1383a7ff0a8b8bb79cf8e14e2e48287211b5a59a7f5cf69b46.css",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/assets/5f295145c59d12fda9e777d4d864349e38b7c7dc03ce00cca00fc45033b3f534.svg",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/assets/d8a02bb4efd857ff8b31b3773e2e71c488ee14396ca00585fbb06cefc37bdad5.js",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/_diamond/session",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/list_issues",
+      "status": 200,
+      "gate": null
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/issue_cards",
+      "status": 200,
+      "gate": null
+    }
+  ],
+  "project_sha256": {
+    "key_paths.dia": "79658ad59968f8f8efd1d27827aaf13be8fb17077c435a638c177f10d637b82d",
+    "composition.dia": "3f8bed1bb76b17c7714e8d9a10da95998eea236b548cd3f20703158b73d0cc7b",
+    "composition_shared.dia": "201d8cdb1f21a7995fc5a667241b2b3ef54a15a603a00eaaae927a198eada8dc",
+    "probes.dia": "583b68eccb45ce579bd384fc300cf2c679af11840a4c31d75b17f8cfd53b3bdc",
+    "corpus.dia": "03a6fd2a692ed8ae760b9e39c4c089f6884b46d30d443bbb111013897821d518",
+    "tracker.css": "8b1ea71e79055455c795967d31e08daa234400e9276bac4bb4d84408285c7870",
+    "diamond.svg": "5f295145c59d12fda9e777d4d864349e38b7c7dc03ce00cca00fc45033b3f534",
+    "cards.dia": "742f1b454a5aee25017e0c16d4678d4aed57908be614ff8c10117ce923fc4e45",
+    "tracker.dia": "f62f3f49c6c562cf58f3ded33082b544b6a9979149ff4ccf26ac77e4fba0774e",
+    "server.dia": "c74146c99c726ca487d3f97ad7043815227c7aa2610a61bbca3456af1505c6f1",
+    "shared.dia": "c6b355e6ddb12f1411a43fc9dd46a33422b45c9e24c353777c129575ce4ea0db",
+    "diamond.toml": "b7a67df3d021d016456cf4bb1f2ded40b6db69a171871dcb7a40cd04875d85e2"
+  },
+  "held": {
+    "slow-old": 1,
+    "props-old": 1,
+    "unmount-old": 1
+  },
+  "released": {
+    "slow-old": true,
+    "props-old": true,
+    "unmount-old": true
+  }
+}

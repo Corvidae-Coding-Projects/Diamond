@@ -1,0 +1,14 @@
+{
+  "binary_sha256": "b0eb516f5d2dee750805f69fad6133654541fea75812285abf9e7456247bf43d",
+  "interface": "Actual Chrome at http://127.0.0.1:39171/, two real app nodes, isolated PostgreSQL",
+  "actions": [
+    "Sign in as synthetic alice",
+    "Create issue with nonempty Title and details",
+    "Observe independent PostgreSQL committed row count 1",
+    "Reload; Current user; Workspace w3-browser; Refresh list"
+  ],
+  "expected": "One typed Card child with title and local draft, mounted once",
+  "observed": "ReferenceError: Cannot access n before initialization in nodes() Use branch; generic component failure; row was already committed",
+  "cause": "Loop destructuring n shadows enclosing node n in for-of iterable expression",
+  "replay": "python3 verification/web_three.py --help; run fixture, provision/login/create then Refresh list; use real Chrome controls"
+}

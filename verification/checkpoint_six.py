@@ -34,6 +34,7 @@ def inputs() -> dict[str, str]:
     ]
     for directory, pattern in [
         ("src", "*.rs"),
+        ("src", "*.js"),
         ("examples", "*"),
         ("docs", "*.md"),
         ("verification", "*.py"),

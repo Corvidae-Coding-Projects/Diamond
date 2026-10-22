@@ -1,0 +1,12 @@
+export component Blocks:
+  state value: Text = "initial"
+  state values: List<Text> = []
+  on choose:
+    value = match true:
+      true => "chosen"
+      false => "other"
+  on each:
+    values = for value in ["first", "second"]:
+      value
+  html:
+    <main><p>{value}</p><button type="button" on-click={choose}>Choose</button><button type="button" on-click={each}>Iterate</button></main>
