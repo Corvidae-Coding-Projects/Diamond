@@ -29,6 +29,9 @@ struct Contract<'a> {
     browser: &'a super::lower::BrowserProgram,
     host_operations: Vec<crate::host::OperationContract>,
     artifacts: BTreeMap<String, String>,
+    rpc: BTreeMap<String, super::rpc::Contract>,
+    rpc_id: String,
+    wire_version: u32,
 }
 
 #[derive(Debug, Serialize)]
@@ -41,7 +44,7 @@ struct ModuleContract<'a> {
 }
 
 pub(super) fn files(project: &CheckedProject) -> Result<BTreeMap<String, String>> {
-    let js = super::browser::emit(&project.browser)?;
+    let js = super::browser::emit(&project.browser, &contract_id(project)?)?;
     let asset = format!("assets/{}.js", hash(js.as_bytes()));
     let page = format!(
         "<!doctype html>\n<html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>{}</title></head><body><div id=\"diamond-app\"></div><p id=\"diamond-error\" role=\"alert\" hidden></p><script type=\"module\" src=\"/{asset}\"></script></body></html>\n",
@@ -89,6 +92,9 @@ pub(super) fn files(project: &CheckedProject) -> Result<BTreeMap<String, String>
             .iter()
             .map(|(path, content)| (path.clone(), hash(content.as_bytes())))
             .collect(),
+        rpc: super::rpc::contracts(&project.rpc, &project.server),
+        rpc_id: contract_id(project)?,
+        wire_version: 1,
     };
     files.insert(
         "contract.json".into(),
@@ -103,6 +109,16 @@ pub(super) fn files(project: &CheckedProject) -> Result<BTreeMap<String, String>
         return Err(Error::Limit("project artifact bytes"));
     }
     Ok(files)
+}
+
+pub(super) fn contract_id(project: &CheckedProject) -> Result<String> {
+    let encoded = serde_json::to_vec(&(
+        env!("CARGO_PKG_VERSION"),
+        &project.manifest_source,
+        &project.sources,
+    ))
+    .map_err(|_| input("RPC contract hashing failed"))?;
+    Ok(hash(&encoded))
 }
 
 pub(super) fn write(project: &CheckedProject, output: &Path) -> Result<()> {

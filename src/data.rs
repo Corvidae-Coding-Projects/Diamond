@@ -554,7 +554,7 @@ fn column(name: &str, ty: &Type) -> Result<String> {
     ))
 }
 
-fn validate_id(record: &Record, id: &Value) -> Result<()> {
+pub(crate) fn validate_id(record: &Record, id: &Value) -> Result<()> {
     if !id.fits(&record.fields["id"].ty) {
         return Err(Error::Denied);
     }
@@ -564,7 +564,7 @@ fn validate_id(record: &Record, id: &Value) -> Result<()> {
     Ok(())
 }
 
-fn validate_input(record: &Record, input: &BTreeMap<String, Value>) -> Result<()> {
+pub(crate) fn validate_input(record: &Record, input: &BTreeMap<String, Value>) -> Result<()> {
     for name in input.keys() {
         if name == "id" || record.fields.get(name).is_none_or(|field| field.created_by) {
             return Err(Error::Input("unknown or server-derived input field".into()));
@@ -573,7 +573,7 @@ fn validate_input(record: &Record, input: &BTreeMap<String, Value>) -> Result<()
     Ok(())
 }
 
-fn validate_record(record: &Record, fields: &BTreeMap<String, Value>) -> Result<()> {
+pub(crate) fn validate_record(record: &Record, fields: &BTreeMap<String, Value>) -> Result<()> {
     if record.fields.len() != fields.len() {
         return Err(Error::Input("record field count mismatch".into()));
     }

@@ -1,0 +1,82 @@
+export component Tracker:
+  state caption: Text = heading()
+  state username: Text = ""
+  state password: Text = ""
+  state signed_in: Text = ""
+  state workspace: Text = "team-one"
+  state title: Text = ""
+  state details: Text = ""
+  state selected: Text = ""
+  state output: Text = "Sign in to create and manage your issues."
+  state listing: Text = ""
+
+  on sign_in:
+    signed_in = session.login(username, password)
+    password = ""
+    selected = ""
+    title = ""
+    details = ""
+    output = "Signed in. Refresh the list to view your issues."
+    listing = ""
+
+  on current_user:
+    signed_in = session.user()
+
+  on sign_out:
+    signed_in = session.logout()
+    username = ""
+    password = ""
+    title = ""
+    details = ""
+    selected = ""
+    listing = ""
+    output = "Signed out."
+
+  on create:
+    selected = rpc.create_issue(workspace, title, details)
+    output = rpc.read_issue(selected)
+    listing = rpc.list_issues(workspace)
+
+  on read:
+    output = rpc.read_issue(selected)
+
+  on update:
+    output = rpc.update_issue(selected, title, details)
+    listing = rpc.list_issues(workspace)
+
+  on delete:
+    output = rpc.delete_issue(selected)
+    selected = ""
+    listing = rpc.list_issues(workspace)
+
+  on refresh:
+    listing = rpc.list_issues(workspace)
+
+  html:
+    <main>
+      <h1>{caption}</h1>
+      <section>
+        <h2>Account</h2>
+        <p><label for="username">Username</label><input id="username" type="text" bind-value={username} maxlength="128"></p>
+        <p><label for="password">Password</label><input id="password" type="password" bind-value={password} maxlength="256"></p>
+        <button type="button" on-click={sign_in}>Sign in</button>
+        <button type="button" on-click={current_user}>Current user</button>
+        <button type="button" on-click={sign_out}>Sign out</button>
+        <p>Signed in: <strong id="signed-in">{signed_in}</strong></p>
+      </section>
+      <section>
+        <h2>Issues</h2>
+        <p><label for="workspace">Workspace</label><input id="workspace" type="text" bind-value={workspace} maxlength="64"></p>
+        <p><label for="title">Title</label><input id="title" type="text" bind-value={title} maxlength="120"></p>
+        <p><label for="details">Details</label><input id="details" type="text" bind-value={details} maxlength="4000"></p>
+        <button type="button" on-click={create}>Create issue</button>
+        <p><label for="selected">Issue ID</label><input id="selected" type="text" bind-value={selected} maxlength="128"></p>
+        <button type="button" on-click={read}>Read issue</button>
+        <button type="button" on-click={update}>Save changes</button>
+        <button type="button" on-click={delete}>Delete issue</button>
+        <button type="button" on-click={refresh}>Refresh list</button>
+        <pre id="issue-output">{output}</pre>
+        <h2>Your issues in this workspace</h2>
+        <pre id="issue-list">{listing}</pre>
+      </section>
+    </main>

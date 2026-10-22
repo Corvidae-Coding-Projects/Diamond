@@ -4,7 +4,7 @@ use crate::error::{Error, Result};
 use crate::value::{Type, Value, ValueKind};
 use serde::Serialize;
 use std::fmt;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 use tokio::runtime::Runtime;
 use tokio::task::JoinHandle;
 use tokio_postgres::{Client, Config, NoTls, config::Host};
@@ -65,6 +65,7 @@ pub(crate) struct HostRuntime {
     driver: JoinHandle<std::result::Result<(), tokio_postgres::Error>>,
     runtime: Runtime,
     closed: bool,
+    deadline: Instant,
 }
 
 impl fmt::Debug for HostRuntime {
@@ -78,13 +79,23 @@ impl fmt::Debug for HostRuntime {
 
 impl HostRuntime {
     pub fn connect(configuration: &str) -> Result<Self> {
-        if configuration.len() > 16_384 {
-            return Err(Error::Limit("PostgreSQL configuration"));
-        }
         if tokio::runtime::Handle::try_current().is_ok() {
             return Err(Error::Input(
                 "call synchronous project evaluation outside an async runtime".into(),
             ));
+        }
+        Self::connect_inner(configuration, true)
+    }
+
+    // Called only from owned synchronous work, including a bounded spawn_blocking
+    // task. That context may have a Tokio Handle but is not a runtime worker.
+    pub(crate) fn connect_worker(configuration: &str) -> Result<Self> {
+        Self::connect_inner(configuration, false)
+    }
+
+    fn connect_inner(configuration: &str, read_only: bool) -> Result<Self> {
+        if configuration.len() > 16_384 {
+            return Err(Error::Limit("PostgreSQL configuration"));
         }
         let mut config: Config = configuration
             .parse()
@@ -106,7 +117,9 @@ impl HostRuntime {
             let (postgres,connection)=tokio::time::timeout(Duration::from_secs(5),config.connect(NoTls)).await
                 .map_err(|_|Error::Limit("PostgreSQL connection deadline"))?.map_err(|_|failure())?;
             let driver=tokio::spawn(connection);
-            let setup=tokio::time::timeout(Duration::from_secs(5),postgres.batch_execute("SET statement_timeout = '5s'; SET lock_timeout = '2s'; SET default_transaction_read_only = on;")).await;
+            let settings=if read_only { "SET statement_timeout = '5s'; SET lock_timeout = '2s'; SET default_transaction_read_only = on;" }
+                else { "SET statement_timeout = '5s'; SET lock_timeout = '2s'; SET idle_in_transaction_session_timeout = '10s'; SET search_path = pg_catalog;" };
+            let setup=tokio::time::timeout(Duration::from_secs(5),postgres.batch_execute(settings)).await;
             if !matches!(setup,Ok(Ok(()))) {
                 driver.abort();
                 let _driver_result=driver.await;
@@ -119,7 +132,45 @@ impl HostRuntime {
             driver,
             runtime,
             closed: false,
+            deadline: Instant::now() + Duration::from_secs(10),
         })
+    }
+
+    pub(crate) fn check_deadline(&self) -> Result<()> {
+        if self.closed || Instant::now() >= self.deadline {
+            return Err(Error::Limit("PostgreSQL request deadline"));
+        }
+        Ok(())
+    }
+
+    pub(crate) fn query(
+        &mut self,
+        sql: &str,
+        parameters: &[&(dyn tokio_postgres::types::ToSql + Sync)],
+    ) -> Result<Vec<tokio_postgres::Row>> {
+        self.check_deadline()?;
+        let duration = (self.deadline - Instant::now()).min(Duration::from_secs(5));
+        if let Ok(value) = self.runtime.block_on(async {
+            tokio::time::timeout(duration, self.postgres.query(sql, parameters)).await
+        }) {
+            value.map_err(|_| failure())
+        } else {
+            self.close();
+            Err(Error::Limit("PostgreSQL operation deadline"))
+        }
+    }
+
+    pub(crate) fn batch(&mut self, sql: &str) -> Result<()> {
+        self.check_deadline()?;
+        let duration = (self.deadline - Instant::now()).min(Duration::from_secs(5));
+        if let Ok(value) = self.runtime.block_on(async {
+            tokio::time::timeout(duration, self.postgres.batch_execute(sql)).await
+        }) {
+            value.map_err(|_| failure())
+        } else {
+            self.close();
+            Err(Error::Limit("PostgreSQL operation deadline"))
+        }
     }
 
     pub fn call(&mut self, name: &str, arguments: &[Value]) -> Result<Value> {
@@ -192,5 +243,5 @@ impl Drop for HostRuntime {
 }
 
 fn failure() -> Error {
-    Error::Input("PostgreSQL host operation failed; connection details are redacted".into())
+    Error::Postgres
 }

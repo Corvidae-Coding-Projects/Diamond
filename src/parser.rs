@@ -80,10 +80,28 @@ impl Parser {
                     module.components.push(component);
                     name
                 }
+                "type" | "resource" | "policy" if !exported => {
+                    let declaration = match keyword.as_str() {
+                        "type" => self.record_or_alias(location)?,
+                        "policy" => Declaration::Policy(self.policy(location)?),
+                        _ => {
+                            let resource = self.name()?;
+                            self.symbol(":")?;
+                            let record = self.name()?;
+                            self.newline()?;
+                            Declaration::Resource(resource, record, location)
+                        }
+                    };
+                    module.program.declarations.push(declaration);
+                    if module.program.declarations.len() > 4096 {
+                        return Err(Error::Limit("module declarations"));
+                    }
+                    continue;
+                }
                 _ => {
                     return Err(Error::unsupported(
                         location,
-                        "W1 project modules support functions and browser components; use the legacy single-file entry for other declarations",
+                        "project modules support functions/components and private server type/resource/policy declarations",
                     ));
                 }
             };

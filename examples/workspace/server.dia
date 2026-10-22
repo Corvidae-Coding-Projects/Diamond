@@ -1,0 +1,57 @@
+type UserId = Id<"user">
+type IssueId = Id<"issue">
+
+type Issue:
+  id: IssueId
+  owner: UserId @created_by_principal
+  workspace: Text<length: 1..64>
+  title: Text<length: 1..120>
+  details: Text<length: 0..4000>
+
+type NewIssue:
+  workspace: Text<length: 1..64>
+  title: Text<length: 1..120>
+  details: Text<length: 0..4000>
+
+type EditIssue:
+  title: Text<length: 1..120>
+  details: Text<length: 0..4000>
+
+resource Issues: Issue
+
+policy Issues:
+  read(issue, by principal):
+    principal.is_user(issue.owner)
+  create(proposed, by principal):
+    principal.is_user(proposed.owner)
+  update(before, after, by principal):
+    principal.is_user(before.owner) and before.owner == after.owner and before.workspace == after.workspace
+  delete(issue, by principal):
+    principal.is_user(issue.owner)
+
+export fn main() -> Text:
+  heading()
+
+export fn create_issue(workspace: Text<length: 1..64>, title: Text<length: 1..120>, details: Text<length: 0..4000>) -> Result<Text, DataError>:
+  let issue = issues.create(NewIssue(workspace: workspace, title: title, details: details))?
+  Ok(id_text(issue.id))
+
+export fn read_issue(id: Text) -> Result<Text, DataError>:
+  let issue = issues.get(IssueId(id))?
+  Ok(issue.workspace + " | " + issue.title + "\n" + issue.details)
+
+export fn update_issue(id: Text, title: Text<length: 1..120>, details: Text<length: 0..4000>) -> Result<Text, DataError>:
+  let issue = issues.update(IssueId(id), EditIssue(title: title, details: details))?
+  Ok(issue.workspace + " | " + issue.title + "\n" + issue.details)
+
+export fn delete_issue(id: Text) -> Result<Text, DataError>:
+  issues.delete(IssueId(id))?
+  Ok("Issue deleted.")
+
+export fn list_issues(workspace: Text<length: 1..64>) -> Result<Text, DataError>:
+  let entries = for issue in issues.select(workspace: workspace, limit: 100)?:
+    id_text(issue.id) + " | " + issue.title
+  Ok(join_text(entries, "\n"))
+
+fn private_probe() -> Text:
+  "SERVER_PRIVATE_CANARY_W2_19013"

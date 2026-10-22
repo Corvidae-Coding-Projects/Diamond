@@ -1,0 +1,34 @@
+{
+  "binary": "/tmp/diamond-w2-independent-binary",
+  "sha256": "d2dc350f700f5be3af95bbd66bbb6071a743cd7252a8696724896954fbee6f5e",
+  "root": "/tmp/diamond-w2-nul-replay-dd_p6now",
+  "trace": [
+    {
+      "step": "minimal NUL save",
+      "request_body": "{\"contract\":\"c1c45688c10496fee10baba6d25156a2d9ecc057ce06074b860d11ea603f07f4\",\"arguments\":[\"w\",\"t\",\"\\u0000\"]}",
+      "expected_status": 200,
+      "observed": [
+        503,
+        {
+          "error": "unavailable"
+        }
+      ],
+      "rows_before": "0",
+      "rows_after": "0"
+    },
+    {
+      "step": "ordinary control after failure",
+      "observed": [
+        200,
+        {
+          "value": "347ad8f32627d95884d0c2556d91e9a14036605ae0a94853e2e0b707b696371f"
+        }
+      ]
+    },
+    {
+      "step": "PostgreSQL JSONB representability",
+      "exit": 1,
+      "stderr": "ERROR:  unsupported Unicode escape sequence\nLINE 1: SELECT '{\"text\":\"\\u0000\"}'::jsonb\n               ^\nDETAIL:  \\u0000 cannot be converted to text.\nCONTEXT:  JSON data, line 1: {\"text\":\"\\u0000...\n"
+    }
+  ]
+}

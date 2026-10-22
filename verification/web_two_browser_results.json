@@ -1,0 +1,85 @@
+{
+  "status": "PASS",
+  "binary_sha256": "da4b6b3e0fb8d6461879c708dd79fa61869529825425d426157650a63edfd3c4",
+  "browser": "actual Chrome via cua_repl; user-opened test tab 2141263384",
+  "origin": "http://127.0.0.1:39171",
+  "component_sha256": "5d881b63c4edfac969ff2dd5e042e71e90a6ceb5193c737d054e1e92c93af35f",
+  "actions": [
+    {
+      "action": "Sign in as alice",
+      "observed": "alice; password cleared"
+    },
+    {
+      "action": "Create issue",
+      "workspace": "browser-team",
+      "title": "Final browser issue 雪",
+      "details": "<script>literal browser & text</script>",
+      "id": "4da569dfa9f93de3e240c1739b6b5b96621c67ec71caecfa986ab6b3c97f6acd",
+      "observed": "Exact literal text in issue output and title in owned listing"
+    },
+    {
+      "action": "Save changes",
+      "observed": "browser-team | Final edit across nodes\nSaved by Diamond on A."
+    },
+    {
+      "action": "Switch to bob",
+      "observed": {
+        "signed_in": "bob",
+        "title": "",
+        "details": "",
+        "selected": "",
+        "listing": "",
+        "output": "Signed in. Refresh the list to view your issues."
+      }
+    },
+    {
+      "action": "Bob reads Alice issue",
+      "observed": "Safe request rejection; no Alice issue content displayed"
+    },
+    {
+      "action": "Alice signs in again and reads",
+      "observed": "Exact previously saved edit; error cleared"
+    },
+    {
+      "action": "Reload, Current user, read, Refresh list",
+      "observed": "alice session persisted; exact saved issue and owned listing recovered"
+    },
+    {
+      "action": "Delete issue",
+      "observed": "Issue deleted.; selected and listing cleared; native SQL row count 0"
+    },
+    {
+      "action": "Sign out",
+      "observed": {
+        "signed_in": "",
+        "title": "",
+        "details": "",
+        "selected": "",
+        "listing": "",
+        "output": "Signed out.",
+        "error_hidden": true
+      }
+    }
+  ],
+  "independent_sql_before_delete": {
+    "owner": "alice",
+    "workspace": "browser-team",
+    "title": "Final edit across nodes",
+    "details": "Saved by Diamond on A."
+  },
+  "independent_sql_after_delete_count": 0,
+  "proxy_routes": {
+    "login": "A",
+    "create_issue": "B",
+    "read_issue": "A",
+    "update_issue": "A",
+    "delete_issue": "A",
+    "logout": "B"
+  },
+  "console_errors_and_warnings": [],
+  "screenshot": {
+    "path": "web_two_browser.jpg",
+    "sha256": "5b75512057d69f72302901386650e267471713da0d7eea0137f9e0a196a5d6cd"
+  },
+  "scope": "Actual controls and DOM-backed observations; backend assertions and cold node restart are recorded separately in web_two_results.json."
+}

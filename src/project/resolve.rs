@@ -163,9 +163,50 @@ pub(super) fn symbols(modules: &mut BTreeMap<String, Module>) -> Result<()> {
                 function.name = own[name][&function.name].clone();
                 function.location.line += module.line_base;
                 block(&mut function.body, &visible, &mut locals, module.line_base)?;
+            } else {
+                server_declaration(declaration, &visible, module.line_base)?;
             }
         }
         components(module, &visible)?;
+    }
+    Ok(())
+}
+
+fn server_declaration(
+    declaration: &mut Declaration,
+    visible: &BTreeMap<String, String>,
+    base: usize,
+) -> Result<()> {
+    match declaration {
+        Declaration::Alias(name, _, location) | Declaration::Resource(name, _, location) => {
+            local(name)?;
+            location.line += base;
+        }
+        Declaration::Record(record) => {
+            local(&record.name)?;
+            record.location.line += base;
+            for field in &mut record.fields {
+                local(&field.name)?;
+                field.location.line += base;
+                if let Some(value) = &mut field.default {
+                    expression(value, visible, &BTreeSet::new(), base)?;
+                }
+            }
+        }
+        Declaration::Policy(policy) => {
+            policy.location.line += base;
+            for action in &mut policy.actions {
+                action.location.line += base;
+                let locals = action
+                    .bindings
+                    .iter()
+                    .cloned()
+                    .chain([action.principal.clone()])
+                    .collect();
+                expression(&mut action.expression, &BTreeMap::new(), &locals, base)?;
+            }
+        }
+        _ => return Err(input("unsupported project declaration")),
     }
     Ok(())
 }
@@ -207,7 +248,7 @@ fn components(module: &mut Module, visible: &BTreeMap<String, String>) -> Result
 }
 
 fn local(name: &str) -> Result<()> {
-    if !identifier(name) || name == "host" {
+    if !identifier(name) || ["host", "rpc", "session"].contains(&name) {
         Err(input("invalid or reserved project local name"))
     } else {
         Ok(())
@@ -330,7 +371,7 @@ fn html(
             } => {
                 for (name, attribute) in attributes {
                     if let HtmlAttribute::Expression(value) = attribute {
-                        if name == "on-click" {
+                        if ["on-click", "bind-value"].contains(&name.as_str()) {
                             value.location.line += base;
                         } else {
                             expression(value, symbols, locals, base)?;

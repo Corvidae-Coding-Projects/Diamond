@@ -1,0 +1,322 @@
+{
+  "schema": 1,
+  "finished_utc": "2026-10-22T01:50:16.006329+00:00",
+  "binary_sha256": "34aeea4b65645a6ff2c4a847edf80384ca69493c99fc9def1c40d5d91b794666",
+  "host_binary_sha256": "da4b6b3e0fb8d6461879c708dd79fa61869529825425d426157650a63edfd3c4",
+  "install_root_file_count": 3,
+  "cases": [
+    {
+      "name": "cargo_install",
+      "observed": {
+        "exit": 0,
+        "seconds": 4.63928,
+        "stdout": "",
+        "stderr": "  Installing diamond-lang v0.8.0 (/home/doll/diamond)\n    Updating crates.io index\n   Compiling diamond-lang v0.8.0 (/home/doll/diamond)\n    Finished `release` profile [optimized] target(s) in 4.62s\n  Installing /tmp/diamond-cp6-install-13k27k7a/install/bin/diamond\n   Installed package `diamond-lang v0.8.0 (/home/doll/diamond)` (executable `diamond`)\nwarning: be sure to add `/tmp/diamond-cp6-install-13k27k7a/install/bin` to your PATH to be able to run the installed binaries\n",
+        "files": [
+          ".crates.toml",
+          ".crates2.json",
+          "bin/diamond"
+        ]
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "installed_version",
+      "observed": {
+        "arguments": [
+          "--version"
+        ],
+        "cwd": "/tmp/diamond-cp6-install-13k27k7a",
+        "exit": 0,
+        "seconds": 0.000872,
+        "stdout": "diamond 0.8.0 (W2 connected apps; checkpoint six compatibility)\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "installed_help",
+      "observed": {
+        "arguments": [
+          "--help"
+        ],
+        "cwd": "/tmp/diamond-cp6-install-13k27k7a",
+        "exit": 0,
+        "seconds": 0.000704,
+        "stdout": "Diamond 0.8.0 — W2 connected apps and interpreted MVP\n\n  diamond check FILE_OR_PROJECT\n  diamond build PROJECT --out NEW_DIRECTORY\n  diamond serve PROJECT_OR_BUILD [--listen 127.0.0.1:PORT] [--postgres-env VARIABLE --origin http://localhost:PORT]\n  diamond run PROJECT_OR_BUILD [--postgres-env VARIABLE]\n  diamond project-init PROJECT --postgres-env VARIABLE\n  diamond project-user-add PROJECT --postgres-env VARIABLE --user USERNAME [--password-stdin]\n  diamond run FILE [--database PATH] [--auth PATH] [--listen 127.0.0.1:PORT] [--max-requests N]\n  diamond db-init FILE --database PATH\n  diamond user-add --auth PATH --user USERNAME [--password-stdin]\n  diamond explain CODE\n\nOpen http://localhost:PORT for browser secure-cookie support.\nSee README.md for installation, examples, supported language, and limits.\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "installed_run_outside_tree",
+      "observed": {
+        "arguments": [
+          "run",
+          "hello.dia"
+        ],
+        "cwd": "/tmp/diamond-cp6-install-13k27k7a",
+        "exit": 0,
+        "seconds": 0.000748,
+        "stdout": "Hello, Diamond!\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "installed_check_hello",
+      "observed": {
+        "arguments": [
+          "check",
+          "/home/doll/diamond/examples/hello.dia"
+        ],
+        "cwd": "/tmp/diamond-cp6-install-13k27k7a",
+        "exit": 0,
+        "seconds": 0.000703,
+        "stdout": "checked /home/doll/diamond/examples/hello.dia: 2 functions, 0 records, 0 resources, 0 routes, 0 policies\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "installed_check_language",
+      "observed": {
+        "arguments": [
+          "check",
+          "/home/doll/diamond/examples/language.dia"
+        ],
+        "cwd": "/tmp/diamond-cp6-install-13k27k7a",
+        "exit": 0,
+        "seconds": 0.000773,
+        "stdout": "checked /home/doll/diamond/examples/language.dia: 3 functions, 0 records, 0 resources, 0 routes, 0 policies\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "installed_check_message_board",
+      "observed": {
+        "arguments": [
+          "check",
+          "/home/doll/diamond/examples/message_board.dia"
+        ],
+        "cwd": "/tmp/diamond-cp6-install-13k27k7a",
+        "exit": 0,
+        "seconds": 0.001014,
+        "stdout": "checked /home/doll/diamond/examples/message_board.dia: 4 functions, 3 records, 1 resources, 9 routes, 1 policies\n  app MessageBoard\n  private GET / {Read(\"Posts\")}\n  public GET /posts {Read(\"Posts\")}\n  public GET /posts/{id:PostId} {Read(\"Posts\")}\n  private POST /posts {Read(\"Posts\"), Write(\"Posts\")}\n  private GET /posts/{id:PostId}/edit {Read(\"Posts\")}\n  private POST /posts/{id:PostId}/edit {Read(\"Posts\"), Write(\"Posts\")}\n  private POST /posts/{id:PostId}/publication {Read(\"Posts\"), Write(\"Posts\")}\n  private POST /posts/{id:PostId}/delete {Write(\"Posts\")}\n  private DELETE /posts/{id:PostId} {Write(\"Posts\")}\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "installed_check_storage",
+      "observed": {
+        "arguments": [
+          "check",
+          "/home/doll/diamond/examples/storage.dia"
+        ],
+        "cwd": "/tmp/diamond-cp6-install-13k27k7a",
+        "exit": 0,
+        "seconds": 0.000797,
+        "stdout": "checked /home/doll/diamond/examples/storage.dia: 1 functions, 2 records, 1 resources, 0 routes, 1 policies\n  app Storage\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "installed_check_web",
+      "observed": {
+        "arguments": [
+          "check",
+          "/home/doll/diamond/examples/web.dia"
+        ],
+        "cwd": "/tmp/diamond-cp6-install-13k27k7a",
+        "exit": 0,
+        "seconds": 0.000826,
+        "stdout": "checked /home/doll/diamond/examples/web.dia: 0 functions, 1 records, 0 resources, 5 routes, 0 policies\n  app Preview\n  public GET / {}\n  public GET /notes/{id:NoteId} {}\n  public GET /numbers/{number:Int} {}\n  public POST /echo {}\n  private GET /account {}\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "check_side_effects",
+      "observed": {
+        "command": {
+          "arguments": [
+            "check",
+            "program.dia"
+          ],
+          "cwd": "/tmp/diamond-cp6-install-13k27k7a/check-side-effects",
+          "exit": 0,
+          "seconds": 0.000641,
+          "stdout": "checked program.dia: 1 functions, 0 records, 0 resources, 0 routes, 0 policies\n",
+          "stderr": ""
+        },
+        "before": [
+          "program.dia"
+        ],
+        "after": [
+          "program.dia"
+        ]
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "database_initialization",
+      "observed": {
+        "command": {
+          "arguments": [
+            "db-init",
+            "/home/doll/diamond/examples/storage.dia",
+            "--database",
+            "/tmp/diamond-cp6-install-13k27k7a/storage.sqlite"
+          ],
+          "cwd": "/tmp/diamond-cp6-install-13k27k7a",
+          "exit": 0,
+          "seconds": 0.001119,
+          "stdout": "initialized checked schema\n",
+          "stderr": ""
+        },
+        "tables": [
+          "Notes"
+        ]
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "non_loopback_refusal",
+      "observed": {
+        "arguments": [
+          "run",
+          "/home/doll/diamond/examples/web.dia",
+          "--listen",
+          "0.0.0.0:0",
+          "--max-requests",
+          "1"
+        ],
+        "cwd": "/tmp/diamond-cp6-install-13k27k7a",
+        "exit": 1,
+        "seconds": 0.000696,
+        "stdout": "",
+        "stderr": "error: serve checked program: D900 unsupported at 0:0: non-loopback or production serving; TLS, deployment validation, and concurrent serving are not implemented\n"
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "missing_database_grant",
+      "observed": {
+        "command": {
+          "arguments": [
+            "run",
+            "/home/doll/diamond/examples/message_board.dia",
+            "--listen",
+            "127.0.0.1:0",
+            "--max-requests",
+            "1"
+          ],
+          "cwd": "/tmp/diamond-cp6-install-13k27k7a",
+          "exit": 1,
+          "seconds": 0.001283,
+          "stdout": "",
+          "stderr": "error: serve checked program: invalid input: database-backed routes require an explicit --database PATH host grant\n"
+        },
+        "database_exists": false
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "conflicting_database_paths",
+      "observed": {
+        "user_add": {
+          "arguments": [
+            "user-add",
+            "--auth",
+            "/tmp/diamond-cp6-install-13k27k7a/accounts.sqlite",
+            "--user",
+            "alice",
+            "--password-stdin"
+          ],
+          "cwd": "/tmp/diamond-cp6-install-13k27k7a",
+          "exit": 0,
+          "seconds": 0.024406,
+          "stdout": "local account created\n",
+          "stderr": ""
+        },
+        "run": {
+          "arguments": [
+            "run",
+            "/home/doll/diamond/examples/message_board.dia",
+            "--database",
+            "/tmp/diamond-cp6-install-13k27k7a/accounts.sqlite",
+            "--auth",
+            "/tmp/diamond-cp6-install-13k27k7a/accounts.sqlite",
+            "--listen",
+            "127.0.0.1:0",
+            "--max-requests",
+            "1"
+          ],
+          "cwd": "/tmp/diamond-cp6-install-13k27k7a",
+          "exit": 1,
+          "seconds": 0.001358,
+          "stdout": "",
+          "stderr": "error: serve checked program: invalid input: account and application databases must be separate files\n"
+        }
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "occupied_port",
+      "observed": {
+        "command": {
+          "arguments": [
+            "run",
+            "/home/doll/diamond/examples/web.dia",
+            "--listen",
+            "127.0.0.1:39929",
+            "--max-requests",
+            "1"
+          ],
+          "cwd": "/tmp/diamond-cp6-install-13k27k7a/occupied",
+          "exit": 1,
+          "seconds": 0.000994,
+          "stdout": "",
+          "stderr": "error: serve checked program: I/O operation failed: Address already in use (os error 98): Address already in use (os error 98)\n"
+        },
+        "files": []
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "loopback_readiness",
+      "observed": {
+        "startup_line": "Diamond checkpoint-six development server: http://localhost:41763 (http://127.0.0.1:41763)\n",
+        "seconds_to_line": 0.001833,
+        "exit": 0,
+        "stdout": "",
+        "stderr": "",
+        "response_sha256": "3e68f15996283651ffbc1153dcef51840f0001ec6f9af6a1b354d22fddf4a946",
+        "response_prefix": "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: 194\r\nConnection: close\r\nCache-Control: no-store\r\nX-Content-Type-Options: nosniff\r\nRefer"
+      },
+      "accepted": true,
+      "failures": []
+    }
+  ],
+  "case_count": 16,
+  "failures": [],
+  "result": "PASS"
+}

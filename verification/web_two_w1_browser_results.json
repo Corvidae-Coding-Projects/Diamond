@@ -1,0 +1,53 @@
+{
+  "status": "PASS",
+  "binary_sha256": "da4b6b3e0fb8d6461879c708dd79fa61869529825425d426157650a63edfd3c4",
+  "seed": 3516952833,
+  "actual_browser_values": {
+    "count": "2",
+    "case0": "152201475",
+    "case1": "156855182",
+    "case2": "706559403",
+    "case3": "-407936042",
+    "case4": "40407135",
+    "case5": "-607503940",
+    "case6": "-280142982",
+    "case7": "-1784284",
+    "case8": "-256117357",
+    "case9": "-45890497",
+    "case10": "-89033885",
+    "case11": "1861449561",
+    "case12": "-44064806",
+    "case13": "32371543",
+    "case14": "-35991021",
+    "case15": "285893757",
+    "case16": "1739828498",
+    "case17": "-414037277",
+    "case18": "1171579626",
+    "case19": "-1712262450",
+    "case20": "-1363810429",
+    "case21": "-1222612879",
+    "case22": "-13657828",
+    "case23": "137942949",
+    "large": "9007199254741004",
+    "negative_division": "-4",
+    "unicode_length": "7",
+    "unicode_order": "true",
+    "lazy_and": "false",
+    "lazy_or": "true",
+    "class": "10",
+    "__proto__": "<script>literal & text</script>"
+  },
+  "independent_expected_match": true,
+  "events": [
+    {
+      "action": "Try overflow",
+      "count": "2",
+      "error_hidden": false
+    },
+    {
+      "action": "Add three",
+      "count": "5",
+      "error_hidden": true
+    }
+  ]
+}

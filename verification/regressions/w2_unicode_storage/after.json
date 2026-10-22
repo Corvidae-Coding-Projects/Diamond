@@ -1,0 +1,47 @@
+{
+  "binary": "/home/doll/diamond/target/debug/diamond",
+  "sha256": "da4b6b3e0fb8d6461879c708dd79fa61869529825425d426157650a63edfd3c4",
+  "root": "/tmp/diamond-w2-nul-replay-0du6ayvt",
+  "trace": [
+    {
+      "step": "minimal NUL save",
+      "request_body": "{\"contract\":\"f99545f5f5464fed13dd656266817eadc0b0c13cf4faf7d7b54255ccc0afbf3d\",\"arguments\":[\"w\",\"t\",\"\\u0000\"]}",
+      "expected_status": 200,
+      "observed": [
+        200,
+        {
+          "value": "0b1818dcec3be6b54131576afbb9e84a9a08c7e8cf0d0606ab773417643547b3"
+        }
+      ],
+      "rows_before": "0",
+      "rows_after": "1"
+    },
+    {
+      "step": "fresh HTTP and raw SQL NUL readback",
+      "observed": [
+        200,
+        {
+          "value": "w | t\n\u0000"
+        }
+      ],
+      "sql_details_codepoints": [
+        0
+      ]
+    },
+    {
+      "step": "ordinary control after failure",
+      "observed": [
+        200,
+        {
+          "value": "2c320fca47d6d97d0df0d06aa1d4e03dbef9258c0afdb9904063c36546ad7dc4"
+        }
+      ]
+    },
+    {
+      "step": "PostgreSQL JSON representability",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "{\"text\":\"\\u0000\"}\n"
+    }
+  ]
+}

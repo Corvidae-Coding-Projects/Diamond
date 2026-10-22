@@ -1,11 +1,13 @@
 # Diamond
 
-Diamond 0.7.0 is a language prototype implemented in Rust. Its existing
+Diamond 0.8.0 is a language prototype implemented in Rust. Its existing
 single-file interpreter connects checked evaluation, policies, SQLite, forms,
 typed HTML, local accounts, and sessions. The W1 expansion adds multi-file
 projects, checked server/browser boundaries, a first reactive component compiled
 to JavaScript, explicit PostgreSQL host operations, versioned artifacts, and a
-concurrent loopback project server.
+concurrent loopback project server. W2 connects explicit generated RPC, shared
+PostgreSQL accounts/sessions, policy-enforced CRUD, and a Diamond workspace
+tracker across two application processes. See the [connected application guide](docs/connected-apps.md).
 
 Checkpoint six completes the accepted MVP passes with source-span diagnostics,
 parser edge handling, a checked installation and startup path, focused guides,
@@ -16,9 +18,10 @@ guarantees or production readiness.
 The next phase is described in the [general web application expansion plan](.design/general-web-apps.md).
 It targets a reactive frontend written in Diamond, PostgreSQL and multiple
 application servers, shared identity and permissions, typed APIs, uploads,
-external integrations, and durable jobs. W1 supplies the initial foundations;
-W2–W10 remain planned work. Production deployment, project CRUD, shared accounts,
-RPC, full frontend semantics, and other later capabilities are not implied.
+external integrations, and durable jobs. W1 and W2 are complete within their
+documented development profiles; W3–W10 remain planned. Full frontend semantics,
+relational query planning/migrations, the full account lifecycle, production
+deployment and other later capabilities are not implied.
 
 Start the new project example with:
 
@@ -73,6 +76,9 @@ single-connection development adapter, restricted to loopback. Stop it with Ctrl
 | `diamond build PROJECT.toml --out NEW_DIRECTORY` | Emit versioned server, browser, page, and contract artifacts. |
 | `diamond serve PROJECT_OR_BUILD --listen ADDRESS` | Serve the checked browser asset on loopback with concurrent HTTP handling. |
 | `diamond run PROJECT_OR_BUILD [--postgres-env NAME]` | Evaluate the server entry with an optional explicit local PostgreSQL grant. |
+| `diamond project-init PROJECT --postgres-env NAME` | Explicitly initialize the versioned W2 PostgreSQL profile. |
+| `diamond project-user-add PROJECT --postgres-env NAME --user USER` | Provision a shared development account with a password prompt. |
+| `diamond serve PROJECT_OR_BUILD --listen ADDRESS --postgres-env NAME --origin URL` | Serve connected RPC/components with shared identity and the exact loopback public origin. |
 | `diamond db-init FILE --database PATH` | Initialize the exact checked SQLite schema. |
 | `diamond user-add --auth PATH --user NAME` | Provision a local development account; prompts without echo. |
 | `diamond explain CODE` | Explain a diagnostic category, for example `D204`. |
@@ -230,11 +236,15 @@ repository policies independently enforce all mutations.
 
 ## Explicit limits
 
+The following storage, account and transport limits describe the single-file
+SQLite compatibility profile. The [W1 project guide](docs/projects.md) and
+[W2 connected guide](docs/connected-apps.md) state the separate project profiles.
+
 Generic enums, nested/or/literal patterns, general error-type parameters,
-closures/callbacks, mutable variables, module
-budgets, concurrent tasks, generational GC, streams/WebSockets/uploads, general
+general closures/callbacks, general mutable variables, language-level
+concurrent tasks, generational GC, streams/WebSockets/uploads, general
 query syntax beyond the selection subset, joins/aggregates/bulk APIs, schema migrations, external networking,
-filesystem APIs, raw interop, secrets, native/browser compilation, and production
+filesystem APIs, raw interop, secrets, native machine-code compilation, and production
 deployment are not implemented. Unrecognized syntax and operations fail with
 diagnostics. Resource and call budgets bound the implemented evaluator; values
 are owned immutable Rust data without a cyclic object model.
@@ -260,7 +270,7 @@ integration remain unsupported. Local account-file permission handling currently
 requires Unix. Login verification is bounded to 64 attempts per minute across
 the process; this is an initial development boundary.
 
-The development server rejects proxy headers, upgrades, chunking, duplicate
+The single-file development server rejects proxy headers, upgrades, chunking, duplicate
 headers, query strings, encoded paths, non-loopback listeners, and nonmatching
 Host/Origin values. It supplies restrictive response headers. It does not
 terminate TLS, provide a production HTTP parser, or claim production readiness.
@@ -283,6 +293,8 @@ python3 verification/checkpoint_four.py
 python3 verification/checkpoint_five.py --full
 python3 verification/checkpoint_six.py --full
 python3 verification/red_team.py --seed 0xD1A06011
+python3 verification/web_two.py
+python3 verification/web_two_independent.py
 ```
 
 The verifiers build expectations from the declared subset, drive the actual

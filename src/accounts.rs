@@ -114,7 +114,7 @@ fn password_hasher() -> Result<Argon2<'static>> {
     Ok(Argon2::new(Algorithm::Argon2id, Version::V0x13, parameters))
 }
 
-fn hash_password(password: &str) -> Result<String> {
+pub(crate) fn hash_password(password: &str) -> Result<String> {
     let mut bytes = [0_u8; 16];
     getrandom::fill(&mut bytes).map_err(|_| Error::Random)?;
     let salt = SaltString::encode_b64(&bytes).map_err(|_| Error::Random)?;
@@ -142,6 +142,13 @@ fn parse_password_hash(encoded: &str) -> Result<PasswordHash<'_>> {
         ));
     }
     Ok(parsed)
+}
+
+pub(crate) fn verify_password(encoded: &str, password: &str) -> Result<bool> {
+    let parsed = parse_password_hash(encoded)?;
+    Ok(password_hasher()?
+        .verify_password(password.as_bytes(), &parsed)
+        .is_ok())
 }
 
 fn validate_schema(connection: &Connection) -> Result<()> {

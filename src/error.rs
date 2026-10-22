@@ -74,6 +74,13 @@ pub enum Error {
     /// A database operation failed; this is an internal diagnostic, not an HTTP body.
     #[error("database operation failed")]
     Database(#[from] rusqlite::Error),
+    /// A `PostgreSQL` adapter failed; connection details are never included.
+    ///
+    /// ```
+    /// assert!(diamond::Error::Postgres.to_string().contains("redacted"));
+    /// ```
+    #[error("PostgreSQL operation failed; connection details are redacted")]
+    Postgres,
     /// An operating-system operation failed.
     #[error("I/O operation failed: {0}")]
     Io(#[from] std::io::Error),

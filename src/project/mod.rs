@@ -2,9 +2,14 @@
 
 mod artifact;
 mod browser;
+mod connected;
+mod identity;
 mod lower;
 mod resolve;
+mod rpc;
 mod server;
+pub(crate) mod storage;
+mod wire;
 
 use crate::authority::{Effect, Effects, Principal, Scope};
 use crate::error::{Error, Result};
@@ -52,6 +57,8 @@ struct Manifest {
     #[serde(default)]
     provides: BTreeSet<String>,
     modules: BTreeMap<String, ModuleConfig>,
+    #[serde(default)]
+    rpc: BTreeMap<String, String>,
 }
 
 #[derive(Clone, Debug)]
@@ -78,6 +85,7 @@ pub struct CheckedProject {
     modules: BTreeMap<String, Module>,
     server: CheckedProgram,
     browser: lower::BrowserProgram,
+    rpc: BTreeMap<String, rpc::Operation>,
 }
 
 /// Read and check a bounded project without opening a database or listener.
@@ -215,8 +223,81 @@ impl CheckedProject {
     /// # Ok::<(), diamond::Error>(())
     /// ```
     pub fn serve(&self, address: SocketAddr) -> Result<()> {
+        if !self.rpc.is_empty() {
+            return Err(input(
+                "RPC projects require serve_connected with an explicit PostgreSQL grant and origin",
+            ));
+        }
         server::serve(self, address)
     }
+
+    /// Initialize the versioned W2 `PostgreSQL` profile explicitly.
+    ///
+    /// # Errors
+    /// Rejects missing/unsupported connection grants or an incompatible stored schema.
+    ///
+    /// ```no_run
+    /// let project=diamond::compile_project(std::path::Path::new("examples/workspace/diamond.toml"))?;
+    /// project.initialize_postgres("host=/tmp/postgres user=diamond dbname=diamond")?;
+    /// # Ok::<(), diamond::Error>(())
+    /// ```
+    pub fn initialize_postgres(&self, configuration: &str) -> Result<()> {
+        synchronous_context()?;
+        let mut store = storage::PostgresStore::open(self, configuration, true)?;
+        store.finish_request(Ok(()))
+    }
+
+    /// Provision a shared development account without replacing an existing password.
+    ///
+    /// # Errors
+    /// Rejects invalid credentials, duplicate accounts, incompatible stores and I/O failures.
+    ///
+    /// ```no_run
+    /// let project=diamond::compile_project(std::path::Path::new("examples/workspace/diamond.toml"))?;
+    /// project.add_postgres_user("host=/tmp/postgres dbname=diamond", "alice", "a-long-test-password")?;
+    /// # Ok::<(), diamond::Error>(())
+    /// ```
+    pub fn add_postgres_user(
+        &self,
+        configuration: &str,
+        username: &str,
+        password: &str,
+    ) -> Result<()> {
+        synchronous_context()?;
+        let mut store = storage::PostgresStore::open(self, configuration, false)?;
+        let result = store.add_user(username, password);
+        store.finish_request(result)
+    }
+
+    /// Serve generated RPC and a Diamond browser component with shared `PostgreSQL` sessions.
+    /// The exact public origin is the loopback proxy/browser origin, not a forwarded header.
+    ///
+    /// # Errors
+    /// Rejects invalid origins/listeners, missing stores/grants and runtime failures.
+    ///
+    /// ```no_run
+    /// let project=diamond::compile_project(std::path::Path::new("examples/workspace/diamond.toml"))?;
+    /// project.serve_connected("127.0.0.1:3001".parse().map_err(|_|diamond::Error::Input("address".into()))?,
+    ///     "http://localhost:3000", "host=/tmp/postgres dbname=diamond")?;
+    /// # Ok::<(), diamond::Error>(())
+    /// ```
+    pub fn serve_connected(
+        &self,
+        address: SocketAddr,
+        public_origin: &str,
+        configuration: &str,
+    ) -> Result<()> {
+        connected::serve(self, address, public_origin, configuration)
+    }
+}
+
+fn synchronous_context() -> Result<()> {
+    if tokio::runtime::Handle::try_current().is_ok() {
+        return Err(input(
+            "call synchronous project setup outside an async runtime",
+        ));
+    }
+    Ok(())
 }
 
 fn manifest(source: &str) -> Result<Manifest> {
@@ -234,8 +315,11 @@ fn manifest(source: &str) -> Result<Manifest> {
     if !resolve::identifier(&manifest.component) {
         return Err(input("invalid root component name"));
     }
-    if manifest.provides.iter().any(|name| name != "PostgresRead") {
-        return Err(input("unknown application host capability"));
+    for capability in &manifest.provides {
+        capability_effect(capability)?;
+    }
+    if manifest.rpc.len() > 64 {
+        return Err(input("at most 64 RPC operations are supported"));
     }
     let mut paths = BTreeSet::new();
     for (name, config) in &manifest.modules {
@@ -283,6 +367,7 @@ fn compile_sources(
     }
     let modules = parse_modules(&manifest, &sources)?;
     let server = check_server(&manifest, &modules)?;
+    let rpc = rpc::operations(&manifest, &modules, &server)?;
     let browser_names = resolve::reachable(&manifest.browser, &manifest.modules);
     let browser_source = combined(&modules, &browser_names);
     let browser_checked =
@@ -298,7 +383,7 @@ fn compile_sources(
         .find(|component| component.name == manifest.component)
         .ok_or_else(|| input("root browser export is not a component"))?;
     let browser =
-        lower::lower(&browser_checked, component).map_err(|error| locate(&modules, error))?;
+        lower::lower(&browser_checked, component, &rpc).map_err(|error| locate(&modules, error))?;
     Ok(CheckedProject {
         manifest_source,
         sources,
@@ -306,6 +391,7 @@ fn compile_sources(
         modules,
         server,
         browser,
+        rpc,
     })
 }
 
@@ -320,6 +406,17 @@ fn parse_modules(
             .ok_or_else(|| input("missing module source"))?;
         let parsed = crate::parser::project_module(source)
             .map_err(|error| source_error(&config.path, error))?;
+        if name != &manifest.server
+            && parsed
+                .program
+                .declarations
+                .iter()
+                .any(|d| !matches!(d, Declaration::Function(_)))
+        {
+            return Err(input(
+                "W2 type/resource/policy declarations belong to the server entry module",
+            ));
+        }
         if config.target != Target::Browser && !parsed.components.is_empty() {
             return Err(input("components belong to browser modules"));
         }
@@ -377,22 +474,55 @@ fn check_server(manifest: &Manifest, modules: &BTreeMap<String, Module>) -> Resu
     let grants = manifest
         .provides
         .iter()
-        .map(|name| Effect::Host(name.clone()))
-        .collect();
+        .map(|name| capability_effect(name))
+        .collect::<Result<Effects>>()?;
     let server =
         crate::checker::check_project(&source, grants).map_err(|error| locate(modules, error))?;
+    if server.grants.iter().any(|effect| match effect {
+        Effect::Read(name) | Effect::Write(name) => !server.resources.contains_key(name),
+        Effect::Host(_) => false,
+    }) {
+        return Err(input("capability refers to an undeclared resource"));
+    }
     for name in &names {
         let module = &modules[name];
         for declaration in &module.parsed.program.declarations {
             if let Declaration::Function(function) = declaration {
                 let checked = &server.functions[&function.name];
-                if checked.effects.iter().any(|effect| !matches!(effect,Effect::Host(capability) if module.config.provides.contains(capability))) {
-                    return Err(source_error(&module.config.path,input("function effects exceed its module budget")));
+                let allowed = module
+                    .config
+                    .provides
+                    .iter()
+                    .map(|name| capability_effect(name))
+                    .collect::<Result<Effects>>()?;
+                if !checked.effects.is_subset(&allowed) {
+                    return Err(source_error(
+                        &module.config.path,
+                        input("function effects exceed its module budget"),
+                    ));
                 }
             }
         }
     }
     Ok(server)
+}
+
+fn capability_effect(name: &str) -> Result<Effect> {
+    if name == "PostgresRead" {
+        return Ok(Effect::Host(name.into()));
+    }
+    for (prefix, write) in [("DbRead<", false), ("DbWrite<", true)] {
+        if let Some(resource) = name.strip_prefix(prefix).and_then(|v| v.strip_suffix('>'))
+            && resolve::identifier(resource)
+        {
+            return Ok(if write {
+                Effect::Write(resource.into())
+            } else {
+                Effect::Read(resource.into())
+            });
+        }
+    }
+    Err(input("unknown application capability"))
 }
 
 fn entry_wrapper(source: &Program, entry: &str) -> Result<Declaration> {

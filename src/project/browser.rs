@@ -25,6 +25,10 @@ function __diamond_rt_element(tag,attributes,children) {
   const element=document.createElement(tag);
   for (const [name,value] of attributes) {
     if (name === 'on-click') element.addEventListener('click',()=>__diamond_rt_dispatch(value));
+    else if (name === 'bind-value') {
+      element.value=__diamond_rt_state[value];
+      element.addEventListener('input',()=> { if (!__diamond_rt_busy) { try { __diamond_rt_state[value]=__diamond_rt_text(element.value); } catch (_) { __diamond_rt_fail(); } } });
+    }
     else element.setAttribute(name,String(value));
   }
   element.append(...children); return element;
@@ -32,21 +36,68 @@ function __diamond_rt_element(tag,attributes,children) {
 function __diamond_rt_fail() { __diamond_rt_error.hidden=false; __diamond_rt_error.textContent='Diamond component update failed; previous state was preserved.'; }
 let __diamond_rt_state=Object.create(null);
 const __diamond_rt_events=Object.create(null);
-function __diamond_rt_dispatch(name) {
+let __diamond_rt_busy=false;
+async function __diamond_rt_dispatch(name) {
+  if (__diamond_rt_busy) return;
+  __diamond_rt_busy=true;
+  const controls=Array.from(__diamond_rt_root.querySelectorAll('button,input'));
+  for (const control of controls) control.disabled=true;
   __diamond_rt_fuel=100000;
   const __diamond_rt_next=Object.assign(Object.create(null),__diamond_rt_state);
   try {
-    __diamond_rt_events[name](__diamond_rt_next);
+    await __diamond_rt_events[name](__diamond_rt_next);
     const __diamond_rt_previous=__diamond_rt_state;
     __diamond_rt_state=__diamond_rt_next;
     try { __diamond_rt_render(); } catch (error) { __diamond_rt_state=__diamond_rt_previous; throw error; }
     __diamond_rt_error.hidden=true;
-  } catch (_) { __diamond_rt_fail(); }
+  } catch (error) {
+    __diamond_rt_fail();
+    if (error && error.diamondRemote) __diamond_rt_error.textContent=error.message;
+  } finally { __diamond_rt_busy=false; for (const control of controls) control.disabled=false; }
 }
 ";
 
-pub(super) fn emit(program: &BrowserProgram) -> Result<String> {
+const REMOTE_RUNTIME: &str = r"
+let __diamond_rt_csrf='';
+function __diamond_rt_wire(v,ty) { return ty==='Int' ? v.toString() : v; }
+function __diamond_rt_unwire(v,ty) {
+  if (ty==='Int') { if (typeof v!=='string' || !/^(0|-?[1-9][0-9]*)$/.test(v)) throw Error('invalid server integer'); return __diamond_rt_int(BigInt(v)); }
+  if (ty==='Bool') { if (typeof v!=='boolean') throw Error('invalid server Boolean'); return v; }
+  if (typeof v!=='string') throw Error('invalid server text'); return __diamond_rt_text(v);
+}
+async function __diamond_rt_remote(name,args,types,result) {
+  let response;
+  try {
+    if (!__diamond_rt_csrf || name==='session/user') {
+      response=await fetch('/_diamond/session',{credentials:'same-origin',cache:'no-store',headers:{'X-Diamond-Session':'1'}});
+      if (!response.ok) throw Error('session unavailable');
+      const session=await response.json(); __diamond_rt_csrf=session.csrf;
+      if (name==='session/user') return session.user || '';
+    }
+    let path,body;
+    if (name==='session/login') {path='/_diamond/login';body={username:args[0],password:args[1]};}
+    else if (name==='session/logout') {path='/_diamond/logout';body={};}
+    else {path='/_diamond/'+name;body={contract:__diamond_rt_contract,arguments:args.map((v,i)=>__diamond_rt_wire(v,types[i]))};}
+    response=await fetch(path,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','X-Diamond-CSRF':__diamond_rt_csrf},body:JSON.stringify(body)});
+    const value=await response.json();
+    if (!response.ok) {
+      const error=Error(value.error==='outcome_unknown' || response.status>=500 ? 'Request failed; a mutation may have committed. Refresh before retrying.' : value.error==='contract_mismatch' ? 'Application version changed. Reload this page.' : 'Request rejected. Check your session, input, and permissions. Earlier server calls may already have committed.');
+      error.diamondRemote=true; throw error;
+    }
+    if (value.csrf) __diamond_rt_csrf=value.csrf;
+    if (name==='session/logout') __diamond_rt_csrf='';
+    return __diamond_rt_unwire(value.value,result);
+  } catch (error) {
+    if (error.diamondRemote) throw error;
+    const failure=Error('Request interrupted; a mutation may have committed. Refresh before retrying.'); failure.diamondRemote=true; throw failure;
+  }
+}
+";
+
+pub(super) fn emit(program: &BrowserProgram, contract: &str) -> Result<String> {
     let mut output = RUNTIME.to_owned();
+    writeln!(output, "const __diamond_rt_contract={};", quote(contract)?).map_err(write_error)?;
+    output.push_str(REMOTE_RUNTIME);
     for (name, function) in &program.functions {
         let parameters = function
             .parameters
@@ -88,7 +139,7 @@ pub(super) fn emit(program: &BrowserProgram) -> Result<String> {
     for (name, assignments) in &program.events {
         writeln!(
             output,
-            "__diamond_rt_events[{}]=function(__diamond_rt_next) {{",
+            "__diamond_rt_events[{}]=async function(__diamond_rt_next) {{",
             quote(name)?
         )
         .map_err(write_error)?;
@@ -163,6 +214,19 @@ fn expression(value: &Expression, bindings: &BTreeMap<String, String>) -> Result
                 .join(",");
             format!("{name}({args})")
         }
+        Kind::Remote(name, args, types) => {
+            let args = args
+                .iter()
+                .map(|value| expression(value, bindings))
+                .collect::<Result<Vec<_>>>()?
+                .join(",");
+            let types = serde_json::to_string(types).map_err(|_| Error::Denied)?;
+            format!(
+                "(await __diamond_rt_remote({},[{args}],{types},{}))",
+                quote(name)?,
+                quote(&format!("{:?}", value.ty))?
+            )
+        }
     };
     Ok(format!("(__diamond_rt_step(),{code})"))
 }
@@ -217,7 +281,9 @@ fn node_js(node: &Node, bindings: &BTreeMap<String, String>) -> Result<String> {
                 .iter()
                 .map(|(name, value)| {
                     let value = match value {
-                        Attribute::Text(text) | Attribute::Event(text) => quote(text)?,
+                        Attribute::Text(text)
+                        | Attribute::Event(text)
+                        | Attribute::Binding(text) => quote(text)?,
                         Attribute::Value(value) => expression(value, bindings)?,
                     };
                     Ok(format!("[{},{}]", quote(name)?, value))

@@ -22,7 +22,7 @@ impl Scalar {
         match ty {
             Type::Int => Ok(Self::Int),
             Type::Bool => Ok(Self::Bool),
-            Type::Text => Ok(Self::Text),
+            Type::Text | Type::BoundedText(_, _) => Ok(Self::Text),
             _ => Err(Error::unsupported(
                 location,
                 "W1 browser values support Int, Bool and Text",
@@ -48,6 +48,7 @@ pub(super) enum Kind {
     Unary(String, Box<Expression>),
     Binary(Box<Expression>, String, Box<Expression>),
     Call(String, Vec<Expression>),
+    Remote(String, Vec<Expression>, Vec<Scalar>),
 }
 
 #[derive(Clone, Debug, Serialize)]
@@ -80,6 +81,7 @@ pub(super) enum Attribute {
     Text(String),
     Value(Expression),
     Event(String),
+    Binding(String),
 }
 
 #[derive(Clone, Debug, Serialize)]
@@ -94,6 +96,7 @@ pub(super) struct BrowserProgram {
 pub(super) fn lower(
     program: &CheckedProgram,
     component: &syntax::Component,
+    rpc: &BTreeMap<String, super::rpc::Operation>,
 ) -> Result<BrowserProgram> {
     let mut lower = Lower {
         program,
@@ -125,7 +128,7 @@ pub(super) fn lower(
                 )
             })?;
             let expected = Scalar::from_type(ty, value.location)?;
-            let value = lower.expression(value, &locals)?;
+            let value = lower.event_expression(value, &locals, rpc)?;
             if value.ty != expected {
                 return Err(error(
                     component.location,
@@ -186,6 +189,68 @@ struct Lower<'a> {
 }
 
 impl Lower<'_> {
+    fn event_expression(
+        &mut self,
+        expression: &Expr,
+        locals: &BTreeMap<String, Type>,
+        operations: &BTreeMap<String, super::rpc::Operation>,
+    ) -> Result<Expression> {
+        if let ExprKind::Call {
+            callee,
+            arguments,
+            types,
+        } = &expression.kind
+            && let ExprKind::Field(base, name) = &callee.kind
+            && let ExprKind::Name(namespace) = &base.kind
+            && ["rpc", "session"].contains(&namespace.as_str())
+        {
+            let (parameters, result, operation) = if namespace == "rpc" {
+                let operation = operations.get(name).ok_or_else(|| {
+                    error(expression.location, "RPC is not declared in the manifest")
+                })?;
+                (
+                    operation.arguments.clone(),
+                    operation.result.clone(),
+                    format!("rpc/{name}"),
+                )
+            } else {
+                let parameters = match name.as_str() {
+                    "login" => vec![Type::Text, Type::Text],
+                    "logout" | "user" => vec![],
+                    _ => return Err(error(expression.location, "unknown session operation")),
+                };
+                (parameters, Type::Text, format!("session/{name}"))
+            };
+            if !types.is_empty()
+                || arguments.len() != parameters.len()
+                || arguments.iter().any(|(name, _)| name.is_some())
+            {
+                return Err(error(
+                    expression.location,
+                    "remote arguments must match the declared positional signature",
+                ));
+            }
+            let mut values = Vec::new();
+            let mut scalars = Vec::new();
+            for ((_, value), ty) in arguments.iter().zip(&parameters) {
+                let expected = Scalar::from_type(ty, value.location)?;
+                let value = self.expression(value, locals)?;
+                if value.ty != expected {
+                    return Err(error(expression.location, "remote argument type mismatch"));
+                }
+                values.push(value);
+                scalars.push(expected);
+            }
+            return Ok(Expression {
+                ty: Scalar::from_type(&result, expression.location)?,
+                line: expression.location.line,
+                column: expression.location.column,
+                kind: Kind::Remote(operation, values, scalars),
+            });
+        }
+        self.expression(expression, locals)
+    }
+
     fn expression(
         &mut self,
         expression: &Expr,
@@ -291,12 +356,14 @@ impl Lower<'_> {
             HtmlNode::Text(text)=>Ok(Node::Text(text.clone())),
             HtmlNode::Expression(value)=>Ok(Node::Value(self.expression(value,locals)?)),
             HtmlNode::Element {tag,attributes,children}=> {
-                if ["html","head","body","title","form","input","textarea"].contains(&tag.as_str()) {
+                if ["html","head","body","title","form","textarea"].contains(&tag.as_str()) {
                     return Err(Error::unsupported(Location::default(),"W1 components render content elements and click buttons; document elements/forms arrive in W3"));
                 }
                 let mut checked=Vec::new();
                 for (name,attribute) in attributes {
                     let attribute=match (name.as_str(),attribute) {
+                        ("bind-value",HtmlAttribute::Expression(Expr {kind:ExprKind::Name(state),..})) if tag=="input" && locals.get(state)==Some(&Type::Text)=>Attribute::Binding(state.clone()),
+                        ("bind-value",_)=>return Err(error(Location::default(),"bind-value requires Text state on an input")),
                         ("on-click",HtmlAttribute::Expression(Expr {kind:ExprKind::Name(event),..})) if tag=="button" && events.contains_key(event)=>Attribute::Event(event.clone()),
                         ("on-click",_)=>return Err(error(Location::default(),"on-click requires a declared event name on a button")),
                         (_,HtmlAttribute::Literal(text))=>Attribute::Text(text.clone()),
@@ -304,6 +371,9 @@ impl Lower<'_> {
                         (_,HtmlAttribute::Expression(value))=>Attribute::Value(self.expression(value,locals)?),
                     };
                     checked.push((name.clone(),attribute));
+                }
+                if tag=="input" && (!checked.iter().any(|(name,_)| name=="bind-value") || checked.iter().any(|(name,value)| name=="value" || name=="type" && !matches!(value,Attribute::Text(v) if ["text","password"].contains(&v.as_str())))) {
+                    return Err(error(Location::default(),"W2 inputs require bind-value and a static text/password type"));
                 }
                 Ok(Node::Element {tag:tag.clone(),attributes:checked,children:self.nodes(children,locals,events)?})
             }

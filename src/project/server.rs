@@ -142,7 +142,7 @@ async fn handler(State(server): State<Arc<Server>>, request: Request) -> Respons
     )
 }
 
-fn response(status: StatusCode, kind: &'static str, text: &str, head: bool) -> Response {
+pub(super) fn response(status: StatusCode, kind: &'static str, text: &str, head: bool) -> Response {
     let mut response = Response::new(if head {
         Body::empty()
     } else {

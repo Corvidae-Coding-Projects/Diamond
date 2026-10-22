@@ -1,0 +1,2 @@
+export fn heading() -> Text:
+  "Workspace tracker"

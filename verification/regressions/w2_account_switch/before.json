@@ -1,0 +1,17 @@
+{
+  "binary_sha256": "da4b6b3e0fb8d6461879c708dd79fa61869529825425d426157650a63edfd3c4",
+  "tracker_sha256": "fe63b3fc1dee5183f8f82aed33a0fca6b9d3d94e3e2e3211c47ffafd928bb7f5",
+  "actions": [
+    "Sign in as alice in actual Chrome",
+    "Create and edit an issue",
+    "Sign in as bob in the same component"
+  ],
+  "expected": "Clear previous account issue fields/output on successful identity change",
+  "observed": {
+    "signed_in": "bob",
+    "title": "Edited in Diamond",
+    "details": "Persisted across two servers.",
+    "output": "browser-team | Edited in Diamond\nPersisted across two servers."
+  },
+  "fix": "Diamond sign-in/sign-out handlers explicitly clear account-specific state; sign-in performs one remote mutation before those local clears."
+}

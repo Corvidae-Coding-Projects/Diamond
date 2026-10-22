@@ -1,0 +1,7 @@
+{
+  "binary_sha256": "0b23d68582198f45d6bc171b271046d685a00da9d0e1be2ed0b56e557adcb4ad",
+  "seed": 3516957186,
+  "status": "FAIL",
+  "error": "AssertionError((400, {'error': 'invalid_input'}))",
+  "retained_directory_note": "Disposable cluster stopped; replay uses a new private cluster."
+}

@@ -1,0 +1,28 @@
+schema_version = 1
+name = "WorkspaceTracker"
+server = "server"
+browser = "ui"
+component = "Tracker"
+provides = ["DbRead<Issues>", "DbWrite<Issues>"]
+
+[modules.shared]
+path = "shared.dia"
+target = "shared"
+
+[modules.server]
+path = "server.dia"
+target = "server"
+imports = ["shared"]
+provides = ["DbRead<Issues>", "DbWrite<Issues>"]
+
+[modules.ui]
+path = "tracker.dia"
+target = "browser"
+imports = ["shared"]
+
+[rpc]
+create_issue = "server.create_issue"
+read_issue = "server.read_issue"
+update_issue = "server.update_issue"
+delete_issue = "server.delete_issue"
+list_issues = "server.list_issues"

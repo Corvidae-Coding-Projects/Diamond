@@ -160,7 +160,7 @@ impl Template<'_> {
                 "aria-label",
             ]
             .contains(&name.as_str())
-                || self.browser && name == "on-click")
+                || self.browser && ["on-click", "bind-value"].contains(&name.as_str()))
             {
                 return Err(Error::unsupported(
                     self.location(),

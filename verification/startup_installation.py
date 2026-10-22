@@ -108,7 +108,7 @@ def main() -> int:
             observed,
             [
                 (observed["exit"] == 0, "installed version failed"),
-                (observed["stdout"] == f"diamond {VERSION} (W1 foundations; checkpoint six compatibility)\n", "installed version mismatch"),
+                (observed["stdout"] == f"diamond {VERSION} (W2 connected apps; checkpoint six compatibility)\n", "installed version mismatch"),
             ],
         )
         observed = run(binary, ["--help"], cwd=directory)
@@ -118,7 +118,7 @@ def main() -> int:
             [
                 (observed["exit"] == 0, "installed help failed"),
                 ("diamond explain CODE" in str(observed["stdout"]), "explain absent from help"),
-                ("W1 project foundations and interpreted MVP" in str(observed["stdout"]), "checkpoint label mismatch"),
+                ("W2 connected apps and interpreted MVP" in str(observed["stdout"]), "checkpoint label mismatch"),
                 ("diamond build" in str(observed["stdout"]) and "diamond serve" in str(observed["stdout"]), "project commands absent from help"),
             ],
         )

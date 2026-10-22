@@ -1,10 +1,11 @@
 # W1 project foundations
 
-Diamond 0.7.0 adds the first general-web expansion checkpoint. It keeps the
+Diamond 0.7.0 added the first general-web expansion checkpoint, retained in 0.8.0. It keeps the
 single-file interpreter and its SQLite/browser-account behavior. The project
 entry is a separate, deliberately small initial subset: modules, scalar browser
 functions, one reactive component, checked host operations, and a concurrent
-loopback asset server. W2 connects distributed application data and identity.
+loopback asset server. The [W2 guide](connected-apps.md) describes the now-implemented
+connected application path, its additional syntax, grants and limits.
 
 ## Check, build, and serve
 

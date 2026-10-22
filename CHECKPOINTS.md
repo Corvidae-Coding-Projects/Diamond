@@ -606,3 +606,19 @@ failures, and compatibility/red-team replay receipts. The
 Nine expansion checkpoints remain, W2–W10. W2 connects shared identity, generated
 RPC, protected PostgreSQL CRUD and a Diamond application across two servers.
 W1 is a foundation, not the complete general-web release or production profile.
+
+## General-web expansion W2 — complete
+
+Diamond 0.8.0 completes the first connected two-server slice: explicit scalar
+RPC contracts, shared PostgreSQL accounts/sessions, checked resource CRUD and
+ownership policies, and a reactive workspace tracker with its business handlers
+and UI in Diamond. Login through A, creation through B, reads/edits through A,
+restart/read through B and cross-user denial were observed on actual processes.
+
+The [W2 evidence record](verification/web_two_results.md) retains actual Chrome,
+native API, generated/independent HTTP/PostgreSQL, rollback/delivery/commit-fault
+and compatibility observations, plus repaired failures. The
+[connected guide](docs/connected-apps.md) defines the exact development profile.
+
+Eight checkpoints remain, W3–W10. W3 completes the language/frontend slice;
+production release qualification remains W10.

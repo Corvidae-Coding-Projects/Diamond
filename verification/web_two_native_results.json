@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "binary_sha256": "da4b6b3e0fb8d6461879c708dd79fa61869529825425d426157650a63edfd3c4",
+  "command": "cargo run --locked --example connected_embedding",
+  "stdout": "W2 native project consumer passed\n",
+  "independent_argon2_account_count": 1,
+  "configuration": "explicit disposable Unix-socket PostgreSQL grant; password omitted"
+}

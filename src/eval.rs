@@ -80,6 +80,7 @@ pub(crate) struct Request<'a> {
 
 pub(crate) struct Interpreter<'a, 'scope> {
     host: Option<&'a mut crate::host::HostRuntime>,
+    postgres: Option<&'a mut crate::project::storage::PostgresStore>,
     program: &'a CheckedProgram,
     scope: &'a Scope<'scope>,
     database: Option<&'a mut Database>,
@@ -98,6 +99,7 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
     ) -> Self {
         Self {
             host: None,
+            postgres: None,
             program,
             scope,
             database,
@@ -113,7 +115,18 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
         self
     }
 
+    pub(crate) fn with_postgres(
+        mut self,
+        store: &'a mut crate::project::storage::PostgresStore,
+    ) -> Self {
+        self.postgres = Some(store);
+        self
+    }
+
     fn step(&mut self) -> Result<()> {
+        if let Some(store) = self.postgres.as_deref() {
+            store.check_deadline()?;
+        }
         self.fuel = self
             .fuel
             .checked_sub(1)
@@ -125,7 +138,7 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
         self.function("main", &[])
     }
 
-    fn function(&mut self, name: &str, arguments: &[Value]) -> Result<Value> {
+    pub(crate) fn function(&mut self, name: &str, arguments: &[Value]) -> Result<Value> {
         self.step()?;
         if self.call_depth >= 64 {
             return Err(Error::Limit("call depth"));
@@ -190,7 +203,11 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
                 }
                 StatementKind::Transaction(body) => {
                     let mut nested = self.values.copy_fields(locals)?;
-                    self.database.as_deref_mut().ok_or(Error::Denied)?.begin()?;
+                    if let Some(store) = self.postgres.as_deref_mut() {
+                        store.begin()?;
+                    } else {
+                        self.database.as_deref_mut().ok_or(Error::Denied)?.begin()?;
+                    }
                     let result = self.block(body, &mut nested).and_then(|value| {
                         if let ValueKind::Err(failure) = value.0 {
                             Err(failure.into_error())
@@ -198,10 +215,14 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
                             Ok(value)
                         }
                     });
-                    self.database
-                        .as_deref_mut()
-                        .ok_or(Error::Denied)?
-                        .finish(result)?
+                    if let Some(store) = self.postgres.as_deref_mut() {
+                        store.finish(result)?
+                    } else {
+                        self.database
+                            .as_deref_mut()
+                            .ok_or(Error::Denied)?
+                            .finish(result)?
+                    }
                 }
             };
         }
@@ -463,49 +484,96 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
                     &self.program.records[&record],
                 ));
             }
-            let program = self.program;
-            let (resource, _) = program
-                .resources
-                .iter()
-                .find(|(resource, _)| resource.to_ascii_lowercase() == *name)
-                .ok_or(Error::Denied)?;
-            let values = arguments
-                .iter()
-                .map(|(_, value)| self.expr(value, locals))
-                .collect::<Result<Vec<_>>>()?;
-            let database = self.database.as_deref_mut().ok_or(Error::Denied)?;
-            if method == "select" {
-                let named = arguments
-                    .iter()
-                    .zip(values)
-                    .map(|((name, _), value)| Ok((name.clone().ok_or(Error::Denied)?, value)))
-                    .collect::<Result<BTreeMap<_, _>>>()?;
-                let result = database.select(self.scope, resource, &named, &mut self.values);
-                if result.is_err() {
-                    database.mark_failed();
-                }
-                return Value::operation(result);
+            return self.repository_call(name, method, arguments, locals);
+        }
+        Err(Error::Denied)
+    }
+
+    fn repository_call(
+        &mut self,
+        name: &str,
+        method: &str,
+        arguments: &[(Option<String>, Expr)],
+        locals: &BTreeMap<String, Value>,
+    ) -> Result<Value> {
+        let program = self.program;
+        let (resource, _) = program
+            .resources
+            .iter()
+            .find(|(resource, _)| resource.to_ascii_lowercase() == *name)
+            .ok_or(Error::Denied)?;
+        let values = arguments
+            .iter()
+            .map(|(_, value)| self.expr(value, locals))
+            .collect::<Result<Vec<_>>>()?;
+        if let Some(store) = self.postgres.as_deref_mut() {
+            let result = store.operation(
+                self.scope,
+                resource,
+                method,
+                arguments,
+                &values,
+                &mut self.values,
+            );
+            if result.is_err() {
+                store.mark_failed();
             }
-            let first = values.first().ok_or(Error::Denied)?;
-            let result = match method.as_str() {
-                "get" => database.get(self.scope, resource, first, &mut self.values),
-                "create" => database.create(self.scope, resource, first, &mut self.values),
-                "update" => database.update(
-                    self.scope,
-                    resource,
-                    first,
-                    values.get(1).ok_or(Error::Denied)?,
-                    &mut self.values,
-                ),
-                "delete" => database.delete(self.scope, resource, first, &mut self.values),
-                _ => return Err(Error::Denied),
-            };
+            return Value::operation(result);
+        }
+        let database = self.database.as_deref_mut().ok_or(Error::Denied)?;
+        if method == "select" {
+            let named = arguments
+                .iter()
+                .zip(values)
+                .map(|((name, _), value)| Ok((name.clone().ok_or(Error::Denied)?, value)))
+                .collect::<Result<BTreeMap<_, _>>>()?;
+            let result = database.select(self.scope, resource, &named, &mut self.values);
             if result.is_err() {
                 database.mark_failed();
             }
             return Value::operation(result);
         }
-        Err(Error::Denied)
+        let first = values.first().ok_or(Error::Denied)?;
+        let result = match method {
+            "get" => database.get(self.scope, resource, first, &mut self.values),
+            "create" => database.create(self.scope, resource, first, &mut self.values),
+            "update" => database.update(
+                self.scope,
+                resource,
+                first,
+                values.get(1).ok_or(Error::Denied)?,
+                &mut self.values,
+            ),
+            "delete" => database.delete(self.scope, resource, first, &mut self.values),
+            _ => return Err(Error::Denied),
+        };
+        if result.is_err() {
+            database.mark_failed();
+        }
+        Value::operation(result)
+    }
+
+    fn join_text(&mut self, values: &[Value]) -> Result<Value> {
+        let (Some(Value(ValueKind::List(parts))), Some(Value(ValueKind::Text(separator)))) =
+            (values.first(), values.get(1))
+        else {
+            return Err(Error::Denied);
+        };
+        let mut text = String::new();
+        for (i, part) in parts.iter().enumerate() {
+            let ValueKind::Text(part) = &part.0 else {
+                return Err(Error::Denied);
+            };
+            if i > 0 {
+                text.push_str(separator);
+            }
+            text.push_str(part);
+            if text.len() > crate::MAX_SOURCE_BYTES {
+                return Err(Error::Limit("joined text"));
+            }
+        }
+        self.values.spend(text.len())?;
+        Ok(Value(ValueKind::Text(text)))
     }
 
     fn named_call(
@@ -548,6 +616,13 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
             return Ok(Value(ValueKind::Id(tag.clone(), value)));
         }
         match name {
+            "join_text" if self.program.host_operations => self.join_text(&values),
+            "id_text" if self.program.host_operations => {
+                let ValueKind::Id(_, value) = &values.first().ok_or(Error::Denied)?.0 else {
+                    return Err(Error::Denied);
+                };
+                Ok(Value(ValueKind::Text(value.clone())))
+            }
             "Ok" => Ok(Value(ValueKind::Ok(Box::new(
                 values.into_iter().next().ok_or(Error::Denied)?,
             )))),

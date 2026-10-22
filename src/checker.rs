@@ -36,6 +36,12 @@ fn check_inner(
         policies: BTreeMap::new(),
         grants,
     };
+    if host_operations {
+        program.app = Some(syntax::App {
+            database: true,
+            ..syntax::App::default()
+        });
+    }
     let aliases = declare_types(source, &mut program)?;
     for declaration in &source.declarations {
         if let Declaration::Alias(name, ty, location) = declaration {
@@ -1275,6 +1281,46 @@ impl<'a> Checker<'a> {
         Ok(operation.result)
     }
 
+    fn project_intrinsic(
+        &mut self,
+        name: &str,
+        args: &[(Option<String>, Expr)],
+        location: Location,
+    ) -> Result<Option<Type>> {
+        if name == "id_text" {
+            let ty = self.expr(one(args, location)?)?;
+            if !matches!(ty, Type::Id(_)) {
+                return Err(Error::diagnostic(
+                    "D117",
+                    location,
+                    "id_text requires a nominal Id",
+                ));
+            }
+            return Ok(Some(Type::Text));
+        }
+        if name == "join_text" {
+            if args.len() != 2 || args.iter().any(|(name, _)| name.is_some()) {
+                return Err(Error::diagnostic(
+                    "D117",
+                    location,
+                    "join_text requires List<Text> and Text",
+                ));
+            }
+            let values = self.expr(&args[0].1)?;
+            let separator = self.expr(&args[1].1)?;
+            if !Type::List(Box::new(Type::Text)).accepts(&values) || !Type::Text.accepts(&separator)
+            {
+                return Err(Error::diagnostic(
+                    "D117",
+                    location,
+                    "join_text requires List<Text> and Text",
+                ));
+            }
+            return Ok(Some(Type::Text));
+        }
+        Ok(None)
+    }
+
     fn named_call(
         &mut self,
         name: &str,
@@ -1284,6 +1330,11 @@ impl<'a> Checker<'a> {
     ) -> Result<Type> {
         if !types.is_empty() {
             return Err(Error::unsupported(location, "generic function calls"));
+        }
+        if self.program.host_operations
+            && let Some(ty) = self.project_intrinsic(name, args, location)?
+        {
+            return Ok(ty);
         }
         if ["route_url", "None", "len", "error_message", "bad_request"].contains(&name)
             || self.program.variant(name).is_some()
@@ -1295,6 +1346,9 @@ impl<'a> Checker<'a> {
         }
         if let Some(Type::Id(tag)) = self.program.aliases.get(name) {
             let argument = one(args, location)?;
+            if self.program.host_operations && self.expr(argument)? == Type::Text {
+                return Ok(Type::Id(tag.clone()));
+            }
             if let ExprKind::Text(value) = &argument.kind {
                 if !crate::auth::valid_id(value) {
                     return Err(Error::diagnostic(

@@ -61,7 +61,7 @@ fn try_main() -> Result<()> {
     }
     if command == "--version" {
         println!(
-            "diamond {} (W1 foundations; checkpoint six compatibility)",
+            "diamond {} (W2 connected apps; checkpoint six compatibility)",
             env!("CARGO_PKG_VERSION")
         );
         return Ok(());
@@ -72,7 +72,7 @@ fn try_main() -> Result<()> {
     if command == "user-add" {
         return user_add(&arguments[1..]);
     }
-    if ["build", "serve"].contains(&command.as_str())
+    if ["build", "serve", "project-init", "project-user-add"].contains(&command.as_str())
         || (["check", "run"].contains(&command.as_str())
             && arguments.get(1).is_some_and(|path| {
                 Path::new(path)
@@ -126,70 +126,146 @@ fn try_main() -> Result<()> {
     Ok(())
 }
 
-fn project_command(command: &str, arguments: &[String]) -> Result<()> {
-    let path = arguments
-        .first()
-        .context("a project manifest or build directory is required")?;
-    let mut output = None;
-    let mut listen = "127.0.0.1:3000".to_owned();
-    let mut postgres_env = None;
-    let mut options = BTreeSet::new();
-    let mut remaining = arguments[1..].chunks_exact(2);
-    for pair in &mut remaining {
-        let (option, value) = (&pair[0], &pair[1]);
-        if !options.insert(option) {
+#[derive(Debug)]
+struct ProjectOptions<'a> {
+    output: Option<PathBuf>,
+    listen: &'a str,
+    origin: Option<&'a str>,
+    postgres_env: Option<&'a str>,
+    username: Option<&'a str>,
+    password_stdin: bool,
+}
+
+fn project_options<'a>(command: &str, arguments: &'a [String]) -> Result<ProjectOptions<'a>> {
+    let mut parsed = ProjectOptions {
+        output: None,
+        listen: "127.0.0.1:3000",
+        origin: None,
+        postgres_env: None,
+        username: None,
+        password_stdin: false,
+    };
+    let mut seen = BTreeSet::new();
+    let mut cursor = 0;
+    while cursor < arguments.len() {
+        let option = &arguments[cursor];
+        if !seen.insert(option) {
             bail!("repeated project option {}", safe_text(option));
         }
+        if command == "project-user-add" && option == "--password-stdin" {
+            parsed.password_stdin = true;
+            cursor += 1;
+            continue;
+        }
+        let value = arguments
+            .get(cursor + 1)
+            .context("project option requires a value")?;
         match (command, option.as_str()) {
-            ("build", "--out") => output = Some(PathBuf::from(value)),
-            ("serve", "--listen") => listen.clone_from(value),
-            ("run", "--postgres-env") => {
+            ("build", "--out") => parsed.output = Some(PathBuf::from(value)),
+            ("serve", "--listen") => parsed.listen = value,
+            ("serve", "--origin") => parsed.origin = Some(value),
+            ("project-user-add", "--user") => parsed.username = Some(value),
+            ("run" | "serve" | "project-init" | "project-user-add", "--postgres-env") => {
                 if value.is_empty()
                     || value.len() > 128
                     || !value
                         .bytes()
-                        .all(|byte| byte.is_ascii_alphanumeric() || byte == b'_')
+                        .all(|b| b.is_ascii_alphanumeric() || b == b'_')
                 {
                     bail!("invalid PostgreSQL environment variable name");
                 }
-                postgres_env = Some(value);
+                parsed.postgres_env = Some(value);
             }
             _ => bail!("unsupported project option {}", safe_text(option)),
         }
+        cursor += 2;
     }
-    if !remaining.remainder().is_empty() {
-        bail!("project option requires a value");
-    }
-    let path = Path::new(path);
+    Ok(parsed)
+}
+
+fn project_command(command: &str, arguments: &[String]) -> Result<()> {
+    let path = Path::new(
+        arguments
+            .first()
+            .context("a project manifest or build directory is required")?,
+    );
+    let options = project_options(command, &arguments[1..])?;
     let project = if path.is_dir() {
         diamond::load_project_build(path)
     } else {
         diamond::compile_project(path)
     }
     .map_err(|error| anyhow::Error::msg(safe_text(&error.to_string())))?;
+    let configuration = options
+        .postgres_env
+        .map(|name| {
+            std::env::var(name).map(Zeroizing::new).map_err(|_| {
+                anyhow::Error::msg(
+                    "PostgreSQL grant environment variable is missing or invalid UTF-8",
+                )
+            })
+        })
+        .transpose()?;
     match command {
         "check" => print!("{}", project.summary()),
         "build" => {
-            let output = output.context("build requires --out PATH naming a new directory")?;
-            project.build(&output)?;
+            let output = options
+                .output
+                .context("build requires --out PATH naming a new directory")?;
+            project.build(&output).context("build project")?;
             println!("built project at {}", safe_text(&output.to_string_lossy()));
         }
         "run" => {
-            let configuration = postgres_env
-                .map(|name| {
-                    std::env::var(name).map(Zeroizing::new).map_err(|_| {
-                        anyhow::Error::msg(
-                            "PostgreSQL grant environment variable is missing or invalid UTF-8",
-                        )
-                    })
-                })
-                .transpose()?;
             let value = project
-                .evaluate(configuration.as_deref().map(String::as_str))?
+                .evaluate(configuration.as_deref().map(String::as_str))
+                .context("evaluate project")?
                 .into_result()?;
             println!("{}", safe_text(&value.display_text()?));
         }
-        "serve" => project.serve(listen.parse().context("invalid project listener address")?)?,
+        "serve" => {
+            let address = options
+                .listen
+                .parse()
+                .context("invalid project listener address")?;
+            if let Some(configuration) = configuration {
+                project
+                    .serve_connected(
+                        address,
+                        options
+                            .origin
+                            .context("connected serving requires --origin URL")?,
+                        &configuration,
+                    )
+                    .context("serve connected project")?;
+            } else {
+                if options.origin.is_some() {
+                    bail!("--origin requires an explicit PostgreSQL grant");
+                }
+                project.serve(address).context("serve project assets")?;
+            }
+        }
+        "project-init" => project
+            .initialize_postgres(
+                configuration
+                    .as_deref()
+                    .context("project-init requires --postgres-env VARIABLE")?,
+            )
+            .context("initialize project PostgreSQL profile")?,
+        "project-user-add" => {
+            let password = read_password(options.password_stdin)?;
+            project
+                .add_postgres_user(
+                    configuration
+                        .as_deref()
+                        .context("project-user-add requires --postgres-env VARIABLE")?,
+                    options
+                        .username
+                        .context("project-user-add requires --user USERNAME")?,
+                    &password,
+                )
+                .context("provision shared project account")?;
+            println!("shared project account created");
+        }
         _ => bail!("unsupported project command"),
     }
     Ok(())
@@ -425,7 +501,14 @@ fn user_add(arguments: &[String]) -> Result<()> {
     }
     let accounts = accounts.context("user-add requires --auth PATH")?;
     let username = username.context("user-add requires --user USERNAME")?;
-    let password = if password_stdin {
+    let password = read_password(password_stdin)?;
+    diamond::add_local_user(&accounts, username, &password).context("provision local account")?;
+    println!("local account created");
+    Ok(())
+}
+
+fn read_password(password_stdin: bool) -> Result<Zeroizing<String>> {
+    Ok(if password_stdin {
         let mut input = Zeroizing::new(String::new());
         std::io::stdin()
             .lock()
@@ -446,15 +529,12 @@ fn user_add(arguments: &[String]) -> Result<()> {
         Zeroizing::new(
             rpassword::prompt_password("Password: ").context("read password without echo")?,
         )
-    };
-    diamond::add_local_user(&accounts, username, &password).context("provision local account")?;
-    println!("local account created");
-    Ok(())
+    })
 }
 
 fn help() {
     println!(
-        "Diamond {} — W1 project foundations and interpreted MVP\n\n  diamond check FILE_OR_PROJECT\n  diamond build PROJECT --out NEW_DIRECTORY\n  diamond serve PROJECT_OR_BUILD [--listen 127.0.0.1:PORT]\n  diamond run PROJECT_OR_BUILD [--postgres-env VARIABLE]\n  diamond run FILE [--database PATH] [--auth PATH] [--listen 127.0.0.1:PORT] [--max-requests N]\n  diamond db-init FILE --database PATH\n  diamond user-add --auth PATH --user USERNAME [--password-stdin]\n  diamond explain CODE\n\nOpen http://localhost:PORT for browser secure-cookie support.\nSee README.md for installation, examples, supported language, and limits.",
+        "Diamond {} — W2 connected apps and interpreted MVP\n\n  diamond check FILE_OR_PROJECT\n  diamond build PROJECT --out NEW_DIRECTORY\n  diamond serve PROJECT_OR_BUILD [--listen 127.0.0.1:PORT] [--postgres-env VARIABLE --origin http://localhost:PORT]\n  diamond run PROJECT_OR_BUILD [--postgres-env VARIABLE]\n  diamond project-init PROJECT --postgres-env VARIABLE\n  diamond project-user-add PROJECT --postgres-env VARIABLE --user USERNAME [--password-stdin]\n  diamond run FILE [--database PATH] [--auth PATH] [--listen 127.0.0.1:PORT] [--max-requests N]\n  diamond db-init FILE --database PATH\n  diamond user-add --auth PATH --user USERNAME [--password-stdin]\n  diamond explain CODE\n\nOpen http://localhost:PORT for browser secure-cookie support.\nSee README.md for installation, examples, supported language, and limits.",
         env!("CARGO_PKG_VERSION")
     );
 }

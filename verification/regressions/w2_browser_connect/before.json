@@ -1,0 +1,8 @@
+{
+  "binary_sha256": "7b3e0bb552c97b073c7cde310ea9a9ca136d9595559a63a3f50263e4d44b7a5f",
+  "action": "Actual Chrome: enter synthetic alice credentials and click Sign in",
+  "expected": "Shared sign-in succeeds and signed-in text displays alice",
+  "observed": "Request interrupted; a mutation may have committed. Refresh before retrying.",
+  "header": "default-src 'none'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+  "cause": "Connected HTML inherited the W1 asset-only CSP and omitted connect-src self, blocking generated fetch calls."
+}
