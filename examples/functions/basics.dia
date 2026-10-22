@@ -1,0 +1,40 @@
+# User functions, records, nominal IDs, enums, Option, Result, and matching.
+
+type UserId = Id<"user">
+
+type Person:
+  name: Text
+  age: Int
+
+enum AccountState:
+  Active
+  Suspended(reason: Text)
+
+fn greeting(person: Person) -> Text:
+  "Hello, " + person.name + " (" + int_text(person.age) + ")"
+
+fn maybe_label(enabled: Bool) -> Option<Text>:
+  match enabled:
+    true => Some("enabled")
+    false => None
+
+fn result_label(succeed: Bool) -> Result<Text, DataError>:
+  match succeed:
+    true => Ok("ready")
+    false => Err("example failure")
+
+fn state_label(state: AccountState) -> Text:
+  match state:
+    Active => "active"
+    Suspended(reason) => "suspended: " + reason
+
+fn main() -> Text:
+  let person = Person(name: "Ada", age: 36)
+  let user = UserId("ada")
+  let optional = match maybe_label(true):
+    Some(label) => label
+    None => "disabled"
+  let result = match result_label(false):
+    Ok(value) => value
+    Err(error) => error_message(error)
+  join_text([greeting(person), id_text(user), optional, result, state_label(Suspended("review"))], " | ")

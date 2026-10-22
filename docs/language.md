@@ -1,10 +1,10 @@
-# Diamond interpreted MVP language guide
+# Diamond language guide
 
-This guide describes the single-file interpreter, retaining its 0.6.0 language
-surface in 0.7.0. The [project guide](projects.md) describes the W1 project/browser
-subset separately. The repository's
-[architectural design](../design.md) is a proposal with a broader surface, while
-the [README limits](../README.md#explicit-limits) define the boundary of this MVP.
+This guide describes the Diamond 0.16.0 single-file compatibility profile. The
+[project guide](projects.md) describes modules and the project/browser profile.
+The repository's [architectural design](../design.md) has a broader long-term
+surface, while the [README boundaries](../README.md#boundaries) define the current
+implemented release.
 
 ## Source structure
 
@@ -55,7 +55,9 @@ group expressions. Function and record calls use checked positional or named
 arguments according to their declarations.
 
 See [language.dia](../examples/language.dia) for exhaustive matching, payload
-bindings, Option/Result recovery, lists, and iteration.
+bindings, Option/Result recovery, lists, and iteration. The
+[function catalog](../examples/functions/README.md) gives a runnable example for
+every built-in utility and checked callable family.
 
 ## Authority, storage, and policy
 

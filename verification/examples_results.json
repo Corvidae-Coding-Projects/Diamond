@@ -1,0 +1,39 @@
+{
+  "status": "PASS",
+  "binary_sha256": "2e2c3271fcb693eb6987ee1682f7616becd59eed58bf8141ea1b3d2b947a6d8a",
+  "checked_standalone": [
+    "examples/functions/basics.dia",
+    "examples/functions/decimals.dia",
+    "examples/functions/lists.dia",
+    "examples/functions/storage_methods.dia",
+    "examples/functions/text.dia",
+    "examples/functions/time.dia",
+    "examples/functions/web_helpers.dia"
+  ],
+  "executed_pure": [
+    "examples/functions/basics.dia",
+    "examples/functions/decimals.dia",
+    "examples/functions/lists.dia",
+    "examples/functions/text.dia",
+    "examples/functions/time.dia"
+  ],
+  "storage_runs": 2,
+  "projects": [
+    "examples/functions/relational/diamond.toml",
+    "examples/functions/authority/diamond.toml"
+  ],
+  "web": {
+    "requests": 3,
+    "observations": 3
+  },
+  "callable_groups": {
+    "standard": 23,
+    "constructors_and_helpers": 10,
+    "repositories": 10,
+    "host": 10,
+    "session": 15,
+    "files_and_browser": 6,
+    "policies": 4
+  },
+  "local_links": 111
+}

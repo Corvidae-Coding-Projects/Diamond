@@ -1,0 +1,123 @@
+# RPC, session, file, and live-event calls available to browser components.
+
+export component AuthorityExamples:
+  state username: Text = ""
+  state password: Text = ""
+  state current_password: Text = ""
+  state email: Text = ""
+  state token: Text = ""
+  state invitation: Text = ""
+  state account_target: Text = ""
+  state scopes: Text = "{}"
+  state credential_id: Text = ""
+  state identity: Text = ""
+  state title: Text = "Example document"
+  state document: Text = ""
+  state attachment: Text = ""
+  state output: Text = "Choose an operation."
+  state live: Text = ""
+  state cursor: Text = ""
+
+  on sign_in:
+    identity = session.login(username, password)
+    password = ""
+
+  on current_user:
+    identity = session.user()
+
+  on sign_out:
+    identity = session.logout()
+
+  on register:
+    output = session.register(username, email, password, invitation)
+
+  on verify:
+    output = session.verify(token)
+
+  on resend:
+    output = session.resend(email)
+
+  on recover:
+    output = session.recover(email)
+
+  on reset:
+    output = session.reset(token, password)
+
+  on change_password:
+    output = session.change_password(current_password, password)
+
+  on logout_all:
+    output = session.logout_all()
+
+  on invite:
+    output = session.invite(email)
+
+  on disable:
+    output = session.disable(account_target, true)
+
+  on enable:
+    output = session.disable(account_target, false)
+
+  on create_token:
+    output = session.create_token("Example token", ["external_get"], scopes, 3600)
+
+  on list_tokens:
+    output = session.list_tokens()
+
+  on revoke_token:
+    output = session.revoke_token(credential_id)
+
+  on upload:
+    attachment = files.upload("document_files", document, "file_input")
+    output = files.status("document_files", attachment)
+
+  on create_document:
+    document = rpc.create_document(title)
+
+  on download:
+    attachment = files.download("document_files", attachment)
+
+  on delete_file:
+    output = files.delete("document_files", attachment)
+
+  on start:
+    output = rpc.start_job(document, "example payload", "example-key")
+
+  on status:
+    output = rpc.job_status(output)
+
+  on cancel:
+    output = rpc.cancel_job(output)
+
+  html:
+    <main>
+      <h1>Authority function examples</h1>
+      <label for="username">Username</label><input id="username" bind-value={username}>
+      <label for="password">Password</label><input id="password" type="password" bind-value={password}>
+      <button on-click={sign_in}>Sign in</button><button on-click={current_user}>Current user</button><button on-click={sign_out}>Sign out</button>
+      <section>
+        <h2>Account operations</h2>
+        <label for="email">Email</label><input id="email" bind-value={email}>
+        <label for="invitation">Invitation</label><input id="invitation" type="password" bind-value={invitation}>
+        <label for="token">Verification or recovery token</label><input id="token" type="password" bind-value={token}>
+        <label for="current_password">Current password</label><input id="current_password" type="password" bind-value={current_password}>
+        <button on-click={register}>Register</button><button on-click={verify}>Verify</button><button on-click={resend}>Resend verification</button>
+        <button on-click={recover}>Request recovery</button><button on-click={reset}>Reset password</button><button on-click={change_password}>Change password</button><button on-click={logout_all}>Log out everywhere</button>
+        <button on-click={invite}>Invite</button>
+        <label for="account_target">Account username</label><input id="account_target" bind-value={account_target}>
+        <button on-click={disable}>Disable</button><button on-click={enable}>Enable</button>
+        <label for="scopes">Token scopes JSON</label><input id="scopes" bind-value={scopes}>
+        <button on-click={create_token}>Create API token</button><button on-click={list_tokens}>List API tokens</button>
+        <label for="credential_id">Token ID</label><input id="credential_id" bind-value={credential_id}>
+        <button on-click={revoke_token}>Revoke API token</button>
+      </section>
+      <label for="title">Document title</label><input id="title" bind-value={title}>
+      <button on-click={create_document}>Create document</button>
+      <label for="document">Document ID</label><input id="document" bind-value={document}>
+      <label for="file_input">File</label><input id="file_input" type="file">
+      <button on-click={upload}>Upload</button><button on-click={download}>Download</button><button on-click={delete_file}>Delete file</button>
+      <button on-click={start}>Start job</button><button on-click={status}>Job status</button><button on-click={cancel}>Cancel job</button>
+      <p>{identity}</p><pre>{output}</pre>
+      <watch channel="document_changes" parent={document} into="live" cursor="cursor"></watch>
+      <p>{live}</p>
+    </main>

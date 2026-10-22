@@ -1,0 +1,12 @@
+# Every built-in List utility plus bounded `for` mapping.
+
+fn main() -> Text:
+  let appended = list_append([1, 2], 3)
+  let reversed = list_reverse(appended)
+  let middle = list_slice(reversed, 1, 2)
+  let doubled = for value in middle:
+    int_text(value * 2)
+  let first = match list_get(reversed, 0):
+    Some(value) => int_text(value)
+    None => "missing"
+  join_text([first, int_text(len(reversed)), join_text(doubled, ",")], " | ")

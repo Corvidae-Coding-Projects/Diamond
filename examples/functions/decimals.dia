@@ -1,0 +1,10 @@
+# Decimal values store six fixed fractional digits. Inputs are millionths.
+
+fn main() -> Text:
+  let one_and_half = decimal_units(1_500_000)
+  let half = decimal_units(500_000)
+  let added = decimal_add(one_and_half, half)
+  let subtracted = decimal_subtract(one_and_half, half)
+  let multiplied = decimal_multiply(one_and_half, half, "half_even")
+  let divided = decimal_divide(one_and_half, half, "half_away")
+  join_text([decimal_text(one_and_half), decimal_text(added), decimal_text(subtracted), decimal_text(multiplied), decimal_text(divided)], " | ")

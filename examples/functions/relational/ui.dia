@@ -1,0 +1,33 @@
+# Generated RPC and the three basic session methods.
+
+export component RelationalExamples:
+  state username: Text = ""
+  state password: Text = ""
+  state identity: Text = ""
+  state output: Text = "Sign in, then load the query summary."
+
+  on sign_in:
+    identity = session.login(username, password)
+    password = ""
+
+  on current_user:
+    identity = session.user()
+
+  on sign_out:
+    identity = session.logout()
+    output = "Signed out."
+
+  on load_summary:
+    output = rpc.query_summary(username)
+
+  html:
+    <main>
+      <h1>Relational function examples</h1>
+      <label for="username">Username</label><input id="username" bind-value={username}>
+      <label for="password">Password</label><input id="password" type="password" bind-value={password}>
+      <button on-click={sign_in}>Sign in</button>
+      <button on-click={current_user}>Current user</button>
+      <button on-click={sign_out}>Sign out</button>
+      <button on-click={load_summary}>Load query summary</button>
+      <p>{identity}</p><pre>{output}</pre>
+    </main>

@@ -1,0 +1,36 @@
+# route_url, request identity helpers, typed forms, bad_request, and safe errors.
+
+app WebHelpers:
+  session SecureCookie
+
+type UserId = Id<"user">
+
+type EchoForm:
+  message: Text<length: 1..120>
+
+fn form_error(error: DataError) -> Html:
+  html:
+    <main><p>{error_message(error)}</p><a href={route_url(Home)}>Try again</a></main>
+
+public route GET "/" as Home:
+  html:
+    <main>
+      <h1>Web helper examples</h1>
+      <p>Authenticated: {request.authenticated}</p>
+      <a href={route_url(Profile, UserId("demo"))}>Open a typed URL</a>
+      <p>POST a message field to /echo to exercise typed form decoding.</p>
+    </main>
+
+public route GET "/people/{id:UserId}" as Profile:
+  html:
+    <main><h1>User {id}</h1><p>Current user: {request.is_user(id)}</p></main>
+
+public route POST "/echo":
+  match request.form<EchoForm>():
+    Ok(form) =>
+      html:
+        <main><p>{form.message}</p><a href={route_url(Home)}>Back</a></main>
+    Err(error) => bad_request(form_error(error))
+
+route GET "/account":
+  "Signed in as " + id_text(request.user_id)

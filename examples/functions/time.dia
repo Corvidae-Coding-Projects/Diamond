@@ -1,0 +1,8 @@
+# Timestamps and durations are explicit millisecond values; no wall clock is read.
+
+fn main() -> Text:
+  let started = timestamp(1_700_000_000_000)
+  let elapsed = duration(2_500)
+  let finished = timestamp_add(started, elapsed)
+  let measured = timestamp_diff(finished, started)
+  join_text([int_text(time_millis(started)), int_text(duration_millis(elapsed)), int_text(time_millis(finished)), int_text(duration_millis(measured))], " | ")

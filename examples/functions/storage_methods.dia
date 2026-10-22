@@ -1,0 +1,39 @@
+# create, get, update, select, delete, transactions, and Result propagation.
+
+app StorageMethods:
+  database SQLite
+  provides DbRead<Notes>, DbWrite<Notes>
+
+type NoteId = Id<"note">
+
+type Note:
+  id: NoteId
+  title: Text
+  visible: Bool = true
+
+type NewNote:
+  title: Text<length: 1..120>
+
+type EditNote:
+  title: Text<length: 1..120>
+
+resource Notes: Note
+
+policy Notes:
+  read(note, by principal):
+    note.visible
+  create(proposed, by principal):
+    proposed.visible
+  update(before, after, by principal):
+    before.visible and after.visible
+  delete(note, by principal):
+    note.visible
+
+fn main() -> Result<Text, DataError>:
+  transaction db:
+    let created = notes.create(NewNote(title: "First title"))?
+    let loaded = notes.get(created.id)?
+    let updated = notes.update(loaded.id, EditNote(title: "Updated title"))?
+    let visible = notes.select(visible: true, limit: 10)?
+    notes.delete(updated.id)?
+    Ok(updated.title + " | selected " + int_text(len(visible)))

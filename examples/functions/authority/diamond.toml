@@ -1,0 +1,61 @@
+schema_version = 1
+name = "AuthorityFunctionExamples"
+server = "server"
+browser = "ui"
+component = "AuthorityExamples"
+provides = ["PostgresRead", "Jobs", "JobKey", "Events", "Http<inventory>", "DbRead<Documents>", "DbWrite<Documents>"]
+
+[modules.server]
+path = "server.dia"
+target = "server"
+provides = ["PostgresRead", "Jobs", "JobKey", "Events", "Http<inventory>", "DbRead<Documents>", "DbWrite<Documents>"]
+
+[modules.ui]
+path = "ui.dia"
+target = "browser"
+
+[rpc]
+create_document = "server.create_document"
+external_get = "server.external_get"
+external_post = "server.external_post"
+start_job = "server.start_job"
+job_status = "server.job_status"
+cancel_job = "server.cancel_job"
+publish_event = "server.publish_event"
+
+[http_api]
+version = 1
+
+[http_api.operations.external_get]
+function = "server.external_get"
+auth = "token"
+allow_unscoped = true
+
+[storage]
+profile = "relational-v1"
+version = 1
+
+[storage.resources.Documents]
+scope = "owner"
+
+[identity]
+profile = "accounts-v1"
+enrollment = "closed"
+
+[files]
+profile = "shared-fs-v1"
+
+[files.bindings.document_files]
+resource = "Documents"
+max_bytes = 8388608
+
+[jobs.process]
+function = "server.process"
+resource = "Documents"
+grants = ["DbRead<Documents>", "DbWrite<Documents>", "JobKey", "Http<inventory>"]
+max_attempts = 3
+delivery = "deduplicated"
+
+[events.document_changes]
+resource = "Documents"
+payload = "Text"

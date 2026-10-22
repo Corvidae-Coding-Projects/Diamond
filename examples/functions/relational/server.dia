@@ -1,0 +1,89 @@
+# PostgreSQL CRUD and every relational-v1 query method.
+
+type UserId = Id<"user">
+type NotebookId = Id<"notebook">
+type NoteId = Id<"note">
+
+type Notebook:
+  id: NotebookId
+  owner: UserId @created_by_principal
+  label: Text<length: 1..80>
+
+type NewNotebook:
+  label: Text<length: 1..80>
+
+type Note:
+  id: NoteId
+  owner: UserId @created_by_principal
+  notebook: NotebookId
+  title: Text<length: 1..120>
+  rank: Int
+
+type NewNote:
+  notebook: NotebookId
+  title: Text<length: 1..120>
+  rank: Int
+
+type EditNote:
+  title: Text<length: 1..120>
+  rank: Int
+
+type NoteNotebook:
+  left: Note
+  right: Notebook
+
+resource Notebooks: Notebook
+resource Notes: Note
+
+policy Notebooks:
+  read(row, by principal):
+    principal.is_user(row.owner)
+  create(row, by principal):
+    principal.is_user(row.owner)
+
+policy Notes:
+  read(row, by principal):
+    principal.is_user(row.owner)
+  create(row, by principal):
+    principal.is_user(row.owner)
+  update(before, after, by principal):
+    principal.is_user(before.owner) and before.owner == after.owner and before.notebook == after.notebook
+  delete(row, by principal):
+    principal.is_user(row.owner)
+
+export fn main() -> Text:
+  "Relational function examples"
+
+export fn create_notebook(label: Text<length: 1..80>) -> Result<Text, DataError>:
+  let row = notebooks.create(NewNotebook(label: label))?
+  Ok(id_text(row.id))
+
+export fn create_note(notebook: Text, title: Text<length: 1..120>, rank: Int) -> Result<Text, DataError>:
+  let row = notes.create(NewNote(notebook: NotebookId(notebook), title: title, rank: rank))?
+  Ok(id_text(row.id))
+
+export fn read_note(id: Text) -> Result<Text, DataError>:
+  let row = notes.get(NoteId(id))?
+  Ok(row.title)
+
+export fn update_note(id: Text, title: Text<length: 1..120>, rank: Int) -> Result<Text, DataError>:
+  let row = notes.update(NoteId(id), EditNote(title: title, rank: rank))?
+  Ok(row.title)
+
+export fn delete_note(id: Text) -> Result<Text, DataError>:
+  notes.delete(NoteId(id))?
+  Ok("deleted")
+
+fn next_cursor(rows: List<Note>) -> Result<Text, DataError>:
+  match list_get(rows, len(rows) - 1):
+    Some(row) => notes.cursor(row: row, order: "rank")
+    None => Ok("")
+
+export fn query_summary(owner: Text) -> Result<Text, DataError>:
+  let selected = notes.select(owner: UserId(owner), rank__gte: 0, limit: 10, offset: 0)?
+  let page = notes.page(owner: UserId(owner), order: "rank", descending: false, after: "", limit: 10)?
+  let cursor = next_cursor(page)?
+  let count = notes.count(owner: UserId(owner))?
+  let total = notes.sum(owner: UserId(owner), field: "rank")?
+  let joined = notes.join(relation: "NoteNotebooks", owner: UserId(owner), order: "rank", after: "", limit: 10)?
+  Ok("selected=" + int_text(len(selected)) + ", page=" + int_text(len(page)) + ", cursor=" + cursor + ", count=" + int_text(count) + ", sum=" + int_text(total) + ", joined=" + int_text(len(joined)))

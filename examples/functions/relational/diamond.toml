@@ -1,0 +1,43 @@
+schema_version = 1
+name = "RelationalFunctionExamples"
+server = "server"
+browser = "ui"
+component = "RelationalExamples"
+provides = ["DbRead<Notebooks>", "DbWrite<Notebooks>", "DbRead<Notes>", "DbWrite<Notes>"]
+
+[modules.server]
+path = "server.dia"
+target = "server"
+provides = ["DbRead<Notebooks>", "DbWrite<Notebooks>", "DbRead<Notes>", "DbWrite<Notes>"]
+
+[modules.ui]
+path = "ui.dia"
+target = "browser"
+
+[rpc]
+query_summary = "server.query_summary"
+
+[storage]
+profile = "relational-v1"
+version = 1
+
+[storage.resources.Notebooks]
+scope = "owner"
+unique = [["owner", "id"]]
+
+[storage.resources.Notes]
+scope = "owner"
+indexes = [["owner", "rank"]]
+
+[storage.resources.Notes.references.notebook]
+resource = "Notebooks"
+fields = { owner = "owner", notebook = "id" }
+
+[storage.joins.NoteNotebooks]
+resource = "Notes"
+reference = "notebook"
+output = "NoteNotebook"
+
+[identity]
+profile = "accounts-v1"
+enrollment = "closed"

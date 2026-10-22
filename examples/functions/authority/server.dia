@@ -1,0 +1,57 @@
+# All fixed host operations: PostgreSQL, HTTP/secrets, jobs, and events.
+
+type UserId = Id<"user">
+type DocumentId = Id<"document">
+
+type Document:
+  id: DocumentId
+  owner: UserId @created_by_principal
+  title: Text<length: 1..120>
+
+type NewDocument:
+  title: Text<length: 1..120>
+
+resource Documents: Document
+
+policy Documents:
+  read(row, by principal):
+    principal.is_user(row.owner)
+  create(row, by principal):
+    principal.is_user(row.owner)
+  update(before, after, by principal):
+    principal.is_user(before.owner) and before.owner == after.owner
+  delete(row, by principal):
+    principal.is_user(row.owner)
+
+export fn main() -> Text:
+  "Authority function examples"
+
+export fn create_document(title: Text<length: 1..120>) -> Result<Text, DataError>:
+  let row = documents.create(NewDocument(title: title))?
+  Ok(id_text(row.id))
+
+export fn postgres_info() -> Text:
+  let version = host.postgres_version()
+  host.postgres_echo("PostgreSQL " + version)
+
+export fn external_get(path: Text) -> Result<Text, DataError>:
+  let credential = host.secret("inventory")
+  host.http_get<Text>("inventory", path, credential)
+
+export fn external_post(path: Text, body: Text) -> Result<Text, DataError>:
+  host.http_post<Text, Text>("inventory", path, host.secret("inventory"), body)
+
+export fn start_job(parent: Text, payload: Text, key: Text) -> Result<Text, DataError>:
+  host.job_submit<Text>("process", parent, payload, key)
+
+export fn job_status(id: Text) -> Result<Text, DataError>:
+  host.job_status("process", id)
+
+export fn cancel_job(id: Text) -> Result<Text, DataError>:
+  host.job_cancel("process", id)
+
+export fn publish_event(parent: Text, payload: Text) -> Result<Text, DataError>:
+  host.event_emit<Text>("document_changes", parent, payload)
+
+export fn process(parent: Text, payload: Text) -> Result<Text, DataError>:
+  host.http_post<Text, Text>("inventory", "/v1/dedup/" + host.job_key(), host.secret("inventory"), parent + ": " + payload)

@@ -1,0 +1,14 @@
+# Every built-in Text utility. Text indexes and len count Unicode scalar values.
+
+fn truth(value: Bool) -> Text:
+  match value:
+    true => "true"
+    false => "false"
+
+fn main() -> Text:
+  let sliced = text_slice("D雪iamond", 1, 3)
+  let contains = truth(text_contains("Diamond", "mond"))
+  let trimmed = text_trim("  ready  ")
+  let replaced = text_replace("red green red", "red", "blue")
+  let scalar_count = int_text(len("D雪"))
+  join_text([sliced, contains, trimmed, replaced, scalar_count], " | ")
