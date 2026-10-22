@@ -1,0 +1,69 @@
+{
+  "observations": [
+    {
+      "id": "004f6e25dceb0761448e883c4bc29dc5e789739b81263aa2192c3ed3786959e0",
+      "rows": [
+        {
+          "id": "004f6e25dceb0761448e883c4bc29dc5e789739b81263aa2192c3ed3786959e0",
+          "binding": "issue_files",
+          "parent": "ef62aa1c96fb42a0a6f7312380e2f1e25fef94ccb9ded43cd38f021a48177591",
+          "owner": "alice",
+          "name": "w6-browser-synthetic.txt",
+          "media": "text/plain",
+          "length": 131112,
+          "state": "ready",
+          "sha256": "096ff62a2485e794ca05b5f1509d245070e2e4035f6fd03f5d8df8316ee0f07f"
+        }
+      ],
+      "node_B_status": 200,
+      "node_B_sha256": "096ff62a2485e794ca05b5f1509d245070e2e4035f6fd03f5d8df8316ee0f07f",
+      "node_B_bytes": 131112,
+      "headers": {
+        "content-type": "application/octet-stream",
+        "content-length": "131112",
+        "content-disposition": "attachment; filename=attachment.bin",
+        "x-content-type-options": "nosniff",
+        "cache-control": "no-store",
+        "content-security-policy": "default-src 'none'; sandbox",
+        "date": "Thu, 22 Oct 2026 18:47:35 GMT"
+      },
+      "matches_uploaded_file": true
+    },
+    {
+      "browser_native_download": "PASS",
+      "saved_path": "/home/doll/Pictures/attachment (2).bin",
+      "bytes": 131112,
+      "sha256": "096ff62a2485e794ca05b5f1509d245070e2e4035f6fd03f5d8df8316ee0f07f",
+      "independent_file_comparison": true,
+      "file_was_absent_before_click": true,
+      "existing_copies_preserved": true,
+      "product_changes": false
+    }
+  ],
+  "binary_sha256": "0aa105a7111872313e326cbc37e95ef01a4c47dcec54bcdd4b63abde15ae619c",
+  "root": "/tmp/diamond-w6-browser-atczkivc",
+  "origin": "http://127.0.0.1:39171",
+  "issue": "ef62aa1c96fb42a0a6f7312380e2f1e25fef94ccb9ded43cd38f021a48177591",
+  "upload": "/tmp/diamond-w6-browser-atczkivc/w6-browser-synthetic.txt",
+  "upload_sha256": "096ff62a2485e794ca05b5f1509d245070e2e4035f6fd03f5d8df8316ee0f07f",
+  "length": 131112,
+  "node_B_port": 49313,
+  "shutdowns": [
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "cleaned_root": "/tmp/diamond-w6-browser-atczkivc"
+}

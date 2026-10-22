@@ -68,6 +68,15 @@ B byte/hash readback, and approved UI deletion with B denial. A repeat native do
 event timed out, and direct browser navigation returned `invalid_request`; no new
 saved copy was observed. The cause was not established and this repeat is **unconfirmed**,
 not a passing final-browser claim. Final native/backend download observations do pass.
+
+At the user's request, a fresh disposable fixture repeated the real Chrome workflow
+on the same final `0aa105a7` executable. Native download completed, saving a new
+`/home/doll/Pictures/attachment (2).bin`. That path was absent before the click;
+independent filesystem comparison matched all **131,112 bytes** and the SHA-256
+above. Node B also returned the exact uploaded bytes. No product code changed.
+This closes the missing final-build browser download observation; the earlier
+timeout and `invalid_request` remain historical observations with no established
+cause. See the [download retry receipt](w6_browser_download_retry_results.json).
 Screenshots
 were observed during CUA verification; no saved screenshot artifact is claimed.
 

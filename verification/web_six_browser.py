@@ -8,11 +8,11 @@ from service import Service,Client,ENV_NAME
 from external import External
 PASSWORD='Synthetic W6 browser password 86!'
 def main():
-    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--root',type=Path);options=parser.parse_args()
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--root',type=Path);parser.add_argument('--report',type=Path);options=parser.parse_args()
     if options.root:options.root.mkdir(mode=0o700)
     root=options.root or Path(tempfile.mkdtemp(prefix='diamond-w6-browser-'));service=None;outside=None
     report={'observations':[],'binary_sha256':hashlib.sha256((ROOT/'target/debug/diamond').read_bytes()).hexdigest()}
-    path=ROOT/'verification/w6_browser_results.json'
+    path=options.report or ROOT/'verification/w6_browser_results.json'
     try:
         binary=root/'diamond';shutil.copy2(ROOT/'target/debug/diamond',binary)
         project=root/'project';shutil.copytree(ROOT/'examples/files-workspace',project)
