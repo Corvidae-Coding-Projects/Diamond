@@ -1,0 +1,2064 @@
+{
+  "binary_sha256": "15dfe6108d99a9defe3e5bd4304d0b9d720ed1203859e58e287d0b2ed4b06166",
+  "seed": 3516957186,
+  "status": "PASS",
+  "observations": {
+    "journey": "login A, create B, read/edit A, restart B, read B",
+    "cross_identity_denials": 6,
+    "cookie_flags": [
+      "Path=/",
+      "Secure",
+      "HttpOnly",
+      "SameSite=Strict",
+      "Max-Age=1800"
+    ],
+    "independent_owner_row_count": 1,
+    "exploration": {
+      "seed": 3516957186,
+      "observations": [
+        {
+          "case": "wrong-contract",
+          "status": 409,
+          "value": {
+            "error": "contract_mismatch"
+          }
+        },
+        {
+          "case": "unknown-envelope-field",
+          "status": 400,
+          "value": {
+            "error": "invalid_input"
+          }
+        },
+        {
+          "case": "wrong-arity",
+          "status": 400,
+          "value": {
+            "error": "invalid_input"
+          }
+        },
+        {
+          "case": "coerced-text",
+          "status": 400,
+          "value": {
+            "error": "invalid_input"
+          }
+        },
+        {
+          "case": "invalid-origin",
+          "status": 400,
+          "value": {
+            "error": "invalid_request"
+          }
+        },
+        {
+          "case": "missing-origin",
+          "status": 400,
+          "value": {
+            "error": "invalid_request"
+          }
+        },
+        {
+          "case": "forwarded-origin",
+          "status": 400,
+          "value": {
+            "error": "invalid_request"
+          }
+        },
+        {
+          "case": "wrong-host",
+          "status": 400,
+          "value": {
+            "error": "invalid_request"
+          }
+        },
+        {
+          "case": "wrong-csrf",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "another-session-csrf",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "duplicate-session-cookie",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "unknown-cookie-token",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "empty-json",
+          "status": 400,
+          "value": {
+            "error": "invalid_input"
+          }
+        },
+        {
+          "case": "malformed-json",
+          "status": 400,
+          "value": {
+            "error": "invalid_input"
+          }
+        },
+        {
+          "case": "duplicate-contract",
+          "status": 400,
+          "value": {
+            "error": "invalid_input"
+          }
+        },
+        {
+          "case": "private-dispatch:/server.json",
+          "status": 404
+        },
+        {
+          "case": "private-dispatch:/contract.json",
+          "status": 404
+        },
+        {
+          "case": "private-dispatch:/_diamond/rpc/private_probe",
+          "status": 404
+        },
+        {
+          "case": "private-dispatch:/_diamond/rpc/main",
+          "status": 404
+        },
+        {
+          "case": "private-dispatch:/_diamond/rpc/__diamond_fn_6_server_private_probe",
+          "status": 404
+        },
+        {
+          "case": "get-cannot-mutate",
+          "status": 404,
+          "value": {
+            "error": "not_found"
+          }
+        },
+        {
+          "case": "bootstrap-requires-script-header",
+          "status": 403
+        },
+        {
+          "case": "integer:-9223372036854775808",
+          "status": 200,
+          "value": {
+            "value": "-9223372036854775808"
+          }
+        },
+        {
+          "case": "integer:9223372036854775807",
+          "status": 200,
+          "value": {
+            "value": "9223372036854775807"
+          }
+        },
+        {
+          "case": "integer:-1",
+          "status": 200,
+          "value": {
+            "value": "-1"
+          }
+        },
+        {
+          "case": "integer:0",
+          "status": 200,
+          "value": {
+            "value": "0"
+          }
+        },
+        {
+          "case": "integer:9007199254740993",
+          "status": 200,
+          "value": {
+            "value": "9007199254740993"
+          }
+        },
+        {
+          "case": "integer:6542505361759852542",
+          "status": 200,
+          "value": {
+            "value": "6542505361759852542"
+          }
+        },
+        {
+          "case": "integer:-4653440773770052626",
+          "status": 200,
+          "value": {
+            "value": "-4653440773770052626"
+          }
+        },
+        {
+          "case": "integer:-3719807752260072563",
+          "status": 200,
+          "value": {
+            "value": "-3719807752260072563"
+          }
+        },
+        {
+          "case": "integer:4018730592103631966",
+          "status": 200,
+          "value": {
+            "value": "4018730592103631966"
+          }
+        },
+        {
+          "case": "integer:8267853024199603876",
+          "status": 200,
+          "value": {
+            "value": "8267853024199603876"
+          }
+        },
+        {
+          "case": "integer:828563668699120718",
+          "status": 200,
+          "value": {
+            "value": "828563668699120718"
+          }
+        },
+        {
+          "case": "integer:5180944229375949411",
+          "status": 200,
+          "value": {
+            "value": "5180944229375949411"
+          }
+        },
+        {
+          "case": "integer:-6024330571100596796",
+          "status": 200,
+          "value": {
+            "value": "-6024330571100596796"
+          }
+        },
+        {
+          "case": "integer:6462837026357538578",
+          "status": 200,
+          "value": {
+            "value": "6462837026357538578"
+          }
+        },
+        {
+          "case": "integer:-2318880346699238498",
+          "status": 200,
+          "value": {
+            "value": "-2318880346699238498"
+          }
+        },
+        {
+          "case": "integer:-1870466438880595106",
+          "status": 200,
+          "value": {
+            "value": "-1870466438880595106"
+          }
+        },
+        {
+          "case": "integer:1187834204158480304",
+          "status": 200,
+          "value": {
+            "value": "1187834204158480304"
+          }
+        },
+        {
+          "case": "integer:6650733555877351853",
+          "status": 200,
+          "value": {
+            "value": "6650733555877351853"
+          }
+        },
+        {
+          "case": "integer:1672610460487783125",
+          "status": 200,
+          "value": {
+            "value": "1672610460487783125"
+          }
+        },
+        {
+          "case": "integer:7476690357123881540",
+          "status": 200,
+          "value": {
+            "value": "7476690357123881540"
+          }
+        },
+        {
+          "case": "integer:5286910517650258751",
+          "status": 200,
+          "value": {
+            "value": "5286910517650258751"
+          }
+        },
+        {
+          "case": "integer:-1792918466079237844",
+          "status": 200,
+          "value": {
+            "value": "-1792918466079237844"
+          }
+        },
+        {
+          "case": "integer:-5773058803031787950",
+          "status": 200,
+          "value": {
+            "value": "-5773058803031787950"
+          }
+        },
+        {
+          "case": "integer:6270025686662379801",
+          "status": 200,
+          "value": {
+            "value": "6270025686662379801"
+          }
+        },
+        {
+          "case": "integer:-1933569997479298236",
+          "status": 200,
+          "value": {
+            "value": "-1933569997479298236"
+          }
+        },
+        {
+          "case": "integer:3482803914553965433",
+          "status": 200,
+          "value": {
+            "value": "3482803914553965433"
+          }
+        },
+        {
+          "case": "integer:4836227084722613948",
+          "status": 200,
+          "value": {
+            "value": "4836227084722613948"
+          }
+        },
+        {
+          "case": "integer:3899373328988453544",
+          "status": 200,
+          "value": {
+            "value": "3899373328988453544"
+          }
+        },
+        {
+          "case": "integer:-3299964407849210675",
+          "status": 200,
+          "value": {
+            "value": "-3299964407849210675"
+          }
+        },
+        {
+          "case": "invalid-integer:0",
+          "status": 400,
+          "value": {
+            "error": "invalid_input"
+          }
+        },
+        {
+          "case": "invalid-integer:1",
+          "status": 400,
+          "value": {
+            "error": "invalid_input"
+          }
+        },
+        {
+          "case": "invalid-integer:True",
+          "status": 400,
+          "value": {
+            "error": "invalid_input"
+          }
+        },
+        {
+          "case": "invalid-integer:None",
+          "status": 400,
+          "value": {
+            "error": "invalid_input"
+          }
+        },
+        {
+          "case": "invalid-integer:'-0'",
+          "status": 400,
+          "value": {
+            "error": "invalid_input"
+          }
+        },
+        {
+          "case": "invalid-integer:'00'",
+          "status": 400,
+          "value": {
+            "error": "invalid_input"
+          }
+        },
+        {
+          "case": "invalid-integer:'+1'",
+          "status": 400,
+          "value": {
+            "error": "invalid_input"
+          }
+        },
+        {
+          "case": "invalid-integer:'1.0'",
+          "status": 400,
+          "value": {
+            "error": "invalid_input"
+          }
+        },
+        {
+          "case": "invalid-integer:'9223372036854775808'",
+          "status": 400,
+          "value": {
+            "error": "invalid_input"
+          }
+        },
+        {
+          "case": "invalid-integer:'-9223372036854775809'",
+          "status": 400,
+          "value": {
+            "error": "invalid_input"
+          }
+        },
+        {
+          "case": "invalid-integer:{}",
+          "status": 400,
+          "value": {
+            "error": "invalid_input"
+          }
+        },
+        {
+          "case": "invalid-integer:[]",
+          "status": 400,
+          "value": {
+            "error": "invalid_input"
+          }
+        },
+        {
+          "case": "boolean:True",
+          "status": 200,
+          "value": {
+            "value": true
+          }
+        },
+        {
+          "case": "boolean:False",
+          "status": 200,
+          "value": {
+            "value": false
+          }
+        },
+        {
+          "case": "invalid-boolean:'true'",
+          "status": 400,
+          "value": {
+            "error": "invalid_input"
+          }
+        },
+        {
+          "case": "invalid-boolean:'false'",
+          "status": 400,
+          "value": {
+            "error": "invalid_input"
+          }
+        },
+        {
+          "case": "invalid-boolean:0",
+          "status": 400,
+          "value": {
+            "error": "invalid_input"
+          }
+        },
+        {
+          "case": "invalid-boolean:1",
+          "status": 400,
+          "value": {
+            "error": "invalid_input"
+          }
+        },
+        {
+          "case": "invalid-boolean:None",
+          "status": 400,
+          "value": {
+            "error": "invalid_input"
+          }
+        },
+        {
+          "case": "bounds-rejection",
+          "status": 400,
+          "value": {
+            "error": "invalid_input"
+          }
+        },
+        {
+          "case": "bounds-rejection",
+          "status": 400,
+          "value": {
+            "error": "invalid_input"
+          }
+        },
+        {
+          "case": "bounds-rejection",
+          "status": 400,
+          "value": {
+            "error": "invalid_input"
+          }
+        },
+        {
+          "case": "bounds-rejection",
+          "status": 400,
+          "value": {
+            "error": "invalid_input"
+          }
+        },
+        {
+          "case": "bounds-rejection",
+          "status": 400,
+          "value": {
+            "error": "invalid_input"
+          }
+        },
+        {
+          "case": "caught-failure-poisons-transaction",
+          "status": 409,
+          "value": {
+            "error": "aborted"
+          }
+        },
+        {
+          "case": "explicit-transaction-rolls-back",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "generated-create-read",
+          "status": 200,
+          "value": {
+            "value": "team-0 | 😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀\n"
+          }
+        },
+        {
+          "case": "generated-other-owner-denied",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "generated-create-read",
+          "status": 200,
+          "value": {
+            "value": "team-1 | Issue-1-773901\ncafé 雪😀"
+          }
+        },
+        {
+          "case": "generated-other-owner-denied",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "generated-create-read",
+          "status": 200,
+          "value": {
+            "value": "team-2 | Issue-2-266079\nnul\u0000text"
+          }
+        },
+        {
+          "case": "generated-other-owner-denied",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "generated-create-read",
+          "status": 200,
+          "value": {
+            "value": "team-0 | Issue-3-255289\n<script>literal & text</script>"
+          }
+        },
+        {
+          "case": "generated-other-owner-denied",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "generated-create-read",
+          "status": 200,
+          "value": {
+            "value": "team-1 | Issue-4-628631\nx'); DROP TABLE diamond_w2.rows; --"
+          }
+        },
+        {
+          "case": "generated-other-owner-denied",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "generated-create-read",
+          "status": 200,
+          "value": {
+            "value": "team-2 | Issue-5-1966\nquote \" slash \\ and\nnew line"
+          }
+        },
+        {
+          "case": "generated-other-owner-denied",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "generated-create-read",
+          "status": 200,
+          "value": {
+            "value": "team-0 | Issue-6-892762\n"
+          }
+        },
+        {
+          "case": "generated-other-owner-denied",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "generated-create-read",
+          "status": 200,
+          "value": {
+            "value": "team-1 | Issue-7-611112\ncafé 雪😀"
+          }
+        },
+        {
+          "case": "generated-other-owner-denied",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "generated-create-read",
+          "status": 200,
+          "value": {
+            "value": "team-2 | Issue-8-665295\nnul\u0000text"
+          }
+        },
+        {
+          "case": "generated-other-owner-denied",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "generated-create-read",
+          "status": 200,
+          "value": {
+            "value": "team-0 | Issue-9-500017\n<script>literal & text</script>"
+          }
+        },
+        {
+          "case": "generated-other-owner-denied",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "generated-create-read",
+          "status": 200,
+          "value": {
+            "value": "team-1 | Issue-10-439576\nx'); DROP TABLE diamond_w2.rows; --"
+          }
+        },
+        {
+          "case": "generated-other-owner-denied",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "generated-create-read",
+          "status": 200,
+          "value": {
+            "value": "team-2 | Issue-11-404632\nquote \" slash \\ and\nnew line"
+          }
+        },
+        {
+          "case": "generated-other-owner-denied",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "generated-create-read",
+          "status": 200,
+          "value": {
+            "value": "team-0 | Issue-12-144897\n"
+          }
+        },
+        {
+          "case": "generated-other-owner-denied",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "generated-create-read",
+          "status": 200,
+          "value": {
+            "value": "team-1 | Issue-13-112\ncafé 雪😀"
+          }
+        },
+        {
+          "case": "generated-other-owner-denied",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "generated-create-read",
+          "status": 200,
+          "value": {
+            "value": "team-2 | Issue-14-630020\nnul\u0000text"
+          }
+        },
+        {
+          "case": "generated-other-owner-denied",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "generated-create-read",
+          "status": 200,
+          "value": {
+            "value": "team-0 | Issue-15-5030\n<script>literal & text</script>"
+          }
+        },
+        {
+          "case": "generated-other-owner-denied",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "generated-create-read",
+          "status": 200,
+          "value": {
+            "value": "team-1 | Issue-16-660094\nx'); DROP TABLE diamond_w2.rows; --"
+          }
+        },
+        {
+          "case": "generated-other-owner-denied",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "generated-create-read",
+          "status": 200,
+          "value": {
+            "value": "team-2 | Issue-17-870929\nquote \" slash \\ and\nnew line"
+          }
+        },
+        {
+          "case": "generated-other-owner-denied",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "concurrent-atomic-updates",
+          "successful_updates": 8,
+          "fresh_read": {
+            "value": "team-one | Concurrent-6\natomic"
+          }
+        },
+        {
+          "case": "delete-through-B",
+          "status": 200,
+          "value": {
+            "value": "Issue deleted."
+          }
+        },
+        {
+          "case": "deleted-read-through-A",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "shared-session-expiry:A",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "shared-session-expiry:B",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "logout-through-B",
+          "status": 200,
+          "value": {
+            "value": ""
+          }
+        },
+        {
+          "case": "shared-logout-revocation:A",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "shared-logout-revocation:B",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "shared-login-limit:rate-user",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "shared-login-limit:rate-user",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "shared-login-limit:rate-user",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "shared-login-limit:rate-user",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "shared-login-limit:rate-user",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "shared-login-limit:rate-user",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "shared-login-limit:rate-user",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "shared-login-limit:rate-user",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "shared-login-limit:rate-user",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "shared-login-limit:rate-user",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "shared-login-limit:rate-user",
+          "status": 429,
+          "value": {
+            "error": "rate_limited"
+          }
+        },
+        {
+          "case": "shared-login-limit:rate-user",
+          "status": 429,
+          "value": {
+            "error": "rate_limited"
+          }
+        },
+        {
+          "case": "shared-login-limit:unknown-user",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "shared-login-limit:unknown-user",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "shared-login-limit:unknown-user",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "shared-login-limit:unknown-user",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "shared-login-limit:unknown-user",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "shared-login-limit:unknown-user",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "shared-login-limit:unknown-user",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "shared-login-limit:unknown-user",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "shared-login-limit:unknown-user",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "shared-login-limit:unknown-user",
+          "status": 403,
+          "value": {
+            "error": "denied"
+          }
+        },
+        {
+          "case": "shared-login-limit:unknown-user",
+          "status": 429,
+          "value": {
+            "error": "rate_limited"
+          }
+        },
+        {
+          "case": "shared-login-limit:unknown-user",
+          "status": 429,
+          "value": {
+            "error": "rate_limited"
+          }
+        }
+      ],
+      "generated_records": 18,
+      "independent_stored_record_comparisons": 18,
+      "concurrent_updates": 8,
+      "delivery_and_commit_faults": {
+        "disconnected_while_database_blocked": true,
+        "new_rows_after_delivery_loss": 1,
+        "commit_fault_status": 503,
+        "commit_fault_error": "outcome_unknown",
+        "new_rows_after_commit_fault": 0,
+        "recovery_on_other_node": "PASS"
+      }
+    }
+  },
+  "routing": [
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/_diamond/session",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/login",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "GET",
+      "path": "/_diamond/session",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/login",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/create_issue",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/update_issue",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 403
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/update_issue",
+      "status": 403
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/delete_issue",
+      "status": 403
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 403
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/update_issue",
+      "status": 403
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/delete_issue",
+      "status": 403
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/list_issues",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/list_issues",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_integer",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_integer",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_integer",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_integer",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_integer",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_integer",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_integer",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_integer",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_integer",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_integer",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_integer",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_integer",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_integer",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_integer",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_integer",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_integer",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_integer",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_integer",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_integer",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_integer",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_integer",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_integer",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_integer",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_integer",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_integer",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_integer",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_integer",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_integer",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_integer",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_integer",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_integer",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_integer",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_integer",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_integer",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_integer",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_integer",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_integer",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_integer",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_integer",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_integer",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_integer",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_boolean",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_boolean",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_boolean",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_boolean",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_boolean",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_boolean",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/echo_boolean",
+      "status": 400
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/create_issue",
+      "status": 400
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/create_issue",
+      "status": 400
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/create_issue",
+      "status": 400
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/create_issue",
+      "status": 400
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/create_issue",
+      "status": 400
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/caught_failure",
+      "status": 409
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/transaction_failure",
+      "status": 403
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/create_issue",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 403
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/create_issue",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 403
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/create_issue",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 403
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/create_issue",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 403
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/create_issue",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 403
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/create_issue",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 403
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/create_issue",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 403
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/create_issue",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 403
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/create_issue",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 403
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/create_issue",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 403
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/create_issue",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 403
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/create_issue",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 403
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/create_issue",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 403
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/create_issue",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 403
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/create_issue",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 403
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/create_issue",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 403
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/create_issue",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 403
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/create_issue",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 403
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/atomic_update",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/atomic_update",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/atomic_update",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/atomic_update",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/atomic_update",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/atomic_update",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/atomic_update",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/atomic_update",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/delete_issue",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/read_issue",
+      "status": 403
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/list_issues",
+      "status": 403
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/list_issues",
+      "status": 403
+    },
+    {
+      "node": "B",
+      "method": "GET",
+      "path": "/_diamond/session",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/login",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/logout",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/list_issues",
+      "status": 403
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/list_issues",
+      "status": 403
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/_diamond/session",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/login",
+      "status": 403
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/login",
+      "status": 403
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/login",
+      "status": 403
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/login",
+      "status": 403
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/login",
+      "status": 403
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/login",
+      "status": 403
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/login",
+      "status": 403
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/login",
+      "status": 403
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/login",
+      "status": 403
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/login",
+      "status": 403
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/login",
+      "status": 429
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/login",
+      "status": 429
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/_diamond/session",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/login",
+      "status": 403
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/login",
+      "status": 403
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/login",
+      "status": 403
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/login",
+      "status": 403
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/login",
+      "status": 403
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/login",
+      "status": 403
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/login",
+      "status": 403
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/login",
+      "status": 403
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/login",
+      "status": 403
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/login",
+      "status": 403
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/login",
+      "status": 429
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/login",
+      "status": 429
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/list_issues",
+      "status": 200
+    },
+    {
+      "node": "B",
+      "method": "POST",
+      "path": "/_diamond/rpc/create_issue",
+      "status": 503
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/list_issues",
+      "status": 200
+    }
+  ]
+}

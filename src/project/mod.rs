@@ -1,17 +1,17 @@
 //! Checked project graphs, target separation, and versioned application builds.
 
-mod artifact;
+pub(crate) mod artifact;
 mod assets;
 mod browser;
 mod connected;
 mod identity;
 mod lower;
 mod render;
-mod resolve;
+pub(crate) mod resolve;
 mod rpc;
 mod server;
 pub(crate) mod storage;
-mod wire;
+pub(crate) mod wire;
 
 use crate::authority::{Effect, Effects, Principal, Scope};
 use crate::error::{Error, Result};
@@ -65,6 +65,8 @@ struct Manifest {
     styles: Vec<String>,
     #[serde(default)]
     assets: BTreeMap<String, String>,
+    #[serde(default)]
+    storage: Option<crate::relational::Storage>,
 }
 
 #[derive(Clone, Debug)]
@@ -263,7 +265,7 @@ impl CheckedProject {
         server::serve(self, address)
     }
 
-    /// Initialize the versioned W2 `PostgreSQL` profile explicitly.
+    /// Initialize the explicitly selected `PostgreSQL` storage profile.
     ///
     /// # Errors
     /// Rejects missing/unsupported connection grants or an incompatible stored schema.
@@ -277,6 +279,102 @@ impl CheckedProject {
         synchronous_context()?;
         let mut store = storage::PostgresStore::open(self, configuration, true)?;
         store.finish_request(Ok(()))
+    }
+
+    /// Inspect current schema version, shape and backfill progress.
+    /// Returns a JSON object; this administrative interface requires separate database credentials.
+    /// Application servers must be stopped before a schema migration; there is no mixed-version support.
+    ///
+    /// # Errors
+    /// Rejects missing relational metadata, incompatible schemas, invalid batches or database failures.
+    ///
+    /// ```no_run
+    /// let project=diamond::compile_project(std::path::Path::new("examples/relational-workspace/diamond.toml"))?;
+    /// let report=project.postgres_status("host=/tmp/postgres dbname=diamond")?;
+    /// assert!(report.starts_with('{'));
+    /// # Ok::<(), diamond::Error>(())
+    /// ```
+    pub fn postgres_status(&self, configuration: &str) -> Result<String> {
+        synchronous_context()?;
+        if self.server.storage.is_none() {
+            return Err(input("administrative command requires relational-v1"));
+        }
+        let mut connection = crate::host::HostRuntime::connect_worker(configuration)?;
+        connection.enable_relational();
+        let app = artifact::hash(self.manifest.name.as_bytes());
+        crate::relational::status(&mut connection, &self.server, &app)
+    }
+
+    /// Apply one additive schema version under the migration coordinator.
+    /// Returns a JSON object; this administrative interface requires separate database credentials.
+    /// Application servers must be stopped before a schema migration; there is no mixed-version support.
+    ///
+    /// # Errors
+    /// Rejects missing relational metadata, incompatible schemas, invalid batches or database failures.
+    ///
+    /// ```no_run
+    /// let project=diamond::compile_project(std::path::Path::new("examples/relational-workspace/diamond.toml"))?;
+    /// let report=project.migrate_postgres("host=/tmp/postgres dbname=diamond")?;
+    /// assert!(report.starts_with('{'));
+    /// # Ok::<(), diamond::Error>(())
+    /// ```
+    pub fn migrate_postgres(&self, configuration: &str) -> Result<String> {
+        synchronous_context()?;
+        if self.server.storage.is_none() {
+            return Err(input("administrative command requires relational-v1"));
+        }
+        let mut connection = crate::host::HostRuntime::connect_worker(configuration)?;
+        connection.enable_relational();
+        let app = artifact::hash(self.manifest.name.as_bytes());
+        crate::relational::migrate(&mut connection, &self.server, &app)
+    }
+
+    /// Commit one resumable backfill batch of 1 through 1,000 rows.
+    /// Returns a JSON object; this administrative interface requires separate database credentials.
+    /// Application servers must be stopped before a schema migration; there is no mixed-version support.
+    ///
+    /// # Errors
+    /// Rejects missing relational metadata, incompatible schemas, invalid batches or database failures.
+    ///
+    /// ```no_run
+    /// let project=diamond::compile_project(std::path::Path::new("examples/relational-workspace/diamond.toml"))?;
+    /// let report=project.backfill_postgres("host=/tmp/postgres dbname=diamond", 100)?;
+    /// assert!(report.starts_with('{'));
+    /// # Ok::<(), diamond::Error>(())
+    /// ```
+    pub fn backfill_postgres(&self, configuration: &str, batch: usize) -> Result<String> {
+        synchronous_context()?;
+        if self.server.storage.is_none() {
+            return Err(input("administrative command requires relational-v1"));
+        }
+        let mut connection = crate::host::HostRuntime::connect_worker(configuration)?;
+        connection.enable_relational();
+        let app = artifact::hash(self.manifest.name.as_bytes());
+        crate::relational::backfill(&mut connection, &self.server, &app, batch)
+    }
+
+    /// Validate stored records in bounded batches under a consistent snapshot.
+    /// Returns a JSON object; this administrative interface requires separate database credentials.
+    /// Application servers must be stopped before a schema migration; there is no mixed-version support.
+    ///
+    /// # Errors
+    /// Rejects missing relational metadata, incompatible schemas, invalid batches or database failures.
+    ///
+    /// ```no_run
+    /// let project=diamond::compile_project(std::path::Path::new("examples/relational-workspace/diamond.toml"))?;
+    /// let report=project.audit_postgres("host=/tmp/postgres dbname=diamond")?;
+    /// assert!(report.starts_with('{'));
+    /// # Ok::<(), diamond::Error>(())
+    /// ```
+    pub fn audit_postgres(&self, configuration: &str) -> Result<String> {
+        synchronous_context()?;
+        if self.server.storage.is_none() {
+            return Err(input("administrative command requires relational-v1"));
+        }
+        let mut connection = crate::host::HostRuntime::connect_worker(configuration)?;
+        connection.enable_relational();
+        let app = artifact::hash(self.manifest.name.as_bytes());
+        crate::relational::audit(&mut connection, &self.server, &app)
     }
 
     /// Provision a shared development account without replacing an existing password.
@@ -560,8 +658,36 @@ fn check_server(manifest: &Manifest, modules: &BTreeMap<String, Module>) -> Resu
         .iter()
         .map(|name| capability_effect(name))
         .collect::<Result<Effects>>()?;
-    let server =
-        crate::checker::check_project(&source, grants).map_err(|error| locate(modules, error))?;
+    let mut storage = manifest.storage.clone();
+    if let Some(storage) = &mut storage {
+        for join in storage.joins.values_mut() {
+            let (module, name) = join.output.split_once('.').map_or(
+                (manifest.server.as_str(), join.output.as_str()),
+                |(m, n)| (m, n),
+            );
+            if !names.contains(module) {
+                return Err(input("join output module is outside the server graph"));
+            }
+            join.output = modules[module]
+                .symbols
+                .get(name)
+                .cloned()
+                .or_else(|| {
+                    modules[module]
+                        .parsed
+                        .program
+                        .declarations
+                        .iter()
+                        .find_map(|d| match d {
+                            Declaration::Record(r) if r.name == name => Some(r.name.clone()),
+                            _ => None,
+                        })
+                })
+                .ok_or_else(|| input("unknown source-level join output type"))?;
+        }
+    }
+    let server = crate::checker::check_project(&source, grants, storage.as_ref())
+        .map_err(|error| locate(modules, error))?;
     if server.grants.iter().any(|effect| match effect {
         Effect::Read(name) | Effect::Write(name) => !server.resources.contains_key(name),
         Effect::Host(_) => false,

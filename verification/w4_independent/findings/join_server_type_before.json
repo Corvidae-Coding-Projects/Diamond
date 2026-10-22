@@ -1,0 +1,10 @@
+{
+  "status": "FAIL",
+  "binary_sha256": "6f96fb77a7b5f362a90b0653680f636ca4c19bbc9665489f3eafb2edf1b7fbc0",
+  "interface": "check project",
+  "fixture": "verification/w4_independent/findings/join_server_type/diamond.toml",
+  "expected": "Valid source-level server.IssueProject join output checks successfully. The record exists locally in the entry server.",
+  "observed_exit": 1,
+  "observed_stderr": "error: invalid input: unknown source-level join output type\n",
+  "replay": "target/debug/diamond check verification/w4_independent/findings/join_server_type/diamond.toml"
+}

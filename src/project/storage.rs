@@ -11,21 +11,28 @@ use crate::syntax::Expr;
 use crate::value::{Type, Value, ValueBudget, ValueKind};
 use std::collections::BTreeMap;
 
-const SCHEMA: &str = "CREATE SCHEMA IF NOT EXISTS diamond_w2;
+pub(crate) const SCHEMA: &str = "CREATE SCHEMA IF NOT EXISTS diamond_w2;
 CREATE TABLE IF NOT EXISTS diamond_w2.apps (app TEXT PRIMARY KEY, profile INTEGER NOT NULL, shape TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS diamond_w2.rows (app TEXT NOT NULL REFERENCES diamond_w2.apps(app), resource TEXT NOT NULL, id TEXT NOT NULL, payload JSON NOT NULL CHECK (octet_length(payload::text)<=32768), PRIMARY KEY(app,resource,id));
 CREATE TABLE IF NOT EXISTS diamond_w2.users (app TEXT NOT NULL REFERENCES diamond_w2.apps(app), username TEXT NOT NULL, password_hash TEXT NOT NULL, PRIMARY KEY(app,username));
 CREATE TABLE IF NOT EXISTS diamond_w2.sessions (app TEXT NOT NULL REFERENCES diamond_w2.apps(app), digest TEXT NOT NULL, username TEXT, expires TIMESTAMPTZ NOT NULL, PRIMARY KEY(app,digest), FOREIGN KEY(app,username) REFERENCES diamond_w2.users(app,username));
 CREATE TABLE IF NOT EXISTS diamond_w2.rates (app TEXT NOT NULL REFERENCES diamond_w2.apps(app), bucket TEXT NOT NULL, attempts INTEGER NOT NULL, expires TIMESTAMPTZ NOT NULL, PRIMARY KEY(app,bucket));";
 
+#[derive(Debug, PartialEq, Eq)]
+enum TransactionFailure {
+    Clean,
+    Failed,
+    Conflict,
+}
+
 #[derive(Debug)]
 pub(crate) struct PostgresStore {
-    pub(super) connection: HostRuntime,
+    pub(super) connection: crate::relational::Connection,
     pub(super) app: String,
     program: CheckedProgram,
     active: bool,
     nested: bool,
-    failed: bool,
+    failure: TransactionFailure,
     operation_id: String,
 }
 
@@ -35,15 +42,56 @@ impl PostgresStore {
         configuration: &str,
         initialize: bool,
     ) -> Result<Self> {
+        Self::open_with(project, configuration, initialize, None)
+    }
+    pub(super) fn open_with(
+        project: &CheckedProject,
+        configuration: &str,
+        initialize: bool,
+        pool: Option<&std::sync::Arc<crate::relational::Pool>>,
+    ) -> Result<Self> {
+        let connection = if let Some(pool) = pool {
+            pool.acquire()?
+        } else {
+            crate::relational::Connection::Direct(HostRuntime::connect_worker(configuration)?)
+        };
         let mut store = Self {
-            connection: HostRuntime::connect_worker(configuration)?,
+            connection,
             app: artifact::hash(project.manifest.name.as_bytes()),
             program: project.server.clone(),
             active: false,
             nested: false,
-            failed: false,
+            failure: TransactionFailure::Clean,
             operation_id: random_hex()?,
         };
+        if store.program.storage.is_some() {
+            store.connection.runtime()?.enable_relational();
+            store.connection.relational_batch(if initialize {
+                "BEGIN"
+            } else {
+                "BEGIN ISOLATION LEVEL SERIALIZABLE"
+            })?;
+            store.active = true;
+            if initialize {
+                store.connection.query(
+                    "SELECT pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended($1,0))",
+                    &[&store.app],
+                )?;
+                store.connection.batch(SCHEMA)?;
+                crate::relational::schema::initialize(
+                    store.connection.runtime()?,
+                    &store.program,
+                    &store.app,
+                )?;
+            } else {
+                crate::relational::schema::validate(
+                    store.connection.runtime()?,
+                    &store.program,
+                    &store.app,
+                )?;
+            }
+            return Ok(store);
+        }
         // Serialize initialization and every request for this application across
         // nodes. W4 replaces this coarse correctness boundary with finer locks.
         store.connection.batch("BEGIN")?;
@@ -97,33 +145,60 @@ impl PostgresStore {
             return Err(Error::Denied);
         }
         self.nested = false;
-        if result.is_err() {
-            self.failed = true;
+        if let Err(error) = &result {
+            self.mark_failed(error);
         }
-        if self.failed && result.is_ok() {
-            Err(Error::Aborted)
+        if self.failure != TransactionFailure::Clean && result.is_ok() {
+            Err(if self.failure == TransactionFailure::Conflict {
+                Error::Conflict
+            } else {
+                Error::Aborted
+            })
         } else {
             result
         }
     }
 
-    pub(crate) fn mark_failed(&mut self) {
-        self.failed = true;
+    pub(crate) fn mark_failed(&mut self, error: &Error) {
+        if matches!(error, Error::Conflict) {
+            self.failure = TransactionFailure::Conflict;
+        } else if self.failure == TransactionFailure::Clean {
+            self.failure = TransactionFailure::Failed;
+        }
     }
 
     pub(super) fn finish_request<T>(&mut self, result: Result<T>) -> Result<T> {
         if !self.active || self.nested {
             return Err(Error::Denied);
         }
-        let result = if self.failed && result.is_ok() {
-            Err(Error::Aborted)
+        let result = if self.failure != TransactionFailure::Clean && result.is_ok() {
+            Err(if self.failure == TransactionFailure::Conflict {
+                Error::Conflict
+            } else {
+                Error::Aborted
+            })
         } else {
             result
         };
         let statement = if result.is_ok() { "COMMIT" } else { "ROLLBACK" };
-        let finished = self.connection.batch(statement);
+        let relational = self.program.storage.is_some();
+        let finished = if relational {
+            self.connection.relational_batch(statement)
+        } else {
+            self.connection.batch(statement)
+        };
         self.active = false;
-        if finished.is_err() {
+        if let Err(error) = finished {
+            self.connection.close();
+            if relational
+                && (statement == "ROLLBACK" || matches!(error, Error::Conflict | Error::Denied))
+            {
+                return if statement == "ROLLBACK" {
+                    result
+                } else {
+                    Err(error)
+                };
+            }
             return Err(Error::OutcomeUnknown(self.operation_id.clone()));
         }
         result
@@ -138,8 +213,17 @@ impl PostgresStore {
         values: &[Value],
         budget: &mut ValueBudget,
     ) -> Result<Value> {
-        if self.failed || !self.active {
+        if self.failure != TransactionFailure::Clean || !self.active {
             return Err(Error::Aborted);
+        }
+        if self.program.storage.is_some() {
+            return crate::relational::Context {
+                connection: self.connection.runtime()?,
+                program: &self.program,
+                app: &self.app,
+                scope,
+            }
+            .operation(resource, method, arguments, values, budget);
         }
         scope.require(&if ["get", "select"].contains(&method) {
             Effect::Read(resource.into())
@@ -163,10 +247,10 @@ impl PostgresStore {
             scope,
         };
         if method == "select" {
-            return relation.select(&mut self.connection, arguments, values, budget);
+            return relation.select(self.connection.runtime()?, arguments, values, budget);
         }
         if method == "create" {
-            return relation.create(&mut self.connection, values, budget);
+            return relation.create(self.connection.runtime()?, values, budget);
         }
         let id = values.first().ok_or(Error::Denied)?;
         validate_id(record, id)?;

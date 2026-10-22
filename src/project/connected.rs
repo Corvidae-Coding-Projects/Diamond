@@ -40,6 +40,7 @@ struct Server {
     cookie: String,
     secrets: Arc<Secrets>,
     permits: Arc<Semaphore>,
+    pool: Option<Arc<crate::relational::Pool>>,
 }
 
 #[derive(Deserialize)]
@@ -123,15 +124,22 @@ pub(super) fn serve(
         ),
         secrets,
         permits: Arc::new(Semaphore::new(16)),
+        pool: project
+            .server
+            .storage
+            .as_ref()
+            .map(|_| crate::relational::Pool::new(configuration)),
     });
     let runtime = tokio::runtime::Builder::new_multi_thread()
         .worker_threads(2)
         .max_blocking_threads(4)
         .enable_all()
         .build()?;
-    runtime.block_on(async {
+    let result = runtime.block_on(async {
         let listener = tokio::net::TcpListener::bind(address).await?;
-        let app = Router::new().fallback(handler).with_state(state);
+        let app = Router::new()
+            .fallback(handler)
+            .with_state(Arc::clone(&state));
         eprintln!("Diamond connected development server: {origin}");
         axum::serve(listener, app)
             .with_graceful_shutdown(async {
@@ -139,7 +147,12 @@ pub(super) fn serve(
             })
             .await
             .map_err(Error::Io)
-    })
+    });
+    // Retain the pool until the outer runtime has joined all owned blocking work.
+    // Its synchronous drivers must be destroyed outside an async runtime context.
+    drop(runtime);
+    drop(state);
+    result
 }
 
 async fn handler(State(server): State<Arc<Server>>, request: Request) -> Response {
@@ -288,7 +301,12 @@ fn work(
     } else {
         None
     };
-    let mut store = PostgresStore::open(&server.project, &server.secrets.configuration, false)?;
+    let mut store = PostgresStore::open_with(
+        &server.project,
+        &server.secrets.configuration,
+        false,
+        server.pool.as_ref(),
+    )?;
     if path == "/_diamond/session" {
         if !body.is_empty() {
             return Err(input("session bootstrap has no body"));
@@ -455,7 +473,7 @@ fn response(status: StatusCode, kind: &'static str, text: &str, head: bool) -> R
 fn failure(error: &Error) -> Response {
     let (status, code) = match error {
         Error::Denied => (StatusCode::FORBIDDEN, "denied"),
-        Error::Aborted => (StatusCode::CONFLICT, "aborted"),
+        Error::Aborted | Error::Conflict => (StatusCode::CONFLICT, "aborted"),
         Error::OutcomeUnknown(_) => (StatusCode::SERVICE_UNAVAILABLE, "outcome_unknown"),
         Error::Input(message) if message == "RPC contract mismatch" => {
             (StatusCode::CONFLICT, "contract_mismatch")

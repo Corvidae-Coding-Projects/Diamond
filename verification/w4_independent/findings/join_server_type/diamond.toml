@@ -1,0 +1,54 @@
+schema_version = 1
+name = "IndependentRelationalQueries"
+server = "server"
+browser = "ui"
+component = "App"
+provides = ["DbRead<Issues>", "DbWrite<Issues>", "DbRead<Projects>"]
+
+[modules.server]
+path = "server.dia"
+target = "server"
+provides = ["DbRead<Issues>", "DbWrite<Issues>", "DbRead<Projects>"]
+[modules.ui]
+path = "ui.dia"
+target = "browser"
+
+[rpc]
+page = "server.page"
+cursor = "server.cursor"
+count = "server.count"
+sum_rank = "server.sum_rank"
+filtered = "server.filtered"
+optional_rows = "server.optional_rows"
+joined = "server.joined"
+read_issue = "server.read_issue"
+edit_issue = "server.edit_issue"
+increment = "server.increment"
+delete_issue = "server.delete_issue"
+
+[storage]
+profile = "relational-v1"
+version = 1
+[storage.resources.Memberships]
+scope = "workspace"
+unique = [["workspace", "principal"]]
+[storage.resources.Projects]
+scope = "workspace"
+unique = [["workspace", "id"]]
+[storage.resources.Issues]
+scope = "workspace"
+indexes = [["workspace", "rank", "id"], ["workspace", "title", "id"], ["workspace", "optional", "id"]]
+unique = [["workspace", "id"]]
+[storage.resources.Issues.references.project]
+resource = "Projects"
+fields = {workspace = "workspace", parent = "id"}
+[storage.lookups.member]
+resource = "Memberships"
+scope = "workspace"
+principal = "principal"
+role = "role"
+purpose = "Decide workspace membership and role without disclosing membership rows"
+[storage.joins.issue_project]
+resource = "Issues"
+reference = "project"
+output = "server.IssueProject"

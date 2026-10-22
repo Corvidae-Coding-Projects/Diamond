@@ -254,7 +254,7 @@ pub(crate) fn failure(error: &Error) -> Response {
         Error::Limit(_) => (413, "Resource limit exceeded"),
         Error::Unsupported { .. } => (501, "Unsupported in this prototype"),
         Error::OutcomeUnknown(_) => (503, "Operation outcome unknown; do not automatically retry"),
-        Error::Aborted => (409, "Transaction aborted"),
+        Error::Aborted | Error::Conflict => (409, "Transaction aborted"),
         _ => (500, "Internal error"),
     };
     Response {

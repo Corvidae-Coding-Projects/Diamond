@@ -1,0 +1,143 @@
+{
+  "status": "PASS",
+  "binary_sha256": "15dfe6108d99a9defe3e5bd4304d0b9d720ed1203859e58e287d0b2ed4b06166",
+  "cases": [
+    {
+      "name": "ordinary-ascii",
+      "status": "PASS",
+      "expected_allowed": true,
+      "observed_exit": 0,
+      "unchanged": true,
+      "stderr": ""
+    },
+    {
+      "name": "nul",
+      "status": "PASS",
+      "expected_allowed": true,
+      "observed_exit": 0,
+      "unchanged": true,
+      "stderr": ""
+    },
+    {
+      "name": "largest-scalar",
+      "status": "PASS",
+      "expected_allowed": true,
+      "observed_exit": 0,
+      "unchanged": true,
+      "stderr": ""
+    },
+    {
+      "name": "maximum-astral-bound",
+      "status": "PASS",
+      "expected_allowed": true,
+      "observed_exit": 0,
+      "unchanged": true,
+      "stderr": ""
+    },
+    {
+      "name": "combining-scalars",
+      "status": "PASS",
+      "expected_allowed": true,
+      "observed_exit": 0,
+      "unchanged": true,
+      "stderr": ""
+    },
+    {
+      "name": "empty",
+      "status": "PASS",
+      "expected_allowed": false,
+      "observed_exit": 1,
+      "unchanged": true,
+      "stderr": "ERROR:  new row for relation \"r_bd87c53a0d41e832_666067dd376e5d45\" violates check constraint \"r_bd87c53a0d41e832_666067dd376e5d45_title_check\"\nDETAIL:  Failing row contains (496e646570656e64656e7420736574757020666f72207265616c20706167696e..., 4642aa3621d5b5204169c38dcb4810fa5c08e5eaa752b043cd5c6015164a9530, alice, 4863abdd40e18db17ac4834dd4c288cd9bb15ea5b9fb6bcb4f49b83fdff85119, 0, , d249ccd68b52109b759530b21f5a0baa4fa9307d536c685eb25dd78e2232c1a9).\n"
+    },
+    {
+      "name": "odd-hex",
+      "status": "PASS",
+      "expected_allowed": false,
+      "observed_exit": 1,
+      "unchanged": true,
+      "stderr": "ERROR:  new row for relation \"r_bd87c53a0d41e832_666067dd376e5d45\" violates check constraint \"r_bd87c53a0d41e832_666067dd376e5d45_title_check\"\nDETAIL:  Failing row contains (496e646570656e64656e7420736574757020666f72207265616c20706167696e..., 4642aa3621d5b5204169c38dcb4810fa5c08e5eaa752b043cd5c6015164a9530, alice, 4863abdd40e18db17ac4834dd4c288cd9bb15ea5b9fb6bcb4f49b83fdff85119, 0, 1, d249ccd68b52109b759530b21f5a0baa4fa9307d536c685eb25dd78e2232c1a9).\n"
+    },
+    {
+      "name": "nonhex",
+      "status": "PASS",
+      "expected_allowed": false,
+      "observed_exit": 1,
+      "unchanged": true,
+      "stderr": "ERROR:  new row for relation \"r_bd87c53a0d41e832_666067dd376e5d45\" violates check constraint \"r_bd87c53a0d41e832_666067dd376e5d45_title_check\"\nDETAIL:  Failing row contains (496e646570656e64656e7420736574757020666f72207265616c20706167696e..., 4642aa3621d5b5204169c38dcb4810fa5c08e5eaa752b043cd5c6015164a9530, alice, 4863abdd40e18db17ac4834dd4c288cd9bb15ea5b9fb6bcb4f49b83fdff85119, 0, zz, d249ccd68b52109b759530b21f5a0baa4fa9307d536c685eb25dd78e2232c1a9).\n"
+    },
+    {
+      "name": "uppercase-hex",
+      "status": "PASS",
+      "expected_allowed": false,
+      "observed_exit": 1,
+      "unchanged": true,
+      "stderr": "ERROR:  new row for relation \"r_bd87c53a0d41e832_666067dd376e5d45\" violates check constraint \"r_bd87c53a0d41e832_666067dd376e5d45_title_check\"\nDETAIL:  Failing row contains (496e646570656e64656e7420736574757020666f72207265616c20706167696e..., 4642aa3621d5b5204169c38dcb4810fa5c08e5eaa752b043cd5c6015164a9530, alice, 4863abdd40e18db17ac4834dd4c288cd9bb15ea5b9fb6bcb4f49b83fdff85119, 0, 4A, d249ccd68b52109b759530b21f5a0baa4fa9307d536c685eb25dd78e2232c1a9).\n"
+    },
+    {
+      "name": "overlong-nul",
+      "status": "PASS",
+      "expected_allowed": false,
+      "observed_exit": 1,
+      "unchanged": true,
+      "stderr": "ERROR:  new row for relation \"r_bd87c53a0d41e832_666067dd376e5d45\" violates check constraint \"r_bd87c53a0d41e832_666067dd376e5d45_title_check\"\nDETAIL:  Failing row contains (496e646570656e64656e7420736574757020666f72207265616c20706167696e..., 4642aa3621d5b5204169c38dcb4810fa5c08e5eaa752b043cd5c6015164a9530, alice, 4863abdd40e18db17ac4834dd4c288cd9bb15ea5b9fb6bcb4f49b83fdff85119, 0, c080, d249ccd68b52109b759530b21f5a0baa4fa9307d536c685eb25dd78e2232c1a9).\n"
+    },
+    {
+      "name": "surrogate",
+      "status": "PASS",
+      "expected_allowed": false,
+      "observed_exit": 1,
+      "unchanged": true,
+      "stderr": "ERROR:  new row for relation \"r_bd87c53a0d41e832_666067dd376e5d45\" violates check constraint \"r_bd87c53a0d41e832_666067dd376e5d45_title_check\"\nDETAIL:  Failing row contains (496e646570656e64656e7420736574757020666f72207265616c20706167696e..., 4642aa3621d5b5204169c38dcb4810fa5c08e5eaa752b043cd5c6015164a9530, alice, 4863abdd40e18db17ac4834dd4c288cd9bb15ea5b9fb6bcb4f49b83fdff85119, 0, eda080, d249ccd68b52109b759530b21f5a0baa4fa9307d536c685eb25dd78e2232c1a9).\n"
+    },
+    {
+      "name": "out-of-range",
+      "status": "PASS",
+      "expected_allowed": false,
+      "observed_exit": 1,
+      "unchanged": true,
+      "stderr": "ERROR:  new row for relation \"r_bd87c53a0d41e832_666067dd376e5d45\" violates check constraint \"r_bd87c53a0d41e832_666067dd376e5d45_title_check\"\nDETAIL:  Failing row contains (496e646570656e64656e7420736574757020666f72207265616c20706167696e..., 4642aa3621d5b5204169c38dcb4810fa5c08e5eaa752b043cd5c6015164a9530, alice, 4863abdd40e18db17ac4834dd4c288cd9bb15ea5b9fb6bcb4f49b83fdff85119, 0, f4908080, d249ccd68b52109b759530b21f5a0baa4fa9307d536c685eb25dd78e2232c1a9).\n"
+    },
+    {
+      "name": "truncated",
+      "status": "PASS",
+      "expected_allowed": false,
+      "observed_exit": 1,
+      "unchanged": true,
+      "stderr": "ERROR:  new row for relation \"r_bd87c53a0d41e832_666067dd376e5d45\" violates check constraint \"r_bd87c53a0d41e832_666067dd376e5d45_title_check\"\nDETAIL:  Failing row contains (496e646570656e64656e7420736574757020666f72207265616c20706167696e..., 4642aa3621d5b5204169c38dcb4810fa5c08e5eaa752b043cd5c6015164a9530, alice, 4863abdd40e18db17ac4834dd4c288cd9bb15ea5b9fb6bcb4f49b83fdff85119, 0, e282, d249ccd68b52109b759530b21f5a0baa4fa9307d536c685eb25dd78e2232c1a9).\n"
+    },
+    {
+      "name": "lone-continuation",
+      "status": "PASS",
+      "expected_allowed": false,
+      "observed_exit": 1,
+      "unchanged": true,
+      "stderr": "ERROR:  new row for relation \"r_bd87c53a0d41e832_666067dd376e5d45\" violates check constraint \"r_bd87c53a0d41e832_666067dd376e5d45_title_check\"\nDETAIL:  Failing row contains (496e646570656e64656e7420736574757020666f72207265616c20706167696e..., 4642aa3621d5b5204169c38dcb4810fa5c08e5eaa752b043cd5c6015164a9530, alice, 4863abdd40e18db17ac4834dd4c288cd9bb15ea5b9fb6bcb4f49b83fdff85119, 0, 80, d249ccd68b52109b759530b21f5a0baa4fa9307d536c685eb25dd78e2232c1a9).\n"
+    },
+    {
+      "name": "newline-tail",
+      "status": "PASS",
+      "expected_allowed": false,
+      "observed_exit": 1,
+      "unchanged": true,
+      "stderr": "ERROR:  new row for relation \"r_bd87c53a0d41e832_666067dd376e5d45\" violates check constraint \"r_bd87c53a0d41e832_666067dd376e5d45_title_check\"\nDETAIL:  Failing row contains (496e646570656e64656e7420736574757020666f72207265616c20706167696e..., 4642aa3621d5b5204169c38dcb4810fa5c08e5eaa752b043cd5c6015164a9530, alice, 4863abdd40e18db17ac4834dd4c288cd9bb15ea5b9fb6bcb4f49b83fdff85119, 0, 61\n, d249ccd68b52109b759530b21f5a0baa4fa9307d536c685eb25dd78e2232c1a9).\n"
+    },
+    {
+      "name": "carriage-return-tail",
+      "status": "PASS",
+      "expected_allowed": false,
+      "observed_exit": 1,
+      "unchanged": true,
+      "stderr": "ERROR:  new row for relation \"r_bd87c53a0d41e832_666067dd376e5d45\" violates check constraint \"r_bd87c53a0d41e832_666067dd376e5d45_title_check\"\nDETAIL:  Failing row contains (496e646570656e64656e7420736574757020666f72207265616c20706167696e..., 4642aa3621d5b5204169c38dcb4810fa5c08e5eaa752b043cd5c6015164a9530, alice, 4863abdd40e18db17ac4834dd4c288cd9bb15ea5b9fb6bcb4f49b83fdff85119, 0, 61\n, d249ccd68b52109b759530b21f5a0baa4fa9307d536c685eb25dd78e2232c1a9).\n"
+    },
+    {
+      "name": "over-bound",
+      "status": "PASS",
+      "expected_allowed": false,
+      "observed_exit": 1,
+      "unchanged": true,
+      "stderr": "ERROR:  new row for relation \"r_bd87c53a0d41e832_666067dd376e5d45\" violates check constraint \"r_bd87c53a0d41e832_666067dd376e5d45_title_check\"\nDETAIL:  Failing row contains (496e646570656e64656e7420736574757020666f72207265616c20706167696e..., 4642aa3621d5b5204169c38dcb4810fa5c08e5eaa752b043cd5c6015164a9530, alice, 4863abdd40e18db17ac4834dd4c288cd9bb15ea5b9fb6bcb4f49b83fdff85119, 0, f09f9880f09f9880f09f9880f09f9880f09f9880f09f9880f09f9880f09f9880..., d249ccd68b52109b759530b21f5a0baa4fa9307d536c685eb25dd78e2232c1a9).\n"
+    }
+  ],
+  "scope": "actual generated database CHECK constraints, runtime DML role, rollback-only writes in owned isolated fixture; no application SQL API"
+}

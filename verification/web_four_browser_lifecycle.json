@@ -1,0 +1,19 @@
+{
+  "binary_sha256": "15dfe6108d99a9defe3e5bd4304d0b9d720ed1203859e58e287d0b2ed4b06166",
+  "cleanup_errors": [],
+  "shutdowns": [
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "logs": [
+    {
+      "name": "A-97779380378711.log",
+      "text": "Diamond connected development server: http://127.0.0.1:39171\n"
+    }
+  ]
+}

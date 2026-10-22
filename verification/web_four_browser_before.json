@@ -1,0 +1,7 @@
+{
+  "binary_sha256": "15dfe6108d99a9defe3e5bd4304d0b9d720ed1203859e58e287d0b2ed4b06166",
+  "case": "reference-app-signout-state",
+  "expected": "Account switch and logout clear rendered private application values",
+  "observed_joined_after_logout": "Saved in Chrome 雪 <script>literal</script> | Browser project\nFixture issue 02 | Browser project\nFixture issue 10 | Browser project\nFixture issue 04 | Browser project\nFixture issue 00 | Browser project\nFixture issue 11 | Browser project\nFixture issue 09 | Browser project\nFixture issue 05 | Browser project\nFixture issue 06 | Browser project\nFixture issue 03 | Browser project",
+  "cross_workspace_denial": "Request rejected. Check your session, input, and permissions. Earlier server calls may already have committed."
+}

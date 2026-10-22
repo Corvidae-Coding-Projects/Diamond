@@ -1,0 +1,62 @@
+{
+  "status": "FAIL",
+  "binary_sha256": "f50816ff6c74256eef943665d6740af028c1f2ea6c8f92ece4178e4edf4115b7",
+  "shutdowns": [
+    {
+      "node": "A",
+      "exit": 101,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": true
+    },
+    {
+      "node": "B",
+      "exit": 101,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": true
+    },
+    {
+      "node": "A",
+      "exit": 101,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": true
+    }
+  ],
+  "cleanup_errors": [
+    {
+      "node": "A",
+      "exit": 101,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": true,
+      "log": "/tmp/diamond-w4-independent-scalars-8ygwg8jv/A-97862558811890.log",
+      "log_content": "Diamond connected development server: http://127.0.0.1:56765\n\nthread 'main' (2253732) panicked at src/host.rs:276:26:\nCannot start a runtime from within a runtime. This happens because a function (like `block_on`) attempted to block the current thread while the thread is being used to drive asynchronous tasks. If you are in an async function, use `.await` on the future instead of blocking on it.\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n"
+    },
+    {
+      "node": "B",
+      "exit": 101,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": true,
+      "log": "/tmp/diamond-w4-independent-scalars-8ygwg8jv/B-97862788151869.log",
+      "log_content": "Diamond connected development server: http://127.0.0.1:56765\n\nthread 'main' (2253738) panicked at src/host.rs:276:26:\nCannot start a runtime from within a runtime. This happens because a function (like `block_on`) attempted to block the current thread while the thread is being used to drive asynchronous tasks. If you are in an async function, use `.await` on the future instead of blocking on it.\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n"
+    },
+    {
+      "node": "A",
+      "exit": 101,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": true,
+      "log": "/tmp/diamond-w4-independent-scalars-8ygwg8jv/A-97863580207954.log",
+      "log_content": "Diamond connected development server: http://127.0.0.1:56765\n\nthread 'main' (2253748) panicked at src/host.rs:276:26:\nCannot start a runtime from within a runtime. This happens because a function (like `block_on`) attempted to block the current thread while the thread is being used to drive asynchronous tasks. If you are in an async function, use `.await` on the future instead of blocking on it.\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n"
+    }
+  ],
+  "interface": "real PostgreSQL scalar workflow followed by SIGINT to both app nodes",
+  "semantic_observations": 96,
+  "semantic_failures": [],
+  "expected": "all owned server processes exit0, no panic, resources drained",
+  "replay": "python3 verification/w4_independent/scalars.py --report /tmp/diamond-w4-shutdown-replay.json",
+  "note": "The before build passed data assertions but failed the newly enforced real cleanup gate. Final-build clean exits are embedded in web_four_independent_results.json."
+}

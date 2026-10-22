@@ -528,8 +528,8 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
                 &values,
                 &mut self.values,
             );
-            if result.is_err() {
-                store.mark_failed();
+            if let Err(error) = &result {
+                store.mark_failed(error);
             }
             return Value::operation(result);
         }

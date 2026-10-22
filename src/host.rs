@@ -65,6 +65,7 @@ pub(crate) struct HostRuntime {
     driver: JoinHandle<std::result::Result<(), tokio_postgres::Error>>,
     runtime: Runtime,
     closed: bool,
+    relational: bool,
     deadline: Instant,
 }
 
@@ -132,6 +133,7 @@ impl HostRuntime {
             driver,
             runtime,
             closed: false,
+            relational: false,
             deadline: Instant::now() + Duration::from_secs(10),
         })
     }
@@ -148,12 +150,33 @@ impl HostRuntime {
         sql: &str,
         parameters: &[&(dyn tokio_postgres::types::ToSql + Sync)],
     ) -> Result<Vec<tokio_postgres::Row>> {
+        self.query_inner(sql, parameters, self.relational)
+    }
+    pub(crate) fn relational_query(
+        &mut self,
+        sql: &str,
+        parameters: &[&(dyn tokio_postgres::types::ToSql + Sync)],
+    ) -> Result<Vec<tokio_postgres::Row>> {
+        self.query_inner(sql, parameters, true)
+    }
+    fn query_inner(
+        &mut self,
+        sql: &str,
+        parameters: &[&(dyn tokio_postgres::types::ToSql + Sync)],
+        classified: bool,
+    ) -> Result<Vec<tokio_postgres::Row>> {
         self.check_deadline()?;
         let duration = (self.deadline - Instant::now()).min(Duration::from_secs(5));
         if let Ok(value) = self.runtime.block_on(async {
             tokio::time::timeout(duration, self.postgres.query(sql, parameters)).await
         }) {
-            value.map_err(|_| failure())
+            value.map_err(|e| {
+                if classified {
+                    relational_error(&e)
+                } else {
+                    failure()
+                }
+            })
         } else {
             self.close();
             Err(Error::Limit("PostgreSQL operation deadline"))
@@ -161,12 +184,24 @@ impl HostRuntime {
     }
 
     pub(crate) fn batch(&mut self, sql: &str) -> Result<()> {
+        self.batch_inner(sql, self.relational)
+    }
+    pub(crate) fn relational_batch(&mut self, sql: &str) -> Result<()> {
+        self.batch_inner(sql, true)
+    }
+    fn batch_inner(&mut self, sql: &str, classified: bool) -> Result<()> {
         self.check_deadline()?;
         let duration = (self.deadline - Instant::now()).min(Duration::from_secs(5));
         if let Ok(value) = self.runtime.block_on(async {
             tokio::time::timeout(duration, self.postgres.batch_execute(sql)).await
         }) {
-            value.map_err(|_| failure())
+            value.map_err(|e| {
+                if classified {
+                    relational_error(&e)
+                } else {
+                    failure()
+                }
+            })
         } else {
             self.close();
             Err(Error::Limit("PostgreSQL operation deadline"))
@@ -224,7 +259,16 @@ impl HostRuntime {
         Ok(Value(ValueKind::Text(text)))
     }
 
-    fn close(&mut self) {
+    pub(crate) fn enable_relational(&mut self) {
+        self.relational = true;
+    }
+    pub(crate) fn reset_deadline(&mut self) {
+        self.deadline = Instant::now() + Duration::from_secs(10);
+    }
+    pub(crate) fn healthy(&self) -> bool {
+        !self.closed && !self.postgres.is_closed()
+    }
+    pub(crate) fn close(&mut self) {
         if !self.closed {
             self.closed = true;
             self.driver.abort();
@@ -244,4 +288,12 @@ impl Drop for HostRuntime {
 
 fn failure() -> Error {
     Error::Postgres
+}
+
+fn relational_error(e: &tokio_postgres::Error) -> Error {
+    match e.code().map(tokio_postgres::error::SqlState::code) {
+        Some("40001" | "40P01") => Error::Conflict,
+        Some("23502" | "23503" | "23505" | "23514") => Error::Denied,
+        _ => Error::Postgres,
+    }
 }

@@ -99,6 +99,13 @@ pub enum Error {
     /// The runtime established that the transaction did not commit.
     #[error("transaction aborted")]
     Aborted,
+    /// `PostgreSQL` confirmed a serialization failure or deadlock abort. No automatic retry occurs.
+    ///
+    /// ```
+    /// assert!(diamond::Error::Conflict.to_string().contains("retry"));
+    /// ```
+    #[error("transaction aborted by concurrency conflict; retry the whole operation explicitly")]
+    Conflict,
     /// Commit status cannot be established; callers must not blindly replay.
     #[error("transaction outcome unknown; operation {0}; do not automatically retry")]
     OutcomeUnknown(String),

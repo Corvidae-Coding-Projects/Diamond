@@ -117,6 +117,7 @@ pub(crate) enum Failure {
     Denied,
     InvalidInput,
     Aborted,
+    Conflict,
     Message(String),
 }
 
@@ -126,6 +127,7 @@ impl Failure {
             Error::Denied => Ok(Self::Denied),
             Error::Input(_) => Ok(Self::InvalidInput),
             Error::Aborted => Ok(Self::Aborted),
+            Error::Conflict => Ok(Self::Conflict),
             Error::Propagation(message) => Ok(Self::Message(message)),
             other => Err(other),
         }
@@ -138,6 +140,7 @@ impl Failure {
                 Error::Input("input does not satisfy its declared shape or bounds".into())
             }
             Self::Aborted => Error::Aborted,
+            Self::Conflict => Error::Conflict,
             Self::Message(message) => Error::Propagation(message),
         }
     }
@@ -147,6 +150,7 @@ impl Failure {
             Self::Denied => "Access denied or resource not found.",
             Self::InvalidInput => "Input does not satisfy its declared shape or bounds.",
             Self::Aborted => "Transaction aborted.",
+            Self::Conflict => "Transaction aborted by a concurrency conflict. Retry explicitly.",
             Self::Message(message) => message,
         }
     }

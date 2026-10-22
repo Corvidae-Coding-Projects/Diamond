@@ -8,7 +8,7 @@ use crate::syntax::{
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Component, Path};
 
-pub(super) fn identifier(name: &str) -> bool {
+pub(crate) fn identifier(name: &str) -> bool {
     let mut bytes = name.bytes();
     bytes
         .next()
@@ -567,7 +567,7 @@ fn public_interfaces(modules: &BTreeMap<String, Module>) -> Result<()> {
     }
     Ok(())
 }
-pub(super) fn public_name(name: &str) -> &str {
+pub(crate) fn public_name(name: &str) -> &str {
     let Some(rest) = name.strip_prefix("__diamond_variant_") else {
         return name;
     };

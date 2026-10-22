@@ -1,6 +1,6 @@
 # Diamond
 
-Diamond 0.9.0 is a language prototype implemented in Rust. Its existing
+Diamond 0.10.0 is a language prototype implemented in Rust. Its existing
 single-file interpreter connects checked evaluation, policies, SQLite, forms,
 typed HTML, local accounts, and sessions. The W1 expansion adds multi-file
 projects, checked server/browser boundaries, a first reactive component compiled
@@ -9,8 +9,11 @@ concurrent loopback project server. W2 connects explicit generated RPC, shared
 PostgreSQL accounts/sessions, policy-enforced CRUD, and a Diamond workspace
 tracker across two application processes. W3 adds typed components and shared values,
 keyed updates, forms, routes, server rendering/hydration, CSS/assets, source maps,
-and checked decimal/time/text/list utilities. See the [reactive app guide](docs/reactive-apps.md)
-and [connected application guide](docs/connected-apps.md).
+and checked decimal/time/text/list utilities. W4 adds typed relational PostgreSQL
+storage, scoped roles and relationships, indexed cursor queries, authorized
+joins/counts/aggregates, serializable mutations, a bounded connection pool and
+explicit migrations/backfills. See the [relational app guide](docs/relational-apps.md),
+[reactive app guide](docs/reactive-apps.md) and [connected application guide](docs/connected-apps.md).
 
 Checkpoint six completes the accepted MVP passes with source-span diagnostics,
 parser edge handling, a checked installation and startup path, focused guides,
@@ -21,10 +24,11 @@ guarantees or production readiness.
 The next phase is described in the [general web application expansion plan](.design/general-web-apps.md).
 It targets a reactive frontend written in Diamond, PostgreSQL and multiple
 application servers, shared identity and permissions, typed APIs, uploads,
-external integrations, and durable jobs. W1–W3 are complete within their
-documented development profiles; W4–W10 remain planned.
-relational query planning/migrations, the full account lifecycle, production
-deployment and other later capabilities are not implied.
+external integrations, and durable jobs. W1–W4 are implemented within their
+documented development profiles; W5–W10 remain planned. The full account lifecycle,
+production deployment and other later capabilities are not implied. W4 uses one
+current schema with stopped-server migrations; old/new upgrade compatibility is
+outside the requested scope. See the [W4 evidence](verification/web_four_results.md).
 
 Start the new project example with:
 

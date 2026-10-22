@@ -12,20 +12,26 @@ use crate::value::{Type, Value, ValueKind};
 use std::collections::{BTreeMap, BTreeSet, VecDeque};
 
 pub(crate) fn check(source: &syntax::Program) -> Result<CheckedProgram> {
-    check_inner(source, Effects::new(), false)
+    check_inner(source, Effects::new(), false, None)
 }
 
-pub(crate) fn check_project(source: &syntax::Program, grants: Effects) -> Result<CheckedProgram> {
-    check_inner(source, grants, true)
+pub(crate) fn check_project(
+    source: &syntax::Program,
+    grants: Effects,
+    storage: Option<&crate::relational::Storage>,
+) -> Result<CheckedProgram> {
+    check_inner(source, grants, true, storage)
 }
 
 fn check_inner(
     source: &syntax::Program,
     grants: Effects,
     host_operations: bool,
+    storage: Option<&crate::relational::Storage>,
 ) -> Result<CheckedProgram> {
     let mut program = CheckedProgram {
         host_operations,
+        storage: storage.cloned(),
         app: None,
         aliases: BTreeMap::new(),
         records: BTreeMap::new(),
@@ -55,6 +61,7 @@ fn check_inner(
     resolve_enums(source, &mut program)?;
     resolve_resources(source, &mut program)?;
     resolve_functions(source, &mut program)?;
+    program.storage = storage.map(|s| s.checked(&program)).transpose()?;
     for declaration in &source.declarations {
         if let Declaration::Policy(policy) = declaration {
             let record_name = program.resources.get(&policy.resource).ok_or_else(|| {
@@ -65,7 +72,7 @@ fn check_inner(
                 .policies
                 .insert(
                     policy.resource.clone(),
-                    crate::policy::compile(policy, record)?,
+                    crate::policy::compile(policy, record, &program)?,
                 )
                 .is_some()
             {
@@ -478,7 +485,9 @@ fn resolve_resources(source: &syntax::Program, program: &mut CheckedProgram) -> 
                         "SQLite resource fields must have distinct names ignoring ASCII case",
                     ));
                 }
-                if !scalar_input_type(&field.ty) {
+                if !(scalar_input_type(&field.ty)
+                    || program.storage.is_some() && crate::relational::scalar(&field.ty, program))
+                {
                     return Err(Error::unsupported(
                         *location,
                         format!("database field {name} of type {}", field.ty),
@@ -1648,6 +1657,21 @@ impl<'a> Checker<'a> {
         args: &[(Option<String>, Expr)],
         location: Location,
     ) -> Result<Type> {
+        if self.program.storage.is_some()
+            && ["select", "page", "count", "sum", "join", "cursor"].contains(&method)
+        {
+            let shape = crate::relational::query::checked(self.program, resource, method, args)?;
+            for ((_, expr), expected) in args.iter().zip(&shape.arguments) {
+                let actual = self.expr(expr)?;
+                if !expected.accepts(&actual) && !constant(expr).is_ok_and(|v| v.fits(expected)) {
+                    return Err(mismatch(expr.location, expected, &actual));
+                }
+            }
+            for resource in shape.reads {
+                self.effects.insert(Effect::Read(resource));
+            }
+            return Ok(Type::Result(Box::new(shape.result)));
+        }
         if method == "select" {
             return self.selection(resource, record, args, location);
         }

@@ -107,7 +107,7 @@ pub(super) fn files(project: &CheckedProject) -> Result<BTreeMap<String, String>
             .collect(),
         rpc: super::rpc::contracts(&project.rpc, &project.server),
         rpc_id: contract_id(project)?,
-        wire_version: 2,
+        wire_version: 3,
     };
     files.insert(
         "contract.json".into(),
@@ -226,7 +226,7 @@ pub(super) fn read_text(path: &Path, maximum: usize) -> Result<String> {
     String::from_utf8(bytes).map_err(|_| input("project inputs must be valid UTF-8"))
 }
 
-pub(super) fn hash(bytes: &[u8]) -> String {
+pub(crate) fn hash(bytes: &[u8]) -> String {
     let mut output = String::with_capacity(64);
     let alphabet = b"0123456789abcdef";
     for byte in Sha256::digest(bytes) {

@@ -72,7 +72,17 @@ fn try_main() -> Result<()> {
     if command == "user-add" {
         return user_add(&arguments[1..]);
     }
-    if ["build", "serve", "project-init", "project-user-add"].contains(&command.as_str())
+    if [
+        "build",
+        "serve",
+        "project-init",
+        "project-user-add",
+        "project-status",
+        "project-migrate",
+        "project-backfill",
+        "project-audit",
+    ]
+    .contains(&command.as_str())
         || (["check", "run"].contains(&command.as_str())
             && arguments.get(1).is_some_and(|path| {
                 Path::new(path)
@@ -134,6 +144,7 @@ struct ProjectOptions<'a> {
     postgres_env: Option<&'a str>,
     username: Option<&'a str>,
     password_stdin: bool,
+    batch: usize,
 }
 
 fn project_options<'a>(command: &str, arguments: &'a [String]) -> Result<ProjectOptions<'a>> {
@@ -144,6 +155,7 @@ fn project_options<'a>(command: &str, arguments: &'a [String]) -> Result<Project
         postgres_env: None,
         username: None,
         password_stdin: false,
+        batch: 100,
     };
     let mut seen = BTreeSet::new();
     let mut cursor = 0;
@@ -161,11 +173,18 @@ fn project_options<'a>(command: &str, arguments: &'a [String]) -> Result<Project
             .get(cursor + 1)
             .context("project option requires a value")?;
         match (command, option.as_str()) {
+            ("project-backfill", "--batch") => {
+                parsed.batch = value.parse().context("invalid backfill batch")?;
+            }
             ("build", "--out") => parsed.output = Some(PathBuf::from(value)),
             ("serve", "--listen") => parsed.listen = value,
             ("serve", "--origin") => parsed.origin = Some(value),
             ("project-user-add", "--user") => parsed.username = Some(value),
-            ("run" | "serve" | "project-init" | "project-user-add", "--postgres-env") => {
+            (
+                "run" | "serve" | "project-init" | "project-user-add" | "project-status"
+                | "project-migrate" | "project-backfill" | "project-audit",
+                "--postgres-env",
+            ) => {
                 if value.is_empty()
                     || value.len() > 128
                     || !value
@@ -251,6 +270,18 @@ fn project_command(command: &str, arguments: &[String]) -> Result<()> {
                     .context("project-init requires --postgres-env VARIABLE")?,
             )
             .context("initialize project PostgreSQL profile")?,
+        "project-status" | "project-migrate" | "project-backfill" | "project-audit" => {
+            let configuration = configuration
+                .as_deref()
+                .context("relational administration requires --postgres-env VARIABLE")?;
+            let report = match command {
+                "project-status" => project.postgres_status(configuration),
+                "project-migrate" => project.migrate_postgres(configuration),
+                "project-backfill" => project.backfill_postgres(configuration, options.batch),
+                _ => project.audit_postgres(configuration),
+            }?;
+            println!("{report}");
+        }
         "project-user-add" => {
             let password = read_password(options.password_stdin)?;
             project
@@ -534,7 +565,7 @@ fn read_password(password_stdin: bool) -> Result<Zeroizing<String>> {
 
 fn help() {
     println!(
-        "Diamond {} — W3 frontend and interpreted MVP\n\n  diamond check FILE_OR_PROJECT\n  diamond build PROJECT --out NEW_DIRECTORY\n  diamond serve PROJECT_OR_BUILD [--listen 127.0.0.1:PORT] [--postgres-env VARIABLE --origin http://localhost:PORT]\n  diamond run PROJECT_OR_BUILD [--postgres-env VARIABLE]\n  diamond project-init PROJECT --postgres-env VARIABLE\n  diamond project-user-add PROJECT --postgres-env VARIABLE --user USERNAME [--password-stdin]\n  diamond run FILE [--database PATH] [--auth PATH] [--listen 127.0.0.1:PORT] [--max-requests N]\n  diamond db-init FILE --database PATH\n  diamond user-add --auth PATH --user USERNAME [--password-stdin]\n  diamond explain CODE\n\nOpen http://localhost:PORT for browser secure-cookie support.\nSee README.md for installation, examples, supported language, and limits.",
+        "Diamond {} — W4 relational data and interpreted MVP\n\n  diamond check FILE_OR_PROJECT\n  diamond build PROJECT --out NEW_DIRECTORY\n  diamond serve PROJECT_OR_BUILD [--listen 127.0.0.1:PORT] [--postgres-env VARIABLE --origin http://localhost:PORT]\n  diamond run PROJECT_OR_BUILD [--postgres-env VARIABLE]\n  diamond project-init PROJECT --postgres-env VARIABLE\n  diamond project-user-add PROJECT --postgres-env VARIABLE --user USERNAME [--password-stdin]\n  diamond project-status PROJECT --postgres-env VARIABLE\n  diamond project-migrate PROJECT --postgres-env VARIABLE\n  diamond project-backfill PROJECT --postgres-env VARIABLE [--batch 100]\n  diamond project-audit PROJECT --postgres-env VARIABLE\n  diamond run FILE [--database PATH] [--auth PATH] [--listen 127.0.0.1:PORT] [--max-requests N]\n  diamond db-init FILE --database PATH\n  diamond user-add --auth PATH --user USERNAME [--password-stdin]\n  diamond explain CODE\n\nOpen http://localhost:PORT for browser secure-cookie support.\nSee README.md for installation, examples, supported language, and limits.",
         env!("CARGO_PKG_VERSION")
     );
 }

@@ -1,0 +1,5 @@
+Diamond connected development server: http://127.0.0.1:32991
+
+thread 'main' (2237138) panicked at src/host.rs:276:26:
+Cannot start a runtime from within a runtime. This happens because a function (like `block_on`) attempted to block the current thread while the thread is being used to drive asynchronous tasks. If you are in an async function, use `.await` on the future instead of blocking on it.
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace

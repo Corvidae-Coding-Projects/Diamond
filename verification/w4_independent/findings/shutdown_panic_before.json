@@ -1,0 +1,8 @@
+{
+  "binary_sha256": "f50816ff6c74256eef943665d6740af028c1f2ea6c8f92ece4178e4edf4115b7",
+  "interface": "SIGINT to an actual served W4 node after ordinary RPCs",
+  "expected": "graceful code0 and no panic, owned runtime/pool drained",
+  "observed": "thread main panicked at src/host.rs:276 Cannot start a runtime from within a runtime",
+  "raw_log": "verification/w4_independent/findings/shutdown_panic_before.txt",
+  "replay": "python3 verification/w4_independent/queries.py --rows 103 --report /tmp/diamond-w4-query-shutdown.json"
+}

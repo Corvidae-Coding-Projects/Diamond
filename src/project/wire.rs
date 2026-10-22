@@ -39,7 +39,7 @@ fn safe(ty: &Type, p: &CheckedProgram, depth: usize) -> bool {
         _ => false,
     }
 }
-pub(super) fn encode(value: &Value) -> Result<Json> {
+pub(crate) fn encode(value: &Value) -> Result<Json> {
     value.weight()?;
     encode_inner(value, 0)
 }
@@ -82,6 +82,7 @@ fn failure_code(f: &Failure) -> &str {
     match f {
         Failure::Denied => "Denied",
         Failure::Aborted => "Aborted",
+        Failure::Conflict => "RetryableAbort",
         Failure::InvalidInput => "InvalidInput",
         Failure::Message(_) => "ApplicationFailure",
     }
@@ -97,7 +98,7 @@ fn integer(v: &Json) -> Result<i64> {
     }
     Ok(n)
 }
-pub(super) fn decode(ty: &Type, value: &Json, p: &CheckedProgram) -> Result<Value> {
+pub(crate) fn decode(ty: &Type, value: &Json, p: &CheckedProgram) -> Result<Value> {
     let v = decode_inner(ty, value, p, 0)?;
     v.weight()?;
     Ok(v)
@@ -182,6 +183,7 @@ fn decode_inner(ty: &Type, value: &Json, p: &CheckedProgram, depth: usize) -> Re
                         Some("Denied") => Failure::Denied,
                         Some("InvalidInput") => Failure::InvalidInput,
                         Some("Aborted") => Failure::Aborted,
+                        Some("RetryableAbort") => Failure::Conflict,
                         Some("ApplicationFailure") => {
                             Failure::Message("Application failed.".into())
                         }

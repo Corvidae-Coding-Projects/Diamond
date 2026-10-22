@@ -1,0 +1,135 @@
+{
+  "status": "PASS",
+  "binary_sha256": "15dfe6108d99a9defe3e5bd4304d0b9d720ed1203859e58e287d0b2ed4b06166",
+  "origin": "http://127.0.0.1:39171/",
+  "contract": "c1b2e7f6d44970f6445812c8457cf092ade489d8f547f74e88123a0e158e20f2",
+  "hydrated": "true",
+  "cases": [
+    {
+      "name": "cursor-pages",
+      "pass": true,
+      "observed": {
+        "first": [
+          "Fixture issue 10",
+          "Fixture issue 08",
+          "Fixture issue 00",
+          "Fixture issue 06",
+          "Fixture issue 03",
+          "Fixture issue 02",
+          "Fixture issue 05",
+          "Fixture issue 07",
+          "Fixture issue 11",
+          "Fixture issue 04"
+        ],
+        "second": [
+          "Fixture issue 09",
+          "Fixture issue 01"
+        ]
+      }
+    },
+    {
+      "name": "create-and-edit-literal-text",
+      "pass": true,
+      "observed": {
+        "id": "8bf5ea77de6b4224dd30451a50ac7e5a623aa0de35d374cfd0303f10cd289577",
+        "output": "Saved in Chrome 雪 <script>literal</script>\nFirst line\nSecond <b>literal</b>",
+        "scriptElements": 0
+      }
+    },
+    {
+      "name": "authorized-join",
+      "pass": true,
+      "observed": "Fixture issue 10 | Browser project\nFixture issue 08 | Browser project\nFixture issue 00 | Browser project\nFixture issue 06 | Browser project\nFixture issue 03 | Browser project\nFixture issue 02 | Browser project\nSaved in Chrome 雪 <script>literal</script> | Browser project\nFixture issue 05 | Browser project\nFixture issue 07 | Browser project\nFixture issue 11 | Browser project"
+    },
+    {
+      "name": "logout-private-state-cleared",
+      "pass": true,
+      "observed": {
+        "joined": "",
+        "cards": 0,
+        "title": "",
+        "workspace": "",
+        "selected": ""
+      }
+    },
+    {
+      "name": "outsider-denial",
+      "pass": true,
+      "observed": {
+        "count": "0 authorized issues",
+        "read": "Request rejected. Check your session, input, and permissions. Earlier server calls may already have committed."
+      }
+    },
+    {
+      "name": "workspace-project-browser-create",
+      "pass": true,
+      "observed": {
+        "workspace": "2069868c5f9e1eca90c83ced235e3608db8b0f3800a7b3fadcf4b41dab621aa4",
+        "project": "9acd470bb9f1f19000a30212e9302e5fcc1d2888d8985ee08d219791f3ae1fc8"
+      }
+    },
+    {
+      "name": "cross-workspace-denial-recovery",
+      "pass": true,
+      "observed": {
+        "denial": "Request rejected. Check your session, input, and permissions. Earlier server calls may already have committed.",
+        "recovery": {
+          "total": "1 authorized issues",
+          "output": "Chrome-created issue 雪\nWorkspace-bound records, verified through the browser.",
+          "join": "Chrome-created issue 雪 | Chrome-created project",
+          "alerts": 0
+        }
+      }
+    },
+    {
+      "name": "scoped-editor-grant-and-write",
+      "pass": true,
+      "observed": {
+        "membership": "1eb071e3a5887a4667e124f7877657dd0b4b08f5fb14b97865ebf6f1610fbd55",
+        "before": "13 authorized issues",
+        "after": "14 authorized issues",
+        "created": "4a191272feeadca1892a952ae47de3c34dbf91f012a9a5a34315a0def81ba0d6"
+      }
+    },
+    {
+      "name": "membership-revocation",
+      "pass": true,
+      "observed": {
+        "result": "Membership revoked.",
+        "count": "0 authorized issues",
+        "read": "Request rejected. Check your session, input, and permissions. Earlier server calls may already have committed."
+      }
+    }
+  ],
+  "console": [
+    {
+      "level": "error",
+      "message": "Diamond component update failed Error: Request rejected. Check your session, input, and permissions. Earlier server calls may already have committed.\n    at __remote (http://127.0.0.1:39171/assets/368d98ef293466953997ccc883a10df1a53e36e9eef868f955f529caca07a092.js:106:65)\n    at async __dispatch (http://127.0.0.1:39171/assets/368d98ef293466953997ccc883a10df1a53e36e9eef868f955f529caca07a092.js:165:186)",
+      "timestamp": "2026-10-22T16:23:12.584Z",
+      "url": "http://127.0.0.1:39171/assets/368d98ef293466953997ccc883a10df1a53e36e9eef868f955f529caca07a092.js"
+    },
+    {
+      "level": "error",
+      "message": "Diamond component update failed Error: Request rejected. Check your session, input, and permissions. Earlier server calls may already have committed.\n    at __remote (http://127.0.0.1:39171/assets/368d98ef293466953997ccc883a10df1a53e36e9eef868f955f529caca07a092.js:106:65)\n    at async __dispatch (http://127.0.0.1:39171/assets/368d98ef293466953997ccc883a10df1a53e36e9eef868f955f529caca07a092.js:165:186)",
+      "timestamp": "2026-10-22T16:24:10.840Z",
+      "url": "http://127.0.0.1:39171/assets/368d98ef293466953997ccc883a10df1a53e36e9eef868f955f529caca07a092.js"
+    },
+    {
+      "level": "error",
+      "message": "Diamond component update failed Error: Request rejected. Check your session, input, and permissions. Earlier server calls may already have committed.\n    at __remote (http://127.0.0.1:39171/assets/368d98ef293466953997ccc883a10df1a53e36e9eef868f955f529caca07a092.js:106:65)\n    at async __dispatch (http://127.0.0.1:39171/assets/368d98ef293466953997ccc883a10df1a53e36e9eef868f955f529caca07a092.js:165:186)",
+      "timestamp": "2026-10-22T16:28:10.669Z",
+      "url": "http://127.0.0.1:39171/assets/368d98ef293466953997ccc883a10df1a53e36e9eef868f955f529caca07a092.js"
+    }
+  ],
+  "scope": "Actual Chrome controls and generated Diamond app, isolated synthetic database; user explicitly approved synthetic Bob grant/revoke.",
+  "console_prior_build": [
+    {
+      "level": "error",
+      "message": "Diamond component update failed Error: Request rejected. Check your session, input, and permissions. Earlier server calls may already have committed.\n    at __remote (http://127.0.0.1:39171/assets/04c580e877b1821e5679be130e74abdd4726be6808524c03574f67db0a853d4d.js:106:65)\n    at async __dispatch (http://127.0.0.1:39171/assets/04c580e877b1821e5679be130e74abdd4726be6808524c03574f67db0a853d4d.js:165:186)",
+      "timestamp": "2026-10-22T16:20:32.905Z",
+      "url": "http://127.0.0.1:39171/assets/04c580e877b1821e5679be130e74abdd4726be6808524c03574f67db0a853d4d.js"
+    }
+  ],
+  "unexpected_console": [],
+  "asset": "/assets/368d98ef293466953997ccc883a10df1a53e36e9eef868f955f529caca07a092.js"
+}

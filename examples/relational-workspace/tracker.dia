@@ -1,0 +1,114 @@
+export component Tracker:
+  state username: Text = ""
+  state password: Text = ""
+  state signed_in: Text = ""
+  state label: Text = ""
+  state workspace: Text = ""
+  state project: Text = ""
+  state member: Text = ""
+  state member_id: Text = ""
+  state title: Text = ""
+  state details: Text = ""
+  state selected: Text = ""
+  state output: Text = "Sign in, create a workspace, then create a project."
+  state joined: Text = ""
+  state page: IssuePage = IssuePage(cards: [], after: "", total: 0)
+  derived total: Text = int_text(page.total) + " authorized issues"
+
+  on sign_in:
+    signed_in = session.login(username, password)
+    password = ""
+    workspace = ""
+    project = ""
+    member = ""
+    member_id = ""
+    title = ""
+    details = ""
+    selected = ""
+    label = ""
+    joined = ""
+    page = IssuePage(cards: [], after: "", total: 0)
+    output = "Signed in."
+  on sign_out:
+    signed_in = session.logout()
+    password = ""
+    workspace = ""
+    project = ""
+    member = ""
+    member_id = ""
+    title = ""
+    details = ""
+    selected = ""
+    label = ""
+    joined = ""
+    page = IssuePage(cards: [], after: "", total: 0)
+    output = "Signed out."
+  on make_workspace:
+    workspace = rpc.create_workspace(label)
+    project = ""
+    selected = ""
+    joined = ""
+    page = IssuePage(cards: [], after: "", total: 0)
+    output = "Workspace created."
+  on make_project:
+    project = rpc.create_project(workspace, label)
+    output = "Project created."
+  on grant:
+    member_id = rpc.grant_editor(workspace, member)
+    output = "Editor access granted."
+  on revoke:
+    output = rpc.revoke_member(member_id)
+  on create:
+    selected = rpc.create_issue(workspace, project, title, details)
+    output = rpc.read_issue(selected)
+    page = rpc.issue_page(workspace, "")
+  on refresh:
+    page = rpc.issue_page(workspace, "")
+  on next:
+    page = rpc.issue_page(workspace, page.after)
+  on read:
+    output = rpc.read_issue(selected)
+  on update:
+    output = rpc.update_issue(selected, title, details)
+    page = rpc.issue_page(workspace, "")
+  on delete:
+    output = rpc.delete_issue(selected)
+    page = rpc.issue_page(workspace, "")
+  on join:
+    joined = rpc.joined_projects(workspace)
+
+  html:
+    <main>
+      <header class="masthead"><img src="asset:logo" alt="Diamond" width="40" height="40"><div><p class="eyebrow">DIAMOND · RELATIONAL DATA</p><h1>Relational workspace</h1></div></header>
+      <when test={pending}><p role="status">Working…</p></when>
+      <when test={error != ""}><p role="alert">{error}</p></when>
+      <section class="panel"><h2>Account</h2>
+        <label for="username">Username</label><input id="username" bind-value={username}>
+        <label for="password">Password</label><input id="password" type="password" bind-value={password}>
+        <button on-click={sign_in}>Sign in</button><button on-click={sign_out}>Sign out</button><p id="signed-in">{signed_in}</p>
+      </section>
+      <section class="panel"><h2>Workspace and project</h2>
+        <label for="label">Name</label><input id="label" bind-value={label} maxlength="80">
+        <button on-click={make_workspace}>Create workspace</button>
+        <label for="workspace">Workspace ID</label><input id="workspace" bind-value={workspace}>
+        <button on-click={make_project}>Create project</button>
+        <label for="project">Project ID</label><input id="project" bind-value={project}>
+        <label for="member">Editor username</label><input id="member" bind-value={member}>
+        <button on-click={grant}>Grant editor</button>
+        <label for="member-id">Membership ID</label><input id="member-id" bind-value={member_id}>
+        <button on-click={revoke}>Revoke member</button>
+      </section>
+      <section class="panel"><h2>Issues</h2>
+        <form on-submit={create}>
+          <label for="title">Title</label><input id="title" bind-value={title} required="true" maxlength="120">
+          <label for="details">Details</label><textarea id="details" bind-value={details}></textarea>
+          <button type="submit" disabled={pending}>Create issue</button>
+        </form>
+        <label for="selected">Issue ID</label><input id="selected" bind-value={selected}>
+        <button on-click={read}>Read</button><button on-click={update}>Save changes</button><button on-click={delete}>Delete</button>
+        <pre id="issue-output">{output}</pre>
+        <button on-click={refresh}>First page</button><button on-click={next}>Next page</button><p id="total">{total}</p>
+        <each items={page.cards} as="card" key={card.id}><use component="Card" issue={card}></use></each>
+        <button on-click={join}>Show projects</button><pre id="joined">{joined}</pre>
+      </section>
+    </main>

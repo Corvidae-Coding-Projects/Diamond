@@ -1,0 +1,126 @@
+{
+  "status": "PASS",
+  "version": "0.10.0",
+  "binary_sha256": "15dfe6108d99a9defe3e5bd4304d0b9d720ed1203859e58e287d0b2ed4b06166",
+  "library_sha256": "f8e777be87138f2622c038c9799294de157c1ca7ad9fb57ec039e7a6958576e7",
+  "rustc": "rustc 1.96.0 (ac68faa20 2026-05-25)",
+  "cargo": "cargo 1.96.0 (30a34c682 2026-05-25)",
+  "msrv": "1.96, unchanged",
+  "semver": "pre-1.0 minor 0.9.0 to 0.10.0; new public administrative methods and Error::Conflict; wire version 3",
+  "build_checks": {
+    "cargo build --offline": "PASS",
+    "cargo clippy --offline --all-targets --all-features -- -D warnings": "PASS; no lint allowances added",
+    "cargo test --offline --all-features": "PASS; 26 doctests; 0 unit tests",
+    "cargo fmt --check": "PASS",
+    "RUSTDOCFLAGS=-D warnings cargo doc --offline --no-deps": "PASS",
+    "miri": "not applicable; no unsafe code added or modified"
+  },
+  "independent_observations": {
+    "checker": 30,
+    "scalars": 98,
+    "queries": 175,
+    "migrations": 18,
+    "faults": 14
+  },
+  "browser_cases": 9,
+  "database_domain_cases": 17,
+  "cleanup": {
+    "binary_sha256": "15dfe6108d99a9defe3e5bd4304d0b9d720ed1203859e58e287d0b2ed4b06166",
+    "cleanup_errors": [],
+    "shutdowns": [
+      {
+        "node": "A",
+        "exit": 0,
+        "expected_exit": 0,
+        "forced_kill": false,
+        "panic": false
+      }
+    ],
+    "logs": [
+      {
+        "name": "A-97779380378711.log",
+        "text": "Diamond connected development server: http://127.0.0.1:39171\n"
+      }
+    ]
+  },
+  "source_sha256": {
+    "Cargo.lock": "c9557e25640ceb62998122dd712ca869406379dd1c1aea1ae197bd4b10cd18cd",
+    "Cargo.toml": "da99ce5d1fd18a865dc1fbdecf58fe5a83335cdebeec07b4cb92940aafbd6813",
+    "src/accounts.rs": "04abde698fa8578f5f5020fc713c21337c771931907851b6bdc1726e8f9f9c38",
+    "src/auth.rs": "3aa34e4d3cab50ecae4df15aa334ac2f19c5632689914ce7dee10b0bc0c2e47c",
+    "src/authority.rs": "5a0ec916baabdc4233284dfc5d62d01f93471ad715b70918fee05ad3d0207c4e",
+    "src/browser_auth.rs": "cdee991702464eda1360b8c29044e54cc7856e80a40dda795a884fc4e72d5401",
+    "src/checker.rs": "89e02ccf20177d2faa1b607e7a296c42d2abfc0f5ebcec795271b461027d7b7d",
+    "src/data.rs": "89247d93d16a6861102390b598f0721d95eb06c5233eab365f113a6a8cd11d25",
+    "src/diagnostic_help.rs": "cec6b8df1c9d207a7bfb869cd23c2d2ada731fc45eb07fd8fc0d135cedce1206",
+    "src/error.rs": "90838a7bf00c238fb725100fd3da4f614fcb1796fceac93bb506e2776508d34f",
+    "src/eval.rs": "693882d1f1ab0f47fc8c48b3dbe49b58815bc7ef09d76abe08130658f1d69be2",
+    "src/forms.rs": "07d642674076128f27b551814f37d0d20914877137f8b5be503c91f64ceb6600",
+    "src/hir.rs": "c6633e5d105824953874dbce5e847b84e36a9f3dde8f9655a81419e184838206",
+    "src/host.rs": "2a4383e39c963773b000761a78fb69011fa8e50fe77c340cf971ee0f37be9348",
+    "src/http.rs": "7cb9202149ceb1184102ceec92caaccfc4cf3bceacfdc02cee78ede6e8fc5b3a",
+    "src/lexer.rs": "cf2736000129095b1ab1766501d729e7460d1ff3ae7756d896ea8c419a0d1c24",
+    "src/lib.rs": "0358f277e80e36842e9314b4ddc5723178ebbcc6b763b5157bd4ee27189528bc",
+    "src/main.rs": "d22f1af06f4e8582d77648656c79ec34369de87662f722fae88d7bfab2b3ab4f",
+    "src/parser.rs": "8f4e309b103a992c7e7bb226d7fc2e2b16f8ea6cc8292a5d0658ba12f7c97860",
+    "src/policy/postgres.rs": "44b6404674135153f8350fcfeca2289420ecc7f5373879802518b8f47ce49cff",
+    "src/policy.rs": "00ce326d14a67db9e23c7feec6294b334dfdf2aa8f795e8bd862ac074235f2d7",
+    "src/project/artifact.rs": "7e51e545d242f2ecdf058535b6c7d9d01c6c6a85cb3f8d900b3f0c664dddc1ad",
+    "src/project/assets.rs": "b7c09c687671f86c258feefa566cbe806b3ea2512dee08315bed806f3fc64657",
+    "src/project/browser.rs": "b071c6335e9b219694c1c381e1d97ff1e3c117103bd9c4b8644a8fcb1ab5024c",
+    "src/project/connected.rs": "edb242755b96958562137e19e17a0384974fad97b92e8b49dd6a093e332f1986",
+    "src/project/identity.rs": "8785dfa9ba1c960e88d93e46aed48bb63a7000d06dddd05869e5a8d0a3af201d",
+    "src/project/lower/asynchronous.rs": "1aaf16e29001af1a91d0384bb0a935c528bc844d012b820fadfc33a1d8945812",
+    "src/project/lower/reach.rs": "e984ccf88476b99c07284a37db6f622a26df6fe7ec6fb6a40511a10b4e0b7b50",
+    "src/project/lower.rs": "fb639d9b27486b3a0b5e7c8c0ef8acdbb5ec19e92197f5d3ab09a7d20266bc2b",
+    "src/project/mod.rs": "e973f1c3d57f161b1028e0671c7e5bf303b604de2cf2ac6af39137fa8192cbb3",
+    "src/project/render.rs": "f0a646d9a65da1cf07f877c6a5558a2478d4cb31b2b2a7e4d8d9d625bfcebfcd",
+    "src/project/resolve.rs": "515e022313a7cc73531f866f50dd1c645e09e67ee9490f9ee883a970e3a7176a",
+    "src/project/rpc.rs": "1f3734021c561119e90a70e18b674fa2ddf1a668e5d59e58220807fec8cbda88",
+    "src/project/runtime.js": "c7959c93d66f2c9cdaa0be4621c3a1c387a03e3e2e9501d7c542b1c3d003fd01",
+    "src/project/server.rs": "3ccc896645eb582f358ba11b86256aacda844e95b414afa373e2a9103c341dfa",
+    "src/project/storage.rs": "1ae61147c366e862bc8b0435bb9f502bc35470f6f351304c72f5b8df94c3d02a",
+    "src/project/wire.rs": "066a498fdf66c7f2988a34bdfe7de8014a1cd288fb9ecc50c4d3fca746453611",
+    "src/relational/config.rs": "1eca6e95cc3616ca36ec796de27334b4a1909a3cd89ffaff9bf171a447ee179c",
+    "src/relational/migration.rs": "96d26b97e99a93f78809ca1bb0a9ec745aa344ef6a343e3f4fb746a74456ea80",
+    "src/relational/mod.rs": "d32d40df7b0d506e906154761ba0893b4ed0f45e2e2fc6aab5a86c51d859f94d",
+    "src/relational/pool.rs": "0bf243623d43328949983210c9ea1e3f672f42bf08b4f1495747c9216a580458",
+    "src/relational/query.rs": "b6a8bdb40777610a3b74f07b98e286b8b1e75d4a3317a3e6709ad3b2eb55e058",
+    "src/relational/runtime.rs": "2cd8ec3c4f1878a33a210d8592468c9950be4065660152c0408dccaff0793c4c",
+    "src/relational/schema.rs": "f0d71f9118623ce932d3965edd56ed3f38b2aec7131decab96139cd1c29dd2df",
+    "src/relational/types.rs": "b665b535a2635696702ff6e8beed816e94491bd0b809fcf979643276b42ab53b",
+    "src/standard.rs": "2824802cd6c444d87b94241b956d4812cd8af04c8d921974dd85fe8fa7ee12e3",
+    "src/syntax.rs": "61beb0a2f97535682d1376edbfc8ce0e8d08d40712942b61d6b1b8aa026ef0cb",
+    "src/template.rs": "25d16914456f6040183ea92a13f227047278486e29a85ae07184207857013e96",
+    "src/value.rs": "46a7dc6eb4410e4aa371cd01a8b9c31de65e794566afbcdb197226ea986582da",
+    "src/web.rs": "13392e6717bb772f621551d61d3a4e9ec9f0e9874263d39014ba98976a6d5ebe"
+  },
+  "reference_app_sha256": {
+    "examples/relational-workspace/cards.dia": "742f1b454a5aee25017e0c16d4678d4aed57908be614ff8c10117ce923fc4e45",
+    "examples/relational-workspace/diamond.svg": "5f295145c59d12fda9e777d4d864349e38b7c7dc03ce00cca00fc45033b3f534",
+    "examples/relational-workspace/diamond.toml": "8340c2b8a0e3a6a22bfaec4da28621bd03cb7b780fb22f125a0818b811ea6048",
+    "examples/relational-workspace/server.dia": "f73b0949d22450c6723f4695e90a00a253a5df3521240ddf3acabd14fc4aeb74",
+    "examples/relational-workspace/shared.dia": "07f627276d57394b71a310ac7759ffc1a747a8c0d7e330d70a428120dad50a05",
+    "examples/relational-workspace/tracker.css": "8b1ea71e79055455c795967d31e08daa234400e9276bac4bb4d84408285c7870",
+    "examples/relational-workspace/tracker.dia": "d5902230aae0e9bf765858abf68b482883c3f4c0c375a95ed958cb23084f7217"
+  },
+  "receipt_sha256": {
+    "verification/web_four_browser.jpg": "97772e4e0c0a4bd03617ec68ba3c2f5aed8f817b73de261a9422a09cdb6d097f",
+    "verification/web_four_browser_before.json": "111a942434fc49aed2fa8bca17f0cabf34c83a406401c8ca270fba5c8d0cbcdc",
+    "verification/web_four_browser_database.json": "2df683da4890faf3f33dc92dea99f169c8b070329567f6d09b472173bd02ec3a",
+    "verification/web_four_browser_lifecycle.json": "fd93cd979089a10e1ab6b8b408a12a93d8e4d6e5017fbe9ab724e519cc6190b1",
+    "verification/web_four_browser_results.json": "df0765a12ea1d40f9ec36caa383d386a31f8b29c04f17132e96dcf1e96d0159c",
+    "verification/web_four_domains_results.json": "1a6cedc8398ef148c47055cfa109a78cbc8cd94e4b2131ebd44c2197dcccad93",
+    "verification/web_four_existing_connected.json": "d4c9b5ceb49702eb73013fcc5dd26368ca26a299b292a1711eddc40dcff5d257",
+    "verification/web_four_existing_frontend.json": "146837897bee718f84dd0a2a53493ebe40efc0107601637126a16a738305c4d7",
+    "verification/web_four_existing_projects.json": "5a1ae2839aff3941919639186b12bd84e162c64bf296b2999fd8c6d450fbcdf2",
+    "verification/web_four_independent_results.json": "ca63cbb2db1216a3e8bd380e69944ae7315b3aed2335e540e48e4cf245864a56"
+  },
+  "boundaries": [
+    "local Unix-socket PostgreSQL and loopback servers",
+    "current schema only; user excluded old/new upgrade compatibility",
+    "bounded independent cases; no complete-security or production-capacity claim",
+    "UI delete not operated; actual backend CRUD deletion verified",
+    "aggregate overflow not independently generated; ordinary authorized sums verified"
+  ]
+}

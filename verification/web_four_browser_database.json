@@ -1,0 +1,123 @@
+{
+  "status": {
+    "backfills": [],
+    "expected_version": 1,
+    "profile": "relational-v1",
+    "shape": "56291909424eddf8c9744014a214ad13f3474e29333dd71ee67295196c9907e0",
+    "version": 1
+  },
+  "audit": {
+    "profile": "relational-v1",
+    "rows": {
+      "Issues": 15,
+      "Members": 0,
+      "Projects": 2,
+      "Workspaces": 2
+    },
+    "valid": true
+  },
+  "trace": [
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/_diamond/session",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/login",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/create_workspace",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/create_project",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/create_issue",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/create_issue",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/create_issue",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/create_issue",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/create_issue",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/create_issue",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/create_issue",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/create_issue",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/create_issue",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/create_issue",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/create_issue",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/rpc/create_issue",
+      "status": 200
+    }
+  ]
+}
