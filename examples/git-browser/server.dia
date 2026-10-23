@@ -45,3 +45,9 @@ export fn repository_history(repository: Text, revision: Text) -> Result<GitHist
 
 export fn repository_diff(repository: Text, old: Text, new: Text) -> Result<GitDiff, DataError>:
   host.git_query<GitDiff>("repos", repository, "diff", old, new, 1)
+
+export fn protect_reference(repository: Text, reference: Text, required_role: Text, allow_force: Bool, allow_delete: Bool) -> Result<Text, DataError>:
+  host.git_protect("repos", repository, reference, required_role, allow_force, allow_delete)
+
+export fn unprotect_reference(repository: Text, reference: Text) -> Result<Text, DataError>:
+  host.git_unprotect("repos", repository, reference)

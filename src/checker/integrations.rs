@@ -95,6 +95,48 @@ impl Checker<'_> {
 }
 
 impl Checker<'_> {
+    fn check_git_specific(
+        &mut self,
+        method: &str,
+        args: &[(Option<String>, Expr)],
+        location: Location,
+    ) -> Result<()> {
+        if method == "git_query" {
+            if !Type::Int.accepts(&self.expr(&args[5].1)?) {
+                return Err(Error::diagnostic(
+                    "D310",
+                    location,
+                    "Git query limit requires Int",
+                ));
+            }
+            let Some(Expr {
+                kind: ExprKind::Text(operation),
+                ..
+            }) = args.get(2).map(|(_, expression)| expression)
+            else {
+                return Err(Error::diagnostic(
+                    "D310",
+                    location,
+                    "Git query operation requires a static name",
+                ));
+            };
+            if !["head", "tree", "blob", "history", "diff"].contains(&operation.as_str()) {
+                return Err(Error::Denied);
+            }
+        }
+        if method == "git_protect"
+            && (!Type::Bool.accepts(&self.expr(&args[4].1)?)
+                || !Type::Bool.accepts(&self.expr(&args[5].1)?))
+        {
+            return Err(Error::diagnostic(
+                "D310",
+                location,
+                "Git protection flags require Bool values",
+            ));
+        }
+        Ok(())
+    }
+
     pub(super) fn git_call(
         &mut self,
         method: &str,
@@ -121,8 +163,13 @@ impl Checker<'_> {
         {
             return Err(Error::Denied);
         }
-        let expected_arguments = if method == "git_create" { 2 } else { 6 };
-        let expected_types = usize::from(method == "git_query");
+        let (expected_arguments, expected_types, text_arguments) = match method {
+            "git_create" => (2, 0, 2),
+            "git_query" => (6, 1, 5),
+            "git_protect" => (6, 0, 4),
+            "git_unprotect" => (3, 0, 3),
+            _ => return Err(Error::Denied),
+        };
         if args.len() != expected_arguments || types.len() != expected_types {
             return Err(Error::diagnostic(
                 "D310",
@@ -130,7 +177,6 @@ impl Checker<'_> {
                 "invalid registered Git signature",
             ));
         }
-        let text_arguments = if method == "git_create" { 2 } else { 5 };
         for (_, argument) in args.iter().take(text_arguments) {
             if !Type::Text.accepts(&self.expr(argument)?) {
                 return Err(Error::diagnostic(
@@ -140,38 +186,20 @@ impl Checker<'_> {
                 ));
             }
         }
-        if method == "git_query" {
-            if !Type::Int.accepts(&self.expr(&args[5].1)?) {
-                return Err(Error::diagnostic(
-                    "D310",
-                    location,
-                    "Git query limit requires Int",
-                ));
-            }
-            let Some((
-                None,
-                Expr {
-                    kind: ExprKind::Text(operation),
-                    ..
-                },
-            )) = args.get(2)
-            else {
-                return Err(Error::diagnostic(
-                    "D310",
-                    location,
-                    "Git query operation requires a static name",
-                ));
-            };
-            if !["head", "tree", "blob", "history", "diff"].contains(&operation.as_str()) {
-                return Err(Error::Denied);
-            }
-        }
+        self.check_git_specific(method, args, location)?;
         let write = method == "git_create";
+        let admin = matches!(method, "git_protect" | "git_unprotect");
         self.effects.insert(Effect::Host(format!(
             "Git{}<{binding}>",
-            if write { "Write" } else { "Read" }
+            if admin {
+                "Admin"
+            } else if write {
+                "Write"
+            } else {
+                "Read"
+            }
         )));
-        let result = if write {
+        let result = if write || admin {
             Type::Text
         } else {
             let result = resolve_type(types.first().ok_or(Error::Denied)?, self.program, location)?;

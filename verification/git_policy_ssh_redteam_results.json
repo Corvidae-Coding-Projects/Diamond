@@ -1,0 +1,374 @@
+{
+  "profile": "Diamond protected receive and SSH adapter red-team campaign",
+  "versions": {
+    "diamond": "diamond 0.16.0 (W10 release-qualified web application profile)",
+    "git": "git version 2.56.0",
+    "openssh": "OpenSSH_10.2p1, OpenSSL 3.5.9 29 Sep 2026",
+    "postgres": "postgres (PostgreSQL) 18.6",
+    "python": "3.14.8"
+  },
+  "passed": 90,
+  "total": 90,
+  "results": [
+    {
+      "name": "initialize PostgreSQL",
+      "pass": true
+    },
+    {
+      "name": "start PostgreSQL",
+      "pass": true
+    },
+    {
+      "name": "initialize project schema",
+      "pass": true
+    },
+    {
+      "name": "install runtime Git hook",
+      "pass": true
+    },
+    {
+      "name": "hook is small and mode 0500",
+      "pass": true
+    },
+    {
+      "name": "provision administrator",
+      "pass": true
+    },
+    {
+      "name": "bootstrap account session",
+      "pass": true
+    },
+    {
+      "name": "login",
+      "pass": true
+    },
+    {
+      "name": "register repository",
+      "pass": true
+    },
+    {
+      "name": "initialize repository",
+      "pass": true
+    },
+    {
+      "name": "repository uses runtime hook only",
+      "pass": true
+    },
+    {
+      "name": "create HTTPS Git token",
+      "pass": true
+    },
+    {
+      "name": "clone over HTTPS",
+      "pass": true
+    },
+    {
+      "name": "set Git email",
+      "pass": true
+    },
+    {
+      "name": "set Git name",
+      "pass": true
+    },
+    {
+      "name": "stage initial commit",
+      "pass": true
+    },
+    {
+      "name": "commit initial",
+      "pass": true
+    },
+    {
+      "name": "push initial",
+      "pass": true
+    },
+    {
+      "name": "short protected ref rejected",
+      "pass": true
+    },
+    {
+      "name": "unknown protected role rejected",
+      "pass": true
+    },
+    {
+      "name": "create protected-ref rule through Diamond",
+      "pass": true
+    },
+    {
+      "name": "commit fast forward",
+      "pass": true
+    },
+    {
+      "name": "protected fast forward allowed",
+      "pass": true
+    },
+    {
+      "name": "read remote main",
+      "pass": true
+    },
+    {
+      "name": "rewind local branch",
+      "pass": true
+    },
+    {
+      "name": "commit divergent update",
+      "pass": true
+    },
+    {
+      "name": "protected force push rejected",
+      "pass": true
+    },
+    {
+      "name": "read remote main",
+      "pass": true
+    },
+    {
+      "name": "rejected force push leaves ref unchanged",
+      "pass": true
+    },
+    {
+      "name": "one protected update rejects atomic push",
+      "pass": true
+    },
+    {
+      "name": "atomic rejection creates no side ref",
+      "pass": true
+    },
+    {
+      "name": "protected deletion rejected",
+      "pass": true
+    },
+    {
+      "name": "read remote main",
+      "pass": true
+    },
+    {
+      "name": "rejected deletion leaves ref unchanged",
+      "pass": true
+    },
+    {
+      "name": "update protection generation",
+      "pass": true
+    },
+    {
+      "name": "explicitly allowed force push",
+      "pass": true
+    },
+    {
+      "name": "read remote main",
+      "pass": true
+    },
+    {
+      "name": "more than 256 ref updates rejected",
+      "pass": true
+    },
+    {
+      "name": "oversized ref transaction creates no refs",
+      "pass": true
+    },
+    {
+      "name": "require live administrator role",
+      "pass": true
+    },
+    {
+      "name": "non-administrator cannot mutate protection",
+      "pass": true
+    },
+    {
+      "name": "commit after demotion",
+      "pass": true
+    },
+    {
+      "name": "role removal blocks in-flight credential",
+      "pass": true
+    },
+    {
+      "name": "read remote main",
+      "pass": true
+    },
+    {
+      "name": "role rejection leaves ref unchanged",
+      "pass": true
+    },
+    {
+      "name": "restored role permits push",
+      "pass": true
+    },
+    {
+      "name": "read remote main",
+      "pass": true
+    },
+    {
+      "name": "commit hook tamper probe",
+      "pass": true
+    },
+    {
+      "name": "runtime hook replacement rejected",
+      "pass": true
+    },
+    {
+      "name": "hook replacement cannot move ref",
+      "pass": true
+    },
+    {
+      "name": "push after exact hook restore",
+      "pass": true
+    },
+    {
+      "name": "generate user Ed25519 key",
+      "pass": true
+    },
+    {
+      "name": "generate SSH host key",
+      "pass": true
+    },
+    {
+      "name": "enroll Ed25519 key through account API",
+      "pass": true
+    },
+    {
+      "name": "SSH key listing omits public material",
+      "pass": true
+    },
+    {
+      "name": "malformed SSH wire key rejected",
+      "pass": true
+    },
+    {
+      "name": "non-Ed25519 SSH key rejected",
+      "pass": true
+    },
+    {
+      "name": "duplicate SSH key rejected",
+      "pass": true
+    },
+    {
+      "name": "authorized-key lookup succeeds",
+      "pass": true
+    },
+    {
+      "name": "authorized-key output is forced and restricted",
+      "pass": true
+    },
+    {
+      "name": "authorized-key output contains no runtime secrets",
+      "pass": true
+    },
+    {
+      "name": "malformed SSH fingerprint rejected",
+      "pass": true
+    },
+    {
+      "name": "group-writable SSH launcher rejected",
+      "pass": true
+    },
+    {
+      "name": "symlink SSH launcher rejected",
+      "pass": true
+    },
+    {
+      "name": "OpenSSH test configuration valid",
+      "pass": true
+    },
+    {
+      "name": "OpenSSH daemon starts",
+      "pass": true
+    },
+    {
+      "name": "reject hostile SSH command 1",
+      "pass": true
+    },
+    {
+      "name": "reject hostile SSH command 2",
+      "pass": true
+    },
+    {
+      "name": "reject hostile SSH command 3",
+      "pass": true
+    },
+    {
+      "name": "reject hostile SSH command 4",
+      "pass": true
+    },
+    {
+      "name": "reject hostile SSH command 5",
+      "pass": true
+    },
+    {
+      "name": "hostile SSH commands never execute",
+      "pass": true
+    },
+    {
+      "name": "unknown SSH key id rejected",
+      "pass": true
+    },
+    {
+      "name": "stock Git clone over OpenSSH",
+      "pass": true
+    },
+    {
+      "name": "SSH clone content exact",
+      "pass": true
+    },
+    {
+      "name": "configure SSH clone email",
+      "pass": true
+    },
+    {
+      "name": "configure SSH clone name",
+      "pass": true
+    },
+    {
+      "name": "commit SSH update",
+      "pass": true
+    },
+    {
+      "name": "stock Git push over OpenSSH",
+      "pass": true
+    },
+    {
+      "name": "stage streamed SSH object",
+      "pass": true
+    },
+    {
+      "name": "commit streamed SSH object",
+      "pass": true
+    },
+    {
+      "name": "push 8 MiB incompressible object over SSH",
+      "pass": true
+    },
+    {
+      "name": "clone 8 MiB incompressible object over SSH",
+      "pass": true
+    },
+    {
+      "name": "streamed SSH object exact",
+      "pass": true
+    },
+    {
+      "name": "SSH shell command rejected",
+      "pass": true
+    },
+    {
+      "name": "disabled account rejected inside SSH adapter",
+      "pass": true
+    },
+    {
+      "name": "revoke SSH key through account API",
+      "pass": true
+    },
+    {
+      "name": "revoked key denied inside forced adapter",
+      "pass": true
+    },
+    {
+      "name": "revoked key omitted from future authorization",
+      "pass": true
+    },
+    {
+      "name": "repository remains consistent",
+      "pass": true
+    }
+  ]
+}

@@ -17,10 +17,12 @@ pub(in crate::project) fn signature(name: &str) -> Option<Vec<Type>> {
     let text = Type::Text;
     Some(match name {
         "register" => vec![text.clone(), text.clone(), text.clone(), text],
-        "verify" | "resend" | "recover" | "invite" | "revoke_token" => vec![text],
-        "reset" | "change_password" => vec![text.clone(), text],
+        "verify" | "resend" | "recover" | "invite" | "revoke_token" | "revoke_ssh_key" => {
+            vec![text]
+        }
+        "reset" | "change_password" | "add_ssh_key" => vec![text.clone(), text],
         "disable" => vec![text, Type::Bool],
-        "logout_all" | "list_tokens" => vec![],
+        "logout_all" | "list_tokens" | "list_ssh_keys" => vec![],
         "create_token" => vec![
             text.clone(),
             Type::List(Box::new(text.clone())),
@@ -101,6 +103,12 @@ struct Create {
 #[serde(deny_unknown_fields)]
 struct Revoke {
     id: String,
+}
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct AddSshKey {
+    label: String,
+    public_key: String,
 }
 fn parse<T: serde::de::DeserializeOwned>(body: &[u8]) -> Result<T> {
     wire::strict_from_slice(body).map_err(|_| input("invalid account request shape"))
@@ -207,6 +215,19 @@ pub(in crate::project) fn dispatch(
         "revoke_token" => {
             let r: Revoke = parse(body)?;
             store.revoke_credential(user(principal)?, &r.id)?;
+        }
+        "add_ssh_key" => {
+            let r: AddSshKey = parse(body)?;
+            let id = store.add_ssh_key(user(principal)?, &r.label, &r.public_key)?;
+            value = json!({"value":id});
+        }
+        "list_ssh_keys" => {
+            empty(body)?;
+            value = json!({"value":store.list_ssh_keys(user(principal)?)?});
+        }
+        "revoke_ssh_key" => {
+            let r: Revoke = parse(body)?;
+            store.revoke_ssh_key(user(principal)?, &r.id)?;
         }
         _ => return Err(Error::Denied),
     }

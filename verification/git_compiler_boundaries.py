@@ -109,12 +109,43 @@ def main() -> None:
         results,
     )
     rejected(
+        "undeclared Git administration capability rejected",
+        lambda project: replace(
+            project / "diamond.toml",
+            ', "GitAdmin<repos>"',
+            "",
+        ),
+        "module host budget exceeds the application budget",
+        results,
+    )
+    rejected(
+        "non-boolean Git protection flag rejected",
+        lambda project: replace(
+            project / "server.dia",
+            'host.git_protect("repos", repository, reference, required_role, allow_force, allow_delete)',
+            'host.git_protect("repos", repository, reference, required_role, "yes", allow_delete)',
+        ),
+        "Git protection flags require Bool values",
+        results,
+    )
+    rejected(
         "Git write and database write cannot share a function",
         lambda project: (project / "server.dia").write_text(
             (project / "server.dia").read_text()
             + "\nexport fn unsafe_combined_effect(repository: Text) -> Result<Text, DataError>:\n"
             + "  let saved = repositories.create(NewRepository(label: \"unsafe\", public: false))?\n"
             + "  host.git_create(\"repos\", repository)\n"
+        ),
+        "Git writes cannot share application writes or explicit transactions",
+        results,
+    )
+    rejected(
+        "Git administration and database write cannot share a function",
+        lambda project: (project / "server.dia").write_text(
+            (project / "server.dia").read_text()
+            + "\nexport fn unsafe_admin_effect(repository: Text) -> Result<Text, DataError>:\n"
+            + "  let saved = repositories.create(NewRepository(label: \"unsafe\", public: false))?\n"
+            + "  host.git_protect(\"repos\", repository, \"refs/heads/main\", \"authenticated\", false, false)\n"
         ),
         "Git writes cannot share application writes or explicit transactions",
         results,

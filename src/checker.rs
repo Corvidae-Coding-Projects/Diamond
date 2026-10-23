@@ -1400,7 +1400,10 @@ impl<'a> Checker<'a> {
         if matches!(method, "secret" | "http_get" | "http_post") {
             return self.integration_call(method, args, types, location);
         }
-        if matches!(method, "git_create" | "git_query") {
+        if matches!(
+            method,
+            "git_create" | "git_query" | "git_protect" | "git_unprotect"
+        ) {
             return self.git_call(method, args, types, location);
         }
         if [

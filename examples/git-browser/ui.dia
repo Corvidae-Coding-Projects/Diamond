@@ -6,6 +6,9 @@ export component GitBrowser:
   state repository: Text = ""
   state current: GitHead = GitHead(reference: "", object: None)
   state credential: Text = ""
+  state ssh_label: Text = "workstation"
+  state ssh_key: Text = ""
+  state reference: Text = "refs/heads/main"
   state output: Text = "Sign in and register a repository."
 
   on sign_in:
@@ -32,6 +35,13 @@ export component GitBrowser:
   on create_credential:
     credential = session.create_token("Git client", ["git:repos:read", "git:repos:write"], "{\"repository\":[\"" + repository + "\"]}", 3600)
     output = "Copy the credential now; it is shown only once."
+  on add_ssh_key:
+    output = session.add_ssh_key(ssh_label, ssh_key)
+    ssh_key = ""
+  on protect:
+    output = rpc.protect_reference(repository, reference, "authenticated", false, false)
+  on unprotect:
+    output = rpc.unprotect_reference(repository, reference)
 
   html:
     <main>
@@ -53,6 +63,12 @@ export component GitBrowser:
         <button on-click={initialize}>Initialize Git</button>
         <button on-click={head}>Read HEAD</button>
         <button on-click={create_credential}>Create one-hour Git credential</button>
+        <label for="reference">Protected ref</label><input id="reference" bind-value={reference}>
+        <button on-click={protect}>Protect ref</button>
+        <button on-click={unprotect}>Remove protection</button>
+        <label for="ssh-label">SSH key label</label><input id="ssh-label" bind-value={ssh_label}>
+        <label for="ssh-key">Ed25519 public key</label><textarea id="ssh-key" bind-value={ssh_key}></textarea>
+        <button on-click={add_ssh_key}>Add SSH key</button>
         <p>Repository ID: {repository}</p>
         <p>Git username: diamond</p>
         <pre>{credential}</pre>

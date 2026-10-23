@@ -45,6 +45,12 @@ struct Route {
     service: Service,
 }
 
+struct BackendRequest {
+    peer: String,
+    content_type: Option<String>,
+    content_length: Option<u64>,
+}
+
 pub(super) async fn request(
     server: Arc<Server>,
     request: Request,
@@ -146,10 +152,13 @@ async fn request_inner(
         transport,
         route,
         request,
-        peer,
+        BackendRequest {
+            peer,
+            content_type,
+            content_length,
+        },
         permit,
-        content_type,
-        content_length,
+        &server.secrets.configuration,
     )
     .await
 }
@@ -158,10 +167,9 @@ async fn backend_response(
     transport: super::super::git::Transport,
     route: Route,
     request: Request,
-    peer: String,
+    backend: BackendRequest,
     permit: tokio::sync::OwnedSemaphorePermit,
-    content_type: Option<String>,
-    content_length: Option<u64>,
+    configuration: &str,
 ) -> Result<Response> {
     let mut command = Command::new(&transport.executable);
     command
@@ -191,7 +199,7 @@ async fn backend_response(
         )
         .env("QUERY_STRING", &route.query)
         .env("REQUEST_METHOD", request.method().as_str())
-        .env("REMOTE_ADDR", &peer)
+        .env("REMOTE_ADDR", &backend.peer)
         .env("SERVER_PROTOCOL", "HTTP/1.1")
         .env("LC_ALL", "C.UTF-8")
         .stdin(Stdio::piped())
@@ -199,12 +207,20 @@ async fn backend_response(
         .stderr(Stdio::piped())
         .kill_on_drop(true);
     if route.service.write() {
-        command.env("REMOTE_USER", "diamond");
+        let policy = super::super::git::policy_environment(&transport)?;
+        command
+            .env("REMOTE_USER", "diamond")
+            .env("DIAMOND_GIT_HOOK_MODE", "pre-receive")
+            .env("DIAMOND_GIT_STORE_ROOT", &transport.root)
+            .env("DIAMOND_GIT_EXECUTABLE", &transport.executable)
+            .env("DIAMOND_GIT_POLICY_DATABASE", configuration)
+            .env("DIAMOND_GIT_POLICY_CLAIM", policy.claim)
+            .env("DIAMOND_GIT_POLICY_SIGNATURE", policy.signature);
     }
-    if let Some(value) = content_type {
+    if let Some(value) = backend.content_type {
         command.env("CONTENT_TYPE", value);
     }
-    if let Some(value) = content_length {
+    if let Some(value) = backend.content_length {
         command.env("CONTENT_LENGTH", value.to_string());
     }
     if let Some(value) = one_header(&request, "git-protocol") {

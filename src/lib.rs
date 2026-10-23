@@ -41,6 +41,19 @@ use std::path::Path;
 /// Maximum accepted Diamond source size in UTF-8 bytes.
 pub const MAX_SOURCE_BYTES: usize = 1_048_576;
 
+/// Run the runtime-owned Git pre-receive entry point.
+///
+/// Git invokes this only through the private hook installed by
+/// [`CheckedProject::initialize_git`]. Direct calls fail closed.
+///
+/// # Errors
+/// Rejects an invalid invocation, claim, repository, account, protection rule,
+/// ref update, database connection, or ancestry check.
+#[doc(hidden)]
+pub fn run_git_pre_receive_hook() -> Result<(), Error> {
+    project::git::pre_receive_hook()
+}
+
 /// Parse and check a source program without executing it or opening a database.
 ///
 /// # Errors

@@ -3,7 +3,8 @@
 This example exercises Diamond's bounded Git adapter. Diamond code owns the
 repository record, authorization policy, RPC operations, and reactive interface.
 The runtime invokes one fixed Git executable against one private repository root;
-Diamond receives only bounded typed results.
+Diamond receives only bounded typed results. This slice also exposes exact
+protected refs and account-owned Ed25519 SSH keys.
 
 Create a canonical private Git root and supply it in the runtime grant:
 
@@ -48,3 +49,18 @@ git clone https://example.test/_diamond/git/repos/REPOSITORY_ID.git
 Credential operations are `git:repos:read` and `git:repos:write`; the required
 scope is `{"repository":["REPOSITORY_ID"]}`. Anonymous clones work only when
 the Diamond resource policy permits anonymous reads.
+
+Enter an exact ref such as `refs/heads/main` and use **Protect ref** to reject
+force-pushes and deletion while allowing authenticated fast-forward updates.
+The server function shows the complete `host.git_protect` signature if the
+application needs an administrator-only rule or explicitly allows force or
+delete. **Remove protection** calls `host.git_unprotect` for the same exact ref.
+
+Paste an OpenSSH Ed25519 `.pub` line into the SSH form. Diamond validates the
+wire encoding and returns an opaque key ID; it never accepts or stores a private
+key. Configure OpenSSH with `project-git-authorized-key` and the fixed
+`project-git-ssh` launcher described in the root README. Stock clients then use:
+
+```sh
+git clone ssh://git@example.test/repos/REPOSITORY_ID.git
+```

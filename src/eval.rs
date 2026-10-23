@@ -530,6 +530,38 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
         ))
     }
 
+    fn git_admin_call(&mut self, method: &str, values: &[Value]) -> Result<Value> {
+        let text = |index: usize| match values.get(index).map(|value| &value.0) {
+            Some(ValueKind::Text(value)) => Ok(value.as_str()),
+            _ => Err(Error::Denied),
+        };
+        let binding = text(0)?;
+        self.scope.require(&crate::authority::Effect::Host(format!(
+            "GitAdmin<{binding}>"
+        )))?;
+        let protected = method == "git_protect";
+        let flag = |index: usize| match values.get(index).map(|value| &value.0) {
+            Some(ValueKind::Bool(value)) => Ok(*value),
+            _ => Err(Error::Denied),
+        };
+        let request = crate::project::git::Protection {
+            binding,
+            repository: text(1)?,
+            reference: text(2)?,
+            required_role: if protected { text(3)? } else { "" },
+            allow_force: protected && flag(4)?,
+            allow_delete: protected && flag(5)?,
+            enabled: protected,
+        };
+        let state = crate::project::git::protect(
+            self.postgres.as_deref_mut().ok_or(Error::Denied)?,
+            self.scope,
+            self.integrations.ok_or(Error::Denied)?,
+            request,
+        );
+        Value::operation(state.map(|state| Value(ValueKind::Text(state))))
+    }
+
     fn git_call(
         &mut self,
         method: &str,
@@ -542,6 +574,9 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
             .iter()
             .map(|(_, value)| self.expr(value, locals))
             .collect::<Result<Vec<_>>>()?;
+        if matches!(method, "git_protect" | "git_unprotect") {
+            return self.git_admin_call(method, &values);
+        }
         let texts = values
             .iter()
             .take(if method == "git_create" { 2 } else { 5 })
@@ -637,7 +672,10 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
                         callee.location,
                     );
                 }
-                if matches!(method.as_str(), "git_create" | "git_query") {
+                if matches!(
+                    method.as_str(),
+                    "git_create" | "git_query" | "git_protect" | "git_unprotect"
+                ) {
                     return self.git_call(method, arguments, types, locals, callee.location);
                 }
                 let operation = crate::host::operation(method).ok_or(Error::Denied)?;

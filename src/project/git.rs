@@ -8,16 +8,24 @@ use crate::{
     hir::CheckedProgram,
     integrations::GitGrant,
 };
+use base64::Engine as _;
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 use std::{
     collections::{BTreeMap, BTreeSet},
+    fmt::Write as _,
     fs::{self, File, OpenOptions},
-    io::{Read, Write},
+    io::{self, Read, Write},
     path::{Path, PathBuf},
     process::{Command, Stdio},
+    sync::{
+        Arc,
+        atomic::{AtomicBool, Ordering},
+    },
     thread,
-    time::{Duration, Instant},
+    time::{Duration, Instant, SystemTime, UNIX_EPOCH},
 };
+use subtle::ConstantTimeEq as _;
 
 const MARKER: &str = ".diamond-git-store";
 const OUTPUT_LIMIT: usize = 4 * 1024 * 1024;
@@ -68,7 +76,8 @@ impl Config {
 }
 
 const SCHEMA: &str = "CREATE SCHEMA IF NOT EXISTS diamond_git;
-CREATE TABLE IF NOT EXISTS diamond_git.stores(app TEXT NOT NULL REFERENCES diamond_w2.apps(app), binding TEXT NOT NULL, shape TEXT NOT NULL, identity TEXT, PRIMARY KEY(app,binding));";
+CREATE TABLE IF NOT EXISTS diamond_git.stores(app TEXT NOT NULL REFERENCES diamond_w2.apps(app), binding TEXT NOT NULL, shape TEXT NOT NULL, identity TEXT, PRIMARY KEY(app,binding));
+CREATE TABLE IF NOT EXISTS diamond_git.protections(app TEXT NOT NULL, binding TEXT NOT NULL, repository TEXT NOT NULL, reference TEXT NOT NULL, required_role TEXT NOT NULL CHECK(required_role IN ('authenticated','account_admin')), allow_force BOOLEAN NOT NULL, allow_delete BOOLEAN NOT NULL, generation BIGINT NOT NULL DEFAULT 1 CHECK(generation>0), PRIMARY KEY(app,binding,repository,reference), FOREIGN KEY(app,binding) REFERENCES diamond_git.stores(app,binding));";
 
 pub(super) fn schema(store: &mut PostgresStore, config: &Config, initialize: bool) -> Result<()> {
     let shape = artifact::hash(&serde_json::to_vec(config).map_err(|_| Error::Denied)?);
@@ -165,13 +174,18 @@ impl Store {
         {
             return Err(input("Git store identity mismatch"));
         }
-        Ok(Self {
+        let store = Self {
             root: grant.root.clone(),
             executable: grant.executable.clone(),
             identity,
             app: database.app.clone(),
             binding: binding.into(),
-        })
+        };
+        if initialize {
+            store.install_hook()?;
+        }
+        store.verify()?;
+        Ok(store)
     }
 
     fn verify(&self) -> Result<()> {
@@ -180,6 +194,37 @@ impl Store {
         if store_identity(&self.root.join(MARKER))? != self.identity {
             return Err(input("Git store identity changed"));
         }
+        validate_hook(&self.root)?;
+        Ok(())
+    }
+
+    fn hook_path(&self) -> PathBuf {
+        self.root.join(".diamond-hooks")
+    }
+
+    fn install_hook(&self) -> Result<()> {
+        let directory = self.hook_path();
+        if !directory.exists() {
+            let mut builder = fs::DirBuilder::new();
+            #[cfg(unix)]
+            {
+                use std::os::unix::fs::DirBuilderExt;
+                builder.mode(0o700);
+            }
+            builder.create(&directory)?;
+        }
+        private_directory(&directory)?;
+        let temporary = directory.join(format!(".pre-receive-{}", crate::authority::random_hex()?));
+        let mut output = options().write(true).create_new(true).open(&temporary)?;
+        output.write_all(hook_source()?.as_bytes())?;
+        output.sync_all()?;
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            fs::set_permissions(&temporary, fs::Permissions::from_mode(0o500))?;
+        }
+        fs::rename(&temporary, directory.join("pre-receive"))?;
+        File::open(&directory)?.sync_all()?;
         Ok(())
     }
 
@@ -222,8 +267,12 @@ impl Store {
             Err(error) => return Err(error.into()),
         };
         for (key, value) in [
-            ("core.hooksPath", PathBuf::from("/dev/null")),
+            ("core.hooksPath", self.hook_path()),
             ("receive.fsckObjects", PathBuf::from("true")),
+            (
+                "receive.maxInputSize",
+                PathBuf::from(MAX_TRANSPORT_BYTES.to_string()),
+            ),
             ("transfer.fsckObjects", PathBuf::from("true")),
             ("uploadpack.allowFilter", PathBuf::from("true")),
             ("receive.advertisePushOptions", PathBuf::from("true")),
@@ -263,6 +312,8 @@ impl Store {
 
     fn require_repository(&self, path: &Path) -> Result<()> {
         self.require_bare(path)?;
+        let hook_path = self.hook_path();
+        let hook_path = hook_path.to_str().ok_or(Error::Denied)?;
         let output = self.run(
             &[
                 "--git-dir".into(),
@@ -290,12 +341,13 @@ impl Store {
                 return Err(Error::Denied);
             }
         }
-        if settings.len() != 8
+        if settings.len() != 9
             || settings.get("core.repositoryformatversion") != Some(&"0")
             || !matches!(settings.get("core.filemode"), Some(&"true" | &"false"))
             || settings.get("core.bare") != Some(&"true")
-            || settings.get("core.hookspath") != Some(&"/dev/null")
+            || settings.get("core.hookspath") != Some(&hook_path)
             || settings.get("receive.fsckobjects") != Some(&"true")
+            || settings.get("receive.maxinputsize") != Some(&"1073741824")
             || settings.get("transfer.fsckobjects") != Some(&"true")
             || settings.get("uploadpack.allowfilter") != Some(&"true")
             || settings.get("receive.advertisepushoptions") != Some(&"true")
@@ -608,6 +660,11 @@ pub(super) struct Transport {
     pub(super) executable: PathBuf,
     pub(super) root: PathBuf,
     pub(super) repository: String,
+    pub(super) repository_id: String,
+    pub(super) identity: String,
+    pub(super) app: String,
+    pub(super) binding: String,
+    pub(super) actor: String,
 }
 
 #[derive(Clone, Copy)]
@@ -731,9 +788,574 @@ pub(super) fn authorize_transport(
             executable: store.executable,
             root: store.root,
             repository,
+            repository_id: request.repository.to_owned(),
+            identity: store.identity,
+            app: store.app,
+            binding: store.binding,
+            actor: principal.id().unwrap_or_default().to_owned(),
         })
     })();
     database.finish_request(result)
+}
+
+pub(super) fn authorized_ssh_key(
+    project: &CheckedProject,
+    configuration: &str,
+    fingerprint: &str,
+) -> Result<(String, String)> {
+    let mut database = PostgresStore::open_control(project, configuration, None)?;
+    let result = database
+        .ssh_key_by_fingerprint(fingerprint)
+        .map(|key| (key.id, key.public_key));
+    database.finish_request(result)
+}
+
+fn authorize_ssh_transport(
+    project: &CheckedProject,
+    configuration: &str,
+    grants: &crate::RuntimeGrants,
+    key_id: &str,
+    binding: &str,
+    repository: &str,
+    write: bool,
+) -> Result<Transport> {
+    let mut database = PostgresStore::open_control(project, configuration, None)?;
+    let result = (|| {
+        let config = project
+            .manifest
+            .git
+            .as_ref()
+            .and_then(|git| git.bindings.get(binding))
+            .ok_or(Error::Denied)?;
+        let grant = database.ssh_grant(key_id)?;
+        let mut effects = BTreeSet::from([Effect::Read(config.resource.clone())]);
+        if write {
+            effects.insert(Effect::Write(config.resource.clone()));
+        }
+        let scope = Scope::new(&grant.principal, &effects);
+        database.attachment(&scope, &config.resource, repository, write)?;
+        let store = Store::open(&mut database, grants, binding, false)?;
+        let path = store.repository_path(repository)?;
+        if path.canonicalize()? != path {
+            return Err(Error::Denied);
+        }
+        store.require_repository(&path)?;
+        let repository_file = path
+            .file_name()
+            .and_then(std::ffi::OsStr::to_str)
+            .ok_or(Error::Denied)?
+            .to_owned();
+        Ok(Transport {
+            executable: store.executable,
+            root: store.root,
+            repository: repository_file,
+            repository_id: repository.to_owned(),
+            identity: store.identity,
+            app: store.app,
+            binding: store.binding,
+            actor: grant
+                .principal
+                .id()
+                .ok_or(Error::Unauthenticated)?
+                .to_owned(),
+        })
+    })();
+    database.finish_request(result)
+}
+
+pub(super) fn run_ssh(
+    project: &CheckedProject,
+    configuration: &str,
+    grants: &crate::RuntimeGrants,
+    key_id: &str,
+    original_command: &str,
+) -> Result<()> {
+    let (service, binding, repository, write) = parse_ssh_command(original_command)?;
+    let transport = authorize_ssh_transport(
+        project,
+        configuration,
+        grants,
+        key_id,
+        binding,
+        repository,
+        write,
+    )?;
+    let protocol = std::env::var("GIT_PROTOCOL")
+        .ok()
+        .filter(|value| value == "version=2");
+    let mut command = Command::new(&transport.executable);
+    command
+        .args([
+            "-c",
+            "protocol.file.allow=never",
+            "-c",
+            "core.askPass=",
+            "-c",
+            "credential.helper=",
+            "-c",
+            "pack.threads=1",
+            "-c",
+            "core.deltaBaseCacheLimit=16777216",
+            service,
+        ])
+        .arg(transport.root.join(&transport.repository))
+        .env_clear()
+        .env("HOME", &transport.root)
+        .env("GIT_CONFIG_GLOBAL", "/dev/null")
+        .env("GIT_CONFIG_NOSYSTEM", "1")
+        .env("GIT_TERMINAL_PROMPT", "0")
+        .env("LC_ALL", "C.UTF-8")
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::inherit());
+    if let Some(protocol) = protocol {
+        command.env("GIT_PROTOCOL", protocol);
+    }
+    if write {
+        let policy = policy_environment(&transport)?;
+        command
+            .env("DIAMOND_GIT_HOOK_MODE", "pre-receive")
+            .env("DIAMOND_GIT_STORE_ROOT", &transport.root)
+            .env("DIAMOND_GIT_EXECUTABLE", &transport.executable)
+            .env("DIAMOND_GIT_POLICY_DATABASE", configuration)
+            .env("DIAMOND_GIT_POLICY_CLAIM", policy.claim)
+            .env("DIAMOND_GIT_POLICY_SIGNATURE", policy.signature);
+    }
+    let mut child = command.spawn().map_err(|_| git_failure())?;
+    let child_input = child.stdin.take().ok_or_else(git_failure)?;
+    let child_output = child.stdout.take().ok_or_else(git_failure)?;
+    let failed = Arc::new(AtomicBool::new(false));
+    let input_failed = Arc::clone(&failed);
+    let _input = thread::spawn(move || {
+        if copy_transport(std::io::stdin(), child_input, MAX_TRANSPORT_BYTES).is_err() {
+            input_failed.store(true, Ordering::Relaxed);
+        }
+    });
+    let output_failed = Arc::clone(&failed);
+    let output = thread::spawn(move || {
+        let result = copy_transport(child_output, std::io::stdout(), MAX_TRANSPORT_BYTES);
+        if result.is_err() {
+            output_failed.store(true, Ordering::Relaxed);
+        }
+        result
+    });
+    let deadline = Instant::now() + Duration::from_mins(15);
+    loop {
+        if let Some(status) = child.try_wait().map_err(|_| git_failure())? {
+            let output_ok = output.join().is_ok_and(|result| result.is_ok());
+            return if status.success() && output_ok && !failed.load(Ordering::Relaxed) {
+                Ok(())
+            } else {
+                Err(git_failure())
+            };
+        }
+        if failed.load(Ordering::Relaxed) || Instant::now() >= deadline {
+            let _killed = child.kill();
+            let _waited = child.wait();
+            return Err(Error::Limit("Git SSH transport budget"));
+        }
+        thread::sleep(Duration::from_millis(10));
+    }
+}
+
+fn copy_transport(mut input: impl Read, mut output: impl Write, maximum: u64) -> io::Result<()> {
+    let mut total = 0_u64;
+    let mut buffer = vec![0_u8; 65_536].into_boxed_slice();
+    loop {
+        let count = input.read(&mut buffer)?;
+        if count == 0 {
+            return output.flush();
+        }
+        total = total.saturating_add(u64::try_from(count).unwrap_or(u64::MAX));
+        if total > maximum {
+            return Err(io::Error::other("Git SSH transfer limit"));
+        }
+        output.write_all(&buffer[..count])?;
+        output.flush()?;
+    }
+}
+
+fn parse_ssh_command(command: &str) -> Result<(&str, &str, &str, bool)> {
+    if command.is_empty()
+        || command.len() > 512
+        || command.bytes().any(|byte| byte.is_ascii_control())
+    {
+        return Err(Error::Denied);
+    }
+    let (requested, argument) = command.split_once(' ').ok_or(Error::Denied)?;
+    let (service, write) = match requested {
+        "git-upload-pack" => ("upload-pack", false),
+        "git-receive-pack" => ("receive-pack", true),
+        _ => return Err(Error::Denied),
+    };
+    let path = argument
+        .strip_prefix('\'')
+        .and_then(|value| value.strip_suffix('\''))
+        .ok_or(Error::Denied)?
+        .strip_prefix('/')
+        .unwrap_or_else(|| &argument[1..argument.len() - 1]);
+    if path.contains(['\'', '\\', ' ']) || path.matches('/').count() != 1 {
+        return Err(Error::Denied);
+    }
+    let (binding, repository) = path.split_once('/').ok_or(Error::Denied)?;
+    let repository = repository.strip_suffix(".git").ok_or(Error::Denied)?;
+    if !super::resolve::identifier(binding) || !crate::auth::valid_id(repository) {
+        return Err(Error::Denied);
+    }
+    Ok((service, binding, repository, write))
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct PolicyClaim {
+    version: u32,
+    app: String,
+    binding: String,
+    repository: String,
+    actor: String,
+    nonce: String,
+    expires: u64,
+}
+
+pub(super) struct PolicyEnvironment {
+    pub(super) claim: String,
+    pub(super) signature: String,
+}
+
+pub(super) fn policy_environment(transport: &Transport) -> Result<PolicyEnvironment> {
+    if transport.actor.is_empty() {
+        return Err(Error::Unauthenticated);
+    }
+    let claim = PolicyClaim {
+        version: 1,
+        app: transport.app.clone(),
+        binding: transport.binding.clone(),
+        repository: transport.repository_id.clone(),
+        actor: transport.actor.clone(),
+        nonce: crate::authority::random_hex()?,
+        expires: unix_time()?.saturating_add(20 * 60),
+    };
+    let bytes = serde_json::to_vec(&claim).map_err(|_| Error::Denied)?;
+    let claim = base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(bytes);
+    let signature = hmac_hex(transport.identity.as_bytes(), claim.as_bytes());
+    Ok(PolicyEnvironment { claim, signature })
+}
+
+#[derive(Clone, Copy, Debug)]
+pub(crate) struct Protection<'a> {
+    pub(crate) binding: &'a str,
+    pub(crate) repository: &'a str,
+    pub(crate) reference: &'a str,
+    pub(crate) required_role: &'a str,
+    pub(crate) allow_force: bool,
+    pub(crate) allow_delete: bool,
+    pub(crate) enabled: bool,
+}
+
+pub(crate) fn protect(
+    database: &mut PostgresStore,
+    scope: &Scope<'_>,
+    grants: &crate::RuntimeGrants,
+    request: Protection<'_>,
+) -> Result<String> {
+    if !scope.principal().has_role("account_admin")
+        || !matches!(
+            request.required_role,
+            "" | "authenticated" | "account_admin"
+        )
+    {
+        return Err(Error::Denied);
+    }
+    valid_reference(request.reference)?;
+    let config = database
+        .git
+        .as_ref()
+        .and_then(|git| git.bindings.get(request.binding))
+        .cloned()
+        .ok_or(Error::Denied)?;
+    let effects = BTreeSet::from([
+        Effect::Read(config.resource.clone()),
+        Effect::Write(config.resource.clone()),
+    ]);
+    let adapter_scope = Scope::new(scope.principal(), &effects);
+    database.attachment(&adapter_scope, &config.resource, request.repository, true)?;
+    let store = Store::open(database, grants, request.binding, false)?;
+    let path = store.repository_path(request.repository)?;
+    if path.canonicalize()? != path {
+        return Err(Error::Denied);
+    }
+    store.require_repository(&path)?;
+    if request.enabled {
+        database.connection.query(
+            "INSERT INTO diamond_git.protections(app,binding,repository,reference,required_role,allow_force,allow_delete) VALUES($1,$2,$3,$4,$5,$6,$7) ON CONFLICT(app,binding,repository,reference) DO UPDATE SET required_role=EXCLUDED.required_role,allow_force=EXCLUDED.allow_force,allow_delete=EXCLUDED.allow_delete,generation=diamond_git.protections.generation+1",
+            &[&database.app, &request.binding, &request.repository, &request.reference, &request.required_role, &request.allow_force, &request.allow_delete],
+        )?;
+        Ok("protected".into())
+    } else {
+        let rows = database.connection.query(
+            "DELETE FROM diamond_git.protections WHERE app=$1 AND binding=$2 AND repository=$3 AND reference=$4 RETURNING reference",
+            &[&database.app, &request.binding, &request.repository, &request.reference],
+        )?;
+        if rows.len() != 1 {
+            return Err(Error::Denied);
+        }
+        Ok("unprotected".into())
+    }
+}
+
+pub(crate) fn pre_receive_hook() -> Result<()> {
+    if std::env::var("DIAMOND_GIT_HOOK_MODE").as_deref() != Ok("pre-receive") {
+        return Err(Error::Denied);
+    }
+    let root = PathBuf::from(required_environment("DIAMOND_GIT_STORE_ROOT")?);
+    private_directory(&root)?;
+    let identity = store_identity(&root.join(MARKER))?;
+    let encoded = required_environment("DIAMOND_GIT_POLICY_CLAIM")?;
+    let signature = required_environment("DIAMOND_GIT_POLICY_SIGNATURE")?;
+    let expected = hmac_hex(identity.as_bytes(), encoded.as_bytes());
+    if signature.len() != expected.len()
+        || !bool::from(signature.as_bytes().ct_eq(expected.as_bytes()))
+    {
+        return Err(Error::Denied);
+    }
+    let claim_bytes = base64::engine::general_purpose::URL_SAFE_NO_PAD
+        .decode(encoded)
+        .map_err(|_| Error::Denied)?;
+    if claim_bytes.len() > 2048 {
+        return Err(Error::Denied);
+    }
+    let claim: PolicyClaim =
+        super::wire::strict_from_slice(&claim_bytes).map_err(|_| Error::Denied)?;
+    let now = unix_time()?;
+    if claim.version != 1
+        || !valid_app(&claim.app)
+        || !super::resolve::identifier(&claim.binding)
+        || !crate::auth::valid_id(&claim.repository)
+        || !valid_actor(&claim.actor)
+        || !valid_identity(&claim.nonce)
+        || now > claim.expires
+        || claim.expires.saturating_sub(now) > 20 * 60
+    {
+        return Err(Error::Denied);
+    }
+    let repository = root.join(format!(
+        "{}-{}-{}.git",
+        claim.app, claim.binding, claim.repository
+    ));
+    if std::env::current_dir()?.canonicalize()? != repository.canonicalize()? {
+        return Err(Error::Denied);
+    }
+    let updates = read_updates(std::io::stdin().lock())?;
+    let configuration =
+        zeroize::Zeroizing::new(required_environment("DIAMOND_GIT_POLICY_DATABASE")?);
+    enforce_updates(&configuration, &claim, &updates)
+}
+
+#[derive(Debug)]
+struct RefUpdate {
+    old: String,
+    new: String,
+    reference: String,
+}
+
+fn read_updates(reader: impl Read) -> Result<Vec<RefUpdate>> {
+    let mut bytes = Vec::new();
+    reader.take(512 * 1024 + 1).read_to_end(&mut bytes)?;
+    if bytes.is_empty() || bytes.len() > 512 * 1024 || !bytes.ends_with(b"\n") {
+        return Err(Error::Denied);
+    }
+    let text = std::str::from_utf8(&bytes).map_err(|_| Error::Denied)?;
+    let mut updates = Vec::new();
+    for line in text.lines() {
+        if updates.len() >= 256 {
+            return Err(Error::Limit("Git ref updates"));
+        }
+        let mut fields = line.split(' ');
+        let old = fields.next().ok_or(Error::Denied)?;
+        let new = fields.next().ok_or(Error::Denied)?;
+        let reference = fields.next().ok_or(Error::Denied)?;
+        if fields.next().is_some() || !valid_oid(old) || !valid_oid(new) || old.len() != new.len() {
+            return Err(Error::Denied);
+        }
+        valid_reference(reference)?;
+        updates.push(RefUpdate {
+            old: old.into(),
+            new: new.into(),
+            reference: reference.into(),
+        });
+    }
+    Ok(updates)
+}
+
+fn enforce_updates(configuration: &str, claim: &PolicyClaim, updates: &[RefUpdate]) -> Result<()> {
+    let mut database = crate::host::HostRuntime::connect(configuration)?;
+    let users = database.query(
+        "SELECT administrator FROM diamond_identity.users WHERE app=$1 AND username=$2 AND verified AND NOT disabled",
+        &[&claim.app, &claim.actor],
+    )?;
+    if users.len() != 1 {
+        return Err(Error::Denied);
+    }
+    let administrator = users[0].try_get::<_, bool>(0).map_err(|_| Error::Denied)?;
+    let rows = database.query(
+        "SELECT reference,required_role,allow_force,allow_delete FROM diamond_git.protections WHERE app=$1 AND binding=$2 AND repository=$3 ORDER BY reference LIMIT 257",
+        &[&claim.app, &claim.binding, &claim.repository],
+    )?;
+    if rows.len() > 256 {
+        return Err(Error::Limit("Git protection rules"));
+    }
+    let mut rules = BTreeMap::new();
+    for row in rows {
+        let reference: String = row.try_get(0).map_err(|_| Error::Denied)?;
+        valid_reference(&reference)?;
+        if rules
+            .insert(
+                reference,
+                (
+                    row.try_get::<_, String>(1).map_err(|_| Error::Denied)?,
+                    row.try_get::<_, bool>(2).map_err(|_| Error::Denied)?,
+                    row.try_get::<_, bool>(3).map_err(|_| Error::Denied)?,
+                ),
+            )
+            .is_some()
+        {
+            return Err(Error::Denied);
+        }
+    }
+    let zero = |object: &str| object.bytes().all(|byte| byte == b'0');
+    for update in updates {
+        let Some((role, allow_force, allow_delete)) = rules.get(&update.reference) else {
+            continue;
+        };
+        if role == "account_admin" && !administrator {
+            return Err(Error::Denied);
+        }
+        if !matches!(role.as_str(), "authenticated" | "account_admin") {
+            return Err(Error::Denied);
+        }
+        if zero(&update.new) {
+            if !allow_delete {
+                return Err(Error::Denied);
+            }
+        } else if !zero(&update.old) && !allow_force && !is_ancestor(&update.old, &update.new)? {
+            return Err(Error::Denied);
+        }
+    }
+    Ok(())
+}
+
+fn is_ancestor(old: &str, new: &str) -> Result<bool> {
+    let git_executable = PathBuf::from(required_environment("DIAMOND_GIT_EXECUTABLE")?);
+    executable(&git_executable)?;
+    let mut command = Command::new(git_executable);
+    command
+        .args(["merge-base", "--is-ancestor", old, new])
+        .stdin(Stdio::null())
+        .stdout(Stdio::null())
+        .stderr(Stdio::null());
+    let mut child = command.spawn().map_err(|_| git_failure())?;
+    let deadline = Instant::now() + COMMAND_DEADLINE;
+    loop {
+        if let Some(status) = child.try_wait().map_err(|_| git_failure())? {
+            return match status.code() {
+                Some(0) => Ok(true),
+                Some(1) => Ok(false),
+                _ => Err(git_failure()),
+            };
+        }
+        if Instant::now() >= deadline {
+            let _killed = child.kill();
+            let _waited = child.wait();
+            return Err(Error::Limit("Git protection ancestry deadline"));
+        }
+        thread::sleep(Duration::from_millis(5));
+    }
+}
+
+fn valid_reference(value: &str) -> Result<()> {
+    if value.len() > 255
+        || (!value.starts_with("refs/heads/") && !value.starts_with("refs/tags/"))
+        || value.ends_with(['/', '.'])
+        || value.contains("..")
+        || value.contains("@{")
+        || value.contains(".lock/")
+        || value
+            .rsplit_once('.')
+            .is_some_and(|(_, extension)| extension.eq_ignore_ascii_case("lock"))
+        || value
+            .split('/')
+            .any(|part| part.is_empty() || part.starts_with('.'))
+        || value.bytes().any(|byte| {
+            byte.is_ascii_control()
+                || byte == b' '
+                || [b'~', b'^', b':', b'?', b'*', b'[', b'\\'].contains(&byte)
+        })
+    {
+        return Err(Error::Denied);
+    }
+    Ok(())
+}
+
+fn valid_actor(value: &str) -> bool {
+    !value.is_empty()
+        && value.len() <= 128
+        && value
+            .bytes()
+            .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'-' | b'_'))
+}
+
+fn valid_app(value: &str) -> bool {
+    !value.is_empty()
+        && value.len() <= 256
+        && !value.starts_with('.')
+        && value
+            .bytes()
+            .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'-' | b'_' | b'.'))
+}
+
+fn required_environment(name: &str) -> Result<String> {
+    let value = std::env::var(name).map_err(|_| Error::Denied)?;
+    if value.is_empty() || value.len() > 16_384 || value.bytes().any(|byte| byte == 0) {
+        return Err(Error::Denied);
+    }
+    Ok(value)
+}
+
+fn unix_time() -> Result<u64> {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|duration| duration.as_secs())
+        .map_err(|_| Error::Denied)
+}
+
+fn hmac_hex(key: &[u8], message: &[u8]) -> String {
+    let mut normalized = [0_u8; 64];
+    if key.len() > normalized.len() {
+        normalized[..32].copy_from_slice(&Sha256::digest(key));
+    } else {
+        normalized[..key.len()].copy_from_slice(key);
+    }
+    let mut inner_key = normalized;
+    let mut outer_key = normalized;
+    for byte in &mut inner_key {
+        *byte ^= 0x36;
+    }
+    for byte in &mut outer_key {
+        *byte ^= 0x5c;
+    }
+    let mut inner = Sha256::new();
+    inner.update(inner_key);
+    inner.update(message);
+    let inner = inner.finalize();
+    let mut outer = Sha256::new();
+    outer.update(outer_key);
+    outer.update(inner);
+    let digest = outer.finalize();
+    let mut encoded = String::with_capacity(64);
+    for byte in digest {
+        let _written = write!(encoded, "{byte:02x}");
+    }
+    encoded
 }
 
 pub(super) fn validate(
@@ -847,6 +1469,48 @@ fn executable(path: &Path) -> Result<()> {
     Ok(())
 }
 
+fn validate_hook(root: &Path) -> Result<()> {
+    let directory = root.join(".diamond-hooks");
+    private_directory(&directory)?;
+    let hook = directory.join("pre-receive");
+    let metadata = fs::symlink_metadata(&hook)?;
+    if !metadata.is_file() || hook.canonicalize()? != hook {
+        return Err(input("Git policy hook must be a canonical regular file"));
+    }
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::MetadataExt;
+        if metadata.mode() & 0o777 != 0o500 || metadata.uid() != fs::metadata("/proc/self")?.uid() {
+            return Err(input(
+                "Git policy hook must be process-owned with mode 0500",
+            ));
+        }
+    }
+    let mut actual = String::new();
+    options()
+        .read(true)
+        .open(&hook)?
+        .take(4097)
+        .read_to_string(&mut actual)?;
+    if actual.len() > 4096 || actual != hook_source()? {
+        return Err(input(
+            "Git policy hook does not match this Diamond executable; initialize Git again",
+        ));
+    }
+    Ok(())
+}
+
+fn hook_source() -> Result<String> {
+    let executable_path = std::env::current_exe()?.canonicalize()?;
+    executable(&executable_path)?;
+    let executable_path = executable_path.to_str().ok_or(Error::Denied)?;
+    if executable_path.chars().any(char::is_control) {
+        return Err(Error::Denied);
+    }
+    let quoted = executable_path.replace('\'', "'\\''");
+    Ok(format!("#!/bin/sh\nexec '{quoted}' \"$@\"\n"))
+}
+
 fn store_identity(marker: &Path) -> Result<String> {
     let mut file = options().read(true).open(marker)?;
     let metadata = file.metadata()?;
@@ -950,12 +1614,12 @@ pub(super) fn contracts() -> serde_json::Value {
     serde_json::json!({
         "target":"server",
         "native_grant":"git-v1 private repository root and fixed Git executable bound to PostgreSQL identity",
-        "operations":["create","head","tree","blob","history","diff"],
-        "effects":"binding-specific GitRead/GitWrite plus current repository resource policy",
+        "operations":["create","head","tree","blob","history","diff","protect","unprotect","smart-http","forced-command-ssh"],
+        "effects":"binding-specific GitRead/GitWrite/GitAdmin plus current repository resource policy",
         "maximum_blob_preview_bytes":BLOB_LIMIT,
         "maximum_output_bytes":OUTPUT_LIMIT,
         "command_deadline_ms":COMMAND_DEADLINE.as_millis(),
-        "process":"fixed Git executable and arguments, no shell, cleared environment, disabled credentials and file protocol",
+        "process":"fixed Git executable and arguments, no client-controlled shell, cleared environment, disabled credentials and file protocol, runtime-owned pre-receive hook",
         "transaction":"repository reads are external to PostgreSQL; create is idempotent and requires an existing authorized repository record",
         "replay":"no automatic replay",
         "failure":"redacted policy, validation, resource, repository or Git failure"

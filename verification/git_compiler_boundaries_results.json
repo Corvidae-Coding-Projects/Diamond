@@ -1,7 +1,7 @@
 {
   "profile": "Diamond Git and OAuth compiler boundaries",
-  "passed": 9,
-  "total": 9,
+  "passed": 12,
+  "total": 12,
   "results": [
     {
       "name": "reference Git project accepted",
@@ -28,7 +28,19 @@
       "pass": true
     },
     {
+      "name": "undeclared Git administration capability rejected",
+      "pass": true
+    },
+    {
+      "name": "non-boolean Git protection flag rejected",
+      "pass": true
+    },
+    {
       "name": "Git write and database write cannot share a function",
+      "pass": true
+    },
+    {
+      "name": "Git administration and database write cannot share a function",
       "pass": true
     },
     {

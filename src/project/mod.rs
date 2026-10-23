@@ -566,6 +566,42 @@ impl CheckedProject {
         synchronous_context()?;
         git::initialize(self, configuration, grants)
     }
+
+    /// Resolve an active enrolled SSH key for an OpenSSH authorized-keys command.
+    ///
+    /// The returned pair contains the opaque key identifier and canonical public
+    /// key. Callers must bind the identifier into a forced command and prevent
+    /// shells, forwarding, agents, port forwarding, and terminals.
+    ///
+    /// # Errors
+    /// Rejects unknown, revoked, stale, disabled, malformed, or ambiguous keys,
+    /// incompatible account state, and database failures.
+    #[doc(hidden)]
+    pub fn git_ssh_authorized_key(
+        &self,
+        configuration: &str,
+        fingerprint: &str,
+    ) -> Result<(String, String)> {
+        synchronous_context()?;
+        git::authorized_ssh_key(self, configuration, fingerprint)
+    }
+
+    /// Run one forced-command Git SSH session through the bounded adapter.
+    ///
+    /// # Errors
+    /// Rejects inactive keys, unauthorized repositories, unsupported command
+    /// grammar, unsafe runtime grants, policy failures, and process limits.
+    #[doc(hidden)]
+    pub fn run_git_ssh(
+        &self,
+        configuration: &str,
+        grants: &crate::RuntimeGrants,
+        key_id: &str,
+        original_command: &str,
+    ) -> Result<()> {
+        synchronous_context()?;
+        git::run_ssh(self, configuration, grants, key_id, original_command)
+    }
 }
 
 fn synchronous_context() -> Result<()> {
@@ -938,7 +974,7 @@ fn check_effect_boundaries(server: &CheckedProgram) -> Result<()> {
         let git_write = function
             .effects
             .iter()
-            .any(|effect| matches!(effect, Effect::Host(name) if name.starts_with("GitWrite<")));
+            .any(|effect| matches!(effect, Effect::Host(name) if name.starts_with("GitWrite<") || name.starts_with("GitAdmin<")));
         if git_write
             && (function.opens_transaction
                 || function
@@ -999,7 +1035,7 @@ fn capability_effect(name: &str) -> Result<Effect> {
     if ["PostgresRead", "Jobs", "Events", "JobKey"].contains(&name) {
         return Ok(Effect::Host(name.into()));
     }
-    if ["GitRead<", "GitWrite<"].iter().any(|prefix| {
+    if ["GitRead<", "GitWrite<", "GitAdmin<"].iter().any(|prefix| {
         name.strip_prefix(prefix)
             .and_then(|value| value.strip_suffix('>'))
             .is_some_and(resolve::identifier)

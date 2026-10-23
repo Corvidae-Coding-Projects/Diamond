@@ -7,6 +7,7 @@ mod rates;
 mod routes;
 mod schema;
 mod sessions;
+mod ssh;
 
 use super::input;
 pub(super) use crate::authority::Restrictions;

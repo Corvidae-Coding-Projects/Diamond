@@ -76,13 +76,13 @@ try:
     check('second user provision',r.returncode==0,(r.stdout+r.stderr)[-1000:])
     lf=open(LOG,'wb')
     server=subprocess.Popen([str(BIN),'serve','examples/git-browser/diamond.toml','--listen',f'127.0.0.1:{port}','--origin',f'http://127.0.0.1:{port}','--postgres-env','DIAMOND_POSTGRES','--runtime-env','DIAMOND_RUNTIME','--identity-mailbox',str(MAIL)],cwd=ROOT,env=env,stdout=lf,stderr=subprocess.STDOUT)
-    for _ in range(100):
+    for _ in range(600):
         try:
             st,_,_=req('GET','/');
             if st==200: break
         except Exception: pass
         time.sleep(.05)
-    else: raise AssertionError('server did not start')
+    else: raise AssertionError('server did not start poll='+str(server.poll())+': '+LOG.read_text(errors='replace')[-2000:])
     st,_,html=req('GET','/')
     html=html.decode() if isinstance(html,bytes) else str(html)
     contract=re.search(r'data-contract="([0-9a-f]{64})"',html).group(1)

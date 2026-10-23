@@ -329,7 +329,7 @@ Git configuration access.
 
 ```toml
 provides = ["DbRead<Repositories>", "DbWrite<Repositories>",
-            "GitRead<repos>", "GitWrite<repos>"]
+            "GitRead<repos>", "GitWrite<repos>", "GitAdmin<repos>"]
 
 [git]
 profile = "git-v1"
@@ -347,12 +347,23 @@ export fn initialize(repository: Text) -> Result<Text, DataError>:
 
 export fn tree(repository: Text, revision: Text, path: Text) -> Result<GitTree, DataError>:
   host.git_query<GitTree>("repos", repository, "tree", revision, path, 100)
+
+export fn protect(repository: Text) -> Result<Text, DataError>:
+  host.git_protect("repos", repository, "refs/heads/main", "account_admin", false, false)
 ```
 
 Available read operations are `head`, `tree`, `blob`, `history`, and `diff`.
 The binding and operation are static so the checker can preserve authority.
 Repository creation is kept separate from application database writes because
 Git and PostgreSQL cannot share a transaction.
+
+`git_protect` installs or updates one exact `refs/heads/...` or `refs/tags/...`
+rule. The required role is `authenticated` or `account_admin`; the two Boolean
+arguments control non-fast-forward updates and deletion. `git_unprotect`
+removes an exact rule. Both operations require `GitAdmin<binding>`, an account
+administrator, and write access to the repository resource. Every HTTPS and SSH
+push crosses the same runtime-owned pre-receive controller. A missing, changed,
+or unavailable controller rejects the complete ref transaction.
 
 Initialize the Git store after the PostgreSQL schema:
 
@@ -369,6 +380,42 @@ Stock Git clients use the smart HTTP route
 policy. Push and private read use a `dia_...` credential scoped to the repository
 and `git:repos:read` or `git:repos:write`; the fixed Basic username is
 `diamond`.
+
+Users enroll an OpenSSH Ed25519 public key with
+`session.add_ssh_key(label, public_key)`. `session.list_ssh_keys()` returns key
+IDs, SHA-256 fingerprints, labels, dates, and effective revocation state;
+`session.revoke_ssh_key(id)` revokes one key. Diamond stores the canonical
+public key and fingerprint, never a private key.
+
+SSH uses the system OpenSSH daemon. Configure a dedicated Unix account with no
+ordinary shell access or forwarding. Its `AuthorizedKeysCommand` should call
+`diamond project-git-authorized-key` with the offered `%f` fingerprint and a
+fixed launcher path:
+
+```sh
+diamond project-git-authorized-key /srv/diamond/apps/forge \
+  --postgres-env DIAMOND_POSTGRES \
+  --fingerprint "$1" \
+  --ssh-launcher /usr/local/libexec/diamond-git-ssh
+```
+
+The launcher is a process-owned, non-group-writable executable that loads the
+deployment's `DIAMOND_POSTGRES` and `DIAMOND_RUNTIME` grants, then runs:
+
+```sh
+exec /usr/local/bin/diamond project-git-ssh /srv/diamond/apps/forge \
+  --postgres-env DIAMOND_POSTGRES --runtime-env DIAMOND_RUNTIME \
+  --key-id "$1"
+```
+
+The lookup emits an OpenSSH `restrict,command="..."` line with an opaque key
+ID. The forced adapter rechecks the key, account epoch, disablement, repository
+policy, and protected-ref policy for every connection. It accepts only
+`git-upload-pack 'BINDING/REPOSITORY.git'` and
+`git-receive-pack 'BINDING/REPOSITORY.git'`; shell commands and extra arguments
+fail closed. The wrappers and any environment file are deployment credentials:
+keep them outside the repository, owned by the Diamond service account, and
+unwritable by group or other users.
 
 Projects can also declare Google and GitHub login:
 

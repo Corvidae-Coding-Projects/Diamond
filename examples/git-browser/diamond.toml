@@ -4,7 +4,7 @@ server = "server"
 browser = "ui"
 component = "GitBrowser"
 styles = ["git.css"]
-provides = ["DbRead<Repositories>", "DbWrite<Repositories>", "GitRead<repos>", "GitWrite<repos>"]
+provides = ["DbRead<Repositories>", "DbWrite<Repositories>", "GitRead<repos>", "GitWrite<repos>", "GitAdmin<repos>"]
 
 [modules.shared]
 path = "shared.dia"
@@ -14,7 +14,7 @@ target = "shared"
 path = "server.dia"
 target = "server"
 imports = ["shared"]
-provides = ["DbRead<Repositories>", "DbWrite<Repositories>", "GitRead<repos>", "GitWrite<repos>"]
+provides = ["DbRead<Repositories>", "DbWrite<Repositories>", "GitRead<repos>", "GitWrite<repos>", "GitAdmin<repos>"]
 
 [modules.ui]
 path = "ui.dia"
@@ -29,6 +29,8 @@ repository_tree = "server.repository_tree"
 repository_blob = "server.repository_blob"
 repository_history = "server.repository_history"
 repository_diff = "server.repository_diff"
+protect_reference = "server.protect_reference"
+unprotect_reference = "server.unprotect_reference"
 
 [storage]
 profile = "relational-v1"

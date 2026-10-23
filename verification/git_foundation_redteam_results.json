@@ -9,9 +9,9 @@
   "passed": 108,
   "total": 108,
   "metrics": {
-    "server_rss_baseline_kib": 49280,
-    "server_rss_peak_kib": 49288,
-    "server_rss_delta_kib": 8
+    "server_rss_baseline_kib": 50204,
+    "server_rss_peak_kib": 50240,
+    "server_rss_delta_kib": 36
   },
   "results": [
     {
