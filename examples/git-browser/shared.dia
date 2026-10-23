@@ -191,6 +191,11 @@ export type NotificationCard:
   repository: Text
   read: Bool
 
+export type NotificationPreferenceCard:
+  id: Text
+  enabled: Bool
+  unread_only: Bool
+
 export type ReleaseCard:
   id: Text
   tag: Text
@@ -276,6 +281,13 @@ export type ImageResults:
 
 export type PageResults:
   cards: List<PageCard>
+
+export type DomainCard:
+  domain: Text
+  site: Text
+
+export type DomainResults:
+  cards: List<DomainCard>
 
 export type EnvironmentResults:
   cards: List<EnvironmentCard>

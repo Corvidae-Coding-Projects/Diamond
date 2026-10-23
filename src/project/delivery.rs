@@ -38,12 +38,21 @@ pub(super) struct Config {
 pub(super) struct Binding {
     pub(super) resource: String,
     pub(super) git: String,
+    executors: BTreeMap<String, ExecutorProfile>,
     #[serde(default = "artifact_limit")]
     max_artifact_bytes: u64,
     #[serde(default = "page_limit")]
     max_pages_bytes: u64,
     #[serde(default = "file_limit")]
     max_pages_files: usize,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+struct ExecutorProfile {
+    memory_bytes: u64,
+    max_processes: u64,
+    max_file_bytes: u64,
 }
 
 const fn artifact_limit() -> u64 {
@@ -68,6 +77,16 @@ impl Config {
             if !super::resolve::identifier(name)
                 || !program.resources.contains_key(&binding.resource)
                 || !git.bindings.contains_key(&binding.git)
+                || binding.executors.is_empty()
+                || binding.executors.len() > 8
+                || !binding.executors.contains_key("standard")
+                || binding.executors.iter().any(|(profile, limits)| {
+                    !super::resolve::identifier(profile)
+                        || !(64 * 1024 * 1024..=4 * 1024 * 1024 * 1024)
+                            .contains(&limits.memory_bytes)
+                        || !(1..=1024).contains(&limits.max_processes)
+                        || !(1024 * 1024..=1024 * 1024 * 1024).contains(&limits.max_file_bytes)
+                })
                 || !(1..=1024 * 1024 * 1024).contains(&binding.max_artifact_bytes)
                 || !(1..=1024 * 1024 * 1024).contains(&binding.max_pages_bytes)
                 || !(1..=10_000).contains(&binding.max_pages_files)
@@ -97,6 +116,7 @@ CREATE TABLE IF NOT EXISTS diamond_g3.environments(app TEXT NOT NULL, binding TE
 CREATE TABLE IF NOT EXISTS diamond_g3.page_deployments(app TEXT NOT NULL, binding TEXT NOT NULL, repository TEXT NOT NULL, id TEXT NOT NULL CHECK(id ~ '^[0-9a-f]{64}$'), site TEXT NOT NULL CHECK(octet_length(site) BETWEEN 1 AND 80), pipeline TEXT NOT NULL, manifest_digest TEXT NOT NULL CHECK(manifest_digest ~ '^[0-9a-f]{64}$'), created TIMESTAMPTZ NOT NULL DEFAULT pg_catalog.clock_timestamp(), PRIMARY KEY(app,binding,repository,id));
 CREATE TABLE IF NOT EXISTS diamond_g3.page_files(app TEXT NOT NULL, binding TEXT NOT NULL, repository TEXT NOT NULL, deployment TEXT NOT NULL, path TEXT NOT NULL CHECK(octet_length(path) BETWEEN 1 AND 1024), digest TEXT NOT NULL CHECK(digest ~ '^[0-9a-f]{64}$'), size BIGINT NOT NULL CHECK(size BETWEEN 0 AND 1073741824), media TEXT NOT NULL CHECK(octet_length(media) BETWEEN 1 AND 120), PRIMARY KEY(app,binding,repository,deployment,path));
 CREATE TABLE IF NOT EXISTS diamond_g3.page_sites(app TEXT NOT NULL, binding TEXT NOT NULL, repository TEXT NOT NULL, site TEXT NOT NULL CHECK(octet_length(site) BETWEEN 1 AND 80), active TEXT NOT NULL CHECK(active ~ '^[0-9a-f]{64}$'), updated TIMESTAMPTZ NOT NULL DEFAULT pg_catalog.clock_timestamp(), PRIMARY KEY(app,binding,site), UNIQUE(app,binding,repository,site));
+CREATE TABLE IF NOT EXISTS diamond_g3.page_domains(app TEXT NOT NULL, binding TEXT NOT NULL, domain TEXT NOT NULL CHECK(domain=lower(domain) AND octet_length(domain) BETWEEN 4 AND 253), repository TEXT NOT NULL, site TEXT NOT NULL, updated TIMESTAMPTZ NOT NULL DEFAULT pg_catalog.clock_timestamp(), PRIMARY KEY(app,binding,domain), FOREIGN KEY(app,binding,repository,site) REFERENCES diamond_g3.page_sites(app,binding,repository,site) ON DELETE CASCADE);
 CREATE TABLE IF NOT EXISTS diamond_g3.oci_blobs(app TEXT NOT NULL, binding TEXT NOT NULL, repository TEXT NOT NULL, digest TEXT NOT NULL CHECK(digest ~ '^sha256:[0-9a-f]{64}$'), size BIGINT NOT NULL CHECK(size BETWEEN 0 AND 1073741824), created TIMESTAMPTZ NOT NULL DEFAULT pg_catalog.clock_timestamp(), PRIMARY KEY(app,binding,repository,digest));
 CREATE TABLE IF NOT EXISTS diamond_g3.oci_manifests(app TEXT NOT NULL, binding TEXT NOT NULL, repository TEXT NOT NULL, name TEXT NOT NULL CHECK(octet_length(name) BETWEEN 1 AND 120), reference TEXT NOT NULL CHECK(octet_length(reference) BETWEEN 1 AND 120), digest TEXT NOT NULL CHECK(digest ~ '^sha256:[0-9a-f]{64}$'), body TEXT NOT NULL CHECK(octet_length(body)<=1048576), media TEXT NOT NULL CHECK(octet_length(media) BETWEEN 1 AND 160), created TIMESTAMPTZ NOT NULL DEFAULT pg_catalog.clock_timestamp(), PRIMARY KEY(app,binding,repository,name,reference));";
 
@@ -148,6 +168,8 @@ struct PipelineConfig {
 #[serde(deny_unknown_fields)]
 struct JobDefinition {
     name: String,
+    #[serde(default = "standard_executor")]
+    executor: String,
     #[serde(default)]
     needs: Vec<String>,
     script: String,
@@ -167,6 +189,10 @@ struct JobDefinition {
 
 const fn job_timeout() -> u64 {
     60
+}
+
+fn standard_executor() -> String {
+    "standard".into()
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -198,7 +224,7 @@ struct OciOutput {
     path: String,
 }
 
-fn validate_pipeline(config: &PipelineConfig) -> Result<()> {
+fn validate_pipeline(config: &PipelineConfig, binding: &Binding) -> Result<()> {
     if config.version != 1 || config.jobs.is_empty() || config.jobs.len() > MAX_JOBS {
         return Err(input("CI configuration requires version 1 and 1..32 jobs"));
     }
@@ -206,6 +232,7 @@ fn validate_pipeline(config: &PipelineConfig) -> Result<()> {
     for job in &config.jobs {
         if !super::resolve::identifier(&job.name)
             || !prior.insert(job.name.clone())
+            || !binding.executors.contains_key(&job.executor)
             || job.script.is_empty()
             || job.script.len() > 16_384
             || !(1..=300).contains(&job.timeout_seconds)
@@ -242,6 +269,21 @@ fn valid_label(value: &str) -> bool {
         && value
             .bytes()
             .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'.' | b'_' | b'-' | b'/'))
+}
+
+fn valid_domain(value: &str) -> bool {
+    (4..=253).contains(&value.len())
+        && value.contains('.')
+        && value == value.to_ascii_lowercase()
+        && value.split('.').all(|label| {
+            !label.is_empty()
+                && label.len() <= 63
+                && !label.starts_with('-')
+                && !label.ends_with('-')
+                && label
+                    .bytes()
+                    .all(|byte| byte.is_ascii_lowercase() || byte.is_ascii_digit() || byte == b'-')
+        })
 }
 
 fn valid_relative(value: &str) -> bool {
@@ -360,7 +402,7 @@ pub(crate) fn schedule(
     }
     let pipeline: PipelineConfig = super::wire::strict_from_slice(source.as_bytes())
         .map_err(|_| input("invalid .diamond-ci.json"))?;
-    validate_pipeline(&pipeline)?;
+    validate_pipeline(&pipeline, &config)?;
     let encoded = serde_json::to_string(&pipeline).map_err(|_| Error::Denied)?;
     let config_digest = artifact::hash(encoded.as_bytes());
     let owner = scope.principal().id().ok_or(Error::Unauthenticated)?;
@@ -416,6 +458,58 @@ pub(crate) fn cancel(
     Ok("cancelled".into())
 }
 
+pub(crate) fn command(
+    database: &mut PostgresStore,
+    scope: &Scope<'_>,
+    name: &str,
+    repository: &str,
+    action: &str,
+    subject: &str,
+    value: &str,
+) -> Result<String> {
+    authorize(database, scope, name, repository, true)?;
+    let rows = match action {
+        "artifact_delete" if value.is_empty() && crate::auth::valid_id(subject) => database
+            .connection
+            .query(
+                "DELETE FROM diamond_g3.artifacts WHERE app=$1 AND binding=$2 AND repository=$3 AND id=$4 RETURNING id",
+                &[&database.app, &name, &repository, &subject],
+            )?,
+        "environment_stop" if value.is_empty() && super::resolve::identifier(subject) => database
+            .connection
+            .query(
+                "UPDATE diamond_g3.environments SET state='stopped',updated=clock_timestamp() WHERE app=$1 AND binding=$2 AND repository=$3 AND name=$4 AND state='active' RETURNING name",
+                &[&database.app, &name, &repository, &subject],
+            )?,
+        "pages_activate"
+            if super::resolve::identifier(subject) && crate::auth::valid_id(value) => database
+                .connection
+                .query(
+                    "UPDATE diamond_g3.page_sites s SET active=$5,updated=clock_timestamp() WHERE s.app=$1 AND s.binding=$2 AND s.repository=$3 AND s.site=$4 AND EXISTS(SELECT 1 FROM diamond_g3.page_deployments d WHERE d.app=s.app AND d.binding=s.binding AND d.repository=s.repository AND d.site=s.site AND d.id=$5) RETURNING s.active",
+                    &[&database.app, &name, &repository, &subject, &value],
+                )?,
+        "domain_set"
+            if scope.principal().has_role("account_admin")
+                && valid_domain(subject)
+                && super::resolve::identifier(value) => database.connection.query(
+                    "INSERT INTO diamond_g3.page_domains(app,binding,domain,repository,site) SELECT $1,$2,$4,$3,$5 WHERE EXISTS(SELECT 1 FROM diamond_g3.page_sites WHERE app=$1 AND binding=$2 AND repository=$3 AND site=$5) ON CONFLICT(app,binding,domain) DO UPDATE SET repository=EXCLUDED.repository,site=EXCLUDED.site,updated=clock_timestamp() WHERE diamond_g3.page_domains.repository=EXCLUDED.repository RETURNING domain",
+                    &[&database.app, &name, &repository, &subject, &value],
+                )?,
+        "domain_remove"
+            if scope.principal().has_role("account_admin")
+                && value.is_empty()
+                && valid_domain(subject) => database.connection.query(
+                    "DELETE FROM diamond_g3.page_domains WHERE app=$1 AND binding=$2 AND repository=$3 AND domain=$4 RETURNING domain",
+                    &[&database.app, &name, &repository, &subject],
+                )?,
+        _ => return Err(Error::Denied),
+    };
+    rows.first()
+        .ok_or(Error::Conflict)?
+        .try_get(0)
+        .map_err(|_| Error::Denied)
+}
+
 pub(crate) fn query(
     database: &mut PostgresStore,
     scope: &Scope<'_>,
@@ -434,6 +528,7 @@ pub(crate) fn query(
             "environments",
             "images",
             "pages",
+            "domains",
         ]
         .contains(&kind)
         || (!selected.is_empty() && !crate::auth::valid_id(selected))
@@ -477,6 +572,10 @@ pub(crate) fn query(
         "SELECT site,active FROM diamond_g3.page_sites WHERE app=$1 AND binding=$2 AND repository=$3 ORDER BY site LIMIT $4",
         &[&database.app, &name, &repository, &limit],
     )?;
+    let domains = database.connection.query(
+        "SELECT domain,site FROM diamond_g3.page_domains WHERE app=$1 AND binding=$2 AND repository=$3 ORDER BY domain LIMIT $4",
+        &[&database.app, &name, &repository, &limit],
+    )?;
     let dashboard = serde_json::json!({
         "pipelines":pipeline_cards,
         "jobs":rows_to_cards(&jobs, &["id","name","state","attempts","log"])?,
@@ -484,6 +583,7 @@ pub(crate) fn query(
         "environments":rows_to_cards(&environments, &["name","state","deployment","pipeline"])?,
         "images":rows_to_cards(&images, &["name","tag","digest"])?,
         "pages":rows_to_cards(&pages, &["site","deployment"])?,
+        "domains":rows_to_cards(&domains, &["domain","site"])?,
     });
     dashboard
         .get(kind)
@@ -968,14 +1068,19 @@ fn private_workspace_target(workspace: &Path, relative: &str) -> Result<PathBuf>
     Ok(target)
 }
 
-fn bwrap_command(store: &Store, workspace: &Path, job: &JobDefinition) -> Command {
+fn bwrap_command(
+    store: &Store,
+    workspace: &Path,
+    job: &JobDefinition,
+    profile: &ExecutorProfile,
+) -> Command {
     let mut command = Command::new(&store.limit);
     command
         .env_clear()
-        .arg(format!("--as={}", 512 * 1024 * 1024_u64))
+        .arg(format!("--as={}", profile.memory_bytes))
         .arg(format!("--cpu={}", job.timeout_seconds))
-        .arg("--nproc=128")
-        .arg(format!("--fsize={}", 64 * 1024 * 1024_u64))
+        .arg(format!("--nproc={}", profile.max_processes))
+        .arg(format!("--fsize={}", profile.max_file_bytes))
         .arg("--")
         .arg(&store.sandbox)
         .args([
@@ -1026,7 +1131,12 @@ fn bwrap_command(store: &Store, workspace: &Path, job: &JobDefinition) -> Comman
     command
 }
 
-fn systemd_command(store: &Store, workspace: &Path, job: &JobDefinition) -> Result<Command> {
+fn systemd_command(
+    store: &Store,
+    workspace: &Path,
+    job: &JobDefinition,
+    profile: &ExecutorProfile,
+) -> Result<Command> {
     for name in ["usr", "bin", "lib", "lib64", "tmp"] {
         let target = workspace.join(name);
         if fs::symlink_metadata(&target).is_ok() {
@@ -1073,8 +1183,12 @@ fn systemd_command(store: &Store, workspace: &Path, job: &JobDefinition) -> Resu
             "-p",
             "PrivateDevices=yes",
         ])
-        .args(["-p", "MemoryMax=536870912", "-p", "TasksMax=128"])
-        .args(["-p", "LimitFSIZE=67108864"])
+        .arg("-p")
+        .arg(format!("MemoryMax={}", profile.memory_bytes))
+        .arg("-p")
+        .arg(format!("TasksMax={}", profile.max_processes))
+        .arg("-p")
+        .arg(format!("LimitFSIZE={}", profile.max_file_bytes))
         .arg("-p")
         .arg(format!("RuntimeMaxSec={}s", job.timeout_seconds))
         .args(["-p", "UMask=0077", "-E", "PATH=/usr/bin:/bin"])
@@ -1098,15 +1212,20 @@ fn collect_output<R: Read + Send + 'static>(
     });
 }
 
-fn run_sandbox(store: &Store, workspace: &Path, job: &JobDefinition) -> Result<String> {
+fn run_sandbox(
+    store: &Store,
+    workspace: &Path,
+    job: &JobDefinition,
+    profile: &ExecutorProfile,
+) -> Result<String> {
     let backend = store
         .sandbox
         .file_name()
         .and_then(std::ffi::OsStr::to_str)
         .ok_or(Error::Denied)?;
     let mut command = match backend {
-        "bwrap" => bwrap_command(store, workspace, job),
-        "systemd-run" => systemd_command(store, workspace, job)?,
+        "bwrap" => bwrap_command(store, workspace, job, profile),
+        "systemd-run" => systemd_command(store, workspace, job, profile)?,
         _ => return Err(input("unsupported CI sandbox executable")),
     };
     command
@@ -1553,7 +1672,11 @@ fn execute_claim(
     let workspace = create_workspace(&store, &git.root, &git.executable, &delivery.git, claim)?;
     restore_cache(&mut database, &store, claim, &workspace.0)?;
     database.finish_request(Ok(()))?;
-    let log = run_sandbox(&store, &workspace.0, &claim.definition)?;
+    let profile = delivery
+        .executors
+        .get(&claim.definition.executor)
+        .ok_or(Error::Denied)?;
+    let log = run_sandbox(&store, &workspace.0, &claim.definition, profile)?;
     let outputs = stage_outputs(&store, &delivery, claim, &workspace.0)?;
     let mut database = PostgresStore::open_control(project, configuration, None)?;
     publish_outputs(&mut database, claim, &outputs, &log)?;
@@ -1813,6 +1936,7 @@ async fn pages_request(
     let cookie_free = !request.headers().contains_key(header::COOKIE)
         && !request.headers().contains_key(header::AUTHORIZATION);
     let path = request.uri().path().to_owned();
+    let host = pages_domain_host(&request);
     if !allowed || !no_body || !cookie_free || request.uri().query().is_some() {
         return pages_text_response(StatusCode::BAD_REQUEST, b"bad request", head);
     }
@@ -1820,7 +1944,8 @@ async fn pages_request(
         return pages_text_response(StatusCode::SERVICE_UNAVAILABLE, b"unavailable", head);
     };
     let state_for_work = std::sync::Arc::clone(&state);
-    let fetched = tokio::task::spawn_blocking(move || page(&state_for_work, &path)).await;
+    let fetched =
+        tokio::task::spawn_blocking(move || page(&state_for_work, &path, host.as_deref())).await;
     match fetched {
         Ok(Ok(fetch)) => pages_response(StatusCode::OK, fetch, head, permit),
         Ok(Err(Error::Denied | Error::Input(_))) => {
@@ -1830,9 +1955,42 @@ async fn pages_request(
     }
 }
 
-fn page(state: &PagesState, path: &str) -> Result<Fetch> {
+fn pages_domain_host(request: &axum::extract::Request) -> Option<String> {
+    let mut values = request.headers().get_all(axum::http::header::HOST).iter();
+    let mut value = values.next()?.to_str().ok()?.to_ascii_lowercase();
+    if values.next().is_some() {
+        return None;
+    }
+    if let Some((name, port)) = value.rsplit_once(':')
+        && !name.contains(':')
+        && !port.is_empty()
+        && port.bytes().all(|byte| byte.is_ascii_digit())
+    {
+        value.truncate(name.len());
+    }
+    valid_domain(&value).then_some(value)
+}
+
+fn page(state: &PagesState, path: &str, host: Option<&str>) -> Result<Fetch> {
+    let mut database = PostgresStore::open_control(&state.project, &state.configuration, None)?;
     let value = path.strip_prefix('/').ok_or(Error::Denied)?;
-    let (site_name, path) = value.split_once('/').unwrap_or((value, ""));
+    let domain = if let Some(host) = host {
+        database.connection.query(
+            "SELECT site FROM diamond_g3.page_domains WHERE app=$1 AND binding=$2 AND domain=$3",
+            &[&database.app, &state.binding, &host],
+        )?
+    } else {
+        Vec::new()
+    };
+    let mapped_site = domain
+        .first()
+        .map(|row| row.try_get::<_, String>(0).map_err(|_| Error::Denied))
+        .transpose()?;
+    let (site_name, path) = if let Some(site) = mapped_site.as_deref() {
+        (site, value)
+    } else {
+        value.split_once('/').unwrap_or((value, ""))
+    };
     if !super::resolve::identifier(site_name) {
         return Err(Error::Denied);
     }
@@ -1846,7 +2004,6 @@ fn page(state: &PagesState, path: &str) -> Result<Fetch> {
     if !valid_relative(&path) {
         return Err(Error::Denied);
     }
-    let mut database = PostgresStore::open_control(&state.project, &state.configuration, None)?;
     let mut grants = crate::RuntimeGrants::default();
     grants
         .delivery

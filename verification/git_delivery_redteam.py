@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""G3 real-interface delivery qualification and hostile-boundary replay."""
+"""G3 delivery and G5 product real-interface qualification replay."""
 
 import base64
 import hashlib
@@ -241,6 +241,12 @@ try:
         [str(BIN), "project-admin-add", PROJECT, "--postgres-env", "DIAMOND_POSTGRES", "--user", "alice", "--email", "alice@example.test", "--password-stdin"],
         input=password + "\n",
     )
+    bob_password = "Synthetic G5 password 92!"
+    ok(
+        "provision ordinary user",
+        [str(BIN), "project-user-add", PROJECT, "--postgres-env", "DIAMOND_POSTGRES", "--user", "bob", "--password-stdin"],
+        input=bob_password + "\n",
+    )
     server_log = open(TMP / "server.log", "wb")
     server = subprocess.Popen(
         [str(BIN), "serve", PROJECT, "--listen", f"127.0.0.1:{webport}", "--origin", f"http://127.0.0.1:{webport}", "--postgres-env", "DIAMOND_POSTGRES", "--runtime-env", "DIAMOND_RUNTIME", "--identity-mailbox", str(MAIL)],
@@ -254,14 +260,42 @@ try:
     check("delivery UI is rendered", "delivery" in text.lower() and "/delivery" in text, text[:500])
     contract = re.search(r'data-contract="([0-9a-f]{64})"', text).group(1)
     alice = login("alice", password)
+    bob = login("bob", bob_password)
     status, _, reply = rpc(alice, contract, "create_organization", ["g3-team"])
     check("create organization", status == 200, str(reply))
     organization = value(reply)
     status, _, reply = rpc(alice, contract, "create_repository", [organization, "delivery", "G3 delivery target", False])
     check("create private repository", status == 200, str(reply))
     repository = value(reply)
+    status, _, reply = rpc(alice, contract, "grant_developer", [organization, "bob"])
+    bob_membership = value(reply)
+    check("grant ordinary user repository access", status == 200, str(reply))
     status, _, reply = rpc(alice, contract, "initialize_repository", [repository])
     check("initialize repository", status == 200, str(reply))
+    status, _, reply = rpc(bob, contract, "notification_preferences", [repository])
+    check(
+        "notification preferences default to enabled and all activity",
+        status == 200 and value(reply)["enabled"] is True and value(reply)["unread_only"] is False,
+        str(reply),
+    )
+    status, _, reply = rpc(bob, contract, "save_notification_preferences", [repository, False, False])
+    check("ordinary user can disable own repository notifications", status == 200 and value(reply)["enabled"] is False, str(reply))
+    status, _, reply = rpc(alice, contract, "create_issue", [repository, "G5 preference probe", "Synthetic notification preference fixture"])
+    issue = value(reply)
+    check("create notification preference issue", status == 200, str(reply))
+    status, _, reply = rpc(alice, contract, "assign_issue", [issue, "bob"])
+    check("assign issue while recipient notifications are disabled", status == 200, str(reply))
+    status, _, reply = rpc(bob, contract, "collaboration_dashboard", [organization, repository])
+    check("disabled preference hides the recipient notification", status == 200 and value(reply)["notifications"] == [], str(reply))
+    status, _, reply = rpc(bob, contract, "save_notification_preferences", [repository, True, True])
+    check("recipient can select unread-only notifications", status == 200 and value(reply)["unread_only"] is True, str(reply))
+    status, _, reply = rpc(bob, contract, "collaboration_dashboard", [organization, repository])
+    notices = value(reply)["notifications"]
+    check("re-enabled unread preference reveals the unread assignment", status == 200 and len(notices) == 1, str(reply))
+    status, _, reply = rpc(bob, contract, "mark_notification_read", [notices[0]["id"]])
+    check("recipient can mark preferred notification read", status == 200, str(reply))
+    status, _, reply = rpc(bob, contract, "collaboration_dashboard", [organization, repository])
+    check("unread-only preference hides read notifications", status == 200 and value(reply)["notifications"] == [], str(reply))
     token_request = {
         "label": "g3-redteam",
         "operations": ["git:repos:read", "git:repos:write"],
@@ -289,6 +323,7 @@ try:
         "jobs": [
             {
                 "name": "publish",
+                "executor": "small",
                 "script": "echo sandbox-start\ntest ! -e /etc/passwd || { echo etc-visible; exit 71; }\necho filesystem-isolated\nif /usr/bin/curl --max-time 1 http://127.0.0.1:9 >/dev/null 2>&1; then echo network-visible; exit 70; fi\necho network-isolated\nmkdir -p out site\nprintf 'artifact-g3\\n' > out/result.txt\nprintf '<!doctype html><title>Diamond G3</title><h1>Published from Diamond</h1>\\n' > site/index.html\nprintf 'oci-layer-g3\\n' > image.tar\nprintf 'cache-g3\\n' > cache.bin\necho outputs-ready",
                 "timeout_seconds": 15,
                 "artifact": {"name": "release-bundle", "path": "out/result.txt"},
@@ -301,9 +336,16 @@ try:
     }
     (clone / ".diamond-ci.json").write_text(json.dumps(pipeline, separators=(",", ":")))
     (clone / "README.md").write_text("G3 delivery fixture\n")
-    ok("stage delivery fixture", ["git", "add", ".diamond-ci.json", "README.md"], cwd=clone)
-    ok("commit delivery fixture", ["git", "commit", "-m", "G3 delivery fixture"], cwd=clone)
-    ok("push delivery fixture", ["git", "push", git_url, "HEAD:refs/heads/main"], cwd=clone)
+    (clone / "résumé.txt").write_text("Unicode repository path: λ\n")
+    ok("stage delivery fixture", ["git", "add", ".diamond-ci.json", "README.md", "résumé.txt"], cwd=clone)
+    ok("commit delivery fixture", ["git", "commit", "-m", "G5 delivery fixture – Unicode"], cwd=clone)
+    ok("create annotated export tag", ["git", "tag", "-a", "v1.0-g5", "-m", "G5 export tag"], cwd=clone)
+    ok("create Git notes export ref", ["git", "notes", "add", "-m", "G5 migration note"], cwd=clone)
+    ok(
+        "push delivery fixture with tag and notes",
+        ["git", "push", git_url, "HEAD:refs/heads/main", "refs/tags/v1.0-g5", "refs/notes/commits"],
+        cwd=clone,
+    )
     commit = run(["git", "rev-parse", "HEAD"], cwd=clone).stdout.strip()
     status, _, reply = rpc(alice, contract, "schedule_pipeline", [repository, "refs/heads/main", "push-main-1"])
     check("schedule exact pushed commit", status == 200, str(reply))
@@ -334,6 +376,90 @@ try:
         headers={"Authorization": authorization},
     )
     check("artifact downloads through scoped credential", status == 200 and body == b"artifact-g3\n" and headers.get("docker-content-digest") == "sha256:" + hashlib.sha256(body).hexdigest(), str((status, headers, body)))
+    etag = headers.get("etag")
+    status, range_headers, range_body = http(
+        webport,
+        "GET",
+        f"/_diamond/delivery/builds/{repository}/artifacts/{artifact['id']}",
+        headers={"Authorization": authorization, "Range": "bytes=1-5"},
+    )
+    check(
+        "artifact supports a bounded single byte range",
+        status == 206 and range_body == b"rtifa" and range_headers.get("content-range") == "bytes 1-5/12",
+        str((status, range_headers, range_body)),
+    )
+    status, suffix_headers, suffix_body = http(
+        webport,
+        "GET",
+        f"/_diamond/delivery/builds/{repository}/artifacts/{artifact['id']}",
+        headers={"Authorization": authorization, "Range": "bytes=-4"},
+    )
+    check(
+        "artifact supports a suffix byte range",
+        status == 206 and suffix_body == b"-g3\n" and suffix_headers.get("content-range") == "bytes 8-11/12",
+        str((status, suffix_headers, suffix_body)),
+    )
+    status, open_headers, open_body = http(
+        webport,
+        "HEAD",
+        f"/_diamond/delivery/builds/{repository}/artifacts/{artifact['id']}",
+        headers={"Authorization": authorization, "Range": "bytes=9-"},
+    )
+    check(
+        "artifact HEAD applies an open range without a body",
+        status == 206 and open_body == b"" and open_headers.get("content-range") == "bytes 9-11/12" and open_headers.get("content-length") == "3",
+        str((status, open_headers, open_body)),
+    )
+    status, _, multiple_body = http(
+        webport,
+        "GET",
+        f"/_diamond/delivery/builds/{repository}/artifacts/{artifact['id']}",
+        headers={"Authorization": authorization, "Range": "bytes=0-1,4-5"},
+    )
+    check("artifact rejects unsupported multiple ranges", status == 416 and multiple_body == b"", str(status))
+    status, invalid_headers, invalid_body = http(
+        webport,
+        "GET",
+        f"/_diamond/delivery/builds/{repository}/artifacts/{artifact['id']}",
+        headers={"Authorization": authorization, "Range": "bytes=99-100"},
+    )
+    check(
+        "artifact rejects an unsatisfiable range without streaming bytes",
+        status == 416 and invalid_body == b"" and invalid_headers.get("content-range") == "bytes */12",
+        str((status, invalid_headers, invalid_body)),
+    )
+    status, conditional_headers, conditional_body = http(
+        webport,
+        "GET",
+        f"/_diamond/delivery/builds/{repository}/artifacts/{artifact['id']}",
+        headers={"Authorization": authorization, "If-None-Match": etag},
+    )
+    check(
+        "artifact ETag supports a bodyless conditional read",
+        status == 304 and conditional_body == b"" and conditional_headers.get("etag") == etag,
+        str((status, conditional_headers, conditional_body)),
+    )
+    status, _, conditional_body = http(
+        webport,
+        "GET",
+        f"/_diamond/delivery/builds/{repository}/artifacts/{artifact['id']}",
+        headers={"Authorization": authorization, "If-None-Match": f'"other", W/{etag}'},
+    )
+    check("artifact conditional read accepts an ETag list and weak comparison", status == 304 and conditional_body == b"", str(status))
+    status, _, if_range_body = http(
+        webport,
+        "GET",
+        f"/_diamond/delivery/builds/{repository}/artifacts/{artifact['id']}",
+        headers={"Authorization": authorization, "Range": "bytes=1-5", "If-Range": etag},
+    )
+    check("matching strong If-Range serves the selected bytes", status == 206 and if_range_body == b"rtifa", str((status, if_range_body)))
+    status, _, if_range_body = http(
+        webport,
+        "GET",
+        f"/_diamond/delivery/builds/{repository}/artifacts/{artifact['id']}",
+        headers={"Authorization": authorization, "Range": "bytes=1-5", "If-Range": '"stale"'},
+    )
+    check("stale If-Range falls back to the complete representation", status == 200 and if_range_body == body, str((status, if_range_body)))
     status, _, _ = http(webport, "GET", f"/_diamond/delivery/builds/{repository}/artifacts/{artifact['id']}")
     check("private artifact denies anonymous access", status == 401, str(status))
     status, _, reply = rpc(alice, contract, "create_repository", [organization, "other", "Cross-scope probe", False])
@@ -341,6 +467,40 @@ try:
     check("create cross-scope repository", status == 200, str(reply))
     status, _, reply = rpc(alice, contract, "initialize_repository", [other_repository])
     check("initialize cross-scope repository", status == 200, str(reply))
+    mirror = TMP / "export.git"
+    ok("export repository with stock Git mirror clone", ["git", "clone", "--mirror", git_url, str(mirror)])
+    exported_refs = run(["git", "--git-dir", str(mirror), "show-ref"]).stdout
+    check(
+        "mirror export preserves branch, annotated tag, and notes refs",
+        all(reference in exported_refs for reference in ("refs/heads/main", "refs/tags/v1.0-g5", "refs/notes/commits")),
+        exported_refs,
+    )
+    import_token_request = {
+        "label": "g5-import",
+        "operations": ["git:repos:read", "git:repos:write"],
+        "scopes": {"repository": [other_repository]},
+        "lifetime_seconds": "3600",
+    }
+    status, _, import_reply = http(
+        webport,
+        "POST",
+        "/_diamond/accounts/create_token",
+        import_token_request,
+        {"X-Diamond-CSRF": alice["csrf"]},
+        alice["cookie"],
+    )
+    check("create destination-scoped import credential", status == 200, str(import_reply))
+    import_url = f"http://diamond:{import_reply['value']}@127.0.0.1:{webport}/_diamond/git/repos/{other_repository}.git"
+    ok("import all refs with stock Git mirror push", ["git", "push", "--mirror", import_url], cwd=mirror)
+    imported_refs = run(["git", "ls-remote", import_url]).stdout
+    check(
+        "mirror import preserves branch, annotated tag, and notes refs",
+        all(reference in imported_refs for reference in ("refs/heads/main", "refs/tags/v1.0-g5", "refs/notes/commits")),
+        imported_refs,
+    )
+    imported = TMP / "imported"
+    ok("clone imported repository through smart HTTP", ["git", "clone", import_url, str(imported)])
+    check("Unicode path and bytes survive export/import", (imported / "résumé.txt").read_text() == "Unicode repository path: λ\n")
     status, _, _ = http(
         webport,
         "GET",
@@ -376,6 +536,19 @@ try:
     check("Pages deployment is publicly served", status == 200 and b"Published from Diamond" in page_body, str((status, page_body)))
     status, headers, _ = http(pageport, "GET", "/docs/")
     check("Pages listener sets isolation headers and no cookie", status == 200 and "content-security-policy" in headers and "set-cookie" not in headers, str(headers))
+    status, _, reply = rpc(alice, contract, "delivery_pages", [repository])
+    first_deployment = value(reply)["cards"][0]["deployment"]
+    check("record first immutable Pages deployment", status == 200 and len(first_deployment) == 64, str(reply))
+    status, _, _ = rpc(bob, contract, "set_pages_domain", [repository, "docs.example.test", "docs"])
+    check("non-administrator cannot claim a Pages custom domain", status == 403, str(status))
+    status, _, reply = rpc(alice, contract, "set_pages_domain", [repository, "docs.example.test", "docs"])
+    check("administrator maps a canonical custom domain to an owned site", status == 200 and value(reply) == "docs.example.test", str(reply))
+    status, _, reply = rpc(alice, contract, "delivery_domains", [repository])
+    check("custom-domain mapping is queryable through repository policy", status == 200 and value(reply)["cards"] == [{"domain": "docs.example.test", "site": "docs"}], str(reply))
+    status, _, custom_body = http(pageport, "GET", "/", headers={"Host": "docs.example.test"})
+    check("Pages routes a verified custom Host without a path prefix", status == 200 and b"Published from Diamond" in custom_body, str((status, custom_body)))
+    status, _, _ = rpc(alice, contract, "set_pages_domain", [repository, "Bad_Domain.example", "docs"])
+    check("custom-domain operation rejects noncanonical host syntax", status == 403, str(status))
     status, _, _ = http(pageport, "GET", "/docs/", headers={"Cookie": "session=attacker"})
     check("Pages listener rejects ambient cookies", status == 400, str(status))
     status, _, _ = http(pageport, "GET", "/docs/%2e%2e/%2e%2e/etc/passwd")
@@ -398,6 +571,19 @@ try:
     status, _, reply = rpc(alice, contract, "delivery_jobs", [repository, cache_pipeline])
     cache_jobs = value(reply)["cards"]
     check("trusted reference cache restores before execution", json.loads(cache_run.stdout)["completed"] == 1 and cache_jobs[0]["state"] == "succeeded" and "cache-restored" in cache_jobs[0]["log"], str(reply))
+    status, _, reply = rpc(alice, contract, "delivery_pages", [repository])
+    second_deployment = value(reply)["cards"][0]["deployment"]
+    check("second pipeline atomically activates a distinct Pages deployment", status == 200 and second_deployment != first_deployment, str(reply))
+    status, _, custom_body = http(pageport, "GET", "/", headers={"Host": "docs.example.test"})
+    check("custom domain follows the newly active deployment", status == 200 and b"restored Diamond cache" in custom_body, str((status, custom_body)))
+    status, _, reply = rpc(alice, contract, "activate_pages_deployment", [repository, "docs", first_deployment])
+    check("repository writer can roll Pages back to a retained deployment", status == 200 and value(reply) == first_deployment, str(reply))
+    status, _, custom_body = http(pageport, "GET", "/", headers={"Host": "docs.example.test"})
+    check("Pages rollback changes custom-domain content atomically", status == 200 and b"Published from Diamond" in custom_body and b"restored Diamond cache" not in custom_body, str((status, custom_body)))
+    status, _, reply = rpc(alice, contract, "stop_delivery_environment", [repository, "preview"])
+    check("repository writer stops an active environment", status == 200 and value(reply) == "preview", str(reply))
+    status, _, reply = rpc(alice, contract, "delivery_environments", [repository])
+    check("stopped environment persists in delivery state", status == 200 and value(reply)["cards"][0]["state"] == "stopped", str(reply))
 
     ok("create symlink-output branch", ["git", "switch", "-c", "symlink-output"], cwd=clone)
     symlink_pipeline = {
@@ -453,6 +639,13 @@ try:
     ok("push hostile configuration", ["git", "push", git_url, "HEAD:refs/heads/invalid-config"], cwd=clone)
     status, _, _ = rpc(alice, contract, "schedule_pipeline", [repository, "refs/heads/invalid-config", "hostile-path-1"])
     check("pipeline parser rejects artifact traversal before execution", status == 400, str(status))
+    invalid_executor = {"version": 1, "jobs": [{"name": "escape", "executor": "unbounded", "script": "true"}]}
+    (clone / ".diamond-ci.json").write_text(json.dumps(invalid_executor))
+    ok("stage undeclared runner profile", ["git", "add", ".diamond-ci.json"], cwd=clone)
+    ok("commit undeclared runner profile", ["git", "commit", "-m", "undeclared runner profile"], cwd=clone)
+    ok("push undeclared runner profile", ["git", "push", git_url, "HEAD:refs/heads/invalid-executor"], cwd=clone)
+    status, _, _ = rpc(alice, contract, "schedule_pipeline", [repository, "refs/heads/invalid-executor", "invalid-executor-1"])
+    check("pipeline parser rejects an undeclared executor profile", status == 400, str(status))
 
     ok("return to valid configuration", ["git", "switch", "main"], cwd=clone)
     (clone / "cancel.txt").write_text("cancel\n")
@@ -471,6 +664,30 @@ try:
     check("cancelled queue remains idle", json.loads(idle.stdout)["completed"] == 0, idle.stdout)
     status, _, conflict = rpc(alice, contract, "schedule_pipeline", [repository, "refs/heads/main", "push-main-1"])
     check("event identity cannot be rebound to another commit", status == 409, str(conflict))
+
+    status, _, reply = rpc(alice, contract, "delete_delivery_artifact", [repository, artifact["id"]])
+    check("repository writer deletes immutable artifact metadata", status == 200 and value(reply) == artifact["id"], str(reply))
+    status, _, reply = rpc(alice, contract, "delivery_artifacts", [repository, pipeline_id])
+    check("deleted artifact disappears from the pipeline workflow", status == 200 and value(reply)["cards"] == [], str(reply))
+    status, _, _ = http(
+        webport,
+        "GET",
+        f"/_diamond/delivery/builds/{repository}/artifacts/{artifact['id']}",
+        headers={"Authorization": authorization},
+    )
+    check("deleted artifact metadata immediately fences downloads", status == 403, str(status))
+    status, _, reply = rpc(alice, contract, "remove_pages_domain", [repository, "docs.example.test"])
+    check("administrator removes a custom-domain mapping", status == 200 and value(reply) == "docs.example.test", str(reply))
+    status, _, reply = rpc(alice, contract, "delivery_domains", [repository])
+    check("removed custom domain disappears from repository state", status == 200 and value(reply)["cards"] == [], str(reply))
+    status, _, _ = http(pageport, "GET", "/", headers={"Host": "docs.example.test"})
+    check("removed custom Host no longer resolves a Pages site", status == 404, str(status))
+    status, _, reply = rpc(alice, contract, "revoke_member", [bob_membership])
+    check("administrator revokes notification recipient repository access", status == 200, str(reply))
+    status, _, _ = rpc(bob, contract, "notification_preferences", [repository])
+    check("revoked member cannot read repository notification preferences", status == 403, str(status))
+    status, _, _ = rpc(bob, contract, "save_notification_preferences", [repository, True, False])
+    check("revoked member cannot change repository notification preferences", status == 403, str(status))
 
     marker = json.loads((DELIVERY / ".diamond-delivery-store").read_text())
     check("delivery marker is private and app-bound", (DELIVERY / ".diamond-delivery-store").stat().st_mode & 0o777 == 0o600 and marker["binding"] == "builds", str(marker))
@@ -507,7 +724,7 @@ finally:
     if PG.exists():
         subprocess.run(["pg_ctl", "-D", str(PG), "-m", "immediate", "stop"], env=env, capture_output=True)
     receipt = {
-        "profile": "diamond-forge-g3-delivery",
+        "profile": "diamond-forge-g3-g5-delivery",
         "passed": sum(1 for result in results if result["pass"]),
         "total": len(results),
         "results": results,

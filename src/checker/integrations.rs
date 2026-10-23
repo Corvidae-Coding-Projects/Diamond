@@ -30,6 +30,13 @@ const OPERATIONS_COMMANDS: &[&str] = &[
     "restore_record",
     "policy_set",
 ];
+const DELIVERY_COMMANDS: &[&str] = &[
+    "artifact_delete",
+    "environment_stop",
+    "pages_activate",
+    "domain_set",
+    "domain_remove",
+];
 impl Checker<'_> {
     pub(super) fn integration_call(
         &mut self,
@@ -241,7 +248,7 @@ impl Checker<'_> {
             ));
         };
         let (arguments, generic, text_arguments, write) = match method {
-            "delivery_schedule" => (5, 0, 5, true),
+            "delivery_schedule" | "delivery_command" => (5, 0, 5, true),
             "delivery_cancel" => (3, 0, 3, true),
             "delivery_query" => (4, 1, 3, false),
             _ => return Err(Error::Denied),
@@ -272,6 +279,22 @@ impl Checker<'_> {
                 location,
                 "delivery query limit requires Int",
             ));
+        }
+        if method == "delivery_command" {
+            let Some(Expr {
+                kind: ExprKind::Text(command),
+                ..
+            }) = args.get(2).map(|(_, expression)| expression)
+            else {
+                return Err(Error::diagnostic(
+                    "D310",
+                    location,
+                    "delivery command requires a static name",
+                ));
+            };
+            if !DELIVERY_COMMANDS.contains(&command.as_str()) {
+                return Err(Error::Denied);
+            }
         }
         self.effects.insert(Effect::Host(format!(
             "Delivery{}<{binding}>",

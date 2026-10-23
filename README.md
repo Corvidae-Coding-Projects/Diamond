@@ -27,8 +27,9 @@ Diamond currently supports:
 - policy-bound bare Git repositories, stock Git smart HTTP, bounded repository
   views, and Google or GitHub login;
 - repository-defined CI with fenced PostgreSQL scheduling, explicitly isolated
-  native runners, caches, streamed generic artifacts, OCI pulls, environments,
-  and cookie-free static Pages;
+  native runners and named resource profiles, caches, range-addressable generic
+  artifacts, OCI pulls, environments, and cookie-free static Pages with rollback
+  and custom-domain mappings;
 - multiple application servers and workers behind an HTTPS proxy, with health
   checks, draining, encrypted snapshots, and isolated restore.
 
@@ -412,8 +413,10 @@ diamond project-ops-init examples/git-browser/diamond.toml \
 The `delivery-v1` adapter reads a strict `.diamond-ci.json` from an exact Git
 commit. Diamond source schedules, cancels, and queries pipelines through
 `host.delivery_schedule`, `host.delivery_cancel`, and
-`host.delivery_query<T>`. Native workers alone receive checkout paths and
-process authority. Run one claim per supervised invocation:
+`host.delivery_query<T>`, and performs fixed artifact, environment, Pages, and
+domain lifecycle operations through `host.delivery_command`. Native workers
+alone receive checkout paths and process authority. Run one claim per supervised
+invocation:
 
 ```sh
 diamond project-delivery-work examples/git-browser/diamond.toml \
@@ -430,7 +433,12 @@ namespaces. The systemd backend uses a transient chroot-style unit with
 read-only executable mounts, no network, no host `/etc` or home view, and
 memory, task, file-size, and wall-time limits. Isolation failure fails the job.
 Artifact, OCI blob, and Pages responses stream in 64 KiB chunks; Pages is a
-separate cookie-free listener.
+separate cookie-free listener. Generic artifacts support `HEAD`, one byte range,
+and `ETag` revalidation. Runner limits come from named, manifest-declared
+executor profiles; an undeclared profile rejects the pipeline before execution.
+Pages deployments are immutable and can be rolled back atomically. Custom-host
+mapping is administrator-only; DNS validation and TLS issuance remain at the
+deployment edge.
 
 The versioned `operations-v1` adapter adds checked `OpsRead<binding>` and
 `OpsAdmin<binding>` capabilities for shared node heartbeats and drain,
@@ -546,7 +554,9 @@ in [`examples/git-browser/`](examples/git-browser/). G2 application and
 adversarial evidence is recorded in the
 [`Diamond Forge application qualification`](verification/git_application_results.md);
 the lower-level transport evidence remains in the
-[`Git and OAuth foundation qualification`](verification/git_foundation_results.md).
+[`Git and OAuth foundation qualification`](verification/git_foundation_results.md),
+and the completed product pass is summarized in the
+[`G5 product completion evidence`](verification/git_product_completion_results.md).
 
 Running a connected application requires a local PostgreSQL Unix-socket grant.
 The workspace also needs a private shared object directory:
@@ -587,6 +597,7 @@ validation, backup, restore, and process supervision.
 | `diamond user-add --auth PATH --user NAME` | Add a local development account. |
 | `diamond project-init PROJECT --postgres-env NAME` | Initialize the current PostgreSQL profile. |
 | `diamond project-git-init ...` | Bind and initialize a private native Git store. |
+| `diamond project-delivery-init/work ...` | Initialize delivery state and run one isolated CI job. |
 | `diamond project-ops-init/work ...` | Initialize G4 coordination and run one bounded search, mirror, or GC task. |
 | `diamond project-admin-add ...` | Provision the first connected-app administrator. |
 | `diamond project-work ...` | Run one restricted durable worker. |
@@ -605,6 +616,7 @@ commands:
 - [PostgreSQL and policies](docs/relational-apps.md)
 - [accounts and JSON APIs](docs/accounts-and-apis.md)
 - [files and outbound integrations](docs/files-and-integrations.md)
+- [operating Diamond Forge](docs/git-forge-administration.md)
 - [jobs and live events](docs/jobs-and-live-apps.md)
 - [deployment and recovery](docs/deployment.md)
 - [diagnostics](docs/diagnostics.md)

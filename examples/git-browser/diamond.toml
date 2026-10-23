@@ -4,7 +4,7 @@ server = "server"
 browser = "ui"
 component = "GitForge"
 styles = ["git.css"]
-provides = ["Events", "Http<webhook>", "DbRead<Organizations>", "DbWrite<Organizations>", "DbRead<Members>", "DbWrite<Members>", "DbRead<Repositories>", "DbWrite<Repositories>", "DbRead<Issues>", "DbWrite<Issues>", "DbRead<Comments>", "DbWrite<Comments>", "DbRead<MergeRequests>", "DbWrite<MergeRequests>", "DbRead<Reviews>", "DbWrite<Reviews>", "DbRead<Teams>", "DbWrite<Teams>", "DbRead<TeamMembers>", "DbWrite<TeamMembers>", "DbRead<RepositoryGrants>", "DbWrite<RepositoryGrants>", "DbRead<Forks>", "DbWrite<Forks>", "DbRead<Milestones>", "DbWrite<Milestones>", "DbRead<Labels>", "DbWrite<Labels>", "DbRead<IssueLabels>", "DbWrite<IssueLabels>", "DbRead<IssueAssignees>", "DbWrite<IssueAssignees>", "DbRead<BoardColumns>", "DbWrite<BoardColumns>", "DbRead<BoardCards>", "DbWrite<BoardCards>", "DbRead<WikiPages>", "DbWrite<WikiPages>", "DbRead<Snippets>", "DbWrite<Snippets>", "DbRead<ReviewThreads>", "DbWrite<ReviewThreads>", "DbRead<Notifications>", "DbWrite<Notifications>", "DbRead<Releases>", "DbWrite<Releases>", "DbRead<Webhooks>", "DbWrite<Webhooks>", "DbRead<AuditEvents>", "DbWrite<AuditEvents>", "GitRead<repos>", "GitWrite<repos>", "GitReview<repos>", "GitAdmin<repos>", "DeliveryRead<builds>", "DeliveryWrite<builds>", "OpsRead<control>", "OpsAdmin<control>"]
+provides = ["Events", "Http<webhook>", "DbRead<Organizations>", "DbWrite<Organizations>", "DbRead<Members>", "DbWrite<Members>", "DbRead<Repositories>", "DbWrite<Repositories>", "DbRead<Issues>", "DbWrite<Issues>", "DbRead<Comments>", "DbWrite<Comments>", "DbRead<MergeRequests>", "DbWrite<MergeRequests>", "DbRead<Reviews>", "DbWrite<Reviews>", "DbRead<Teams>", "DbWrite<Teams>", "DbRead<TeamMembers>", "DbWrite<TeamMembers>", "DbRead<RepositoryGrants>", "DbWrite<RepositoryGrants>", "DbRead<Forks>", "DbWrite<Forks>", "DbRead<Milestones>", "DbWrite<Milestones>", "DbRead<Labels>", "DbWrite<Labels>", "DbRead<IssueLabels>", "DbWrite<IssueLabels>", "DbRead<IssueAssignees>", "DbWrite<IssueAssignees>", "DbRead<BoardColumns>", "DbWrite<BoardColumns>", "DbRead<BoardCards>", "DbWrite<BoardCards>", "DbRead<WikiPages>", "DbWrite<WikiPages>", "DbRead<Snippets>", "DbWrite<Snippets>", "DbRead<ReviewThreads>", "DbWrite<ReviewThreads>", "DbRead<Notifications>", "DbWrite<Notifications>", "DbRead<NotificationPreferences>", "DbWrite<NotificationPreferences>", "DbRead<Releases>", "DbWrite<Releases>", "DbRead<Webhooks>", "DbWrite<Webhooks>", "DbRead<AuditEvents>", "DbWrite<AuditEvents>", "GitRead<repos>", "GitWrite<repos>", "GitReview<repos>", "GitAdmin<repos>", "DeliveryRead<builds>", "DeliveryWrite<builds>", "OpsRead<control>", "OpsAdmin<control>"]
 
 [modules.shared]
 path = "shared.dia"
@@ -14,7 +14,7 @@ target = "shared"
 path = "server.dia"
 target = "server"
 imports = ["shared"]
-provides = ["Events", "Http<webhook>", "DbRead<Organizations>", "DbWrite<Organizations>", "DbRead<Members>", "DbWrite<Members>", "DbRead<Repositories>", "DbWrite<Repositories>", "DbRead<Issues>", "DbWrite<Issues>", "DbRead<Comments>", "DbWrite<Comments>", "DbRead<MergeRequests>", "DbWrite<MergeRequests>", "DbRead<Reviews>", "DbWrite<Reviews>", "DbRead<Teams>", "DbWrite<Teams>", "DbRead<TeamMembers>", "DbWrite<TeamMembers>", "DbRead<RepositoryGrants>", "DbWrite<RepositoryGrants>", "DbRead<Forks>", "DbWrite<Forks>", "DbRead<Milestones>", "DbWrite<Milestones>", "DbRead<Labels>", "DbWrite<Labels>", "DbRead<IssueLabels>", "DbWrite<IssueLabels>", "DbRead<IssueAssignees>", "DbWrite<IssueAssignees>", "DbRead<BoardColumns>", "DbWrite<BoardColumns>", "DbRead<BoardCards>", "DbWrite<BoardCards>", "DbRead<WikiPages>", "DbWrite<WikiPages>", "DbRead<Snippets>", "DbWrite<Snippets>", "DbRead<ReviewThreads>", "DbWrite<ReviewThreads>", "DbRead<Notifications>", "DbWrite<Notifications>", "DbRead<Releases>", "DbWrite<Releases>", "DbRead<Webhooks>", "DbWrite<Webhooks>", "DbRead<AuditEvents>", "DbWrite<AuditEvents>", "GitRead<repos>", "GitWrite<repos>", "GitReview<repos>", "GitAdmin<repos>", "DeliveryRead<builds>", "DeliveryWrite<builds>", "OpsRead<control>", "OpsAdmin<control>"]
+provides = ["Events", "Http<webhook>", "DbRead<Organizations>", "DbWrite<Organizations>", "DbRead<Members>", "DbWrite<Members>", "DbRead<Repositories>", "DbWrite<Repositories>", "DbRead<Issues>", "DbWrite<Issues>", "DbRead<Comments>", "DbWrite<Comments>", "DbRead<MergeRequests>", "DbWrite<MergeRequests>", "DbRead<Reviews>", "DbWrite<Reviews>", "DbRead<Teams>", "DbWrite<Teams>", "DbRead<TeamMembers>", "DbWrite<TeamMembers>", "DbRead<RepositoryGrants>", "DbWrite<RepositoryGrants>", "DbRead<Forks>", "DbWrite<Forks>", "DbRead<Milestones>", "DbWrite<Milestones>", "DbRead<Labels>", "DbWrite<Labels>", "DbRead<IssueLabels>", "DbWrite<IssueLabels>", "DbRead<IssueAssignees>", "DbWrite<IssueAssignees>", "DbRead<BoardColumns>", "DbWrite<BoardColumns>", "DbRead<BoardCards>", "DbWrite<BoardCards>", "DbRead<WikiPages>", "DbWrite<WikiPages>", "DbRead<Snippets>", "DbWrite<Snippets>", "DbRead<ReviewThreads>", "DbWrite<ReviewThreads>", "DbRead<Notifications>", "DbWrite<Notifications>", "DbRead<NotificationPreferences>", "DbWrite<NotificationPreferences>", "DbRead<Releases>", "DbWrite<Releases>", "DbRead<Webhooks>", "DbWrite<Webhooks>", "DbRead<AuditEvents>", "DbWrite<AuditEvents>", "GitRead<repos>", "GitWrite<repos>", "GitReview<repos>", "GitAdmin<repos>", "DeliveryRead<builds>", "DeliveryWrite<builds>", "OpsRead<control>", "OpsAdmin<control>"]
 
 [modules.ui]
 path = "ui.dia"
@@ -90,6 +90,8 @@ resolve_review_thread = "server.resolve_review_thread"
 dismiss_approval = "server.dismiss_approval"
 create_merge_request_strategy = "server.create_merge_request_strategy"
 mark_notification_read = "server.mark_notification_read"
+notification_preferences = "server.notification_preferences"
+save_notification_preferences = "server.save_notification_preferences"
 create_release = "server.create_release"
 create_webhook = "server.create_webhook"
 deliver_webhook = "server.deliver_webhook"
@@ -99,9 +101,15 @@ cancel_pipeline = "server.cancel_pipeline"
 delivery_pipelines = "server.delivery_pipelines"
 delivery_jobs = "server.delivery_jobs"
 delivery_artifacts = "server.delivery_artifacts"
+delete_delivery_artifact = "server.delete_delivery_artifact"
 delivery_images = "server.delivery_images"
 delivery_pages = "server.delivery_pages"
+activate_pages_deployment = "server.activate_pages_deployment"
+delivery_domains = "server.delivery_domains"
+set_pages_domain = "server.set_pages_domain"
+remove_pages_domain = "server.remove_pages_domain"
 delivery_environments = "server.delivery_environments"
+stop_delivery_environment = "server.stop_delivery_environment"
 operations_nodes = "server.operations_nodes"
 operations_shards = "server.operations_shards"
 operations_placements = "server.operations_placements"
@@ -310,10 +318,19 @@ indexes = [["organization", "repository", "merge_request", "rank"]]
 resource = "MergeRequests"
 fields = { organization = "organization", repository = "repository", merge_request = "id" }
 
+[storage.resources.NotificationPreferences]
+scope = "repository"
+unique = [["owner", "repository"]]
+indexes = [["owner", "repository"], ["repository"]]
+
+[storage.resources.NotificationPreferences.references.repository]
+resource = "Repositories"
+fields = { repository = "id" }
+
 [storage.resources.Notifications]
 scope = "repository"
 unique = [["organization", "repository", "id"]]
-indexes = [["recipient", "read", "rank"], ["organization", "repository"]]
+indexes = [["recipient", "read", "rank"], ["organization", "repository"], ["repository", "read", "rank"]]
 
 [storage.resources.Notifications.references.repository]
 resource = "Repositories"
@@ -462,6 +479,16 @@ git = "repos"
 max_artifact_bytes = 67108864
 max_pages_bytes = 67108864
 max_pages_files = 1000
+
+[delivery.bindings.builds.executors.standard]
+memory_bytes = 536870912
+max_processes = 128
+max_file_bytes = 67108864
+
+[delivery.bindings.builds.executors.small]
+memory_bytes = 134217728
+max_processes = 32
+max_file_bytes = 16777216
 
 [operations]
 profile = "operations-v1"

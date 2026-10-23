@@ -878,6 +878,18 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
                 crate::project::delivery::cancel(database, self.scope, binding, text(1)?, text(2)?);
             return Value::operation(value.map(|value| Value(ValueKind::Text(value))));
         }
+        if method == "delivery_command" {
+            let value = crate::project::delivery::command(
+                database,
+                self.scope,
+                binding,
+                text(1)?,
+                text(2)?,
+                text(3)?,
+                text(4)?,
+            );
+            return Value::operation(value.map(|value| Value(ValueKind::Text(value))));
+        }
         let limit = match values.get(3).map(|value| &value.0) {
             Some(ValueKind::Int(value)) => *value,
             _ => return Err(Error::Denied),
@@ -1047,7 +1059,7 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
     ) -> Option<Result<Value>> {
         if matches!(
             method,
-            "delivery_schedule" | "delivery_query" | "delivery_cancel"
+            "delivery_schedule" | "delivery_query" | "delivery_cancel" | "delivery_command"
         ) {
             Some(self.delivery_call(method, arguments, types, locals, location))
         } else if matches!(method, "ops_command" | "ops_query" | "ops_rate") {

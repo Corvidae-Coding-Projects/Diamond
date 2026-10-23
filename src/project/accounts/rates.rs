@@ -31,6 +31,7 @@ pub(in crate::project) fn charge(
         let limits = match class {
             "api" => [600, 300, 120],
             "git" => [2_000, 1_000, 300],
+            "delivery" => [1_000, 600, 120],
             _ => [120, 100, 12],
         };
         for (bucket, limit) in [

@@ -1,7 +1,7 @@
 {
-  "profile": "diamond-forge-g3-delivery",
-  "passed": 81,
-  "total": 81,
+  "profile": "diamond-forge-g3-g5-delivery",
+  "passed": 137,
+  "total": 137,
   "results": [
     {
       "name": "initialize PostgreSQL cluster",
@@ -36,7 +36,19 @@
       "pass": true
     },
     {
+      "name": "provision ordinary user",
+      "pass": true
+    },
+    {
       "name": "delivery UI is rendered",
+      "pass": true
+    },
+    {
+      "name": "bootstrap authenticated session",
+      "pass": true
+    },
+    {
+      "name": "login administrator",
       "pass": true
     },
     {
@@ -56,7 +68,47 @@
       "pass": true
     },
     {
+      "name": "grant ordinary user repository access",
+      "pass": true
+    },
+    {
       "name": "initialize repository",
+      "pass": true
+    },
+    {
+      "name": "notification preferences default to enabled and all activity",
+      "pass": true
+    },
+    {
+      "name": "ordinary user can disable own repository notifications",
+      "pass": true
+    },
+    {
+      "name": "create notification preference issue",
+      "pass": true
+    },
+    {
+      "name": "assign issue while recipient notifications are disabled",
+      "pass": true
+    },
+    {
+      "name": "disabled preference hides the recipient notification",
+      "pass": true
+    },
+    {
+      "name": "recipient can select unread-only notifications",
+      "pass": true
+    },
+    {
+      "name": "re-enabled unread preference reveals the unread assignment",
+      "pass": true
+    },
+    {
+      "name": "recipient can mark preferred notification read",
+      "pass": true
+    },
+    {
+      "name": "unread-only preference hides read notifications",
       "pass": true
     },
     {
@@ -84,7 +136,15 @@
       "pass": true
     },
     {
-      "name": "push delivery fixture",
+      "name": "create annotated export tag",
+      "pass": true
+    },
+    {
+      "name": "create Git notes export ref",
+      "pass": true
+    },
+    {
+      "name": "push delivery fixture with tag and notes",
       "pass": true
     },
     {
@@ -116,6 +176,42 @@
       "pass": true
     },
     {
+      "name": "artifact supports a bounded single byte range",
+      "pass": true
+    },
+    {
+      "name": "artifact supports a suffix byte range",
+      "pass": true
+    },
+    {
+      "name": "artifact HEAD applies an open range without a body",
+      "pass": true
+    },
+    {
+      "name": "artifact rejects unsupported multiple ranges",
+      "pass": true
+    },
+    {
+      "name": "artifact rejects an unsatisfiable range without streaming bytes",
+      "pass": true
+    },
+    {
+      "name": "artifact ETag supports a bodyless conditional read",
+      "pass": true
+    },
+    {
+      "name": "artifact conditional read accepts an ETag list and weak comparison",
+      "pass": true
+    },
+    {
+      "name": "matching strong If-Range serves the selected bytes",
+      "pass": true
+    },
+    {
+      "name": "stale If-Range falls back to the complete representation",
+      "pass": true
+    },
+    {
       "name": "private artifact denies anonymous access",
       "pass": true
     },
@@ -125,6 +221,34 @@
     },
     {
       "name": "initialize cross-scope repository",
+      "pass": true
+    },
+    {
+      "name": "export repository with stock Git mirror clone",
+      "pass": true
+    },
+    {
+      "name": "mirror export preserves branch, annotated tag, and notes refs",
+      "pass": true
+    },
+    {
+      "name": "create destination-scoped import credential",
+      "pass": true
+    },
+    {
+      "name": "import all refs with stock Git mirror push",
+      "pass": true
+    },
+    {
+      "name": "mirror import preserves branch, annotated tag, and notes refs",
+      "pass": true
+    },
+    {
+      "name": "clone imported repository through smart HTTP",
+      "pass": true
+    },
+    {
+      "name": "Unicode path and bytes survive export/import",
       "pass": true
     },
     {
@@ -153,6 +277,30 @@
     },
     {
       "name": "Pages listener sets isolation headers and no cookie",
+      "pass": true
+    },
+    {
+      "name": "record first immutable Pages deployment",
+      "pass": true
+    },
+    {
+      "name": "non-administrator cannot claim a Pages custom domain",
+      "pass": true
+    },
+    {
+      "name": "administrator maps a canonical custom domain to an owned site",
+      "pass": true
+    },
+    {
+      "name": "custom-domain mapping is queryable through repository policy",
+      "pass": true
+    },
+    {
+      "name": "Pages routes a verified custom Host without a path prefix",
+      "pass": true
+    },
+    {
+      "name": "custom-domain operation rejects noncanonical host syntax",
       "pass": true
     },
     {
@@ -189,6 +337,30 @@
     },
     {
       "name": "trusted reference cache restores before execution",
+      "pass": true
+    },
+    {
+      "name": "second pipeline atomically activates a distinct Pages deployment",
+      "pass": true
+    },
+    {
+      "name": "custom domain follows the newly active deployment",
+      "pass": true
+    },
+    {
+      "name": "repository writer can roll Pages back to a retained deployment",
+      "pass": true
+    },
+    {
+      "name": "Pages rollback changes custom-domain content atomically",
+      "pass": true
+    },
+    {
+      "name": "repository writer stops an active environment",
+      "pass": true
+    },
+    {
+      "name": "stopped environment persists in delivery state",
       "pass": true
     },
     {
@@ -280,6 +452,22 @@
       "pass": true
     },
     {
+      "name": "stage undeclared runner profile",
+      "pass": true
+    },
+    {
+      "name": "commit undeclared runner profile",
+      "pass": true
+    },
+    {
+      "name": "push undeclared runner profile",
+      "pass": true
+    },
+    {
+      "name": "pipeline parser rejects an undeclared executor profile",
+      "pass": true
+    },
+    {
       "name": "return to valid configuration",
       "pass": true
     },
@@ -313,6 +501,42 @@
     },
     {
       "name": "event identity cannot be rebound to another commit",
+      "pass": true
+    },
+    {
+      "name": "repository writer deletes immutable artifact metadata",
+      "pass": true
+    },
+    {
+      "name": "deleted artifact disappears from the pipeline workflow",
+      "pass": true
+    },
+    {
+      "name": "deleted artifact metadata immediately fences downloads",
+      "pass": true
+    },
+    {
+      "name": "administrator removes a custom-domain mapping",
+      "pass": true
+    },
+    {
+      "name": "removed custom domain disappears from repository state",
+      "pass": true
+    },
+    {
+      "name": "removed custom Host no longer resolves a Pages site",
+      "pass": true
+    },
+    {
+      "name": "administrator revokes notification recipient repository access",
+      "pass": true
+    },
+    {
+      "name": "revoked member cannot read repository notification preferences",
+      "pass": true
+    },
+    {
+      "name": "revoked member cannot change repository notification preferences",
       "pass": true
     },
     {

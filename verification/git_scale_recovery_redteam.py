@@ -288,6 +288,10 @@ try:
         status, _, reply = rpc(port_one, alice, contract, "initialize_repository", [repositories[name]])
         check(f"initialize {name} through first node", status == 200, str(reply))
     repository = repositories["scale-public"]
+    status, _, reply = rpc(port_one, alice, contract, "create_issue", [repository, "Background search candidate", "g5needle appears only in this issue body"])
+    check("create body-only search candidate", status == 200, str(reply))
+    status, _, reply = rpc(port_two, alice, contract, "create_issue", [repository, "g5needle", "Exact-title relevance candidate"])
+    check("create exact-title search candidate", status == 200, str(reply))
 
     token_request = {
         "label": "g4-redteam",
@@ -357,6 +361,11 @@ try:
 
     status, _, reply = rpc(port_two, bob, contract, "global_search", ["citrine"])
     check("ordinary user can search an authorized public repository", status == 200 and value(reply)["total"] == "1", str(reply))
+    status, _, reply = rpc(port_one, bob, contract, "global_search", ["  g5needle  "])
+    ranked = value(reply)["cards"] if status == 200 else []
+    check("search trims input and ranks an exact title above a body match", status == 200 and len(ranked) == 2 and ranked[0]["title"] == "g5needle" and ranked[1]["title"] == "Background search candidate", str(reply))
+    status, _, reply = rpc(port_two, bob, contract, "global_search", ["%"])
+    check("search treats SQL wildcard punctuation literally instead of matching the corpus", status == 200 and value(reply)["total"] == "0", str(reply))
     status, _, reply = rpc(port_one, bob, contract, "global_search", ["obsidian"])
     check("search hides unauthorized private candidates", status == 200 and value(reply)["total"] == "0", str(reply))
     status, _, reply = rpc(port_one, alice, contract, "grant_reporter", [organization, "bob"])

@@ -912,14 +912,14 @@ fn search_query(
     search: &str,
     limit: i64,
 ) -> Result<serde_json::Value> {
-    if search.trim().is_empty() {
+    let search = search.trim();
+    if search.is_empty() {
         return Ok(serde_json::json!({"cards":[],"total":"0"}));
     }
     let candidates = (limit.saturating_mul(10)).min(500);
-    let pattern = format!("%{}%", search.replace(['%', '_', '\\'], ""));
     let rows = database.connection.query(
-        "SELECT document,repository,kind,title,left(body,4096) FROM diamond_g4_ops.search_documents WHERE app=$1 AND binding=$2 AND (to_tsvector('simple',title||' '||body) @@ plainto_tsquery('simple',$3) OR title ILIKE $4) ORDER BY updated DESC,document LIMIT $5",
-        &[&database.app, &binding_name, &search, &pattern, &candidates],
+        "WITH q AS (SELECT plainto_tsquery('simple',$3) AS terms) SELECT document,repository,kind,title,left(body,512) FROM diamond_g4_ops.search_documents,q WHERE app=$1 AND binding=$2 AND (to_tsvector('simple',title||' '||body) @@ q.terms OR strpos(lower(title),lower($3))>0) ORDER BY (lower(title)=lower($3)) DESC,(left(lower(title),char_length($3))=lower($3)) DESC,ts_rank_cd(setweight(to_tsvector('simple',title),'A')||setweight(to_tsvector('simple',body),'B'),q.terms,32) DESC,updated DESC,document LIMIT $4",
+        &[&database.app, &binding_name, &search, &candidates],
     )?;
     let mut cards = Vec::new();
     for row in rows {

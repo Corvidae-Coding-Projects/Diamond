@@ -1402,7 +1402,7 @@ impl<'a> Checker<'a> {
         }
         if matches!(
             method,
-            "delivery_schedule" | "delivery_query" | "delivery_cancel"
+            "delivery_schedule" | "delivery_query" | "delivery_cancel" | "delivery_command"
         ) {
             return self.delivery_call(method, args, types, location);
         }

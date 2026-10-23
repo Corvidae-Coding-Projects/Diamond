@@ -1,14 +1,16 @@
 # Diamond Forge
 
 Diamond Forge is a working Git collaboration application written in Diamond. It
-is the runnable G4-complete slice of the Git web-interface design: accounts, Google and
+is the runnable G5-complete slice of the Git web-interface design: accounts, Google and
 GitHub login, configurable enrollment, organizations, teams, direct repository
 permissions, forks, HTTPS and SSH Git transport, repository browsing, issues,
 boards, wikis, snippets, review threads, three merge strategies, notifications,
 releases, Git LFS, REST operations, bounded webhooks, audit events, protected
 refs, deploy keys, durable push events, isolated CI jobs, caches, generic
 artifacts, OCI pulls, environments, static Pages, shared node coordination,
-authorized global search, verified repository mirrors, and bounded object GC.
+authorized ranked search, per-repository notification preferences, verified
+repository mirrors, named runner profiles, artifact lifecycle controls, Pages
+rollback and custom-domain mappings, and bounded object GC.
 
 Diamond uses the installed `git` executable for Git semantics. The application
 never receives a shell command, filesystem path, process environment, or raw
@@ -135,6 +137,7 @@ fields or path traversal reject the pipeline before it runs.
   "jobs": [
     {
       "name": "publish",
+      "executor": "small",
       "script": "mkdir -p out site\nprintf 'release\\n' > out/app.txt\nprintf '<h1>Hello</h1>\\n' > site/index.html\nprintf 'layer\\n' > image.tar",
       "timeout_seconds": 60,
       "artifact": {"name": "release", "path": "out/app.txt"},
@@ -165,7 +168,10 @@ cannot establish isolation; it never falls back to running repository code on
 the host.
 
 Generic artifacts and OCI layers stream through the control-plane listener with
-the same repository-scoped credential used by Git:
+the same repository-scoped credential used by Git. Generic downloads support
+`HEAD`, a single byte range, and conditional reads with `ETag`. A repository
+writer may delete artifact metadata from **CI & delivery**; retained bytes are
+later collected under the normal hold and grace rules.
 
 ```sh
 curl -u diamond:dia_REPLACE_ME \
@@ -188,7 +194,29 @@ diamond project-pages-serve examples/git-browser/diamond.toml \
 ```
 
 The `docs` site above is available at `http://127.0.0.1:3001/docs/`. Put the
-Pages listener on a distinct public origin in production.
+Pages listener on a distinct public origin in production. The application can
+atomically roll back to a retained deployment and administrators can map a
+canonical custom host. DNS ownership verification, public routing, and automatic
+TLS remain responsibilities of the reverse proxy or CDN; see
+`docs/git-forge-administration.md` for the safe sequence.
+
+## Import or export a repository
+
+Use stock Git's mirror mode so branches, annotated tags, and Git notes retain
+their native representation:
+
+```sh
+git clone --mirror \
+  https://diamond:SOURCE_CREDENTIAL@forge.example.test/_diamond/git/repos/SOURCE_ID.git \
+  export.git
+git -C export.git fsck --strict
+git -C export.git push --mirror \
+  https://diamond:DESTINATION_CREDENTIAL@forge.example.test/_diamond/git/repos/DESTINATION_ID.git
+```
+
+Export LFS objects separately with `git lfs fetch --all`. Protected-ref rules
+remain active during imports. Clone the destination afresh and compare
+`git show-ref` output before decommissioning the source.
 
 ## Run the G4 operations plane
 
@@ -210,7 +238,8 @@ diamond project-ops-work examples/git-browser/diamond.toml \
   --postgres-env DIAMOND_POSTGRES --runtime-env DIAMOND_RUNTIME
 ```
 
-Search candidates are indexed by a native worker but reauthorized against the
+Search candidates are indexed by a native worker, ranked with exact titles and
+title terms ahead of body-only matches, and reauthorized against the
 current repository policy on every result, so revocation does not wait for a
 reindex. Mirrors use stock Git, require the exact placed commit, reject symlink
 roots, run `git fsck --strict`, and record verification before an administrator
@@ -283,4 +312,7 @@ replica roots, promotion/reconciliation races, stale generations, shared limits,
 object holds, node drain, encrypted backup tampering, and isolated restore.
 
 SSH deployment, protected-ref semantics, shard promotion, and the complete
-runtime command reference are documented in the root `README.md`.
+runtime command reference are documented in the root `README.md`. Production
+process layout, enrollment, import/export, executor profiles, custom domains,
+backup, recovery, and incident procedures are in
+`docs/git-forge-administration.md`.

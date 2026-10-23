@@ -20,6 +20,7 @@ type WikiPageId = Id<"wiki_page">
 type SnippetId = Id<"snippet">
 type ReviewThreadId = Id<"review_thread">
 type NotificationId = Id<"notification">
+type NotificationPreferenceId = Id<"notification_preference">
 type ReleaseId = Id<"release">
 type WebhookId = Id<"webhook">
 type AuditEventId = Id<"audit_event">
@@ -412,6 +413,22 @@ type NewNotification:
 type EditNotification:
   read: Bool
 
+type NotificationPreference:
+  id: NotificationPreferenceId
+  owner: UserId @created_by_principal
+  repository: RepositoryId
+  enabled: Bool
+  unread_only: Bool
+
+type NewNotificationPreference:
+  repository: RepositoryId
+  enabled: Bool
+  unread_only: Bool
+
+type EditNotificationPreference:
+  enabled: Bool
+  unread_only: Bool
+
 type Release:
   id: ReleaseId
   author: UserId @created_by_principal
@@ -487,6 +504,7 @@ resource WikiPages: WikiPage
 resource Snippets: Snippet
 resource ReviewThreads: ReviewThread
 resource Notifications: Notification
+resource NotificationPreferences: NotificationPreference
 resource Releases: Release
 resource Webhooks: Webhook
 resource AuditEvents: AuditEvent
@@ -678,6 +696,16 @@ policy Notifications:
     before.id == after.id and before.actor == after.actor and before.recipient == after.recipient and before.organization == after.organization and before.repository == after.repository and before.kind == after.kind and before.message == after.message and before.rank == after.rank and principal.is_user(before.recipient)
   delete(row, by principal):
     principal.is_user(row.recipient)
+
+policy NotificationPreferences:
+  read(row, by principal):
+    principal.is_user(row.owner)
+  create(row, by principal):
+    principal.is_user(row.owner)
+  update(before, after, by principal):
+    before.id == after.id and before.owner == after.owner and before.repository == after.repository and principal.is_user(before.owner)
+  delete(row, by principal):
+    principal.is_user(row.owner)
 
 policy Releases:
   read(row, by principal):
@@ -1120,6 +1148,27 @@ export fn mark_notification_read(notification: Text) -> Result<Text, DataError>:
   let row = notifications.update(before.id, EditNotification(read: true))?
   Ok(id_text(row.id))
 
+fn preference_card(row: NotificationPreference) -> NotificationPreferenceCard:
+  NotificationPreferenceCard(id: id_text(row.id), enabled: row.enabled, unread_only: row.unread_only)
+
+export fn notification_preferences(repository: Text) -> Result<NotificationPreferenceCard, DataError>:
+  let parent = repositories.get(RepositoryId(repository))?
+  let rows = notificationpreferences.select(repository: parent.id, limit: 1)?
+  match list_get(rows, 0):
+    Some(row) => Ok(preference_card(row))
+    None => Ok(NotificationPreferenceCard(id: "", enabled: true, unread_only: false))
+
+export fn save_notification_preferences(repository: Text, enabled: Bool, unread_only: Bool) -> Result<NotificationPreferenceCard, DataError>:
+  let parent = repositories.get(RepositoryId(repository))?
+  let rows = notificationpreferences.select(repository: parent.id, limit: 1)?
+  match list_get(rows, 0):
+    Some(before) =>
+      let row = notificationpreferences.update(before.id, EditNotificationPreference(enabled: enabled, unread_only: unread_only))?
+      Ok(preference_card(row))
+    None =>
+      let row = notificationpreferences.create(NewNotificationPreference(repository: parent.id, enabled: enabled, unread_only: unread_only))?
+      Ok(preference_card(row))
+
 export fn create_release(repository: Text, tag: Text<length: 1..120>, name: Text<length: 1..160>, notes: Text<length: 0..16000>, draft: Bool) -> Result<Text, DataError>:
   let parent = repositories.get(RepositoryId(repository))?
   let commit = host.git_query<GitHistory>("repos", repository, "history", tag, "", 1)?
@@ -1177,7 +1226,16 @@ export fn collaboration_dashboard(organization: Text, repository: Text) -> Resul
   let review_rows = reviews.select(organization: OrganizationId(organization), repository: RepositoryId(repository), limit: 100)?
   let review_cards = for row in review_rows:
     ReviewCard(id: id_text(row.id), merge_request: id_text(row.merge_request), reviewer: id_text(row.reviewer), head: row.head)
-  let notification_rows = notifications.select(limit: 100)?
+  let preference_rows = notificationpreferences.select(repository: RepositoryId(repository), limit: 1)?
+  let notification_rows = match list_get(preference_rows, 0):
+    Some(preference) =>
+      match preference.enabled:
+        false => []
+        true =>
+          match preference.unread_only:
+            true => notifications.select(repository: RepositoryId(repository), read: false, limit: 100)?
+            false => notifications.select(repository: RepositoryId(repository), limit: 100)?
+    None => notifications.select(repository: RepositoryId(repository), limit: 100)?
   let notification_cards = for row in notification_rows:
     NotificationCard(id: id_text(row.id), kind: row.kind, message: row.message, repository: id_text(row.repository), read: row.read)
   let release_rows = releases.select(organization: OrganizationId(organization), repository: RepositoryId(repository), limit: 100)?
@@ -1234,14 +1292,32 @@ export fn delivery_jobs(repository: Text, pipeline: Text) -> Result<JobResults, 
 export fn delivery_artifacts(repository: Text, pipeline: Text) -> Result<ArtifactResults, DataError>:
   host.delivery_query<ArtifactResults>("builds", repository, "artifacts:" + pipeline, 50)
 
+export fn delete_delivery_artifact(repository: Text, artifact: Text) -> Result<Text, DataError>:
+  host.delivery_command("builds", repository, "artifact_delete", artifact, "")
+
 export fn delivery_images(repository: Text) -> Result<ImageResults, DataError>:
   host.delivery_query<ImageResults>("builds", repository, "images", 50)
 
 export fn delivery_pages(repository: Text) -> Result<PageResults, DataError>:
   host.delivery_query<PageResults>("builds", repository, "pages", 50)
 
+export fn activate_pages_deployment(repository: Text, site: Text, deployment: Text) -> Result<Text, DataError>:
+  host.delivery_command("builds", repository, "pages_activate", site, deployment)
+
+export fn delivery_domains(repository: Text) -> Result<DomainResults, DataError>:
+  host.delivery_query<DomainResults>("builds", repository, "domains", 50)
+
+export fn set_pages_domain(repository: Text, domain: Text, site: Text) -> Result<Text, DataError>:
+  host.delivery_command("builds", repository, "domain_set", domain, site)
+
+export fn remove_pages_domain(repository: Text, domain: Text) -> Result<Text, DataError>:
+  host.delivery_command("builds", repository, "domain_remove", domain, "")
+
 export fn delivery_environments(repository: Text) -> Result<EnvironmentResults, DataError>:
   host.delivery_query<EnvironmentResults>("builds", repository, "environments", 50)
+
+export fn stop_delivery_environment(repository: Text, environment: Text) -> Result<Text, DataError>:
+  host.delivery_command("builds", repository, "environment_stop", environment, "")
 
 export fn operations_nodes() -> Result<OperationsResults, DataError>:
   host.ops_query<OperationsResults>("control", "nodes", "", 100)

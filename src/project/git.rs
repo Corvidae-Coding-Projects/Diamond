@@ -1152,6 +1152,7 @@ fn store_inventory(store: &Store) -> Result<GitInventory> {
                 "--format=%(refname) %(objectname)".into(),
                 "refs/heads".into(),
                 "refs/tags".into(),
+                "refs/notes".into(),
             ],
             OUTPUT_LIMIT,
         )?;
@@ -1277,6 +1278,7 @@ fn one_repository_inventory(
             "--format=%(refname) %(objectname)".into(),
             "refs/heads".into(),
             "refs/tags".into(),
+            "refs/notes".into(),
         ],
         OUTPUT_LIMIT,
     )?;
@@ -3147,7 +3149,9 @@ fn is_ancestor(old: &str, new: &str) -> Result<bool> {
 
 fn valid_reference(value: &str) -> Result<()> {
     if value.len() > 255
-        || (!value.starts_with("refs/heads/") && !value.starts_with("refs/tags/"))
+        || (!value.starts_with("refs/heads/")
+            && !value.starts_with("refs/tags/")
+            && !value.starts_with("refs/notes/"))
         || value.ends_with(['/', '.'])
         || value.contains("..")
         || value.contains("@{")

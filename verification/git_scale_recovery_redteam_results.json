@@ -1,12 +1,12 @@
 {
   "profile": "diamond-forge-g4-scale-recovery",
-  "checks": 104,
-  "passed": 104,
-  "contract": "a5c2b1bb08d883b2842f59c6e9ffefc82ff1b5ae9e05c22a7ee2c456b7a879ff",
-  "commit": "f091e3a25b289b4282e7f9a90dabd48ebbef95b0",
+  "checks": 108,
+  "passed": 108,
+  "contract": "a338babe5e81a4e87a8bde27cab3386baf8e65a85753ed0fbefda10d00db3d93",
+  "commit": "156733b10e9a7306dc406e64f53a0de236637fef",
   "worker_tasks": [
-    "9e958deba13d6e5dcd988b483b262126194701b7e8fdee4ba439c428037a23be",
-    "8972923da06616acb2e1cb2cf22750827ebcfce14730a082dedc0fe52b283d4b"
+    "d16dff36c17bd3e301517b2c47be2af2058bad93749d316d3e25c381fd527a29",
+    "f2b349717cc1b8590c199d521c04b7e691162ea4a66f5ac97324c384744a4001"
   ],
   "results": [
     {
@@ -58,11 +58,11 @@
       "pass": true
     },
     {
-      "name": "node 45233 is live and ready",
+      "name": "node 55521 is live and ready",
       "pass": true
     },
     {
-      "name": "node 37009 is live and ready",
+      "name": "node 44293 is live and ready",
       "pass": true
     },
     {
@@ -111,6 +111,14 @@
     },
     {
       "name": "initialize scale-secret through first node",
+      "pass": true
+    },
+    {
+      "name": "create body-only search candidate",
+      "pass": true
+    },
+    {
+      "name": "create exact-title search candidate",
       "pass": true
     },
     {
@@ -199,6 +207,14 @@
     },
     {
       "name": "ordinary user can search an authorized public repository",
+      "pass": true
+    },
+    {
+      "name": "search trims input and ranks an exact title above a body match",
+      "pass": true
+    },
+    {
+      "name": "search treats SQL wildcard punctuation literally instead of matching the corpus",
       "pass": true
     },
     {

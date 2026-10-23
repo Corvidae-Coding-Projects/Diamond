@@ -79,6 +79,9 @@ export component GitForge:
   state merge_message: Text = "Merge reviewed changes"
   state integrated_object: Text = ""
   state notification: Text = ""
+  state notification_preference: NotificationPreferenceCard = NotificationPreferenceCard(id: "", enabled: true, unread_only: false)
+  state notifications_enabled: Bool = true
+  state notifications_unread_only: Bool = false
   state release: Text = ""
   state release_tag: Text = "refs/tags/v0.1.0"
   state release_name: Text = "v0.1.0"
@@ -92,9 +95,15 @@ export component GitForge:
   state pipelines: PipelineResults = PipelineResults(cards: [])
   state pipeline_jobs: JobResults = JobResults(cards: [])
   state pipeline_artifacts: ArtifactResults = ArtifactResults(cards: [])
+  state artifact_id: Text = ""
   state pipeline_images: ImageResults = ImageResults(cards: [])
   state pipeline_pages: PageResults = PageResults(cards: [])
+  state page_site: Text = "docs"
+  state page_deployment: Text = ""
+  state page_domain: Text = "docs.example.test"
+  state page_domains: DomainResults = DomainResults(cards: [])
   state pipeline_environments: EnvironmentResults = EnvironmentResults(cards: [])
+  state environment_name: Text = "preview"
   state webhook: Text = ""
   state webhook_path: Text = "/hooks/diamond"
   state webhook_event: Text = "manual-test"
@@ -321,6 +330,14 @@ export component GitForge:
   on mark_notification_read:
     notification = rpc.mark_notification_read(notification)
     dashboard = rpc.collaboration_dashboard(organization, repository)
+  on load_notification_preferences:
+    notification_preference = rpc.notification_preferences(repository)
+    notifications_enabled = notification_preference.enabled
+    notifications_unread_only = notification_preference.unread_only
+  on save_notification_preferences:
+    notification_preference = rpc.save_notification_preferences(repository, notifications_enabled, notifications_unread_only)
+    dashboard = rpc.collaboration_dashboard(organization, repository)
+    output = "Notification preferences saved."
   on create_release:
     release = rpc.create_release(repository, release_tag, release_name, release_notes, release_draft)
     dashboard = rpc.collaboration_dashboard(organization, repository)
@@ -334,7 +351,28 @@ export component GitForge:
     pipeline_artifacts = rpc.delivery_artifacts(repository, pipeline)
     pipeline_images = rpc.delivery_images(repository)
     pipeline_pages = rpc.delivery_pages(repository)
+    page_domains = rpc.delivery_domains(repository)
     pipeline_environments = rpc.delivery_environments(repository)
+  on delete_delivery_artifact:
+    artifact_id = rpc.delete_delivery_artifact(repository, artifact_id)
+    pipeline_artifacts = rpc.delivery_artifacts(repository, pipeline)
+    output = "Artifact metadata deleted; unreferenced bytes are reclaimed by bounded GC."
+  on activate_pages_deployment:
+    page_deployment = rpc.activate_pages_deployment(repository, page_site, page_deployment)
+    pipeline_pages = rpc.delivery_pages(repository)
+    output = "Pages deployment activated."
+  on set_pages_domain:
+    page_domain = rpc.set_pages_domain(repository, page_domain, page_site)
+    page_domains = rpc.delivery_domains(repository)
+    output = "Custom domain activated by an account administrator."
+  on remove_pages_domain:
+    page_domain = rpc.remove_pages_domain(repository, page_domain)
+    page_domains = rpc.delivery_domains(repository)
+    output = "Custom domain removed."
+  on stop_delivery_environment:
+    environment_name = rpc.stop_delivery_environment(repository, environment_name)
+    pipeline_environments = rpc.delivery_environments(repository)
+    output = "Environment stopped."
   on cancel_pipeline:
     output = rpc.cancel_pipeline(repository, pipeline)
     pipelines = rpc.delivery_pipelines(repository)
@@ -353,7 +391,8 @@ export component GitForge:
     output = rpc.deliver_webhook(webhook, webhook_event, webhook_payload)
 
   html:
-    <main>
+    <main id="main-content">
+      <a class="skip-link" href="/#account-heading">Skip to account and workspace</a>
       <header class="masthead"><div><p class="eyebrow">DIAMOND FORGE</p><h1>Git collaboration without a heavyweight application stack</h1><p>Organizations, repositories, issues, reviews, and Git stay under one checked policy model.</p></div></header>
       <nav aria-label="Primary"><a href="/">Repositories</a><a href="/collaboration">Collaboration</a><a href="/issues">Issues &amp; boards</a><a href="/merge-requests">Merge requests</a><a href="/delivery">CI &amp; delivery</a><a href="/operations">Scale &amp; recovery</a><a href="/knowledge">Wiki &amp; snippets</a><a href="/releases">Releases</a><a href="/activity">Activity</a><a href="/settings">Settings</a></nav>
       <watch channel="repository_activity" parent={repository} into="activity" cursor="activity_cursor"></watch>
@@ -445,9 +484,9 @@ export component GitForge:
           <div class="actions"><button on-click={schedule_pipeline}>Run pipeline</button><button on-click={refresh_delivery}>Refresh delivery</button><button class="danger" on-click={cancel_pipeline}>Cancel pipeline</button></div>
           <h3>Pipelines</h3><ul class="cards"><each items={pipelines.cards} as="item" key={item.id}><li><span class="badge">{item.state}</span><strong>{item.reference}</strong><p>{item.created}</p><code>{item.id} · {item.commit}</code></li></each></ul>
           <h3>Jobs</h3><ol class="commits"><each items={pipeline_jobs.cards} as="job" key={job.id}><li><span class="badge">{job.state}</span><strong>{job.name}</strong><p>attempts {job.attempts}</p><pre>{job.log}</pre><code>{job.id}</code></li></each></ol>
-          <h3>Artifacts</h3><p>Use the repository credential with <code>/_diamond/delivery/builds/REPOSITORY/artifacts/ID</code>.</p><ul class="cards"><each items={pipeline_artifacts.cards} as="item" key={item.id}><li><strong>{item.name}</strong><p>{item.size} bytes</p><code>{item.id} · {item.digest}</code></li></each></ul>
+          <h3>Artifacts</h3><p>Use the repository credential with <code>/_diamond/delivery/builds/REPOSITORY/artifacts/ID</code>. Downloads support HEAD, ETag validation, and single byte ranges.</p><ul class="cards"><each items={pipeline_artifacts.cards} as="item" key={item.id}><li><strong>{item.name}</strong><p>{item.size} bytes</p><code>{item.id} · {item.digest}</code></li></each></ul><label for="artifact-id">Artifact ID to delete</label><input id="artifact-id" bind-value={artifact_id}><button class="danger" on-click={delete_delivery_artifact} aria-controls="delivery-status">Delete artifact metadata</button>
           <h3>OCI images</h3><ul class="cards"><each items={pipeline_images.cards} as="item" key={item.digest}><li><span class="badge">{item.tag}</span><strong>{item.name}</strong><code>{item.digest}</code></li></each></ul>
-          <h3>Pages and environments</h3><ul class="cards"><each items={pipeline_pages.cards} as="item" key={item.site}><li><strong>{item.site}</strong><code>{item.deployment}</code></li></each></ul><ul class="cards"><each items={pipeline_environments.cards} as="item" key={item.name}><li><span class="badge">{item.state}</span><strong>{item.name}</strong><p>pipeline {item.pipeline}</p><code>{item.deployment}</code></li></each></ul>
+          <h3>Pages and environments</h3><ul class="cards"><each items={pipeline_pages.cards} as="item" key={item.site}><li><strong>{item.site}</strong><code>{item.deployment}</code></li></each></ul><div class="grid"><div><label for="page-site">Pages site</label><input id="page-site" bind-value={page_site}></div><div><label for="page-deployment">Deployment to activate or roll back to</label><input id="page-deployment" bind-value={page_deployment}></div><div><label for="page-domain">Custom domain</label><input id="page-domain" bind-value={page_domain}></div></div><div class="actions"><button on-click={activate_pages_deployment}>Activate deployment</button><button on-click={set_pages_domain}>Map custom domain</button><button class="danger" on-click={remove_pages_domain}>Remove custom domain</button></div><ul class="cards"><each items={page_domains.cards} as="domain" key={domain.domain}><li><strong>{domain.domain}</strong><code>site {domain.site}</code></li></each></ul><ul class="cards"><each items={pipeline_environments.cards} as="item" key={item.name}><li><span class="badge">{item.state}</span><strong>{item.name}</strong><p>pipeline {item.pipeline}</p><code>{item.deployment}</code></li></each></ul><label for="environment-name">Environment to stop</label><input id="environment-name" bind-value={environment_name}><button class="danger" on-click={stop_delivery_environment}>Stop environment</button><p id="delivery-status" role="status" aria-live="polite">{output}</p>
         </section>
       </route>
       <route path="/operations">
@@ -462,7 +501,7 @@ export component GitForge:
         </section>
       </route>
       <route path="/activity">
-        <section class="panel" aria-labelledby="activity-heading"><h2 id="activity-heading">Notifications and audit trail</h2><button on-click={refresh_collaboration}>Refresh activity</button><label for="notification-id">Notification ID</label><input id="notification-id" bind-value={notification}><button on-click={mark_notification_read}>Mark read</button>
+        <section class="panel" aria-labelledby="activity-heading"><h2 id="activity-heading">Notifications and audit trail</h2><div class="actions"><button on-click={refresh_collaboration}>Refresh activity</button><button on-click={load_notification_preferences}>Load preferences</button></div><fieldset><legend>Repository notification preferences</legend><label class="check"><input type="checkbox" bind-checked={notifications_enabled}> Show repository notifications</label><label class="check"><input type="checkbox" bind-checked={notifications_unread_only}> Show unread notifications only</label><button on-click={save_notification_preferences}>Save preferences</button></fieldset><label for="notification-id">Notification ID</label><input id="notification-id" bind-value={notification}><button on-click={mark_notification_read}>Mark read</button>
           <h3>Notifications</h3><ul class="cards"><each items={dashboard.notifications} as="notice" key={notice.id}><li><span class="badge">{notice.kind}</span><strong>{notice.message}</strong><p>repository {notice.repository}</p><code>{notice.id}</code></li></each></ul>
           <h3>Administrative audit</h3><ol class="commits"><each items={dashboard.audit} as="audit" key={audit.id}><li><strong>{audit.action}</strong><p>{audit.subject}</p><p class="byline">actor {audit.actor}</p><code>{audit.id}</code></li></each></ol>
         </section>

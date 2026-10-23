@@ -12,6 +12,11 @@ surface over HTTP; pushes with stock Git; and runs multiple native operations
 workers. The latest receipt in
 `git_scale_recovery_redteam_results.json` records the exact passing check count.
 
+The initial G5 extension reuses that real two-node surface to compare an exact
+issue-title match with a body-only match, verify surrounding whitespace is
+normalized, and prove SQL wildcard punctuation no longer expands into an
+unintended corpus-wide result. The current receipt passes all 108 checks.
+
 Covered behavior includes shared sessions and CSRF across nodes, live/readiness
 health, administrator-only topology, private-directory markers, strict shard
 identifiers, exact placement generations, decoded global indexing, live policy
