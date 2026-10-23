@@ -18,6 +18,7 @@ pub(super) use rates::charge;
 pub(super) use routes::{dispatch, route, signature, subject};
 pub(super) use schema::{initialize, validate};
 use serde::{Deserialize, Serialize};
+pub(super) use ssh::parse_public_key;
 use std::collections::BTreeSet;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]

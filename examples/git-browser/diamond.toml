@@ -31,6 +31,13 @@ repository_history = "server.repository_history"
 repository_diff = "server.repository_diff"
 protect_reference = "server.protect_reference"
 unprotect_reference = "server.unprotect_reference"
+record_gate = "server.record_gate"
+add_deploy_key = "server.add_deploy_key"
+revoke_deploy_key = "server.revoke_deploy_key"
+add_certificate = "server.add_certificate"
+revoke_certificate = "server.revoke_certificate"
+pending_push_events = "server.pending_push_events"
+acknowledge_push_event = "server.acknowledge_push_event"
 
 [storage]
 profile = "relational-v1"
@@ -48,7 +55,7 @@ providers = ["google", "github"]
 admission = "public"
 
 [git]
-profile = "git-v1"
+profile = "git-v2"
 
 [git.bindings.repos]
 resource = "Repositories"

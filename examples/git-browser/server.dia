@@ -46,8 +46,29 @@ export fn repository_history(repository: Text, revision: Text) -> Result<GitHist
 export fn repository_diff(repository: Text, old: Text, new: Text) -> Result<GitDiff, DataError>:
   host.git_query<GitDiff>("repos", repository, "diff", old, new, 1)
 
-export fn protect_reference(repository: Text, reference: Text, required_role: Text, allow_force: Bool, allow_delete: Bool) -> Result<Text, DataError>:
-  host.git_protect("repos", repository, reference, required_role, allow_force, allow_delete)
+export fn protect_reference(repository: Text, pattern: Text, required_role: Text, allow_force: Bool, allow_delete: Bool, required_approvals: Int, require_pipeline: Bool, require_discussions: Bool, require_signed_commits: Bool, scan_secrets: Bool) -> Result<Text, DataError>:
+  host.git_protect("repos", repository, pattern, required_role, allow_force, allow_delete, required_approvals, require_pipeline, require_discussions, require_signed_commits, scan_secrets)
 
 export fn unprotect_reference(repository: Text, reference: Text) -> Result<Text, DataError>:
   host.git_unprotect("repos", repository, reference)
+
+export fn record_gate(repository: Text, reference: Text, object: Text, approvals: Int, pipeline_succeeded: Bool, discussions_resolved: Bool) -> Result<Text, DataError>:
+  host.git_gate("repos", repository, reference, object, approvals, pipeline_succeeded, discussions_resolved, 86400)
+
+export fn add_deploy_key(repository: Text, label: Text, public_key: Text, can_write: Bool) -> Result<Text, DataError>:
+  host.git_deploy_key("repos", repository, label, public_key, can_write)
+
+export fn revoke_deploy_key(repository: Text, key: Text) -> Result<Text, DataError>:
+  host.git_revoke_deploy_key("repos", repository, key)
+
+export fn add_certificate(repository: Text, principal: Text, can_write: Bool) -> Result<Text, DataError>:
+  host.git_certificate("repos", repository, principal, can_write, 2592000)
+
+export fn revoke_certificate(repository: Text, certificate: Text) -> Result<Text, DataError>:
+  host.git_revoke_certificate("repos", repository, certificate)
+
+export fn pending_push_events(limit: Int) -> Result<Text, DataError>:
+  host.git_events("repos", limit)
+
+export fn acknowledge_push_event(event: Text) -> Result<Text, DataError>:
+  host.git_ack_event("repos", event)

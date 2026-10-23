@@ -164,13 +164,14 @@ async fn request_inner(
 }
 
 async fn backend_response(
-    transport: super::super::git::Transport,
+    mut transport: super::super::git::Transport,
     route: Route,
     request: Request,
     backend: BackendRequest,
     permit: tokio::sync::OwnedSemaphorePermit,
     configuration: &str,
 ) -> Result<Response> {
+    let fence = transport.fence.take();
     let mut command = Command::new(&transport.executable);
     command
         .args([
@@ -210,7 +211,6 @@ async fn backend_response(
         let policy = super::super::git::policy_environment(&transport)?;
         command
             .env("REMOTE_USER", "diamond")
-            .env("DIAMOND_GIT_HOOK_MODE", "pre-receive")
             .env("DIAMOND_GIT_STORE_ROOT", &transport.root)
             .env("DIAMOND_GIT_EXECUTABLE", &transport.executable)
             .env("DIAMOND_GIT_POLICY_DATABASE", configuration)
@@ -252,7 +252,7 @@ async fn backend_response(
             }
         };
 
-    let receiver = spawn_stream(child, stdout, input, errors, permit);
+    let receiver = spawn_stream(child, stdout, input, errors, permit, fence);
     let stream = futures_util::stream::unfold(receiver, |mut receiver| async move {
         receiver.recv().await.map(|item| (item, receiver))
     });
@@ -272,10 +272,12 @@ fn spawn_stream(
     mut input: tokio::task::JoinHandle<io::Result<()>>,
     mut errors: tokio::task::JoinHandle<io::Result<()>>,
     permit: tokio::sync::OwnedSemaphorePermit,
+    fence: Option<super::super::git::ReceiveFence>,
 ) -> mpsc::Receiver<io::Result<Bytes>> {
     let (sender, receiver) = mpsc::channel(4);
     tokio::spawn(async move {
         let _permit = permit;
+        let _fence = fence;
         let output_ok = tokio::time::timeout(
             TRANSPORT_DEADLINE,
             pump_output(&mut stdout, &sender, super::super::git::MAX_TRANSPORT_BYTES),

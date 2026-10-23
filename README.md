@@ -332,7 +332,7 @@ provides = ["DbRead<Repositories>", "DbWrite<Repositories>",
             "GitRead<repos>", "GitWrite<repos>", "GitAdmin<repos>"]
 
 [git]
-profile = "git-v1"
+profile = "git-v2"
 
 [git.bindings.repos]
 resource = "Repositories"
@@ -349,7 +349,10 @@ export fn tree(repository: Text, revision: Text, path: Text) -> Result<GitTree, 
   host.git_query<GitTree>("repos", repository, "tree", revision, path, 100)
 
 export fn protect(repository: Text) -> Result<Text, DataError>:
-  host.git_protect("repos", repository, "refs/heads/main", "account_admin", false, false)
+  host.git_protect("repos", repository, "refs/heads/release/*", "account_admin", false, false, 2, true, true, true, true)
+
+export fn gate(repository: Text, reference: Text, object: Text) -> Result<Text, DataError>:
+  host.git_gate("repos", repository, reference, object, 2, true, true, 86400)
 ```
 
 Available read operations are `head`, `tree`, `blob`, `history`, and `diff`.
@@ -357,13 +360,21 @@ The binding and operation are static so the checker can preserve authority.
 Repository creation is kept separate from application database writes because
 Git and PostgreSQL cannot share a transaction.
 
-`git_protect` installs or updates one exact `refs/heads/...` or `refs/tags/...`
-rule. The required role is `authenticated` or `account_admin`; the two Boolean
-arguments control non-fast-forward updates and deletion. `git_unprotect`
-removes an exact rule. Both operations require `GitAdmin<binding>`, an account
-administrator, and write access to the repository resource. Every HTTPS and SSH
-push crosses the same runtime-owned pre-receive controller. A missing, changed,
-or unavailable controller rejects the complete ref transaction.
+`git_protect` accepts an exact branch or tag, or one terminal wildcard such as
+`refs/heads/release/*`. Its arguments set the live account role, force-push and
+deletion policy, approval count, required pipeline and discussion state,
+signed-commit policy, and secret scanning. Matching rules compose using the
+strictest requirement. `git_gate` records short-lived evidence for one exact
+candidate object; a gate for another commit cannot authorize the push.
+
+The other `GitAdmin<binding>` operations add and revoke repository-scoped
+deploy keys and SSH certificate principals, list committed push events, and
+acknowledge delivery. Every HTTPS and SSH push crosses the same exact-byte
+pre-receive and post-receive controllers. The receive path validates live
+identity and policy inside Git's quarantine, commits a private durable event
+spool, and records the resulting refs in PostgreSQL. Missing or altered hooks,
+invalid quarantine paths, stale identities, and unavailable policy state fail
+closed.
 
 Initialize the Git store after the PostgreSQL schema:
 
@@ -412,10 +423,36 @@ The lookup emits an OpenSSH `restrict,command="..."` line with an opaque key
 ID. The forced adapter rechecks the key, account epoch, disablement, repository
 policy, and protected-ref policy for every connection. It accepts only
 `git-upload-pack 'BINDING/REPOSITORY.git'` and
-`git-receive-pack 'BINDING/REPOSITORY.git'`; shell commands and extra arguments
-fail closed. The wrappers and any environment file are deployment credentials:
-keep them outside the repository, owned by the Diamond service account, and
-unwritable by group or other users.
+`git-receive-pack 'BINDING/REPOSITORY.git'`, plus read-only
+`git-upload-archive`; shell commands and extra arguments fail closed.
+
+Deploy keys use the same fingerprint lookup and forced adapter. SSH
+certificates use an OpenSSH CA plus the output of
+`project-git-authorized-principals` as the authorized-principals source. Both
+identity types are bound to one repository, an expiry or revocation state, and
+an explicit read-only or write grant. The wrappers, CA configuration, and any
+environment file are deployment credentials: keep them outside the repository,
+owned by the Diamond service account, and unwritable by group or other users.
+
+Run `project-git-reconcile` under supervision to deliver committed spool files
+to PostgreSQL and rebuild the bounded ref inventory from the fenced source
+shard. A shard cutover uses an independently synchronized private target root,
+then compares every registered repository and branch/tag object before the
+generation changes:
+
+```sh
+diamond project-git-reconcile /srv/diamond/apps/forge \
+  --postgres-env DIAMOND_POSTGRES --runtime-env DIAMOND_RUNTIME
+
+diamond project-git-promote /srv/diamond/apps/forge \
+  --postgres-env DIAMOND_POSTGRES --runtime-env DIAMOND_NEXT_RUNTIME \
+  --binding repos --expected-generation 1
+```
+
+Receives and cutovers use the same PostgreSQL advisory fence. A target that
+missed a push, has an extra repository or ref, or presents a stale generation
+is rejected. After a successful promotion the old root's identity is rejected
+and the new root emits events with the incremented generation.
 
 Projects can also declare Google and GitHub login:
 

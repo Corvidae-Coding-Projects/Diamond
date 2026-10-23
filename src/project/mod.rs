@@ -567,6 +567,36 @@ impl CheckedProject {
         git::initialize(self, configuration, grants)
     }
 
+    /// Promote the configured Git root for one binding with compare-and-swap fencing.
+    ///
+    /// # Errors
+    /// Rejects a stale expected generation, the currently active store, unsafe
+    /// target state, malformed repositories, or a concurrent promotion.
+    pub fn promote_git(
+        &self,
+        configuration: &str,
+        grants: &crate::RuntimeGrants,
+        binding: &str,
+        expected_generation: i64,
+    ) -> Result<String> {
+        synchronous_context()?;
+        git::promote(self, configuration, grants, binding, expected_generation)
+    }
+
+    /// Reconcile committed local Git push events into `PostgreSQL`.
+    ///
+    /// # Errors
+    /// Rejects unsafe spool files, inconsistent duplicate event identities,
+    /// unbound stores, excessive pending files, or database failures.
+    pub fn reconcile_git_events(
+        &self,
+        configuration: &str,
+        grants: &crate::RuntimeGrants,
+    ) -> Result<String> {
+        synchronous_context()?;
+        git::reconcile_events(self, configuration, grants)
+    }
+
     /// Resolve an active enrolled SSH key for an OpenSSH authorized-keys command.
     ///
     /// The returned pair contains the opaque key identifier and canonical public
@@ -584,6 +614,20 @@ impl CheckedProject {
     ) -> Result<(String, String)> {
         synchronous_context()?;
         git::authorized_ssh_key(self, configuration, fingerprint)
+    }
+
+    /// Resolve an active repository-scoped OpenSSH certificate principal.
+    ///
+    /// # Errors
+    /// Rejects malformed, unknown, expired, revoked, or ambiguous principals and
+    /// incompatible database state.
+    #[doc(hidden)]
+    pub fn git_ssh_authorized_principals(
+        &self,
+        configuration: &str,
+    ) -> Result<Vec<(String, String)>> {
+        synchronous_context()?;
+        git::authorized_ssh_principals(self, configuration)
     }
 
     /// Run one forced-command Git SSH session through the bounded adapter.

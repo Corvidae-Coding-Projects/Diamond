@@ -8,11 +8,13 @@ import os
 import pathlib
 import pwd
 import re
+import signal
 import shlex
 import shutil
 import socket
 import subprocess
 import sys
+import tarfile
 import tempfile
 import time
 
@@ -72,6 +74,13 @@ sshd = None
 def check(name, condition, detail=""):
     results.append({"name": name, "pass": bool(condition)})
     if not condition:
+        for log_name in ("server.log", "postgres.log", "sshd.log"):
+            log = TMP / log_name
+            if log.exists():
+                print(
+                    f"--- {log_name} ---\n{log.read_text(errors='replace')[-16000:]}",
+                    file=sys.stderr,
+                )
         raise AssertionError(f"{name}: {detail}")
 
 
@@ -293,12 +302,21 @@ try:
     ok("commit initial", ["git", "commit", "-m", "one"], cwd=clone)
     ok("push initial", ["git", "push", https_url, "HEAD:main"], cwd=clone)
 
+    status, _, initial_rule = rpc(
+        cookie,
+        csrf,
+        contract,
+        "protect_reference",
+        [repository, "refs/heads/main", "authenticated", False, False, "0", False, False, False, False],
+    )
+    check("first valid protected-ref rule", status == 200, str(initial_rule))
+
     status, _, _ = rpc(
         cookie,
         csrf,
         contract,
         "protect_reference",
-        [repository, "main", "authenticated", False, False],
+        [repository, "main", "authenticated", False, False, "0", False, False, False, False],
     )
     check("short protected ref rejected", status >= 400)
     status, _, _ = rpc(
@@ -306,7 +324,7 @@ try:
         csrf,
         contract,
         "protect_reference",
-        [repository, "refs/heads/main", "owner;drop", False, False],
+        [repository, "refs/heads/main", "owner;drop", False, False, "0", False, False, False, False],
     )
     check("unknown protected role rejected", status >= 400)
 
@@ -315,7 +333,7 @@ try:
         csrf,
         contract,
         "protect_reference",
-        [repository, "refs/heads/main", "authenticated", False, False],
+        [repository, "refs/heads/main", "authenticated", False, False, "0", False, False, False, False],
     )
     check("create protected-ref rule through Diamond", status == 200 and value["value"] == "protected", str(value))
     (clone / "README.md").write_text("two\n")
@@ -355,7 +373,7 @@ try:
         csrf,
         contract,
         "protect_reference",
-        [repository, "refs/heads/main", "authenticated", True, False],
+        [repository, "refs/heads/main", "authenticated", True, False, "0", False, False, False, False],
     )
     check("update protection generation", status == 200 and value["value"] == "protected")
     ok("explicitly allowed force push", ["git", "push", "--force", https_url, "HEAD:main"], cwd=clone)
@@ -379,7 +397,7 @@ try:
         csrf,
         contract,
         "protect_reference",
-        [repository, "refs/heads/main", "account_admin", False, False],
+        [repository, "refs/heads/main", "account_admin", False, False, "0", False, False, False, False],
     )
     check("require live administrator role", status == 200)
     psql("UPDATE diamond_identity.users SET administrator=false WHERE username='alice'")
@@ -388,7 +406,7 @@ try:
         csrf,
         contract,
         "protect_reference",
-        [repository, "refs/heads/main", "authenticated", False, False],
+        [repository, "refs/heads/main", "authenticated", False, False, "0", False, False, False, False],
     )
     check("non-administrator cannot mutate protection", status == 403)
     (clone / "README.md").write_text("demoted\n")
@@ -466,6 +484,113 @@ try:
         cookie,
     )
     check("duplicate SSH key rejected", status >= 400)
+
+    status, _, value = rpc(
+        cookie,
+        csrf,
+        contract,
+        "protect_reference",
+        [repository, "refs/heads/signed/*", "authenticated", False, False, "0", False, False, True, False],
+    )
+    check("install signed-commit wildcard policy", status == 200, str(value))
+    ok("configure SSH commit signing format", ["git", "config", "gpg.format", "ssh"], cwd=clone)
+    ok("configure SSH commit signing key", ["git", "config", "user.signingkey", str(user_key)], cwd=clone)
+    ok("enable SSH commit signing", ["git", "config", "commit.gpgsign", "true"], cwd=clone)
+    ok("start signed orphan branch", ["git", "switch", "--orphan", "signed-good"], cwd=clone)
+    (clone / "signed.txt").write_text("signed\n")
+    ok("stage signed commit", ["git", "add", "signed.txt"], cwd=clone)
+    ok("create signed commit", ["git", "commit", "-S", "-m", "signed"], cwd=clone)
+    ok("signed commit accepted on wildcard protected ref", ["git", "push", https_url, "HEAD:refs/heads/signed/good"], cwd=clone)
+
+    ok("disable signing for bypass probe", ["git", "config", "commit.gpgsign", "false"], cwd=clone)
+    ok("start unsigned orphan branch", ["git", "switch", "--orphan", "unsigned-reuse"], cwd=clone)
+    (clone / "unsigned.txt").write_text("unsigned\n")
+    ok("stage unsigned commit", ["git", "add", "unsigned.txt"], cwd=clone)
+    ok("create unsigned commit", ["git", "commit", "-m", "unsigned"], cwd=clone)
+    ok("stage unsigned commit on unprotected ref", ["git", "push", https_url, "HEAD:refs/heads/unsigned-staging"], cwd=clone)
+    unsigned_oid = run(["git", "rev-parse", "HEAD"], cwd=clone).stdout.strip()
+    reused_unsigned = run(["git", "push", https_url, "HEAD:refs/heads/signed/reused"], cwd=clone)
+    check("unsigned commit reuse cannot bypass wildcard signature policy", reused_unsigned.returncode != 0)
+    check(
+        "rejected unsigned reuse creates no protected ref",
+        run(["git", "--git-dir", str(bare), "show-ref", "--verify", "refs/heads/signed/reused"]).returncode != 0,
+    )
+
+    status, _, value = rpc(
+        cookie,
+        csrf,
+        contract,
+        "protect_reference",
+        [repository, "refs/heads/release/*", "authenticated", False, False, "0", False, False, False, True],
+    )
+    check("install secret-scan wildcard policy", status == 200, str(value))
+    ok("start secret orphan branch", ["git", "switch", "--orphan", "secret-reuse"], cwd=clone)
+    (clone / "credentials.txt").write_text("AKIA1234567890ABCDEF\n")
+    ok("stage secret probe", ["git", "add", "credentials.txt"], cwd=clone)
+    ok("commit secret probe", ["git", "commit", "-m", "secret probe"], cwd=clone)
+    ok("stage secret commit on unprotected ref", ["git", "push", https_url, "HEAD:refs/heads/secret-staging"], cwd=clone)
+    reused_secret = run(["git", "push", https_url, "HEAD:refs/heads/release/reused-secret"], cwd=clone)
+    check("reachable secret cannot bypass wildcard secret scan", reused_secret.returncode != 0)
+    check(
+        "rejected secret reuse creates no protected ref",
+        run(["git", "--git-dir", str(bare), "show-ref", "--verify", "refs/heads/release/reused-secret"]).returncode != 0,
+    )
+    ok("start clean release orphan branch", ["git", "switch", "--orphan", "release-clean"], cwd=clone)
+    (clone / "release.txt").write_text("clean\n")
+    ok("stage clean release", ["git", "add", "release.txt"], cwd=clone)
+    ok("commit clean release", ["git", "commit", "-m", "clean release"], cwd=clone)
+    ok("clean commit accepted by wildcard secret policy", ["git", "push", https_url, "HEAD:refs/heads/release/clean"], cwd=clone)
+    check(
+        "wildcard policy does not match sibling prefix",
+        run(
+            ["git", "push", https_url, f"{unsigned_oid}:refs/heads/releases/not-protected"],
+            cwd=clone,
+        ).returncode
+        == 0,
+    )
+
+    status, _, value = rpc(
+        cookie,
+        csrf,
+        contract,
+        "protect_reference",
+        [repository, "refs/heads/review/*", "authenticated", False, False, "2", True, True, False, False],
+    )
+    check("install approval pipeline discussion gate policy", status == 200, str(value))
+    ok("start gated orphan branch", ["git", "switch", "--orphan", "gated"], cwd=clone)
+    (clone / "review.txt").write_text("reviewed\n")
+    ok("stage gated commit", ["git", "add", "review.txt"], cwd=clone)
+    ok("commit gated candidate", ["git", "commit", "-m", "gated"], cwd=clone)
+    gated_oid = run(["git", "rev-parse", "HEAD"], cwd=clone).stdout.strip()
+    gated_push = run(["git", "push", https_url, "HEAD:refs/heads/review/candidate"], cwd=clone)
+    check("protected gate rejects missing evidence", gated_push.returncode != 0)
+    status, _, _ = rpc(cookie, csrf, contract, "record_gate", [repository, "refs/heads/review/candidate", "0" * 40, "2", True, True])
+    check("record wrong-object gate", status == 200)
+    check("wrong-object gate cannot authorize candidate", run(["git", "push", https_url, "HEAD:refs/heads/review/candidate"], cwd=clone).returncode != 0)
+    status, _, _ = rpc(cookie, csrf, contract, "record_gate", [repository, "refs/heads/review/candidate", gated_oid, "1", True, True])
+    check("record insufficient-approval gate", status == 200)
+    check("insufficient approvals reject candidate", run(["git", "push", https_url, "HEAD:refs/heads/review/candidate"], cwd=clone).returncode != 0)
+    status, _, _ = rpc(cookie, csrf, contract, "record_gate", [repository, "refs/heads/review/candidate", gated_oid, "2", False, True])
+    check("record failed-pipeline gate", status == 200)
+    check("failed pipeline rejects candidate", run(["git", "push", https_url, "HEAD:refs/heads/review/candidate"], cwd=clone).returncode != 0)
+    status, _, _ = rpc(cookie, csrf, contract, "record_gate", [repository, "refs/heads/review/candidate", gated_oid, "2", True, True])
+    check("record complete gate", status == 200)
+    ok("exact candidate passes complete gate", ["git", "push", https_url, "HEAD:refs/heads/review/candidate"], cwd=clone)
+
+    status, _, event_reply = rpc(cookie, csrf, contract, "pending_push_events", ["100"])
+    events = json.loads(event_reply["value"]) if status == 200 else []
+    check("durable committed push events exposed through bounded RPC", status == 200 and events, str(event_reply))
+    check("push events identify user actor and store generation", all(event["actor_kind"] == "user" and event["store_generation"] == 1 for event in events))
+    first_event = events[0]["id"]
+    status, _, ack_reply = rpc(cookie, csrf, contract, "acknowledge_push_event", [first_event])
+    check(
+        "acknowledge durable push event",
+        status == 200 and ack_reply["value"] == "event-acknowledged",
+        str(ack_reply),
+    )
+    status, _, event_reply = rpc(cookie, csrf, contract, "pending_push_events", ["100"])
+    remaining_events = json.loads(event_reply["value"]) if status == 200 else []
+    check("acknowledged event leaves pending delivery set", all(event["id"] != first_event for event in remaining_events))
 
     launcher = TMP / "diamond-git-ssh-launcher"
     launcher.write_text(
@@ -551,9 +676,59 @@ try:
         ]
     )
     check("symlink SSH launcher rejected", symlink_launcher.returncode != 0)
+
+    deploy_read_key = TMP / "deploy-read-key"
+    deploy_write_key = TMP / "deploy-write-key"
+    ok("generate read-only deploy key", ["ssh-keygen", "-q", "-t", "ed25519", "-N", "", "-C", "read deploy", "-f", str(deploy_read_key)])
+    ok("generate write deploy key", ["ssh-keygen", "-q", "-t", "ed25519", "-N", "", "-C", "write deploy", "-f", str(deploy_write_key)])
+    deploy_read_public = deploy_read_key.with_suffix(".pub").read_text().strip()
+    deploy_write_public = deploy_write_key.with_suffix(".pub").read_text().strip()
+    status, _, deploy_read_reply = rpc(cookie, csrf, contract, "add_deploy_key", [repository, "read mirror", deploy_read_public, False])
+    check("add repository-scoped read deploy key", status == 200 and re.fullmatch(r"[0-9a-f]{64}", deploy_read_reply["value"]), str(deploy_read_reply))
+    deploy_read_id = deploy_read_reply["value"]
+    status, _, deploy_write_reply = rpc(cookie, csrf, contract, "add_deploy_key", [repository, "write automation", deploy_write_public, True])
+    check("add repository-scoped write deploy key", status == 200 and re.fullmatch(r"[0-9a-f]{64}", deploy_write_reply["value"]), str(deploy_write_reply))
+    deploy_write_id = deploy_write_reply["value"]
+    deploy_read_fingerprint = run(["ssh-keygen", "-lf", str(deploy_read_key.with_suffix(".pub")), "-E", "sha256"]).stdout.split()[1]
+    deploy_write_fingerprint = run(["ssh-keygen", "-lf", str(deploy_write_key.with_suffix(".pub")), "-E", "sha256"]).stdout.split()[1]
+    deploy_read_authorized = run([
+        str(BIN), "project-git-authorized-key", "examples/git-browser/diamond.toml",
+        "--postgres-env", "DIAMOND_POSTGRES", "--runtime-env", "DIAMOND_RUNTIME",
+        "--fingerprint", deploy_read_fingerprint, "--ssh-launcher", str(launcher),
+    ])
+    check("read deploy key authorization lookup", deploy_read_authorized.returncode == 0 and deploy_read_id in deploy_read_authorized.stdout, deploy_read_authorized.stderr)
+    deploy_write_authorized = run([
+        str(BIN), "project-git-authorized-key", "examples/git-browser/diamond.toml",
+        "--postgres-env", "DIAMOND_POSTGRES", "--runtime-env", "DIAMOND_RUNTIME",
+        "--fingerprint", deploy_write_fingerprint, "--ssh-launcher", str(launcher),
+    ])
+    check("write deploy key authorization lookup", deploy_write_authorized.returncode == 0 and deploy_write_id in deploy_write_authorized.stdout, deploy_write_authorized.stderr)
+
+    ca_key = TMP / "certificate-ca"
+    certificate_key = TMP / "certificate-key"
+    certificate_principal = "diamond-build-certificate"
+    ok("generate SSH certificate CA", ["ssh-keygen", "-q", "-t", "ed25519", "-N", "", "-C", "synthetic ca", "-f", str(ca_key)])
+    ok("generate SSH certificate subject key", ["ssh-keygen", "-q", "-t", "ed25519", "-N", "", "-C", "synthetic certificate", "-f", str(certificate_key)])
+    status, _, certificate_reply = rpc(cookie, csrf, contract, "add_certificate", [repository, certificate_principal, False])
+    check("add repository-scoped certificate principal", status == 200 and re.fullmatch(r"[0-9a-f]{64}", certificate_reply["value"]), str(certificate_reply))
+    certificate_id = certificate_reply["value"]
+    ok(
+        "sign short-lived SSH user certificate",
+        ["ssh-keygen", "-q", "-s", str(ca_key), "-I", "diamond-runtime-v2", "-n", certificate_principal, "-V", "-1m:+10m", str(certificate_key.with_suffix(".pub"))],
+    )
+    principals = run([
+        str(BIN), "project-git-authorized-principals", "examples/git-browser/diamond.toml",
+        "--postgres-env", "DIAMOND_POSTGRES", "--runtime-env", "DIAMOND_RUNTIME",
+        "--ssh-launcher", str(launcher),
+    ])
+    check("authorized principals lookup is forced and restricted", principals.returncode == 0 and certificate_id in principals.stdout and certificate_principal in principals.stdout, principals.stderr)
+
     authorized_file = TMP / "authorized_keys"
-    authorized_file.write_text(authorized.stdout)
+    authorized_file.write_text(authorized.stdout + deploy_read_authorized.stdout + deploy_write_authorized.stdout)
     authorized_file.chmod(0o600)
+    principals_file = TMP / "authorized_principals"
+    principals_file.write_text(principals.stdout)
+    principals_file.chmod(0o600)
 
     current_user = pwd.getpwuid(os.getuid()).pw_name
     sshd_config = TMP / "sshd_config"
@@ -565,6 +740,8 @@ try:
                 f"HostKey {host_key}",
                 f"PidFile {TMP / 'sshd.pid'}",
                 f"AuthorizedKeysFile {authorized_file}",
+                f"TrustedUserCAKeys {ca_key.with_suffix('.pub')}",
+                f"AuthorizedPrincipalsFile {principals_file}",
                 "StrictModes no",
                 "PubkeyAuthentication yes",
                 "PasswordAuthentication no",
@@ -622,7 +799,6 @@ try:
         f"git-upload-pack 'repos/{repository}.git';touch {sentinel}",
         "git-upload-pack 'repos/../../escape.git'",
         f"git-upload-pack 'repos/{repository}.git' extra",
-        f"git-upload-archive 'repos/{repository}.git'",
         f"git-upload-pack 'repos/{repository}.git'\ntouch {sentinel}",
     ]
     for index, original in enumerate(invalid_commands):
@@ -660,6 +836,15 @@ try:
     ssh_clone = TMP / "ssh-clone"
     ok("stock Git clone over OpenSSH", ["git", "clone", ssh_url, str(ssh_clone)], extra_env=ssh_environment)
     check("SSH clone content exact", (ssh_clone / "README.md").read_text() == "tamper\n")
+    archive = TMP / "ssh-archive.tar"
+    ok(
+        "stock Git archive over OpenSSH",
+        ["git", "archive", f"--remote={ssh_url}", f"--output={archive}", "HEAD", "README.md"],
+        extra_env=ssh_environment,
+    )
+    with tarfile.open(archive) as uploaded:
+        archived = uploaded.extractfile("README.md")
+        check("SSH archive content exact", archived is not None and archived.read() == b"tamper\n")
     ok("configure SSH clone email", ["git", "config", "user.email", "alice@example.test"], cwd=ssh_clone)
     ok("configure SSH clone name", ["git", "config", "user.name", "Alice"], cwd=ssh_clone)
     (ssh_clone / "README.md").write_text("ssh\n")
@@ -684,6 +869,90 @@ try:
         timeout=120,
     )
     check("streamed SSH object exact", (streamed_clone / "random.bin").read_bytes() == random_bytes)
+
+    deploy_read_command = " ".join(
+        shlex.quote(value)
+        for value in [
+            "ssh", "-i", str(deploy_read_key), "-p", str(sshport),
+            "-o", "IdentitiesOnly=yes", "-o", "StrictHostKeyChecking=no",
+            "-o", f"UserKnownHostsFile={TMP / 'known_hosts'}",
+        ]
+    )
+    deploy_read_environment = {"GIT_SSH_COMMAND": deploy_read_command}
+    deploy_read_clone = TMP / "deploy-read-clone"
+    ok("read deploy key clones through stock OpenSSH", ["git", "clone", ssh_url, str(deploy_read_clone)], extra_env=deploy_read_environment)
+    ok("configure read deploy clone email", ["git", "config", "user.email", "deploy@example.test"], cwd=deploy_read_clone)
+    ok("configure read deploy clone name", ["git", "config", "user.name", "Deploy"], cwd=deploy_read_clone)
+    (deploy_read_clone / "deploy-read.txt").write_text("write denied\n")
+    ok("stage read deploy write probe", ["git", "add", "deploy-read.txt"], cwd=deploy_read_clone)
+    ok("commit read deploy write probe", ["git", "commit", "-m", "read deploy write probe"], cwd=deploy_read_clone)
+    denied_deploy_push = run(
+        ["git", "push", "origin", "HEAD:refs/heads/deploy-read-denied"],
+        cwd=deploy_read_clone,
+        extra_env=deploy_read_environment,
+    )
+    check("read deploy key cannot push", denied_deploy_push.returncode != 0)
+
+    deploy_write_command = " ".join(
+        shlex.quote(value)
+        for value in [
+            "ssh", "-i", str(deploy_write_key), "-p", str(sshport),
+            "-o", "IdentitiesOnly=yes", "-o", "StrictHostKeyChecking=no",
+            "-o", f"UserKnownHostsFile={TMP / 'known_hosts'}",
+        ]
+    )
+    deploy_write_environment = {"GIT_SSH_COMMAND": deploy_write_command}
+    deploy_write_clone = TMP / "deploy-write-clone"
+    ok("write deploy key clones through stock OpenSSH", ["git", "clone", ssh_url, str(deploy_write_clone)], extra_env=deploy_write_environment)
+    ok("configure write deploy clone email", ["git", "config", "user.email", "deploy@example.test"], cwd=deploy_write_clone)
+    ok("configure write deploy clone name", ["git", "config", "user.name", "Deploy"], cwd=deploy_write_clone)
+    (deploy_write_clone / "deploy-write.txt").write_text("write allowed\n")
+    ok("stage write deploy update", ["git", "add", "deploy-write.txt"], cwd=deploy_write_clone)
+    ok("commit write deploy update", ["git", "commit", "-m", "write deploy"], cwd=deploy_write_clone)
+    ok(
+        "write deploy key pushes repository-scoped ref",
+        ["git", "push", "origin", "HEAD:refs/heads/deploy-write"],
+        cwd=deploy_write_clone,
+        extra_env=deploy_write_environment,
+    )
+
+    certificate_command = " ".join(
+        shlex.quote(value)
+        for value in [
+            "ssh", "-i", str(certificate_key),
+            "-o", f"CertificateFile={certificate_key.with_name(certificate_key.name + '-cert.pub')}",
+            "-p", str(sshport), "-o", "IdentitiesOnly=yes",
+            "-o", "StrictHostKeyChecking=no", "-o", f"UserKnownHostsFile={TMP / 'known_hosts'}",
+        ]
+    )
+    certificate_environment = {"GIT_SSH_COMMAND": certificate_command}
+    certificate_clone = TMP / "certificate-clone"
+    ok("short-lived SSH certificate clones through stock OpenSSH", ["git", "clone", ssh_url, str(certificate_clone)], extra_env=certificate_environment)
+    ok("configure certificate clone email", ["git", "config", "user.email", "certificate@example.test"], cwd=certificate_clone)
+    ok("configure certificate clone name", ["git", "config", "user.name", "Certificate"], cwd=certificate_clone)
+    (certificate_clone / "certificate.txt").write_text("write denied\n")
+    ok("stage certificate write probe", ["git", "add", "certificate.txt"], cwd=certificate_clone)
+    ok("commit certificate write probe", ["git", "commit", "-m", "certificate write probe"], cwd=certificate_clone)
+    denied_certificate_push = run(
+        ["git", "push", "origin", "HEAD:refs/heads/certificate-write-denied"],
+        cwd=certificate_clone,
+        extra_env=certificate_environment,
+    )
+    check("read certificate principal cannot push", denied_certificate_push.returncode != 0)
+
+    status, _, _ = rpc(cookie, csrf, contract, "revoke_deploy_key", [repository, deploy_read_id])
+    check("revoke deploy key through Diamond RPC", status == 200)
+    revoked_deploy_clone = run(["git", "clone", ssh_url, str(TMP / "revoked-deploy-clone")], extra_env=deploy_read_environment)
+    check("revoked deploy key denied by live forced adapter", revoked_deploy_clone.returncode != 0)
+    status, _, _ = rpc(cookie, csrf, contract, "revoke_certificate", [repository, certificate_id])
+    check("revoke certificate principal through Diamond RPC", status == 200)
+    revoked_certificate_clone = run(["git", "clone", ssh_url, str(TMP / "revoked-certificate-clone")], extra_env=certificate_environment)
+    check("revoked certificate denied by live forced adapter", revoked_certificate_clone.returncode != 0)
+
+    status, _, deploy_event_reply = rpc(cookie, csrf, contract, "pending_push_events", ["100"])
+    deploy_events = json.loads(deploy_event_reply["value"]) if status == 200 else []
+    check("deploy push emits durable deploy actor event", any(event["actor_kind"] == "deploy" and event["actor"] == deploy_write_id for event in deploy_events))
+
     raw_ssh = run(
         shlex.split(ssh_command)
         + [f"{current_user}@127.0.0.1", "printf", "shell-was-opened"],
@@ -724,6 +993,228 @@ try:
     check("revoked key omitted from future authorization", revoked_lookup.returncode != 0)
     check("repository remains consistent", run(["git", "--git-dir", str(bare), "fsck", "--strict"]).returncode == 0)
 
+    reconciliation = run(
+        [
+            str(BIN),
+            "project-git-reconcile",
+            "examples/git-browser/diamond.toml",
+            "--postgres-env",
+            "DIAMOND_POSTGRES",
+            "--runtime-env",
+            "DIAMOND_RUNTIME",
+        ]
+    )
+    reconciliation_value = json.loads(reconciliation.stdout) if reconciliation.returncode == 0 else {}
+    check(
+        "reconcile committed event spool into PostgreSQL",
+        reconciliation.returncode == 0 and reconciliation_value.get("committed", 0) > 0,
+        reconciliation.stdout + reconciliation.stderr,
+    )
+    check(
+        "reconciliation removes committed spool files after database commit",
+        not list((GITROOT / ".diamond-events").glob("*.committed")),
+    )
+
+    next_gitroot = TMP / "git-next"
+    shutil.copytree(GITROOT, next_gitroot)
+    next_gitroot.chmod(0o700)
+    (next_gitroot / ".diamond-git-store").unlink()
+    next_runtime = json.loads(env["DIAMOND_RUNTIME"])
+    next_runtime["git"]["repos"]["root"] = str(next_gitroot)
+    next_env = env.copy()
+    next_env["DIAMOND_RUNTIME"] = json.dumps(next_runtime, separators=(",", ":"))
+
+    ok("start promotion-fence branch", ["git", "switch", "--orphan", "promotion-fence"], cwd=clone)
+    (clone / "promotion-fence.bin").write_bytes(os.urandom(64 * 1024 * 1024))
+    ok("stage promotion-fence object", ["git", "add", "promotion-fence.bin"], cwd=clone)
+    ok("commit promotion-fence object", ["git", "commit", "-m", "promotion fence"], cwd=clone)
+    push_process = subprocess.Popen(
+        ["git", "push", https_url, "HEAD:refs/heads/promotion-fence"],
+        cwd=clone,
+        env=env,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    receive_pid = None
+    deadline = time.time() + 10
+    while time.time() < deadline and push_process.poll() is None:
+        for proc in pathlib.Path("/proc").iterdir():
+            if not proc.name.isdigit():
+                continue
+            try:
+                command = (proc / "cmdline").read_bytes().replace(b"\0", b" ").decode(errors="replace")
+            except (FileNotFoundError, PermissionError, ProcessLookupError):
+                continue
+            if "git receive-pack" in command or "git-receive-pack" in command:
+                receive_pid = int(proc.name)
+                break
+        if receive_pid is not None:
+            os.kill(receive_pid, signal.SIGSTOP)
+            break
+        time.sleep(0.005)
+    check("observe live receive process for shard fence", receive_pid is not None)
+    promotion_process = subprocess.Popen(
+        [
+            str(BIN),
+            "project-git-promote",
+            "examples/git-browser/diamond.toml",
+            "--postgres-env",
+            "DIAMOND_POSTGRES",
+            "--runtime-env",
+            "DIAMOND_RUNTIME",
+            "--binding",
+            "repos",
+            "--expected-generation",
+            "1",
+        ],
+        cwd=ROOT,
+        env=next_env,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    time.sleep(0.5)
+    promotion_waited = promotion_process.poll() is None
+    os.kill(receive_pid, signal.SIGCONT)
+    push_stdout, push_stderr = push_process.communicate(timeout=120)
+    promote_stdout, promote_stderr = promotion_process.communicate(timeout=30)
+    check("active receive holds shard promotion fence", promotion_waited)
+    check("fenced push completes after release", push_process.returncode == 0, push_stdout + push_stderr)
+    check(
+        "promotion rejects target that missed fenced push",
+        promotion_process.returncode != 0,
+        promote_stdout + promote_stderr,
+    )
+
+    late_reconciliation = run(
+        [
+            str(BIN),
+            "project-git-reconcile",
+            "examples/git-browser/diamond.toml",
+            "--postgres-env",
+            "DIAMOND_POSTGRES",
+            "--runtime-env",
+            "DIAMOND_RUNTIME",
+        ]
+    )
+    check(
+        "reconcile source shard before cutover retry",
+        late_reconciliation.returncode == 0,
+        late_reconciliation.stdout + late_reconciliation.stderr,
+    )
+
+    next_bare = next_gitroot / bare.name
+    shutil.rmtree(next_bare)
+    shutil.copytree(bare, next_bare)
+    promoted = run(
+        [
+            str(BIN),
+            "project-git-promote",
+            "examples/git-browser/diamond.toml",
+            "--postgres-env",
+            "DIAMOND_POSTGRES",
+            "--runtime-env",
+            "DIAMOND_RUNTIME",
+            "--binding",
+            "repos",
+            "--expected-generation",
+            "1",
+        ],
+        extra_env={"DIAMOND_RUNTIME": next_env["DIAMOND_RUNTIME"]},
+    )
+    promoted_value = json.loads(promoted.stdout) if promoted.returncode == 0 else {}
+    expected_inventory = psql(
+        "SELECT repository||' '||reference||' '||object FROM diamond_git.ref_states ORDER BY repository,reference"
+    )
+    actual_inventory = run(
+        [
+            "git",
+            "--git-dir",
+            str(next_bare),
+            "for-each-ref",
+            "--format=%(refname) %(objectname)",
+            "refs/heads",
+            "refs/tags",
+        ]
+    ).stdout
+    check(
+        "promote exact repository and ref inventory",
+        promoted.returncode == 0 and promoted_value.get("generation") == 2,
+        promoted.stdout
+        + promoted.stderr
+        + "\nEXPECTED:\n"
+        + expected_inventory
+        + "\nACTUAL:\n"
+        + actual_inventory,
+    )
+    stale_generation = run(
+        [
+            str(BIN),
+            "project-git-promote",
+            "examples/git-browser/diamond.toml",
+            "--postgres-env",
+            "DIAMOND_POSTGRES",
+            "--runtime-env",
+            "DIAMOND_RUNTIME",
+            "--binding",
+            "repos",
+            "--expected-generation",
+            "1",
+        ],
+        extra_env={"DIAMOND_RUNTIME": next_env["DIAMOND_RUNTIME"]},
+    )
+    check("stale generation cannot repeat promotion", stale_generation.returncode != 0)
+    stale_server_clone = run(["git", "clone", https_url, str(TMP / "stale-server-clone")])
+    check("old shard identity is fenced after promotion", stale_server_clone.returncode != 0)
+
+    server.terminate()
+    server.wait(timeout=8)
+    server_log.close()
+    next_server_log = open(TMP / "server-next.log", "wb")
+    server = subprocess.Popen(
+        [
+            str(BIN),
+            "serve",
+            "examples/git-browser/diamond.toml",
+            "--listen",
+            f"127.0.0.1:{webport}",
+            "--origin",
+            f"http://127.0.0.1:{webport}",
+            "--postgres-env",
+            "DIAMOND_POSTGRES",
+            "--runtime-env",
+            "DIAMOND_RUNTIME",
+            "--identity-mailbox",
+            str(MAIL),
+        ],
+        cwd=ROOT,
+        env=next_env,
+        stdout=next_server_log,
+        stderr=subprocess.STDOUT,
+    )
+    for _ in range(300):
+        try:
+            if request("GET", "/")[0] == 200:
+                break
+        except Exception:
+            pass
+        time.sleep(0.05)
+    else:
+        raise AssertionError("promoted Diamond server failed")
+    promoted_clone = TMP / "promoted-clone"
+    ok("clone through promoted Git shard", ["git", "clone", https_url, str(promoted_clone)])
+    check("promoted repository passes strict fsck", run(["git", "--git-dir", str(next_bare), "fsck", "--strict"]).returncode == 0)
+    ok("configure promoted clone email", ["git", "config", "user.email", "alice@example.test"], cwd=promoted_clone)
+    ok("configure promoted clone name", ["git", "config", "user.name", "Alice"], cwd=promoted_clone)
+    (promoted_clone / "generation-two.txt").write_text("generation two\n")
+    ok("stage generation-two update", ["git", "add", "generation-two.txt"], cwd=promoted_clone)
+    ok("commit generation-two update", ["git", "commit", "-m", "generation two"], cwd=promoted_clone)
+    ok("push through promoted Git shard", ["git", "push", "origin", "HEAD:refs/heads/generation-two"], cwd=promoted_clone)
+    status, _, generation_event_reply = rpc(cookie, csrf, contract, "pending_push_events", ["100"])
+    generation_events = json.loads(generation_event_reply["value"]) if status == 200 else []
+    check("promoted shard emits generation-two event", any(event["store_generation"] == 2 for event in generation_events))
+
     output = {
         "profile": "Diamond protected receive and SSH adapter red-team campaign",
         "versions": {
@@ -737,6 +1228,9 @@ try:
         "total": len(results),
         "results": results,
     }
+    (ROOT / "verification/git_policy_ssh_redteam_results.json").write_text(
+        json.dumps(output, indent=2) + "\n"
+    )
     print(json.dumps(output, indent=2))
 finally:
     if sshd is not None:

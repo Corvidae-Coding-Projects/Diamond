@@ -2,20 +2,15 @@
 
 use super::{stored, valid_secret};
 use crate::{
-    authority::{Principal, random_hex},
+    authority::random_hex,
     error::{Error, Result},
     project::{input, storage::PostgresStore},
 };
 use base64::Engine as _;
 use sha2::{Digest, Sha256};
-use std::collections::BTreeSet;
 
 const KEY_TYPE: &str = "ssh-ed25519";
 const MAX_KEYS: i64 = 32;
-
-pub(in crate::project) struct SshGrant {
-    pub principal: Principal,
-}
 
 pub(in crate::project) struct AuthorizedSshKey {
     pub id: String,
@@ -104,35 +99,9 @@ impl PostgresStore {
             public_key: stored(rows[0].try_get(1))?,
         })
     }
-
-    pub(in crate::project) fn ssh_grant(&mut self, key_id: &str) -> Result<SshGrant> {
-        if !valid_secret(key_id) {
-            return Err(Error::Unauthenticated);
-        }
-        let rows = self.connection.query(
-            "SELECT k.username,k.epoch,u.administrator FROM diamond_identity.ssh_keys k JOIN diamond_identity.users u ON u.app=k.app AND u.username=k.username WHERE k.app=$1 AND k.id=$2 AND NOT k.revoked AND k.epoch=u.epoch AND NOT u.disabled AND u.verified",
-            &[&self.app, &key_id],
-        )?;
-        if rows.len() != 1 {
-            return Err(Error::Unauthenticated);
-        }
-        let user: String = stored(rows[0].try_get(0))?;
-        let _epoch: i64 = stored(rows[0].try_get(1))?;
-        let administrator: bool = stored(rows[0].try_get(2))?;
-        Ok(SshGrant {
-            principal: Principal::User {
-                id: user,
-                roles: if administrator {
-                    BTreeSet::from(["account_admin".into()])
-                } else {
-                    BTreeSet::new()
-                },
-            },
-        })
-    }
 }
 
-fn parse_public_key(value: &str) -> Result<(String, String)> {
+pub(in crate::project) fn parse_public_key(value: &str) -> Result<(String, String)> {
     if value.len() > 512 || value.chars().any(char::is_control) {
         return Err(input("invalid SSH public key"));
     }

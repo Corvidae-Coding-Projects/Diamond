@@ -57,6 +57,10 @@ fn try_main() -> Result<()> {
     if std::env::var("DIAMOND_GIT_HOOK_MODE").as_deref() == Ok("pre-receive") {
         return diamond::run_git_pre_receive_hook().context("Git update rejected by policy");
     }
+    if std::env::var("DIAMOND_GIT_HOOK_MODE").as_deref() == Ok("post-receive") {
+        return diamond::run_git_post_receive_hook()
+            .context("Git refs committed but push event recording failed");
+    }
     let arguments = command_arguments()?;
     let Some(command) = arguments.first() else {
         help();
@@ -144,7 +148,10 @@ fn is_project_command(command: &str) -> bool {
         "project-files-init",
         "project-files-clean",
         "project-git-init",
+        "project-git-promote",
+        "project-git-reconcile",
         "project-git-authorized-key",
+        "project-git-authorized-principals",
         "project-git-ssh",
         "project-work",
         "project-deploy-check",
@@ -179,6 +186,8 @@ struct ProjectOptions<'a> {
     fingerprint: Option<&'a str>,
     key_id: Option<&'a str>,
     ssh_launcher: Option<PathBuf>,
+    git_binding: Option<&'a str>,
+    expected_generation: Option<i64>,
 }
 
 impl Default for ProjectOptions<'_> {
@@ -200,6 +209,8 @@ impl Default for ProjectOptions<'_> {
             fingerprint: None,
             key_id: None,
             ssh_launcher: None,
+            git_binding: None,
+            expected_generation: None,
         }
     }
 }
@@ -223,81 +234,102 @@ fn project_options<'a>(command: &str, arguments: &'a [String]) -> Result<Project
         let value = arguments
             .get(cursor + 1)
             .context("project option requires a value")?;
-        match (command, option.as_str()) {
-            ("project-backup" | "project-restore", "--backup-key-env") => {
-                parsed.backup_key_env = Some(value);
-            }
-            ("project-restore", "--from") => parsed.backup_source = Some(PathBuf::from(value)),
-            ("project-backup" | "build", "--out") => parsed.output = Some(PathBuf::from(value)),
-            ("project-recover", "--policy") => parsed.policy = Some(value),
-            (
-                "serve"
-                | "project-files-init"
-                | "project-files-clean"
-                | "project-git-init"
-                | "project-git-authorized-key"
-                | "project-git-ssh"
-                | "project-work"
-                | "project-deploy-check"
-                | "project-backup"
-                | "project-restore",
-                "--runtime-env",
-            ) => {
-                if !valid_environment_name(value) {
-                    bail!("invalid runtime environment variable name");
-                }
-                parsed.runtime_env = Some(value);
-            }
-            ("project-git-authorized-key", "--fingerprint") => {
-                parsed.fingerprint = Some(value);
-            }
-            ("project-git-authorized-key", "--ssh-launcher") => {
-                parsed.ssh_launcher = Some(PathBuf::from(value));
-            }
-            ("project-git-ssh", "--key-id") => parsed.key_id = Some(value),
-            ("project-backfill", "--batch") => {
-                parsed.batch = value.parse().context("invalid backfill batch")?;
-            }
-
-            ("serve", "--listen") => parsed.listen = value,
-            ("serve" | "project-deploy-check", "--origin") => parsed.origin = Some(value),
-            ("project-user-add" | "project-admin-add", "--user") => parsed.username = Some(value),
-            ("project-admin-add", "--email") => parsed.email = Some(value),
-            ("serve" | "project-deploy-check", "--identity-mailbox") => {
-                parsed.mailbox = Some(PathBuf::from(value));
-            }
-            (
-                "run"
-                | "serve"
-                | "project-init"
-                | "project-files-init"
-                | "project-files-clean"
-                | "project-git-init"
-                | "project-git-authorized-key"
-                | "project-git-ssh"
-                | "project-user-add"
-                | "project-admin-add"
-                | "project-status"
-                | "project-migrate"
-                | "project-backfill"
-                | "project-audit"
-                | "project-work"
-                | "project-deploy-check"
-                | "project-recover"
-                | "project-backup"
-                | "project-restore",
-                "--postgres-env",
-            ) => {
-                if !valid_environment_name(value) {
-                    bail!("invalid PostgreSQL environment variable name");
-                }
-                parsed.postgres_env = Some(value);
-            }
-            _ => bail!("unsupported project option {}", safe_text(option)),
-        }
+        parse_project_value_option(&mut parsed, command, option, value)?;
         cursor += 2;
     }
     Ok(parsed)
+}
+
+fn parse_project_value_option<'a>(
+    parsed: &mut ProjectOptions<'a>,
+    command: &str,
+    option: &str,
+    value: &'a str,
+) -> Result<()> {
+    match (command, option) {
+        ("project-backup" | "project-restore", "--backup-key-env") => {
+            parsed.backup_key_env = Some(value);
+        }
+        ("project-restore", "--from") => parsed.backup_source = Some(PathBuf::from(value)),
+        ("project-backup" | "build", "--out") => parsed.output = Some(PathBuf::from(value)),
+        ("project-recover", "--policy") => parsed.policy = Some(value),
+        (
+            "serve"
+            | "project-files-init"
+            | "project-files-clean"
+            | "project-git-init"
+            | "project-git-promote"
+            | "project-git-reconcile"
+            | "project-git-authorized-key"
+            | "project-git-authorized-principals"
+            | "project-git-ssh"
+            | "project-work"
+            | "project-deploy-check"
+            | "project-backup"
+            | "project-restore",
+            "--runtime-env",
+        ) => {
+            if !valid_environment_name(value) {
+                bail!("invalid runtime environment variable name");
+            }
+            parsed.runtime_env = Some(value);
+        }
+        ("project-git-authorized-key", "--fingerprint") => {
+            parsed.fingerprint = Some(value);
+        }
+        ("project-git-authorized-key" | "project-git-authorized-principals", "--ssh-launcher") => {
+            parsed.ssh_launcher = Some(PathBuf::from(value));
+        }
+        ("project-git-ssh", "--key-id") => parsed.key_id = Some(value),
+        ("project-git-promote", "--binding") => parsed.git_binding = Some(value),
+        ("project-git-promote", "--expected-generation") => {
+            parsed.expected_generation =
+                Some(value.parse().context("invalid Git store generation")?);
+        }
+        ("project-backfill", "--batch") => {
+            parsed.batch = value.parse().context("invalid backfill batch")?;
+        }
+
+        ("serve", "--listen") => parsed.listen = value,
+        ("serve" | "project-deploy-check", "--origin") => parsed.origin = Some(value),
+        ("project-user-add" | "project-admin-add", "--user") => parsed.username = Some(value),
+        ("project-admin-add", "--email") => parsed.email = Some(value),
+        ("serve" | "project-deploy-check", "--identity-mailbox") => {
+            parsed.mailbox = Some(PathBuf::from(value));
+        }
+        (
+            "run"
+            | "serve"
+            | "project-init"
+            | "project-files-init"
+            | "project-files-clean"
+            | "project-git-init"
+            | "project-git-promote"
+            | "project-git-reconcile"
+            | "project-git-authorized-key"
+            | "project-git-authorized-principals"
+            | "project-git-ssh"
+            | "project-user-add"
+            | "project-admin-add"
+            | "project-status"
+            | "project-migrate"
+            | "project-backfill"
+            | "project-audit"
+            | "project-work"
+            | "project-deploy-check"
+            | "project-recover"
+            | "project-backup"
+            | "project-restore",
+            "--postgres-env",
+        ) => {
+            if !valid_environment_name(value) {
+                bail!("invalid PostgreSQL environment variable name");
+            }
+            parsed.postgres_env = Some(value);
+        }
+        _ => bail!("unsupported project option {}", safe_text(option)),
+    }
+    Ok(())
 }
 
 fn valid_environment_name(value: &str) -> bool {
@@ -322,6 +354,9 @@ fn project_command(command: &str, arguments: &[String]) -> Result<()> {
     }
     .map_err(|error| anyhow::Error::msg(safe_text(&error.to_string())))?;
     let configuration = project_configuration(&options)?;
+    if project_git_command(command, &project, path, &options, configuration.as_deref())? {
+        return Ok(());
+    }
     match command {
         "project-backup"
         | "project-restore"
@@ -376,11 +411,6 @@ fn project_command(command: &str, arguments: &[String]) -> Result<()> {
                 )?
             );
         }
-        "project-git-init" => initialize_project_git(&project, &options, configuration.as_deref())?,
-        "project-git-authorized-key" => {
-            print_project_git_authorized_key(&project, path, &options, configuration.as_deref())?;
-        }
-        "project-git-ssh" => run_project_git_ssh(&project, &options, configuration.as_deref())?,
         "project-init" => project
             .initialize_postgres(
                 configuration
@@ -411,6 +441,29 @@ fn project_command(command: &str, arguments: &[String]) -> Result<()> {
     Ok(())
 }
 
+fn project_git_command(
+    command: &str,
+    project: &diamond::CheckedProject,
+    path: &Path,
+    options: &ProjectOptions<'_>,
+    configuration: Option<&String>,
+) -> Result<bool> {
+    match command {
+        "project-git-init" => initialize_project_git(project, options, configuration)?,
+        "project-git-promote" => promote_project_git(project, options, configuration)?,
+        "project-git-reconcile" => reconcile_project_git(project, options, configuration)?,
+        "project-git-authorized-key" => {
+            print_project_git_authorized_key(project, path, options, configuration)?;
+        }
+        "project-git-authorized-principals" => {
+            print_project_git_authorized_principals(project, path, options, configuration)?;
+        }
+        "project-git-ssh" => run_project_git_ssh(project, options, configuration)?,
+        _ => return Ok(false),
+    }
+    Ok(true)
+}
+
 fn initialize_project_git(
     project: &diamond::CheckedProject,
     options: &ProjectOptions<'_>,
@@ -432,6 +485,58 @@ fn initialize_project_git(
                 .map(String::as_str)
                 .context("Git administration requires --postgres-env VARIABLE")?,
             &grants,
+        )?
+    );
+    Ok(())
+}
+
+fn git_runtime(options: &ProjectOptions<'_>) -> Result<diamond::RuntimeGrants> {
+    let source = Zeroizing::new(
+        std::env::var(
+            options
+                .runtime_env
+                .context("Git administration requires --runtime-env VARIABLE")?,
+        )
+        .map_err(|_| anyhow::Error::msg("runtime configuration is missing or invalid UTF-8"))?,
+    );
+    diamond::RuntimeGrants::from_json(&source).map_err(Into::into)
+}
+
+fn promote_project_git(
+    project: &diamond::CheckedProject,
+    options: &ProjectOptions<'_>,
+    configuration: Option<&String>,
+) -> Result<()> {
+    println!(
+        "{}",
+        project.promote_git(
+            configuration
+                .map(String::as_str)
+                .context("Git promotion requires --postgres-env VARIABLE")?,
+            &git_runtime(options)?,
+            options
+                .git_binding
+                .context("Git promotion requires --binding NAME")?,
+            options
+                .expected_generation
+                .context("Git promotion requires --expected-generation N")?,
+        )?
+    );
+    Ok(())
+}
+
+fn reconcile_project_git(
+    project: &diamond::CheckedProject,
+    options: &ProjectOptions<'_>,
+    configuration: Option<&String>,
+) -> Result<()> {
+    println!(
+        "{}",
+        project.reconcile_git_events(
+            configuration
+                .map(String::as_str)
+                .context("Git event reconciliation requires --postgres-env VARIABLE")?,
+            &git_runtime(options)?,
         )?
     );
     Ok(())
@@ -464,6 +569,35 @@ fn print_project_git_authorized_key(
         .join(" ");
     let option = command.replace('\\', "\\\\").replace('"', "\\\"");
     println!("restrict,command=\"{option}\" {public_key}");
+    Ok(())
+}
+
+fn print_project_git_authorized_principals(
+    project: &diamond::CheckedProject,
+    project_path: &Path,
+    options: &ProjectOptions<'_>,
+    configuration: Option<&String>,
+) -> Result<()> {
+    let principals = project.git_ssh_authorized_principals(
+        configuration
+            .map(String::as_str)
+            .context("SSH principal lookup requires --postgres-env VARIABLE")?,
+    )?;
+    let _project_path = project_path.canonicalize()?;
+    let launcher = options
+        .ssh_launcher
+        .as_deref()
+        .context("SSH principal lookup requires --ssh-launcher ABSOLUTE_EXECUTABLE")?;
+    let launcher = trusted_ssh_launcher(launcher)?;
+    for (id, principal) in principals {
+        let command = [launcher.to_string_lossy().into_owned(), id]
+            .iter()
+            .map(|argument| shell_quote(argument))
+            .collect::<Vec<_>>()
+            .join(" ");
+        let option = command.replace('\\', "\\\\").replace('"', "\\\"");
+        println!("restrict,command=\"{option}\" {principal}");
+    }
     Ok(())
 }
 
@@ -941,7 +1075,7 @@ fn read_password(password_stdin: bool) -> Result<Zeroizing<String>> {
 
 fn help() {
     println!(
-        "Diamond {} — W10 release-qualified web application profile\n\n  diamond new NEW_DIRECTORY [--template workspace|catalog]\n  diamond project-work PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-deploy-check PROJECT --postgres-env VARIABLE --runtime-env VARIABLE --origin https://app.example --identity-mailbox PRIVATE_DIRECTORY\n  diamond project-backup PROJECT --postgres-env VARIABLE --runtime-env VARIABLE --out NEW_DIRECTORY --backup-key-env VARIABLE\n  diamond project-restore PROJECT --postgres-env VARIABLE --runtime-env VARIABLE --from BACKUP_DIRECTORY --backup-key-env VARIABLE\n  diamond project-recover PROJECT --postgres-env VARIABLE --policy resume|cancel\n  diamond check FILE_OR_PROJECT\n  diamond build PROJECT --out NEW_DIRECTORY\n  diamond serve PROJECT_OR_BUILD [--listen 127.0.0.1:PORT] [--postgres-env VARIABLE --origin http://localhost:PORT] [--identity-mailbox PRIVATE_DIRECTORY] [--runtime-env VARIABLE]\n  diamond run PROJECT_OR_BUILD [--postgres-env VARIABLE]\n  diamond project-init PROJECT --postgres-env VARIABLE\n  diamond project-files-init PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-files-clean PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-git-init PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-git-authorized-key PROJECT --postgres-env VARIABLE --fingerprint SHA256:VALUE --ssh-launcher ABSOLUTE_EXECUTABLE\n  diamond project-git-ssh PROJECT --postgres-env VARIABLE --runtime-env VARIABLE --key-id VALUE\n  diamond project-user-add PROJECT --postgres-env VARIABLE --user USERNAME [--password-stdin]\n  diamond project-admin-add PROJECT --postgres-env VARIABLE --user USERNAME --email ADDRESS [--password-stdin]\n  diamond project-status PROJECT --postgres-env VARIABLE\n  diamond project-migrate PROJECT --postgres-env VARIABLE\n  diamond project-backfill PROJECT --postgres-env VARIABLE [--batch 100]\n  diamond project-audit PROJECT --postgres-env VARIABLE\n  diamond run FILE [--database PATH] [--auth PATH] [--listen 127.0.0.1:PORT] [--max-requests N]\n  diamond db-init FILE --database PATH\n  diamond user-add --auth PATH --user USERNAME [--password-stdin]\n  diamond explain CODE\n\nOpen http://localhost:PORT for browser secure-cookie support.\nSee README.md for installation, examples, supported language, limits, and W10 evidence.",
+        "Diamond {} — W10 release-qualified web application profile\n\n  diamond new NEW_DIRECTORY [--template workspace|catalog]\n  diamond project-work PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-deploy-check PROJECT --postgres-env VARIABLE --runtime-env VARIABLE --origin https://app.example --identity-mailbox PRIVATE_DIRECTORY\n  diamond project-backup PROJECT --postgres-env VARIABLE --runtime-env VARIABLE --out NEW_DIRECTORY --backup-key-env VARIABLE\n  diamond project-restore PROJECT --postgres-env VARIABLE --runtime-env VARIABLE --from BACKUP_DIRECTORY --backup-key-env VARIABLE\n  diamond project-recover PROJECT --postgres-env VARIABLE --policy resume|cancel\n  diamond check FILE_OR_PROJECT\n  diamond build PROJECT --out NEW_DIRECTORY\n  diamond serve PROJECT_OR_BUILD [--listen 127.0.0.1:PORT] [--postgres-env VARIABLE --origin http://localhost:PORT] [--identity-mailbox PRIVATE_DIRECTORY] [--runtime-env VARIABLE]\n  diamond run PROJECT_OR_BUILD [--postgres-env VARIABLE]\n  diamond project-init PROJECT --postgres-env VARIABLE\n  diamond project-files-init PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-files-clean PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-git-init PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-git-reconcile PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-git-promote PROJECT --postgres-env VARIABLE --runtime-env VARIABLE --binding NAME --expected-generation N\n  diamond project-git-authorized-key PROJECT --postgres-env VARIABLE --fingerprint SHA256:VALUE --ssh-launcher ABSOLUTE_EXECUTABLE\n  diamond project-git-authorized-principals PROJECT --postgres-env VARIABLE --ssh-launcher ABSOLUTE_EXECUTABLE\n  diamond project-git-ssh PROJECT --postgres-env VARIABLE --runtime-env VARIABLE --key-id VALUE\n  diamond project-user-add PROJECT --postgres-env VARIABLE --user USERNAME [--password-stdin]\n  diamond project-admin-add PROJECT --postgres-env VARIABLE --user USERNAME --email ADDRESS [--password-stdin]\n  diamond project-status PROJECT --postgres-env VARIABLE\n  diamond project-migrate PROJECT --postgres-env VARIABLE\n  diamond project-backfill PROJECT --postgres-env VARIABLE [--batch 100]\n  diamond project-audit PROJECT --postgres-env VARIABLE\n  diamond run FILE [--database PATH] [--auth PATH] [--listen 127.0.0.1:PORT] [--max-requests N]\n  diamond db-init FILE --database PATH\n  diamond user-add --auth PATH --user USERNAME [--password-stdin]\n  diamond explain CODE\n\nOpen http://localhost:PORT for browser secure-cookie support.\nSee README.md for installation, examples, supported language, limits, and W10 evidence.",
         env!("CARGO_PKG_VERSION")
     );
 }

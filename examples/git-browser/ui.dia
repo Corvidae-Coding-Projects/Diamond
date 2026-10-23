@@ -9,6 +9,13 @@ export component GitBrowser:
   state ssh_label: Text = "workstation"
   state ssh_key: Text = ""
   state reference: Text = "refs/heads/main"
+  state deploy_label: Text = "automation"
+  state deploy_key: Text = ""
+  state deploy_id: Text = ""
+  state certificate_principal: Text = ""
+  state certificate_id: Text = ""
+  state push_events: Text = ""
+  state push_event_id: Text = ""
   state output: Text = "Sign in and register a repository."
 
   on sign_in:
@@ -39,9 +46,24 @@ export component GitBrowser:
     output = session.add_ssh_key(ssh_label, ssh_key)
     ssh_key = ""
   on protect:
-    output = rpc.protect_reference(repository, reference, "authenticated", false, false)
+    output = rpc.protect_reference(repository, reference, "authenticated", false, false, 1, true, true, true, true)
   on unprotect:
     output = rpc.unprotect_reference(repository, reference)
+  on add_deploy_key:
+    deploy_id = rpc.add_deploy_key(repository, deploy_label, deploy_key, false)
+    deploy_key = ""
+    output = "Read-only deploy key added."
+  on revoke_deploy_key:
+    output = rpc.revoke_deploy_key(repository, deploy_id)
+  on add_certificate:
+    certificate_id = rpc.add_certificate(repository, certificate_principal, false)
+    output = "Read-only SSH certificate principal added."
+  on revoke_certificate:
+    output = rpc.revoke_certificate(repository, certificate_id)
+  on load_push_events:
+    push_events = rpc.pending_push_events(100)
+  on acknowledge_push_event:
+    output = rpc.acknowledge_push_event(push_event_id)
 
   html:
     <main>
@@ -69,9 +91,22 @@ export component GitBrowser:
         <label for="ssh-label">SSH key label</label><input id="ssh-label" bind-value={ssh_label}>
         <label for="ssh-key">Ed25519 public key</label><textarea id="ssh-key" bind-value={ssh_key}></textarea>
         <button on-click={add_ssh_key}>Add SSH key</button>
+        <label for="deploy-label">Deploy key label</label><input id="deploy-label" bind-value={deploy_label}>
+        <label for="deploy-key">Deploy Ed25519 public key</label><textarea id="deploy-key" bind-value={deploy_key}></textarea>
+        <button on-click={add_deploy_key}>Add read-only deploy key</button>
+        <label for="deploy-id">Deploy key ID</label><input id="deploy-id" bind-value={deploy_id}>
+        <button on-click={revoke_deploy_key}>Revoke deploy key</button>
+        <label for="certificate-principal">SSH certificate principal</label><input id="certificate-principal" bind-value={certificate_principal}>
+        <button on-click={add_certificate}>Add read-only certificate principal</button>
+        <label for="certificate-id">Certificate principal ID</label><input id="certificate-id" bind-value={certificate_id}>
+        <button on-click={revoke_certificate}>Revoke certificate principal</button>
+        <button on-click={load_push_events}>Load pending push events</button>
+        <label for="push-event-id">Push event ID</label><input id="push-event-id" bind-value={push_event_id}>
+        <button on-click={acknowledge_push_event}>Acknowledge push event</button>
         <p>Repository ID: {repository}</p>
         <p>Git username: diamond</p>
         <pre>{credential}</pre>
+        <pre>{push_events}</pre>
         <pre>{output}</pre>
       </section>
     </main>

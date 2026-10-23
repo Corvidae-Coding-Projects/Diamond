@@ -54,6 +54,17 @@ pub fn run_git_pre_receive_hook() -> Result<(), Error> {
     project::git::pre_receive_hook()
 }
 
+/// Persist a committed Git push in the runtime-owned durable event spool.
+///
+/// # Errors
+/// Rejects invalid hook invocation, claims, ref input, fencing state, or storage
+/// errors. A failure after Git commits refs is reported as an explicit unknown
+/// event-delivery outcome for reconciliation.
+#[doc(hidden)]
+pub fn run_git_post_receive_hook() -> Result<(), Error> {
+    project::git::post_receive_hook()
+}
+
 /// Parse and check a source program without executing it or opening a database.
 ///
 /// # Errors

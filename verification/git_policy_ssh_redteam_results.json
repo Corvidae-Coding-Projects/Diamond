@@ -7,8 +7,8 @@
     "postgres": "postgres (PostgreSQL) 18.6",
     "python": "3.14.8"
   },
-  "passed": 90,
-  "total": 90,
+  "passed": 191,
+  "total": 191,
   "results": [
     {
       "name": "initialize PostgreSQL",
@@ -80,6 +80,10 @@
     },
     {
       "name": "push initial",
+      "pass": true
+    },
+    {
+      "name": "first valid protected-ref rule",
       "pass": true
     },
     {
@@ -243,6 +247,182 @@
       "pass": true
     },
     {
+      "name": "install signed-commit wildcard policy",
+      "pass": true
+    },
+    {
+      "name": "configure SSH commit signing format",
+      "pass": true
+    },
+    {
+      "name": "configure SSH commit signing key",
+      "pass": true
+    },
+    {
+      "name": "enable SSH commit signing",
+      "pass": true
+    },
+    {
+      "name": "start signed orphan branch",
+      "pass": true
+    },
+    {
+      "name": "stage signed commit",
+      "pass": true
+    },
+    {
+      "name": "create signed commit",
+      "pass": true
+    },
+    {
+      "name": "signed commit accepted on wildcard protected ref",
+      "pass": true
+    },
+    {
+      "name": "disable signing for bypass probe",
+      "pass": true
+    },
+    {
+      "name": "start unsigned orphan branch",
+      "pass": true
+    },
+    {
+      "name": "stage unsigned commit",
+      "pass": true
+    },
+    {
+      "name": "create unsigned commit",
+      "pass": true
+    },
+    {
+      "name": "stage unsigned commit on unprotected ref",
+      "pass": true
+    },
+    {
+      "name": "unsigned commit reuse cannot bypass wildcard signature policy",
+      "pass": true
+    },
+    {
+      "name": "rejected unsigned reuse creates no protected ref",
+      "pass": true
+    },
+    {
+      "name": "install secret-scan wildcard policy",
+      "pass": true
+    },
+    {
+      "name": "start secret orphan branch",
+      "pass": true
+    },
+    {
+      "name": "stage secret probe",
+      "pass": true
+    },
+    {
+      "name": "commit secret probe",
+      "pass": true
+    },
+    {
+      "name": "stage secret commit on unprotected ref",
+      "pass": true
+    },
+    {
+      "name": "reachable secret cannot bypass wildcard secret scan",
+      "pass": true
+    },
+    {
+      "name": "rejected secret reuse creates no protected ref",
+      "pass": true
+    },
+    {
+      "name": "start clean release orphan branch",
+      "pass": true
+    },
+    {
+      "name": "stage clean release",
+      "pass": true
+    },
+    {
+      "name": "commit clean release",
+      "pass": true
+    },
+    {
+      "name": "clean commit accepted by wildcard secret policy",
+      "pass": true
+    },
+    {
+      "name": "wildcard policy does not match sibling prefix",
+      "pass": true
+    },
+    {
+      "name": "install approval pipeline discussion gate policy",
+      "pass": true
+    },
+    {
+      "name": "start gated orphan branch",
+      "pass": true
+    },
+    {
+      "name": "stage gated commit",
+      "pass": true
+    },
+    {
+      "name": "commit gated candidate",
+      "pass": true
+    },
+    {
+      "name": "protected gate rejects missing evidence",
+      "pass": true
+    },
+    {
+      "name": "record wrong-object gate",
+      "pass": true
+    },
+    {
+      "name": "wrong-object gate cannot authorize candidate",
+      "pass": true
+    },
+    {
+      "name": "record insufficient-approval gate",
+      "pass": true
+    },
+    {
+      "name": "insufficient approvals reject candidate",
+      "pass": true
+    },
+    {
+      "name": "record failed-pipeline gate",
+      "pass": true
+    },
+    {
+      "name": "failed pipeline rejects candidate",
+      "pass": true
+    },
+    {
+      "name": "record complete gate",
+      "pass": true
+    },
+    {
+      "name": "exact candidate passes complete gate",
+      "pass": true
+    },
+    {
+      "name": "durable committed push events exposed through bounded RPC",
+      "pass": true
+    },
+    {
+      "name": "push events identify user actor and store generation",
+      "pass": true
+    },
+    {
+      "name": "acknowledge durable push event",
+      "pass": true
+    },
+    {
+      "name": "acknowledged event leaves pending delivery set",
+      "pass": true
+    },
+    {
       "name": "authorized-key lookup succeeds",
       "pass": true
     },
@@ -264,6 +444,50 @@
     },
     {
       "name": "symlink SSH launcher rejected",
+      "pass": true
+    },
+    {
+      "name": "generate read-only deploy key",
+      "pass": true
+    },
+    {
+      "name": "generate write deploy key",
+      "pass": true
+    },
+    {
+      "name": "add repository-scoped read deploy key",
+      "pass": true
+    },
+    {
+      "name": "add repository-scoped write deploy key",
+      "pass": true
+    },
+    {
+      "name": "read deploy key authorization lookup",
+      "pass": true
+    },
+    {
+      "name": "write deploy key authorization lookup",
+      "pass": true
+    },
+    {
+      "name": "generate SSH certificate CA",
+      "pass": true
+    },
+    {
+      "name": "generate SSH certificate subject key",
+      "pass": true
+    },
+    {
+      "name": "add repository-scoped certificate principal",
+      "pass": true
+    },
+    {
+      "name": "sign short-lived SSH user certificate",
+      "pass": true
+    },
+    {
+      "name": "authorized principals lookup is forced and restricted",
       "pass": true
     },
     {
@@ -291,10 +515,6 @@
       "pass": true
     },
     {
-      "name": "reject hostile SSH command 5",
-      "pass": true
-    },
-    {
       "name": "hostile SSH commands never execute",
       "pass": true
     },
@@ -308,6 +528,14 @@
     },
     {
       "name": "SSH clone content exact",
+      "pass": true
+    },
+    {
+      "name": "stock Git archive over OpenSSH",
+      "pass": true
+    },
+    {
+      "name": "SSH archive content exact",
       "pass": true
     },
     {
@@ -347,6 +575,98 @@
       "pass": true
     },
     {
+      "name": "read deploy key clones through stock OpenSSH",
+      "pass": true
+    },
+    {
+      "name": "configure read deploy clone email",
+      "pass": true
+    },
+    {
+      "name": "configure read deploy clone name",
+      "pass": true
+    },
+    {
+      "name": "stage read deploy write probe",
+      "pass": true
+    },
+    {
+      "name": "commit read deploy write probe",
+      "pass": true
+    },
+    {
+      "name": "read deploy key cannot push",
+      "pass": true
+    },
+    {
+      "name": "write deploy key clones through stock OpenSSH",
+      "pass": true
+    },
+    {
+      "name": "configure write deploy clone email",
+      "pass": true
+    },
+    {
+      "name": "configure write deploy clone name",
+      "pass": true
+    },
+    {
+      "name": "stage write deploy update",
+      "pass": true
+    },
+    {
+      "name": "commit write deploy update",
+      "pass": true
+    },
+    {
+      "name": "write deploy key pushes repository-scoped ref",
+      "pass": true
+    },
+    {
+      "name": "short-lived SSH certificate clones through stock OpenSSH",
+      "pass": true
+    },
+    {
+      "name": "configure certificate clone email",
+      "pass": true
+    },
+    {
+      "name": "configure certificate clone name",
+      "pass": true
+    },
+    {
+      "name": "stage certificate write probe",
+      "pass": true
+    },
+    {
+      "name": "commit certificate write probe",
+      "pass": true
+    },
+    {
+      "name": "read certificate principal cannot push",
+      "pass": true
+    },
+    {
+      "name": "revoke deploy key through Diamond RPC",
+      "pass": true
+    },
+    {
+      "name": "revoked deploy key denied by live forced adapter",
+      "pass": true
+    },
+    {
+      "name": "revoke certificate principal through Diamond RPC",
+      "pass": true
+    },
+    {
+      "name": "revoked certificate denied by live forced adapter",
+      "pass": true
+    },
+    {
+      "name": "deploy push emits durable deploy actor event",
+      "pass": true
+    },
+    {
       "name": "SSH shell command rejected",
       "pass": true
     },
@@ -368,6 +688,90 @@
     },
     {
       "name": "repository remains consistent",
+      "pass": true
+    },
+    {
+      "name": "reconcile committed event spool into PostgreSQL",
+      "pass": true
+    },
+    {
+      "name": "reconciliation removes committed spool files after database commit",
+      "pass": true
+    },
+    {
+      "name": "start promotion-fence branch",
+      "pass": true
+    },
+    {
+      "name": "stage promotion-fence object",
+      "pass": true
+    },
+    {
+      "name": "commit promotion-fence object",
+      "pass": true
+    },
+    {
+      "name": "observe live receive process for shard fence",
+      "pass": true
+    },
+    {
+      "name": "active receive holds shard promotion fence",
+      "pass": true
+    },
+    {
+      "name": "fenced push completes after release",
+      "pass": true
+    },
+    {
+      "name": "promotion rejects target that missed fenced push",
+      "pass": true
+    },
+    {
+      "name": "reconcile source shard before cutover retry",
+      "pass": true
+    },
+    {
+      "name": "promote exact repository and ref inventory",
+      "pass": true
+    },
+    {
+      "name": "stale generation cannot repeat promotion",
+      "pass": true
+    },
+    {
+      "name": "old shard identity is fenced after promotion",
+      "pass": true
+    },
+    {
+      "name": "clone through promoted Git shard",
+      "pass": true
+    },
+    {
+      "name": "promoted repository passes strict fsck",
+      "pass": true
+    },
+    {
+      "name": "configure promoted clone email",
+      "pass": true
+    },
+    {
+      "name": "configure promoted clone name",
+      "pass": true
+    },
+    {
+      "name": "stage generation-two update",
+      "pass": true
+    },
+    {
+      "name": "commit generation-two update",
+      "pass": true
+    },
+    {
+      "name": "push through promoted Git shard",
+      "pass": true
+    },
+    {
+      "name": "promoted shard emits generation-two event",
       "pass": true
     }
   ]

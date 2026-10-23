@@ -124,15 +124,37 @@ impl Checker<'_> {
                 return Err(Error::Denied);
             }
         }
-        if method == "git_protect"
-            && (!Type::Bool.accepts(&self.expr(&args[4].1)?)
-                || !Type::Bool.accepts(&self.expr(&args[5].1)?))
-        {
-            return Err(Error::diagnostic(
-                "D310",
-                location,
-                "Git protection flags require Bool values",
-            ));
+        let boolean_arguments: &[usize] = match method {
+            "git_protect" => &[4, 5, 7, 8, 9, 10],
+            "git_gate" => &[5, 6],
+            "git_deploy_key" => &[4],
+            "git_certificate" => &[3],
+            _ => &[],
+        };
+        for index in boolean_arguments {
+            if !Type::Bool.accepts(&self.expr(&args[*index].1)?) {
+                return Err(Error::diagnostic(
+                    "D310",
+                    location,
+                    "Git policy flag requires Bool",
+                ));
+            }
+        }
+        let integer_arguments: &[usize] = match method {
+            "git_protect" => &[6],
+            "git_gate" => &[4, 7],
+            "git_certificate" => &[4],
+            "git_events" => &[1],
+            _ => &[],
+        };
+        for index in integer_arguments {
+            if !Type::Int.accepts(&self.expr(&args[*index].1)?) {
+                return Err(Error::diagnostic(
+                    "D310",
+                    location,
+                    "Git policy count or lifetime requires Int",
+                ));
+            }
         }
         Ok(())
     }
@@ -164,10 +186,14 @@ impl Checker<'_> {
             return Err(Error::Denied);
         }
         let (expected_arguments, expected_types, text_arguments) = match method {
-            "git_create" => (2, 0, 2),
+            "git_create" | "git_ack_event" => (2, 0, 2),
             "git_query" => (6, 1, 5),
-            "git_protect" => (6, 0, 4),
-            "git_unprotect" => (3, 0, 3),
+            "git_protect" => (11, 0, 4),
+            "git_unprotect" | "git_revoke_deploy_key" | "git_revoke_certificate" => (3, 0, 3),
+            "git_gate" => (8, 0, 4),
+            "git_deploy_key" => (5, 0, 4),
+            "git_certificate" => (5, 0, 3),
+            "git_events" => (2, 0, 1),
             _ => return Err(Error::Denied),
         };
         if args.len() != expected_arguments || types.len() != expected_types {
@@ -188,7 +214,7 @@ impl Checker<'_> {
         }
         self.check_git_specific(method, args, location)?;
         let write = method == "git_create";
-        let admin = matches!(method, "git_protect" | "git_unprotect");
+        let admin = !matches!(method, "git_create" | "git_query");
         self.effects.insert(Effect::Host(format!(
             "Git{}<{binding}>",
             if admin {

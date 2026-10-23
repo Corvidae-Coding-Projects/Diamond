@@ -122,10 +122,10 @@ def main() -> None:
         "non-boolean Git protection flag rejected",
         lambda project: replace(
             project / "server.dia",
-            'host.git_protect("repos", repository, reference, required_role, allow_force, allow_delete)',
-            'host.git_protect("repos", repository, reference, required_role, "yes", allow_delete)',
+            'host.git_protect("repos", repository, pattern, required_role, allow_force, allow_delete, required_approvals, require_pipeline, require_discussions, require_signed_commits, scan_secrets)',
+            'host.git_protect("repos", repository, pattern, required_role, "yes", allow_delete, required_approvals, require_pipeline, require_discussions, require_signed_commits, scan_secrets)',
         ),
-        "Git protection flags require Bool values",
+        "Git policy flag requires Bool",
         results,
     )
     rejected(
@@ -145,7 +145,7 @@ def main() -> None:
             (project / "server.dia").read_text()
             + "\nexport fn unsafe_admin_effect(repository: Text) -> Result<Text, DataError>:\n"
             + "  let saved = repositories.create(NewRepository(label: \"unsafe\", public: false))?\n"
-            + "  host.git_protect(\"repos\", repository, \"refs/heads/main\", \"authenticated\", false, false)\n"
+            + "  host.git_protect(\"repos\", repository, \"refs/heads/main\", \"authenticated\", false, false, 0, false, false, false, false)\n"
         ),
         "Git writes cannot share application writes or explicit transactions",
         results,

@@ -1,115 +1,114 @@
-# Protected receive and SSH adapter qualification
+# Git runtime v2 adversarial qualification
 
 ## Qualified slice
 
-This evidence covers Diamond 0.16.0's second Git runtime slice:
+This evidence covers Diamond 0.16.0's bounded `git-v2` runtime adapter:
 
-- `GitAdmin<binding>` with checked `host.git_protect` and
-  `host.git_unprotect` operations for exact branch and tag refs;
-- one runtime-owned pre-receive controller shared by smart HTTPS and SSH;
-- signed, short-lived receive claims bound to the app, binding, repository,
-  account, store identity, nonce, and expiry;
-- live PostgreSQL account and protection reload inside Git's quarantine phase;
-- Ed25519 public-key enrollment, listing, revocation, epoch invalidation, and
-  SHA-256 fingerprint lookup;
-- a restricted OpenSSH authorized-key line and forced-command adapter accepting
-  only upload-pack and receive-pack grammar; and
-- fixed 64 KiB pumps, a 1 GiB per-direction ceiling, a 15-minute deadline, and
-  one Git process per SSH connection.
+- smart HTTPS and forced-command OpenSSH clone, fetch, push, and archive using
+  the installed Git executable;
+- exact and terminal-prefix wildcard branch/tag rules with force, deletion,
+  live role, approval, pipeline, discussion, signed-commit, and secret policies;
+- account SSH keys, repository-scoped read/write deploy keys, and expiring SSH
+  certificate principals with live disablement and revocation;
+- signed, short-lived receive claims bound to the application, binding,
+  repository, actor type, actor ID, store identity, generation, nonce, and
+  expiry;
+- exact runtime-owned pre-receive and post-receive hooks, validated Git
+  quarantine paths, durable private event spooling, bounded event delivery, and
+  reconciliation; and
+- serialized receive/cutover fencing, exact repository/ref inventory checks,
+  generation compare-and-swap, and immediate rejection of the old shard after
+  promotion.
 
-The product-facing repository policy, protected-ref controls, and SSH-key UI
-are Diamond code in `examples/git-browser`. Git/OpenSSH execution, wire
-streaming, key parsing, and receive enforcement stay in the bounded Rust
-runtime.
+Product policy, RPCs, and the reactive controls are Diamond code in
+`examples/git-browser`. Git/OpenSSH execution, streaming, key parsing,
+quarantine validation, receive enforcement, and shard fencing stay in the
+bounded Rust runtime.
 
-## Final real-interface evidence
+## Real-interface evidence
 
-The final code was built with `cargo build --locked`. The retained campaign is:
+Run the retained campaign with:
 
 ```sh
 python3 verification/git_policy_ssh_redteam.py
 ```
 
-It passed 90 of 90 scenarios using Diamond 0.16.0, Git 2.56.0, OpenSSH 10.2p1,
-PostgreSQL 18.6, and Python 3.14.8. It created an isolated PostgreSQL cluster,
-Diamond server, repository shard, OpenSSH daemon, host key, account key, and
-working clones, then removed all disposable state.
+The final replay passed **191 of 191** scenarios using Diamond 0.16.0, Git
+2.56.0, OpenSSH 10.2p1, PostgreSQL 18.6, and Python 3.14.8. It created an
+isolated PostgreSQL cluster, Diamond web server, two Git shard roots, OpenSSH
+daemon, host and CA keys, account/deploy/certificate identities, and real
+working clones, then removed the disposable state.
 
-Observed behavior included:
+The replay exercised:
 
-- ordinary HTTPS and SSH clone/push with stock Git;
-- exact protected-ref fast-forward success, force/delete rejection, explicitly
-  allowed force update, and live administrator-role removal;
-- all-or-nothing rejection of a mixed atomic update and a 257-ref transaction;
-- independent ref inspection after rejected pushes;
-- malformed role/ref, SSH key wire data, fingerprint, key ID, repository path,
-  extra argument, archive command, newline, shell metacharacter, and traversal
-  probes;
-- runtime hook replacement, group-writable launcher, launcher symlink, account
-  disablement, and key revocation;
-- an actual OpenSSH forced-command shell attempt with no shell output; and
-- an 8 MiB incompressible object pushed and cloned through the bounded SSH
-  pumps with byte-for-byte equality.
+- stock Git clone, push, and remote archive over real OpenSSH plus smart HTTPS;
+- an 8 MiB incompressible SSH transfer and a 64 MiB live receive used during a
+  fenced shard cutover;
+- protected fast-forward, force/delete rejection, atomic rejection, a 257-ref
+  bound, live administrator demotion, and exact hook tamper rejection;
+- wildcard boundary behavior, signed commit success, unsigned commit rejection,
+  secret rejection, and attempts to reuse an already reachable unsigned or
+  secret-bearing commit through a newly protected ref;
+- missing, wrong-object, insufficient-approval, failed-pipeline, and complete
+  candidate gates;
+- read-only and write deploy keys, a short-lived OpenSSH certificate, live
+  revocation, account disablement, key revocation, shell/command injection,
+  traversal, malformed key, unsafe launcher, and unknown identity probes;
+- durable user and deploy push events, acknowledgment, local spool cleanup, and
+  exact ref-inventory reconciliation;
+- a paused `git-receive-pack` process proving promotion waits for the active
+  receive, rejection of the target that missed that push, successful retry
+  after exact synchronization, stale-generation rejection, old-shard fencing,
+  strict `git fsck`, and a generation-two push through the promoted shard.
 
-The original Git/OAuth campaign also passed 108 of 108 scenarios on the final
-code. Its 24 MiB incompressible smart-HTTP transfer observed the Diamond server
-at 50,204 KiB baseline and 50,240 KiB peak resident memory, a 36 KiB sampled
-delta. The checked-language boundary corpus passed 12 of 12 cases.
+Machine-readable results are retained in
+`verification/git_policy_ssh_redteam_results.json`. The earlier Git/OAuth and
+compiler campaigns remain in `verification/git_foundation_redteam_results.json`
+and `verification/git_compiler_boundaries_results.json`.
 
-Final supporting checks passed:
+## Findings repaired
 
-- `cargo fmt --all -- --check`
-- `cargo check --locked`
-- `cargo clippy --locked --all-targets -- -D warnings`
-- `cargo test --locked` (6 unit security tests and 38 doctests)
-- `cargo audit` (288 dependencies, no reported vulnerabilities)
-- `python3 verification/examples.py`
-- `git diff --check`
+1. A receive fence originally owned a synchronous PostgreSQL runtime that could
+   be dropped from a Tokio worker and panic. The advisory-lock connection now
+   lives on a dedicated thread and is joined when the transport releases it.
+2. The policy subprocess cleared Git's quarantine environment, so valid signed
+   commits were invisible and content checks could not examine newly received
+   objects. The hook now preserves only object paths that canonicalize inside
+   the exact managed bare repository.
+3. A commit could be pushed to an unprotected ref and reused as a new protected
+   ref without signature or secret validation. New protected refs now inspect
+   their bounded history regardless of reachability from other refs.
+4. The event-list limit was serialized as a PostgreSQL `int4` for a `LIMIT`
+   parameter inferred as `int8`, returning an unavailable error. The adapter
+   now sends the checked `i64` wire value directly.
+5. Replaying committed spool files in random nonce order could roll the stored
+   ref inventory backward. Receives are serialized per binding, and
+   reconciliation takes the same exclusive fence and replaces the inventory
+   from the authoritative source shard.
+6. Promotion initially checked only store identity and generation, so a stale
+   replica could be activated. It now compares the exact registered repository
+   set and every branch/tag object and rejects unfinished receive state before
+   the generation changes.
 
-Machine-readable receipts are in
-`verification/git_policy_ssh_redteam_results.json`,
-`verification/git_foundation_redteam_results.json`, and
-`verification/git_compiler_boundaries_results.json`.
+## Bounded claims
 
-## Findings repaired during the campaign
+The qualified adapter provides one writer at a time per Git binding. This is a
+deliberate correctness and memory bound for the first release; separate bindings
+can proceed independently. New protected refs inspect at most 512 commits,
+secret scanning inspects at most 256 blobs, 4 MiB per blob, and 32 MiB total,
+and oversized histories fail closed.
 
-1. The first hook installer copied and rehashed the 183 MiB debug executable,
-   causing an ordinary repository initialization to exceed the HTTP client
-   deadline. The hook is now a mode-0500 exact-byte launcher containing only
-   the fixed canonical Diamond executable path; every use validates its owner,
-   mode, file type, path, and complete bounded contents.
-2. The first signed-claim validator treated the internal application identity
-   as a source identifier. Real application identities can start with a digit,
-   so every push failed closed. The validator now uses the exact safe filename
-   alphabet and length accepted by the repository layout.
-3. The first OpenSSH deployment assumed custom runtime environment variables
-   survived into the forced command. Real OpenSSH did not preserve them. The
-   authorized-key command now binds the opaque key ID to a canonical,
-   process-owned, non-group-writable launcher; secrets stay in deployment-owned
-   configuration rather than `authorized_keys`.
-4. The first counted SSH proxy withheld binary packet output until flush and
-   deadlocked a real clone. Each fixed-size chunk is now written and flushed
-   immediately. Stock clone, push, and multi-chunk incompressible transfers
-   pass over the final implementation.
-5. The account key listing originally showed the stored revocation bit without
-   incorporating account-epoch invalidation. It now reports effective
-   revocation by joining the current account epoch.
+The secret scanner recognizes the explicitly implemented high-confidence token
+and private-key forms. It is not a general secret-classification engine. Signed
+commit policy currently trusts active account Ed25519 keys and verified account
+emails. The adapter does not implement teams, merge requests, issues, LFS, CI,
+artifacts, OCI, Pages, or the rest of the Git web product; those are application
+and service layers above this completed runtime boundary.
 
-All five reproduced failures or design defects are fixed in the final replay.
-
-## Boundaries not claimed
-
-This slice supports exact refs, `authenticated` and `account_admin` rules,
-Ed25519 user keys, upload-pack, and receive-pack. It does not yet implement
-teams, deploy keys, SSH certificates, archive-over-SSH, wildcard ref rules,
-approval/pipeline/discussion gates, signed-commit policy, secret-push scanning,
-the durable post-receive event spool, or shard fencing. Those remain product
-and runtime work from later Git-interface checkpoints.
-
-The local qualification used the generated authorized-key output as an
-OpenSSH `AuthorizedKeysFile` because an unprivileged disposable test cannot
-install the root-owned production `AuthorizedKeysCommand`. The fingerprint
-lookup command itself, its forced output, and the resulting real OpenSSH
-sessions were exercised independently. Production still trusts Git, OpenSSH,
-the operating system, PostgreSQL, the private Git-root owner, the fixed SSH
-launcher owner, and deployment administrators.
+The local OpenSSH test uses generated `AuthorizedKeysFile` and
+`AuthorizedPrincipalsFile` data because it does not install root-owned
+production commands. The lookup commands, forced options, stock OpenSSH
+sessions, trusted CA, and live adapter rechecks were exercised. Production
+still trusts Git, OpenSSH, the operating system, PostgreSQL, the private shard
+owner, the fixed SSH launcher owner, the SSH CA operator, and deployment
+administrators.

@@ -1402,7 +1402,17 @@ impl<'a> Checker<'a> {
         }
         if matches!(
             method,
-            "git_create" | "git_query" | "git_protect" | "git_unprotect"
+            "git_create"
+                | "git_query"
+                | "git_protect"
+                | "git_unprotect"
+                | "git_gate"
+                | "git_deploy_key"
+                | "git_revoke_deploy_key"
+                | "git_certificate"
+                | "git_revoke_certificate"
+                | "git_events"
+                | "git_ack_event"
         ) {
             return self.git_call(method, args, types, location);
         }
