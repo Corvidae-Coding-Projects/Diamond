@@ -1079,11 +1079,14 @@ fn capability_effect(name: &str) -> Result<Effect> {
     if ["PostgresRead", "Jobs", "Events", "JobKey"].contains(&name) {
         return Ok(Effect::Host(name.into()));
     }
-    if ["GitRead<", "GitWrite<", "GitAdmin<"].iter().any(|prefix| {
-        name.strip_prefix(prefix)
-            .and_then(|value| value.strip_suffix('>'))
-            .is_some_and(resolve::identifier)
-    }) {
+    if ["GitRead<", "GitWrite<", "GitReview<", "GitAdmin<"]
+        .iter()
+        .any(|prefix| {
+            name.strip_prefix(prefix)
+                .and_then(|value| value.strip_suffix('>'))
+                .is_some_and(resolve::identifier)
+        })
+    {
         return Ok(Effect::Host(name.into()));
     }
     for (prefix, write) in [("DbRead<", false), ("DbWrite<", true)] {

@@ -1,10 +1,10 @@
 schema_version = 1
-name = "GitBrowser"
+name = "DiamondForge"
 server = "server"
 browser = "ui"
-component = "GitBrowser"
+component = "GitForge"
 styles = ["git.css"]
-provides = ["DbRead<Repositories>", "DbWrite<Repositories>", "GitRead<repos>", "GitWrite<repos>", "GitAdmin<repos>"]
+provides = ["Events", "DbRead<Organizations>", "DbWrite<Organizations>", "DbRead<Members>", "DbWrite<Members>", "DbRead<Repositories>", "DbWrite<Repositories>", "DbRead<Issues>", "DbWrite<Issues>", "DbRead<Comments>", "DbWrite<Comments>", "DbRead<MergeRequests>", "DbWrite<MergeRequests>", "DbRead<Reviews>", "DbWrite<Reviews>", "GitRead<repos>", "GitWrite<repos>", "GitReview<repos>", "GitAdmin<repos>"]
 
 [modules.shared]
 path = "shared.dia"
@@ -14,7 +14,7 @@ target = "shared"
 path = "server.dia"
 target = "server"
 imports = ["shared"]
-provides = ["DbRead<Repositories>", "DbWrite<Repositories>", "GitRead<repos>", "GitWrite<repos>", "GitAdmin<repos>"]
+provides = ["Events", "DbRead<Organizations>", "DbWrite<Organizations>", "DbRead<Members>", "DbWrite<Members>", "DbRead<Repositories>", "DbWrite<Repositories>", "DbRead<Issues>", "DbWrite<Issues>", "DbRead<Comments>", "DbWrite<Comments>", "DbRead<MergeRequests>", "DbWrite<MergeRequests>", "DbRead<Reviews>", "DbWrite<Reviews>", "GitRead<repos>", "GitWrite<repos>", "GitReview<repos>", "GitAdmin<repos>"]
 
 [modules.ui]
 path = "ui.dia"
@@ -22,13 +22,37 @@ target = "browser"
 imports = ["shared"]
 
 [rpc]
+create_organization = "server.create_organization"
+organizations_list = "server.organizations_list"
+grant_maintainer = "server.grant_maintainer"
+grant_developer = "server.grant_developer"
+grant_reporter = "server.grant_reporter"
+revoke_member = "server.revoke_member"
+create_repository = "server.create_repository"
 register_repository = "server.register_repository"
+repository_page = "server.repository_page"
 initialize_repository = "server.initialize_repository"
 repository_head = "server.repository_head"
 repository_tree = "server.repository_tree"
 repository_blob = "server.repository_blob"
 repository_history = "server.repository_history"
 repository_diff = "server.repository_diff"
+create_issue = "server.create_issue"
+issue_page = "server.issue_page"
+read_issue = "server.read_issue"
+edit_issue = "server.edit_issue"
+close_issue = "server.close_issue"
+add_issue_comment = "server.add_issue_comment"
+issue_comments = "server.issue_comments"
+create_merge_request = "server.create_merge_request"
+merge_request_page = "server.merge_request_page"
+read_merge_request = "server.read_merge_request"
+approve_merge_request = "server.approve_merge_request"
+resolve_merge_discussions = "server.resolve_merge_discussions"
+prepare_merge_request = "server.prepare_merge_request"
+execute_merge = "server.execute_merge"
+finalize_merge_request = "server.finalize_merge_request"
+close_merge_request = "server.close_merge_request"
 protect_reference = "server.protect_reference"
 unprotect_reference = "server.unprotect_reference"
 record_gate = "server.record_gate"
@@ -43,8 +67,73 @@ acknowledge_push_event = "server.acknowledge_push_event"
 profile = "relational-v1"
 version = 1
 
+[storage.resources.Organizations]
+scope = "id"
+unique = [["name"]]
+global_unique = true
+
+[storage.resources.Members]
+scope = "organization"
+unique = [["organization", "user"]]
+
+[storage.resources.Members.references.organization]
+resource = "Organizations"
+fields = { organization = "id" }
+
 [storage.resources.Repositories]
 scope = "id"
+global_unique = true
+unique = [["organization", "name"], ["organization", "id"]]
+indexes = [["organization", "name"]]
+
+[storage.resources.Issues]
+scope = "repository"
+unique = [["organization", "repository", "id"], ["organization", "repository", "rank"]]
+indexes = [["organization", "repository", "rank"]]
+
+[storage.resources.Issues.references.repository]
+resource = "Repositories"
+fields = { organization = "organization", repository = "id" }
+
+[storage.resources.Comments]
+scope = "repository"
+unique = [["organization", "repository", "issue", "rank"]]
+indexes = [["organization", "repository", "issue", "rank"]]
+
+[storage.resources.Comments.references.issue]
+resource = "Issues"
+fields = { organization = "organization", repository = "repository", issue = "id" }
+
+[storage.resources.MergeRequests]
+scope = "repository"
+unique = [["organization", "repository", "id"], ["organization", "repository", "rank"]]
+indexes = [["organization", "repository", "rank"]]
+
+[storage.resources.MergeRequests.references.repository]
+resource = "Repositories"
+fields = { organization = "organization", repository = "id" }
+
+[storage.resources.Reviews]
+scope = "repository"
+unique = [["organization", "repository", "merge_request", "reviewer"]]
+indexes = [["organization", "repository", "merge_request", "head"]]
+
+[storage.resources.Reviews.references.merge_request]
+resource = "MergeRequests"
+fields = { organization = "organization", repository = "repository", merge_request = "id" }
+
+[storage.lookups.OrganizationOwnership]
+resource = "Organizations"
+scope = "id"
+principal = "owner"
+purpose = "Allow organization owners to administer their namespace."
+
+[storage.lookups.Membership]
+resource = "Members"
+scope = "organization"
+principal = "user"
+role = "role"
+purpose = "Authorize organization members without exposing the member directory."
 
 [identity]
 profile = "accounts-v1"
@@ -53,6 +142,36 @@ enrollment = "open"
 [identity.oauth]
 providers = ["google", "github"]
 admission = "public"
+
+[http_api]
+version = 1
+
+[http_api.operations.repository_page]
+function = "server.repository_page"
+auth = "token"
+
+[http_api.operations.issue_page]
+function = "server.issue_page"
+auth = "token"
+
+[http_api.operations.read_issue]
+function = "server.read_issue"
+auth = "token"
+
+[http_api.operations.merge_request_page]
+function = "server.merge_request_page"
+auth = "token"
+
+[files]
+profile = "shared-fs-v1"
+
+[files.bindings.issue_attachments]
+resource = "Issues"
+max_bytes = 8388608
+
+[events.repository_activity]
+resource = "Repositories"
+payload = "Text"
 
 [git]
 profile = "git-v2"

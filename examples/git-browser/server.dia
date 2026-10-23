@@ -1,32 +1,298 @@
 type UserId = Id<"user">
+type OrganizationId = Id<"organization">
+type MemberId = Id<"member">
 type RepositoryId = Id<"repository">
+type IssueId = Id<"issue">
+type CommentId = Id<"comment">
+type MergeRequestId = Id<"merge_request">
+type ReviewId = Id<"review">
+
+enum MemberRole:
+  Maintainer
+  Developer
+  Reporter
+
+enum IssueState:
+  IssueOpen
+  IssueClosed
+
+enum MergeState:
+  MergeOpen
+  MergeMerged
+  MergeClosed
+
+type Organization:
+  id: OrganizationId
+  owner: UserId @created_by_principal
+  name: Text<length: 1..80>
+
+type NewOrganization:
+  name: Text<length: 1..80>
+
+type Member:
+  id: MemberId
+  organization: OrganizationId
+  user: UserId
+  role: MemberRole
+
+type NewMember:
+  organization: OrganizationId
+  user: UserId
+  role: MemberRole
 
 type Repository:
   id: RepositoryId
   owner: UserId @created_by_principal
-  label: Text<length: 1..80>
+  organization: OrganizationId
+  name: Text<length: 1..80>
+  description: Text<length: 0..500>
   public: Bool
 
 type NewRepository:
-  label: Text<length: 1..80>
+  organization: OrganizationId
+  name: Text<length: 1..80>
+  description: Text<length: 0..500>
   public: Bool
 
-resource Repositories: Repository
+type Issue:
+  id: IssueId
+  author: UserId @created_by_principal
+  organization: OrganizationId
+  repository: RepositoryId
+  public: Bool
+  title: Text<length: 1..160>
+  body: Text<length: 0..16000>
+  state: IssueState
+  rank: Int
 
-policy Repositories:
+type NewIssue:
+  organization: OrganizationId
+  repository: RepositoryId
+  public: Bool
+  title: Text<length: 1..160>
+  body: Text<length: 0..16000>
+  state: IssueState
+  rank: Int
+
+type EditIssue:
+  title: Text<length: 1..160>
+  body: Text<length: 0..16000>
+  state: IssueState
+
+type Comment:
+  id: CommentId
+  author: UserId @created_by_principal
+  organization: OrganizationId
+  repository: RepositoryId
+  issue: IssueId
+  public: Bool
+  body: Text<length: 1..16000>
+  rank: Int
+
+type NewComment:
+  organization: OrganizationId
+  repository: RepositoryId
+  issue: IssueId
+  public: Bool
+  body: Text<length: 1..16000>
+  rank: Int
+
+type MergeRequest:
+  id: MergeRequestId
+  author: UserId @created_by_principal
+  organization: OrganizationId
+  repository: RepositoryId
+  public: Bool
+  title: Text<length: 1..160>
+  body: Text<length: 0..16000>
+  source_reference: Text<length: 12..255>
+  target_reference: Text<length: 12..255>
+  source_object: Text<length: 40..64>
+  target_object: Text<length: 40..64>
+  state: MergeState
+  approvals: Int
+  discussions_resolved: Bool
+  merged_object: Option<Text>
+  rank: Int
+
+type NewMergeRequest:
+  organization: OrganizationId
+  repository: RepositoryId
+  public: Bool
+  title: Text<length: 1..160>
+  body: Text<length: 0..16000>
+  source_reference: Text<length: 12..255>
+  target_reference: Text<length: 12..255>
+  source_object: Text<length: 40..64>
+  target_object: Text<length: 40..64>
+  state: MergeState
+  approvals: Int
+  discussions_resolved: Bool
+  merged_object: Option<Text>
+  rank: Int
+
+type EditMergeRequest:
+  state: MergeState
+  approvals: Int
+  discussions_resolved: Bool
+  merged_object: Option<Text>
+
+type Review:
+  id: ReviewId
+  reviewer: UserId @created_by_principal
+  author: UserId
+  organization: OrganizationId
+  repository: RepositoryId
+  merge_request: MergeRequestId
+  head: Text<length: 40..64>
+  approved: Bool
+
+type NewReview:
+  author: UserId
+  organization: OrganizationId
+  repository: RepositoryId
+  merge_request: MergeRequestId
+  head: Text<length: 40..64>
+  approved: Bool
+
+resource Organizations: Organization
+resource Members: Member
+resource Repositories: Repository
+resource Issues: Issue
+resource Comments: Comment
+resource MergeRequests: MergeRequest
+resource Reviews: Review
+
+policy Organizations:
   read(row, by principal):
-    row.public or principal.is_user(row.owner)
+    principal.is_user(row.owner) or principal.is_related("Membership", row.id)
   create(row, by principal):
     principal.is_user(row.owner)
   update(before, after, by principal):
     before.id == after.id and before.owner == after.owner and principal.is_user(before.owner)
+  delete(row, by principal):
+    principal.is_user(row.owner)
+
+policy Members:
+  read(row, by principal):
+    principal.is_user(row.user) or principal.is_related("OrganizationOwnership", row.organization)
+  create(row, by principal):
+    principal.is_related("OrganizationOwnership", row.organization)
+  delete(row, by principal):
+    principal.is_related("OrganizationOwnership", row.organization)
+
+policy Repositories:
+  read(row, by principal):
+    row.public or principal.is_related("OrganizationOwnership", row.organization) or principal.is_related("Membership", row.organization)
+  create(row, by principal):
+    principal.is_user(row.owner) and (principal.is_related("OrganizationOwnership", row.organization) or principal.has_role_in("Membership", row.organization, .Maintainer))
+  update(before, after, by principal):
+    before.id == after.id and before.organization == after.organization and before.owner == after.owner and (principal.is_related("OrganizationOwnership", before.organization) or principal.has_role_in("Membership", before.organization, .Maintainer) or principal.has_role_in("Membership", before.organization, .Developer))
+  delete(row, by principal):
+    principal.is_related("OrganizationOwnership", row.organization) or principal.has_role_in("Membership", row.organization, .Maintainer)
+
+policy Issues:
+  read(row, by principal):
+    row.public or principal.is_related("OrganizationOwnership", row.organization) or principal.is_related("Membership", row.organization)
+  create(row, by principal):
+    principal.is_user(row.author) and (principal.is_related("OrganizationOwnership", row.organization) or principal.has_role_in("Membership", row.organization, .Maintainer) or principal.has_role_in("Membership", row.organization, .Developer))
+  update(before, after, by principal):
+    before.organization == after.organization and before.repository == after.repository and before.author == after.author and before.public == after.public and (principal.is_user(before.author) or principal.is_related("OrganizationOwnership", before.organization) or principal.has_role_in("Membership", before.organization, .Maintainer) or principal.has_role_in("Membership", before.organization, .Developer))
+  delete(row, by principal):
+    principal.is_related("OrganizationOwnership", row.organization) or principal.has_role_in("Membership", row.organization, .Maintainer) or principal.has_role_in("Membership", row.organization, .Developer)
+
+policy Comments:
+  read(row, by principal):
+    row.public or principal.is_related("OrganizationOwnership", row.organization) or principal.is_related("Membership", row.organization)
+  create(row, by principal):
+    principal.is_user(row.author) and (principal.is_related("OrganizationOwnership", row.organization) or principal.is_related("Membership", row.organization))
+  delete(row, by principal):
+    principal.is_related("OrganizationOwnership", row.organization) or principal.has_role_in("Membership", row.organization, .Maintainer) or (principal.is_user(row.author) and principal.is_related("Membership", row.organization))
+
+policy MergeRequests:
+  read(row, by principal):
+    row.public or principal.is_related("OrganizationOwnership", row.organization) or principal.is_related("Membership", row.organization)
+  create(row, by principal):
+    principal.is_user(row.author) and (principal.is_related("OrganizationOwnership", row.organization) or principal.has_role_in("Membership", row.organization, .Maintainer) or principal.has_role_in("Membership", row.organization, .Developer))
+  update(before, after, by principal):
+    before.organization == after.organization and before.repository == after.repository and before.author == after.author and before.public == after.public and before.title == after.title and before.body == after.body and before.source_reference == after.source_reference and before.target_reference == after.target_reference and before.source_object == after.source_object and before.target_object == after.target_object and (principal.is_related("OrganizationOwnership", before.organization) or principal.has_role_in("Membership", before.organization, .Maintainer) or principal.has_role_in("Membership", before.organization, .Developer))
+  delete(row, by principal):
+    principal.is_related("OrganizationOwnership", row.organization) or (principal.is_user(row.author) and principal.is_related("Membership", row.organization))
+
+policy Reviews:
+  read(row, by principal):
+    principal.is_related("OrganizationOwnership", row.organization) or principal.is_related("Membership", row.organization)
+  create(row, by principal):
+    principal.is_user(row.reviewer) and row.reviewer != row.author and (principal.is_related("OrganizationOwnership", row.organization) or principal.has_role_in("Membership", row.organization, .Maintainer) or principal.has_role_in("Membership", row.organization, .Developer))
+  delete(row, by principal):
+    principal.is_user(row.reviewer) or principal.is_related("OrganizationOwnership", row.organization)
+
+fn issue_state_text(state: IssueState) -> Text:
+  match state:
+    IssueOpen => "open"
+    IssueClosed => "closed"
+
+fn merge_state_text(state: MergeState) -> Text:
+  match state:
+    MergeOpen => "open"
+    MergeMerged => "merged"
+    MergeClosed => "closed"
+
+fn visibility_text(public: Bool) -> Text:
+  match public:
+    true => "public"
+    false => "private"
 
 export fn main() -> Text:
-  "Diamond Git browser"
+  "Diamond Forge"
+
+export fn create_organization(name: Text<length: 1..80>) -> Result<Text, DataError>:
+  let row = organizations.create(NewOrganization(name: name))?
+  Ok(id_text(row.id))
+
+export fn organizations_list() -> Result<List<OrganizationCard>, DataError>:
+  let rows = organizations.select(limit: 100)?
+  let cards = for row in rows:
+    OrganizationCard(id: id_text(row.id), name: row.name)
+  Ok(cards)
+
+export fn grant_maintainer(organization: Text, user: Text) -> Result<Text, DataError>:
+  let row = members.create(NewMember(organization: OrganizationId(organization), user: UserId(user), role: Maintainer))?
+  Ok(id_text(row.id))
+
+export fn grant_developer(organization: Text, user: Text) -> Result<Text, DataError>:
+  let row = members.create(NewMember(organization: OrganizationId(organization), user: UserId(user), role: Developer))?
+  Ok(id_text(row.id))
+
+export fn grant_reporter(organization: Text, user: Text) -> Result<Text, DataError>:
+  let row = members.create(NewMember(organization: OrganizationId(organization), user: UserId(user), role: Reporter))?
+  Ok(id_text(row.id))
+
+export fn revoke_member(member: Text) -> Result<Text, DataError>:
+  members.delete(MemberId(member))?
+  Ok("Membership revoked.")
+
+export fn create_repository(organization: Text, name: Text<length: 1..80>, description: Text<length: 0..500>, public: Bool) -> Result<Text, DataError>:
+  let row = repositories.create(NewRepository(organization: OrganizationId(organization), name: name, description: description, public: public))?
+  Ok(id_text(row.id))
 
 export fn register_repository(label: Text<length: 1..80>, public: Bool) -> Result<Text, DataError>:
-  let repository = repositories.create(NewRepository(label: label, public: public))?
-  Ok(id_text(repository.id))
+  let organization = organizations.create(NewOrganization(name: label))?
+  let row = repositories.create(NewRepository(organization: organization.id, name: label, description: "", public: public))?
+  Ok(id_text(row.id))
+
+fn next_repository_cursor(rows: List<Repository>) -> Result<Text, DataError>:
+  match list_get(rows, len(rows) - 1):
+    Some(row) => repositories.cursor(row: row, order: "name")
+    None => Ok("")
+
+export fn repository_page(organization: Text, after: Text) -> Result<RepositoryPage, DataError>:
+  let rows = repositories.page(organization: OrganizationId(organization), order: "name", after: after, limit: 20)?
+  let cards = for row in rows:
+    RepositoryCard(id: id_text(row.id), organization: id_text(row.organization), name: row.name, description: row.description, visibility: visibility_text(row.public))
+  let cursor = next_repository_cursor(rows)?
+  let total = repositories.count(organization: OrganizationId(organization))?
+  Ok(RepositoryPage(cards: cards, after: cursor, total: total))
 
 export fn initialize_repository(repository: Text) -> Result<Text, DataError>:
   host.git_create("repos", repository)
@@ -45,6 +311,155 @@ export fn repository_history(repository: Text, revision: Text) -> Result<GitHist
 
 export fn repository_diff(repository: Text, old: Text, new: Text) -> Result<GitDiff, DataError>:
   host.git_query<GitDiff>("repos", repository, "diff", old, new, 1)
+
+export fn create_issue(repository: Text, title: Text<length: 1..160>, body: Text<length: 0..16000>) -> Result<Text, DataError>:
+  let parent = repositories.get(RepositoryId(repository))?
+  let rank = issues.count(organization: parent.organization, repository: parent.id)? + 1
+  let row = issues.create(NewIssue(organization: parent.organization, repository: parent.id, public: parent.public, title: title, body: body, state: IssueOpen, rank: rank))?
+  let event = host.event_emit<Text>("repository_activity", repository, "Issue opened: " + row.title)?
+  Ok(id_text(row.id))
+
+fn next_issue_cursor(rows: List<Issue>) -> Result<Text, DataError>:
+  match list_get(rows, len(rows) - 1):
+    Some(row) => issues.cursor(row: row, order: "rank")
+    None => Ok("")
+
+export fn issue_page(organization: Text, repository: Text, after: Text) -> Result<IssuePage, DataError>:
+  let rows = issues.page(organization: OrganizationId(organization), repository: RepositoryId(repository), order: "rank", after: after, limit: 20)?
+  let cards = for row in rows:
+    IssueCard(id: id_text(row.id), title: row.title, state: issue_state_text(row.state), author: id_text(row.author))
+  let cursor = next_issue_cursor(rows)?
+  let total = issues.count(organization: OrganizationId(organization), repository: RepositoryId(repository))?
+  Ok(IssuePage(cards: cards, after: cursor, total: total))
+
+export fn read_issue(issue: Text) -> Result<IssueDetail, DataError>:
+  let row = issues.get(IssueId(issue))?
+  Ok(IssueDetail(id: id_text(row.id), title: row.title, body: row.body, state: issue_state_text(row.state), author: id_text(row.author)))
+
+export fn edit_issue(issue: Text, title: Text<length: 1..160>, body: Text<length: 0..16000>) -> Result<IssueDetail, DataError>:
+  let before = issues.get(IssueId(issue))?
+  let row = issues.update(before.id, EditIssue(title: title, body: body, state: before.state))?
+  Ok(IssueDetail(id: id_text(row.id), title: row.title, body: row.body, state: issue_state_text(row.state), author: id_text(row.author)))
+
+export fn close_issue(issue: Text) -> Result<IssueDetail, DataError>:
+  let before = issues.get(IssueId(issue))?
+  let row = issues.update(before.id, EditIssue(title: before.title, body: before.body, state: IssueClosed))?
+  let event = host.event_emit<Text>("repository_activity", id_text(row.repository), "Issue closed: " + row.title)?
+  Ok(IssueDetail(id: id_text(row.id), title: row.title, body: row.body, state: issue_state_text(row.state), author: id_text(row.author)))
+
+export fn add_issue_comment(issue: Text, body: Text<length: 1..16000>) -> Result<Text, DataError>:
+  let parent = issues.get(IssueId(issue))?
+  let rank = comments.count(organization: parent.organization, repository: parent.repository, issue: parent.id)? + 1
+  let row = comments.create(NewComment(organization: parent.organization, repository: parent.repository, issue: parent.id, public: parent.public, body: body, rank: rank))?
+  let event = host.event_emit<Text>("repository_activity", id_text(parent.repository), "Issue comment added")?
+  Ok(id_text(row.id))
+
+export fn issue_comments(organization: Text, repository: Text, issue: Text) -> Result<List<CommentCard>, DataError>:
+  let rows = comments.page(organization: OrganizationId(organization), repository: RepositoryId(repository), issue: IssueId(issue), order: "rank", after: "", limit: 100)?
+  let cards = for row in rows:
+    CommentCard(id: id_text(row.id), body: row.body, author: id_text(row.author))
+  Ok(cards)
+
+export fn create_merge_request(repository: Text, title: Text<length: 1..160>, body: Text<length: 0..16000>, source_reference: Text<length: 12..255>, target_reference: Text<length: 12..255>) -> Result<Text, DataError>:
+  let parent = repositories.get(RepositoryId(repository))?
+  let source = host.git_query<GitHistory>("repos", repository, "history", source_reference, "", 1)?
+  let target = host.git_query<GitHistory>("repos", repository, "history", target_reference, "", 1)?
+  let rank = mergerequests.count(organization: parent.organization, repository: parent.id)? + 1
+  let row = mergerequests.create(NewMergeRequest(organization: parent.organization, repository: parent.id, public: parent.public, title: title, body: body, source_reference: source_reference, target_reference: target_reference, source_object: source.revision, target_object: target.revision, state: MergeOpen, approvals: 0, discussions_resolved: false, merged_object: None, rank: rank))?
+  let event = host.event_emit<Text>("repository_activity", repository, "Merge request opened: " + row.title)?
+  Ok(id_text(row.id))
+
+fn next_merge_cursor(rows: List<MergeRequest>) -> Result<Text, DataError>:
+  match list_get(rows, len(rows) - 1):
+    Some(row) => mergerequests.cursor(row: row, order: "rank")
+    None => Ok("")
+
+fn merge_card(row: MergeRequest) -> MergeRequestCard:
+  MergeRequestCard(id: id_text(row.id), title: row.title, state: merge_state_text(row.state), source_reference: row.source_reference, target_reference: row.target_reference, source_object: row.source_object, target_object: row.target_object, approvals: row.approvals, author: id_text(row.author))
+
+export fn merge_request_page(organization: Text, repository: Text, after: Text) -> Result<MergeRequestPage, DataError>:
+  let rows = mergerequests.page(organization: OrganizationId(organization), repository: RepositoryId(repository), order: "rank", after: after, limit: 20)?
+  let cards = for row in rows:
+    merge_card(row)
+  let cursor = next_merge_cursor(rows)?
+  let total = mergerequests.count(organization: OrganizationId(organization), repository: RepositoryId(repository))?
+  Ok(MergeRequestPage(cards: cards, after: cursor, total: total))
+
+export fn read_merge_request(merge_request: Text) -> Result<MergeRequestCard, DataError>:
+  let row = mergerequests.get(MergeRequestId(merge_request))?
+  Ok(merge_card(row))
+
+fn require_merge_open(row: MergeRequest) -> Result<Text, DataError>:
+  match row.state:
+    MergeOpen => Ok("open")
+    MergeMerged => Err("Merge request is already merged.")
+    MergeClosed => Err("Merge request is closed.")
+
+export fn approve_merge_request(merge_request: Text) -> Result<MergeRequestCard, DataError>:
+  let row = mergerequests.get(MergeRequestId(merge_request))?
+  let open = require_merge_open(row)?
+  let review = reviews.create(NewReview(author: row.author, organization: row.organization, repository: row.repository, merge_request: row.id, head: row.source_object, approved: true))?
+  let updated = mergerequests.update(row.id, EditMergeRequest(state: row.state, approvals: row.approvals + 1, discussions_resolved: row.discussions_resolved, merged_object: row.merged_object))?
+  let gate = host.git_review_gate("repos", id_text(row.repository), row.target_reference, row.source_object, row.discussions_resolved)?
+  Ok(merge_card(updated))
+
+export fn resolve_merge_discussions(merge_request: Text) -> Result<MergeRequestCard, DataError>:
+  let row = mergerequests.get(MergeRequestId(merge_request))?
+  let open = require_merge_open(row)?
+  let updated = mergerequests.update(row.id, EditMergeRequest(state: row.state, approvals: row.approvals, discussions_resolved: true, merged_object: row.merged_object))?
+  match row.approvals > 0:
+    false => Ok(merge_card(updated))
+    true =>
+      let gate = host.git_review_gate("repos", id_text(row.repository), row.target_reference, row.source_object, true)?
+      Ok(merge_card(updated))
+
+fn require_merge_ready(row: MergeRequest, source: Text, target: Text) -> Result<Text, DataError>:
+  match row.state:
+    MergeMerged => Err("Merge request is already merged.")
+    MergeClosed => Err("Merge request is closed.")
+    MergeOpen =>
+      match row.approvals > 0:
+        false => Err("Merge request requires an approval.")
+        true =>
+          match row.source_object == source and row.target_object == target:
+            false => Err("Source or target moved; open a fresh merge request.")
+            true => Ok("ready")
+
+export fn prepare_merge_request(merge_request: Text) -> Result<MergePlan, DataError>:
+  let row = mergerequests.get(MergeRequestId(merge_request))?
+  let source = host.git_query<GitHistory>("repos", id_text(row.repository), "history", row.source_reference, "", 1)?
+  let target = host.git_query<GitHistory>("repos", id_text(row.repository), "history", row.target_reference, "", 1)?
+  let ready = require_merge_ready(row, source.revision, target.revision)?
+  Ok(MergePlan(merge_request: id_text(row.id), repository: id_text(row.repository), source_reference: row.source_reference, target_reference: row.target_reference, source_object: row.source_object, target_object: row.target_object))
+
+export fn execute_merge(repository: Text, source_reference: Text, target_reference: Text, source_object: Text, target_object: Text) -> Result<Text, DataError>:
+  host.git_merge("repos", repository, source_reference, target_reference, source_object, target_object)
+
+fn require_merge_committed(row: MergeRequest, target: Text) -> Result<Text, DataError>:
+  match row.state:
+    MergeMerged => Err("Merge request is already merged.")
+    MergeClosed => Err("Merge request is closed.")
+    MergeOpen =>
+      match row.approvals > 0 and row.discussions_resolved:
+        false => Err("Merge request is not approved and resolved.")
+        true =>
+          match row.source_object == target:
+            false => Err("The target ref does not contain the reviewed object.")
+            true => Ok("committed")
+
+export fn finalize_merge_request(merge_request: Text) -> Result<MergeRequestCard, DataError>:
+  let row = mergerequests.get(MergeRequestId(merge_request))?
+  let target = host.git_query<GitHistory>("repos", id_text(row.repository), "history", row.target_reference, "", 1)?
+  let committed = require_merge_committed(row, target.revision)?
+  let updated = mergerequests.update(row.id, EditMergeRequest(state: MergeMerged, approvals: row.approvals, discussions_resolved: row.discussions_resolved, merged_object: Some(row.source_object)))?
+  let event = host.event_emit<Text>("repository_activity", id_text(row.repository), "Merge request merged: " + row.title)?
+  Ok(merge_card(updated))
+
+export fn close_merge_request(merge_request: Text) -> Result<MergeRequestCard, DataError>:
+  let row = mergerequests.get(MergeRequestId(merge_request))?
+  let open = require_merge_open(row)?
+  let updated = mergerequests.update(row.id, EditMergeRequest(state: MergeClosed, approvals: row.approvals, discussions_resolved: row.discussions_resolved, merged_object: row.merged_object))?
+  Ok(merge_card(updated))
 
 export fn protect_reference(repository: Text, pattern: Text, required_role: Text, allow_force: Bool, allow_delete: Bool, required_approvals: Int, require_pipeline: Bool, require_discussions: Bool, require_signed_commits: Bool, scan_secrets: Bool) -> Result<Text, DataError>:
   host.git_protect("repos", repository, pattern, required_role, allow_force, allow_delete, required_approvals, require_pipeline, require_discussions, require_signed_commits, scan_secrets)

@@ -714,6 +714,9 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
             .iter()
             .map(|(_, value)| self.expr(value, locals))
             .collect::<Result<Vec<_>>>()?;
+        if method == "git_review_gate" {
+            return self.git_review_call(&values);
+        }
         if matches!(
             method,
             "git_protect"
@@ -727,6 +730,9 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
                 | "git_ack_event"
         ) {
             return self.git_admin_call(method, &values);
+        }
+        if method == "git_merge" {
+            return self.git_merge_call(&values);
         }
         let texts = values
             .iter()
@@ -789,6 +795,62 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
         Value::operation(crate::project::wire::decode(&result, &json, self.program))
     }
 
+    fn git_review_call(&mut self, values: &[Value]) -> Result<Value> {
+        let text = |index: usize| match values.get(index).map(|value| &value.0) {
+            Some(ValueKind::Text(value)) => Ok(value.as_str()),
+            _ => Err(Error::Denied),
+        };
+        let binding = text(0)?;
+        let discussions_resolved = match values.get(4).map(|value| &value.0) {
+            Some(ValueKind::Bool(value)) => *value,
+            _ => return Err(Error::Denied),
+        };
+        self.scope.require(&crate::authority::Effect::Host(format!(
+            "GitReview<{binding}>"
+        )))?;
+        let state = crate::project::git::set_review_gate(
+            self.postgres.as_deref_mut().ok_or(Error::Denied)?,
+            self.scope,
+            self.integrations.ok_or(Error::Denied)?,
+            crate::project::git::ReviewGate {
+                binding,
+                repository: text(1)?,
+                reference: text(2)?,
+                object: text(3)?,
+                discussions_resolved,
+            },
+        );
+        Value::operation(state.map(|state| Value(ValueKind::Text(state))))
+    }
+
+    fn git_merge_call(&mut self, values: &[Value]) -> Result<Value> {
+        let texts = values
+            .iter()
+            .map(|value| match &value.0 {
+                ValueKind::Text(text) => Ok(text.as_str()),
+                _ => Err(Error::Denied),
+            })
+            .collect::<Result<Vec<_>>>()?;
+        let binding = *texts.first().ok_or(Error::Denied)?;
+        self.scope.require(&crate::authority::Effect::Host(format!(
+            "GitWrite<{binding}>"
+        )))?;
+        let merged = crate::project::git::merge(
+            self.postgres.as_deref_mut().ok_or(Error::Denied)?,
+            self.scope,
+            self.integrations.ok_or(Error::Denied)?,
+            crate::project::git::Merge {
+                binding,
+                repository: texts[1],
+                source_reference: texts[2],
+                target_reference: texts[3],
+                expected_source: texts[4],
+                expected_target: texts[5],
+            },
+        );
+        Value::operation(merged.map(|object| Value(ValueKind::Text(object))))
+    }
+
     fn call(
         &mut self,
         callee: &Expr,
@@ -826,7 +888,9 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
                 if matches!(
                     method.as_str(),
                     "git_create"
+                        | "git_merge"
                         | "git_query"
+                        | "git_review_gate"
                         | "git_protect"
                         | "git_unprotect"
                         | "git_gate"

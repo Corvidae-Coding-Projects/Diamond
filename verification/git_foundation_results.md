@@ -26,14 +26,14 @@ The replayable drivers and sanitized results are:
 
 ## Final evidence
 
-The final live campaign passed 108 of 108 scenarios. It created public and
+The final live campaign passed 109 of 109 scenarios. It created public and
 private repositories through the actual Diamond application, used stock Git for
 clone, shallow and filtered clone, push, atomic branch/tag push, push options,
 and `fsck`, and compared Diamond's head, tree, blob, history, and diff views with
 repository state. A 24 MiB incompressible pack was pushed and cloned through the
-streaming path; final sampled server RSS rose from 49,280 KiB to 49,288 KiB.
-A prior passing run observed a 280 KiB increase, so the meaningful result is
-bounded streaming rather than the exact change from one sample run.
+streaming path; final sampled server RSS rose from 75,072 KiB to 75,648 KiB.
+The meaningful result is bounded streaming rather than the exact change from one
+sample run.
 
 The campaign also exercised:
 
@@ -51,11 +51,12 @@ The campaign also exercised:
 - absence of raw credentials and OAuth state in the retained server log and
   credential table.
 
-The compiler campaign passed 9 of 9 cases. It proved that the real checker
+The compiler campaign passed 14 of 14 cases. It proved that the real checker
 accepts the reference project and rejects dynamic bindings, dynamic Git
 operations, non-text repository IDs, browser-side Git authority, undeclared Git
-capability, a function that combines a Git write with a database write, and
-malformed OAuth admission policies.
+write, review, and administration capabilities, malformed merge objects,
+functions that combine Git writes with database writes, and malformed OAuth
+admission policies.
 
 The Rust verifier tests use a synthetic RSA key to accept a valid Google ID
 token and reject issuer, audience, authorized-party, nonce, timestamp,
@@ -94,10 +95,10 @@ organization APIs, and the final browser redirect remain unqualified. The
 cryptographic verifier and all local transaction/state paths were exercised,
 but a deployment still needs a provider-backed acceptance run.
 
-This foundation provides HTTPS smart Git and bounded browser views. It does not
-yet provide SSH Git, LFS, protected-ref enforcement, merge requests, search,
-CI, registries, Pages, storage sharding, or the rest of the complete platform
-described in `.design/git-web-interface.md`. TLS termination and proxy behavior
-were not part of this loopback campaign. The fixed Git executable, operating
-system, PostgreSQL, TLS roots, Google, GitHub, and administrators of the private
-Git root remain trusted boundaries.
+The broader retained campaigns now cover SSH Git, protected-ref enforcement,
+the G1 issue and merge-request application, and fenced storage-shard promotion.
+LFS, global search, CI, registries, Pages, and the remaining product checkpoints
+in `.design/git-web-interface.md` are outside this foundation campaign. TLS
+termination and proxy behavior were not part of this loopback campaign. The
+fixed Git executable, operating system, PostgreSQL, TLS roots, Google, GitHub,
+and administrators of the private Git root remain trusted boundaries.

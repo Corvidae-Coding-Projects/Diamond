@@ -1,7 +1,7 @@
 {
   "profile": "Diamond Git and OAuth compiler boundaries",
-  "passed": 12,
-  "total": 12,
+  "passed": 14,
+  "total": 14,
   "results": [
     {
       "name": "reference Git project accepted",
@@ -29,6 +29,14 @@
     },
     {
       "name": "undeclared Git administration capability rejected",
+      "pass": true
+    },
+    {
+      "name": "undeclared Git review capability rejected",
+      "pass": true
+    },
+    {
+      "name": "non-text Git merge object rejected",
       "pass": true
     },
     {

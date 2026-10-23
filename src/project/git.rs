@@ -1026,68 +1026,20 @@ pub(super) fn reconcile_events(
         }
         entries.sort_by_key(fs::DirEntry::file_name);
         for entry in entries {
-            let name = entry.file_name();
-            let name = name.to_str().ok_or(Error::Denied)?;
-            if let Some(nonce) = name.strip_suffix(".prepared") {
-                if !valid_identity(nonce) {
-                    return database.finish_request(Err(Error::Denied));
-                }
+            let (nonce, is_prepared, mut path, event) =
+                read_reconciliation_event(&database, binding, &entry)?;
+            if is_prepared {
                 prepared += 1;
-                continue;
-            }
-            let Some(nonce) = name.strip_suffix(".committed") else {
-                return database.finish_request(Err(Error::Denied));
-            };
-            if !valid_identity(nonce) {
-                return database.finish_request(Err(Error::Denied));
-            }
-            let path = entry.path();
-            let bytes = read_private_file(&path, 600 * 1024)?;
-            let event: SpoolEvent =
-                super::wire::strict_from_slice(&bytes).map_err(|_| Error::Denied)?;
-            if event.claim.nonce != nonce
-                || event.claim.app != database.app
-                || event.claim.binding != *binding
-                || !crate::auth::valid_id(&event.claim.repository)
-                || !valid_actor(&event.claim.actor)
-                || !matches!(
-                    event.claim.actor_kind.as_str(),
-                    "user" | "deploy" | "certificate"
-                )
-                || event.claim.store_generation <= 0
-                || event.updates.is_empty()
-                || event.updates.len() > 256
-            {
-                return database.finish_request(Err(Error::Denied));
-            }
-            for update in &event.updates {
-                if !valid_oid(&update.old)
-                    || !valid_oid(&update.new)
-                    || update.old.len() != update.new.len()
+                if let Some(committed_path) =
+                    recover_prepared_event(&mut database, &store, &nonce, &path, &event)?
                 {
-                    return database.finish_request(Err(Error::Denied));
-                }
-                valid_reference(&update.reference)?;
-            }
-            let updates = serialize_updates(&event.updates)?;
-            database.connection.batch("BEGIN")?;
-            let persisted = (|| {
-                let rows = database.connection.query(
-                    "INSERT INTO diamond_git.push_events(app,nonce,binding,repository,actor_kind,actor,store_generation,updates,state,committed) VALUES($1,$2,$3,$4,$5,$6,$7,$8,'committed',pg_catalog.clock_timestamp()) ON CONFLICT(app,nonce) DO UPDATE SET state='committed',committed=COALESCE(diamond_git.push_events.committed,EXCLUDED.committed) WHERE diamond_git.push_events.binding=EXCLUDED.binding AND diamond_git.push_events.repository=EXCLUDED.repository AND diamond_git.push_events.actor_kind=EXCLUDED.actor_kind AND diamond_git.push_events.actor=EXCLUDED.actor AND diamond_git.push_events.store_generation=EXCLUDED.store_generation AND diamond_git.push_events.updates=EXCLUDED.updates RETURNING nonce",
-                    &[&database.app, &event.claim.nonce, &event.claim.binding, &event.claim.repository, &event.claim.actor_kind, &event.claim.actor, &event.claim.store_generation, &updates],
-                )?;
-                if rows.len() != 1 {
-                    return Err(Error::Conflict);
-                }
-                Ok(())
-            })();
-            match persisted {
-                Ok(()) => database.connection.batch("COMMIT")?,
-                Err(error) => {
-                    let _rollback = database.connection.batch("ROLLBACK");
-                    return database.finish_request(Err(error));
+                    path = committed_path;
+                } else {
+                    remove.push((store.event_path(), path));
+                    continue;
                 }
             }
+            persist_reconciled_event(&mut database, &event)?;
             committed += 1;
             remove.push((store.event_path(), path));
         }
@@ -1100,6 +1052,138 @@ pub(super) fn reconcile_events(
         File::open(directory)?.sync_all()?;
     }
     Ok(serde_json::json!({"committed":committed,"prepared":prepared}).to_string())
+}
+
+fn read_reconciliation_event(
+    database: &PostgresStore,
+    binding: &str,
+    entry: &fs::DirEntry,
+) -> Result<(String, bool, PathBuf, SpoolEvent)> {
+    let name = entry.file_name();
+    let name = name.to_str().ok_or(Error::Denied)?;
+    let (nonce, prepared) = if let Some(nonce) = name.strip_suffix(".prepared") {
+        (nonce, true)
+    } else if let Some(nonce) = name.strip_suffix(".committed") {
+        (nonce, false)
+    } else {
+        return Err(Error::Denied);
+    };
+    if !valid_identity(nonce) {
+        return Err(Error::Denied);
+    }
+    let path = entry.path();
+    let bytes = read_private_file(&path, 600 * 1024)?;
+    let event: SpoolEvent = super::wire::strict_from_slice(&bytes).map_err(|_| Error::Denied)?;
+    if event.claim.nonce != nonce
+        || event.claim.app != database.app
+        || event.claim.binding != binding
+        || !crate::auth::valid_id(&event.claim.repository)
+        || !valid_actor(&event.claim.actor)
+        || !matches!(
+            event.claim.actor_kind.as_str(),
+            "user" | "deploy" | "certificate"
+        )
+        || event.claim.store_generation <= 0
+        || event.updates.is_empty()
+        || event.updates.len() > 256
+    {
+        return Err(Error::Denied);
+    }
+    for update in &event.updates {
+        if !valid_oid(&update.old)
+            || !valid_oid(&update.new)
+            || update.old.len() != update.new.len()
+        {
+            return Err(Error::Denied);
+        }
+        valid_reference(&update.reference)?;
+    }
+    Ok((nonce.to_owned(), prepared, path, event))
+}
+
+fn recover_prepared_event(
+    database: &mut PostgresStore,
+    store: &Store,
+    nonce: &str,
+    path: &Path,
+    event: &SpoolEvent,
+) -> Result<Option<PathBuf>> {
+    let repository = store.repository_path(&event.claim.repository)?;
+    if repository.canonicalize()? != repository {
+        return Err(Error::Denied);
+    }
+    store.require_repository(&repository)?;
+    let current = event
+        .updates
+        .iter()
+        .map(|update| reference_object(store, &repository, update))
+        .collect::<Result<Vec<_>>>()?;
+    let matches = |field: fn(&RefUpdate) -> &String| {
+        current
+            .iter()
+            .zip(&event.updates)
+            .all(|(actual, update)| actual == field(update))
+    };
+    if matches(|update| &update.new) {
+        let committed = store.event_path().join(format!("{nonce}.committed"));
+        fs::rename(path, &committed)?;
+        File::open(store.event_path())?.sync_all()?;
+        return Ok(Some(committed));
+    }
+    if !matches(|update| &update.old) {
+        return Err(Error::Conflict);
+    }
+    database.connection.query(
+        "DELETE FROM diamond_git.push_events WHERE app=$1 AND nonce=$2 AND binding=$3 AND repository=$4 AND store_generation=$5 AND state='prepared'",
+        &[&database.app, &event.claim.nonce, &event.claim.binding, &event.claim.repository, &event.claim.store_generation],
+    )?;
+    Ok(None)
+}
+
+fn persist_reconciled_event(database: &mut PostgresStore, event: &SpoolEvent) -> Result<()> {
+    let updates = serialize_updates(&event.updates)?;
+    database.connection.batch("BEGIN")?;
+    let persisted = (|| {
+        let rows = database.connection.query(
+            "INSERT INTO diamond_git.push_events(app,nonce,binding,repository,actor_kind,actor,store_generation,updates,state,committed) VALUES($1,$2,$3,$4,$5,$6,$7,$8,'committed',pg_catalog.clock_timestamp()) ON CONFLICT(app,nonce) DO UPDATE SET state='committed',committed=COALESCE(diamond_git.push_events.committed,EXCLUDED.committed) WHERE diamond_git.push_events.binding=EXCLUDED.binding AND diamond_git.push_events.repository=EXCLUDED.repository AND diamond_git.push_events.actor_kind=EXCLUDED.actor_kind AND diamond_git.push_events.actor=EXCLUDED.actor AND diamond_git.push_events.store_generation=EXCLUDED.store_generation AND diamond_git.push_events.updates=EXCLUDED.updates RETURNING nonce",
+            &[&database.app, &event.claim.nonce, &event.claim.binding, &event.claim.repository, &event.claim.actor_kind, &event.claim.actor, &event.claim.store_generation, &updates],
+        )?;
+        if rows.len() != 1 {
+            return Err(Error::Conflict);
+        }
+        Ok(())
+    })();
+    match persisted {
+        Ok(()) => database.connection.batch("COMMIT"),
+        Err(error) => {
+            let _rollback = database.connection.batch("ROLLBACK");
+            Err(error)
+        }
+    }
+}
+
+fn reference_object(store: &Store, repository: &Path, update: &RefUpdate) -> Result<String> {
+    let output = store.run_repo(
+        repository,
+        &[
+            "for-each-ref",
+            "--format=%(refname) %(objectname)",
+            &update.reference,
+        ],
+        4096,
+    )?;
+    let mut object = None;
+    for line in text(&output)?.lines() {
+        let (reference, candidate) = line.split_once(' ').ok_or(Error::Denied)?;
+        valid_reference(reference)?;
+        if !valid_oid(candidate) {
+            return Err(Error::Denied);
+        }
+        if reference == update.reference && object.replace(candidate.to_owned()).is_some() {
+            return Err(Error::Denied);
+        }
+    }
+    Ok(object.unwrap_or_else(|| "0".repeat(update.old.len())))
 }
 
 fn replace_database_inventory(
@@ -1739,6 +1823,15 @@ pub(crate) struct Gate<'a> {
 }
 
 #[derive(Clone, Copy, Debug)]
+pub(crate) struct ReviewGate<'a> {
+    pub(crate) binding: &'a str,
+    pub(crate) repository: &'a str,
+    pub(crate) reference: &'a str,
+    pub(crate) object: &'a str,
+    pub(crate) discussions_resolved: bool,
+}
+
+#[derive(Clone, Copy, Debug)]
 pub(crate) struct DeployKey<'a> {
     pub(crate) binding: &'a str,
     pub(crate) repository: &'a str,
@@ -1766,6 +1859,16 @@ fn authorize_admin_repository(
     if !scope.principal().has_role("account_admin") {
         return Err(Error::Denied);
     }
+    authorize_repository_write(database, scope, grants, binding, repository)
+}
+
+fn authorize_repository_write(
+    database: &mut PostgresStore,
+    scope: &Scope<'_>,
+    grants: &crate::RuntimeGrants,
+    binding: &str,
+    repository: &str,
+) -> Result<()> {
     let config = database
         .git
         .as_ref()
@@ -1806,6 +1909,24 @@ pub(crate) fn set_gate(
         &[&database.app, &request.binding, &request.repository, &request.reference, &request.object, &approvals, &request.pipeline_succeeded, &request.discussions_resolved, &request.lifetime_seconds],
     )?;
     Ok("gate-recorded".into())
+}
+
+pub(crate) fn set_review_gate(
+    database: &mut PostgresStore,
+    scope: &Scope<'_>,
+    grants: &crate::RuntimeGrants,
+    request: ReviewGate<'_>,
+) -> Result<String> {
+    valid_reference(request.reference)?;
+    if !valid_oid(request.object) {
+        return Err(input("invalid Git review gate"));
+    }
+    authorize_repository_write(database, scope, grants, request.binding, request.repository)?;
+    database.connection.query(
+        "INSERT INTO diamond_git.gates(app,binding,repository,reference,object,approvals,pipeline_succeeded,discussions_resolved,expires) VALUES($1,$2,$3,$4,$5,1,false,$6,pg_catalog.clock_timestamp()+INTERVAL '24 hours') ON CONFLICT(app,binding,repository,reference,object) DO UPDATE SET approvals=GREATEST(diamond_git.gates.approvals,1),discussions_resolved=diamond_git.gates.discussions_resolved OR EXCLUDED.discussions_resolved,expires=GREATEST(diamond_git.gates.expires,EXCLUDED.expires),generation=diamond_git.gates.generation+1",
+        &[&database.app, &request.binding, &request.repository, &request.reference, &request.object, &request.discussions_resolved],
+    )?;
+    Ok("review-gate-recorded".into())
 }
 
 pub(crate) fn add_deploy_key(
@@ -2115,9 +2236,8 @@ fn record_prepared_event(
     Ok(())
 }
 
-fn event_directory() -> Result<PathBuf> {
-    let root = PathBuf::from(required_environment("DIAMOND_GIT_STORE_ROOT")?);
-    private_directory(&root)?;
+fn event_directory_at(root: &Path) -> Result<PathBuf> {
+    private_directory(root)?;
     let directory = root.join(".diamond-events");
     private_directory(&directory)?;
     Ok(directory)
@@ -2136,7 +2256,12 @@ fn spool_bytes(claim: &PolicyClaim, updates: &[RefUpdate]) -> Result<Vec<u8>> {
 }
 
 fn write_spool_event(claim: &PolicyClaim, updates: &[RefUpdate]) -> Result<()> {
-    let directory = event_directory()?;
+    let root = PathBuf::from(required_environment("DIAMOND_GIT_STORE_ROOT")?);
+    write_spool_event_at(&root, claim, updates)
+}
+
+fn write_spool_event_at(root: &Path, claim: &PolicyClaim, updates: &[RefUpdate]) -> Result<()> {
+    let directory = event_directory_at(root)?;
     let path = directory.join(format!("{}.prepared", claim.nonce));
     let mut file = options().write(true).create_new(true).open(path)?;
     file.write_all(&spool_bytes(claim, updates)?)?;
@@ -2146,7 +2271,12 @@ fn write_spool_event(claim: &PolicyClaim, updates: &[RefUpdate]) -> Result<()> {
 }
 
 fn commit_spool_event(claim: &PolicyClaim, updates: &[RefUpdate]) -> Result<()> {
-    let directory = event_directory()?;
+    let root = PathBuf::from(required_environment("DIAMOND_GIT_STORE_ROOT")?);
+    commit_spool_event_at(&root, claim, updates)
+}
+
+fn commit_spool_event_at(root: &Path, claim: &PolicyClaim, updates: &[RefUpdate]) -> Result<()> {
+    let directory = event_directory_at(root)?;
     let prepared = directory.join(format!("{}.prepared", claim.nonce));
     let committed = directory.join(format!("{}.committed", claim.nonce));
     let actual = read_private_file(&prepared, 600 * 1024)?;
@@ -2889,6 +3019,209 @@ pub(crate) fn call(
     }
 }
 
+/// Exact compare-and-swap fast-forward requested by the Diamond application.
+#[derive(Clone, Copy, Debug)]
+pub(crate) struct Merge<'a> {
+    pub(crate) binding: &'a str,
+    pub(crate) repository: &'a str,
+    pub(crate) source_reference: &'a str,
+    pub(crate) target_reference: &'a str,
+    pub(crate) expected_source: &'a str,
+    pub(crate) expected_target: &'a str,
+}
+
+pub(crate) fn merge(
+    database: &mut PostgresStore,
+    scope: &Scope<'_>,
+    grants: &crate::RuntimeGrants,
+    request: Merge<'_>,
+) -> Result<String> {
+    validate_merge_request(request)?;
+    let config = database
+        .git
+        .as_ref()
+        .and_then(|git| git.bindings.get(request.binding))
+        .cloned()
+        .ok_or(Error::Denied)?;
+    let effects = BTreeSet::from([
+        Effect::Read(config.resource.clone()),
+        Effect::Write(config.resource.clone()),
+    ]);
+    let adapter_scope = Scope::new(scope.principal(), &effects);
+    database.attachment(&adapter_scope, &config.resource, request.repository, true)?;
+    let lock = format!("diamond-git:{}:{}", database.app, request.binding);
+    database.connection.query(
+        "SELECT pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended($1,0))",
+        &[&lock],
+    )?;
+    let store = Store::open(database, grants, request.binding, false)?;
+    let repository = store.repository_path(request.repository)?;
+    if repository.canonicalize()? != repository {
+        return Err(Error::Denied);
+    }
+    store.require_repository(&repository)?;
+    let source = store.resolve(&repository, request.source_reference)?;
+    let target = store.resolve(&repository, request.target_reference)?;
+    if source != request.expected_source
+        || target != request.expected_target
+        || source == target
+        || store
+            .run_repo(
+                &repository,
+                &["merge-base", "--is-ancestor", &target, &source],
+                32,
+            )
+            .is_err()
+    {
+        return Err(Error::Conflict);
+    }
+    enforce_web_merge_rules(database, scope, &request, &source)?;
+    let actor = scope.principal().id().ok_or(Error::Unauthenticated)?;
+    if !valid_actor(actor) {
+        return Err(Error::Denied);
+    }
+    let claim = PolicyClaim {
+        version: 2,
+        app: database.app.clone(),
+        binding: request.binding.to_owned(),
+        repository: request.repository.to_owned(),
+        actor: actor.to_owned(),
+        actor_kind: "user".into(),
+        store_generation: store.generation,
+        nonce: crate::authority::random_hex()?,
+        expires: unix_time()?.saturating_add(20 * 60),
+    };
+    let update = RefUpdate {
+        old: target,
+        new: source.clone(),
+        reference: request.target_reference.to_owned(),
+    };
+    write_spool_event_at(&store.root, &claim, std::slice::from_ref(&update))?;
+    let changed = store.run_repo(
+        &repository,
+        &[
+            "update-ref",
+            "--no-deref",
+            request.target_reference,
+            &source,
+            request.expected_target,
+        ],
+        32,
+    );
+    if let Err(error) = changed {
+        discard_prepared_event_at(&store.root, &claim.nonce)?;
+        return Err(error);
+    }
+    commit_spool_event_at(&store.root, &claim, std::slice::from_ref(&update)).map_err(|_| {
+        Error::OutcomeUnknown("Git merge committed but event spooling failed".into())
+    })?;
+    persist_application_merge(database, &claim, &update).map_err(|_| {
+        Error::OutcomeUnknown("Git merge committed but metadata needs reconciliation".into())
+    })?;
+    Ok(source)
+}
+
+fn validate_merge_request(request: Merge<'_>) -> Result<()> {
+    valid_reference(request.source_reference)?;
+    valid_reference(request.target_reference)?;
+    if request.source_reference == request.target_reference
+        || !request.source_reference.starts_with("refs/heads/")
+        || !request.target_reference.starts_with("refs/heads/")
+        || !valid_oid(request.expected_source)
+        || !valid_oid(request.expected_target)
+        || request.expected_source.len() != request.expected_target.len()
+    {
+        return Err(input("invalid Git merge request"));
+    }
+    Ok(())
+}
+
+fn enforce_web_merge_rules(
+    database: &mut PostgresStore,
+    scope: &Scope<'_>,
+    request: &Merge<'_>,
+    candidate: &str,
+) -> Result<()> {
+    let rows = database.connection.query(
+        "SELECT pattern,required_role,required_approvals,require_pipeline,require_discussions,require_signed_commits,scan_secrets FROM diamond_git.protections WHERE app=$1 AND binding=$2 AND repository=$3 ORDER BY pattern LIMIT 257",
+        &[&database.app, &request.binding, &request.repository],
+    )?;
+    if rows.len() > 256 {
+        return Err(Error::Limit("Git protection rules"));
+    }
+    let mut approvals = 0_i64;
+    let mut pipeline = false;
+    let mut discussions = false;
+    for row in rows {
+        let pattern: String = row.try_get(0).map_err(|_| Error::Denied)?;
+        valid_reference_pattern(&pattern)?;
+        if !pattern_matches(&pattern, request.target_reference) {
+            continue;
+        }
+        let role: String = row.try_get(1).map_err(|_| Error::Denied)?;
+        if role == "account_admin" && !scope.principal().has_role("account_admin") {
+            return Err(Error::Denied);
+        }
+        if role != "authenticated" && role != "account_admin" {
+            return Err(Error::Denied);
+        }
+        approvals = approvals.max(i64::from(
+            row.try_get::<_, i32>(2).map_err(|_| Error::Denied)?,
+        ));
+        pipeline |= row.try_get::<_, bool>(3).map_err(|_| Error::Denied)?;
+        discussions |= row.try_get::<_, bool>(4).map_err(|_| Error::Denied)?;
+        let signed = row.try_get::<_, bool>(5).map_err(|_| Error::Denied)?;
+        let secrets = row.try_get::<_, bool>(6).map_err(|_| Error::Denied)?;
+        if signed || secrets {
+            return Err(input(
+                "protected content rules require the receive-pack path for this merge",
+            ));
+        }
+    }
+    if approvals == 0 && !pipeline && !discussions {
+        return Ok(());
+    }
+    let rows = database.connection.query(
+        "SELECT approvals,pipeline_succeeded,discussions_resolved FROM diamond_git.gates WHERE app=$1 AND binding=$2 AND repository=$3 AND reference=$4 AND object=$5 AND expires>pg_catalog.clock_timestamp()",
+        &[&database.app, &request.binding, &request.repository, &request.target_reference, &candidate],
+    )?;
+    if rows.len() != 1
+        || i64::from(rows[0].try_get::<_, i32>(0).map_err(|_| Error::Denied)?) < approvals
+        || (pipeline && !rows[0].try_get::<_, bool>(1).map_err(|_| Error::Denied)?)
+        || (discussions && !rows[0].try_get::<_, bool>(2).map_err(|_| Error::Denied)?)
+    {
+        return Err(Error::Denied);
+    }
+    Ok(())
+}
+
+fn discard_prepared_event_at(root: &Path, nonce: &str) -> Result<()> {
+    let directory = event_directory_at(root)?;
+    fs::remove_file(directory.join(format!("{nonce}.prepared")))?;
+    File::open(directory)?.sync_all()?;
+    Ok(())
+}
+
+fn persist_application_merge(
+    database: &mut PostgresStore,
+    claim: &PolicyClaim,
+    update: &RefUpdate,
+) -> Result<()> {
+    let updates = serialize_updates(std::slice::from_ref(update))?;
+    let rows = database.connection.query(
+        "INSERT INTO diamond_git.push_events(app,nonce,binding,repository,actor_kind,actor,store_generation,updates,state,committed) VALUES($1,$2,$3,$4,$5,$6,$7,$8,'committed',pg_catalog.clock_timestamp()) ON CONFLICT(app,nonce) DO UPDATE SET state='committed',committed=COALESCE(diamond_git.push_events.committed,EXCLUDED.committed) WHERE diamond_git.push_events.binding=EXCLUDED.binding AND diamond_git.push_events.repository=EXCLUDED.repository AND diamond_git.push_events.actor_kind=EXCLUDED.actor_kind AND diamond_git.push_events.actor=EXCLUDED.actor AND diamond_git.push_events.store_generation=EXCLUDED.store_generation AND diamond_git.push_events.updates=EXCLUDED.updates RETURNING nonce",
+        &[&claim.app, &claim.nonce, &claim.binding, &claim.repository, &claim.actor_kind, &claim.actor, &claim.store_generation, &updates],
+    )?;
+    if rows.len() != 1 {
+        return Err(Error::Conflict);
+    }
+    database.connection.query(
+        "INSERT INTO diamond_git.ref_states(app,binding,repository,reference,object) VALUES($1,$2,$3,$4,$5) ON CONFLICT(app,binding,repository,reference) DO UPDATE SET object=EXCLUDED.object",
+        &[&claim.app, &claim.binding, &claim.repository, &update.reference, &update.new],
+    )?;
+    Ok(())
+}
+
 fn validate_grant(grant: &GitGrant) -> Result<()> {
     private_directory(&grant.root)?;
     executable(&grant.executable)
@@ -3081,13 +3414,13 @@ pub(super) fn contracts() -> serde_json::Value {
     serde_json::json!({
         "target":"server",
         "native_grant":"git-v2 private repository root and fixed Git executable bound to PostgreSQL identity and fenced store generation",
-        "operations":["create","head","tree","blob","history","diff","protect","unprotect","gate","deploy-key","ssh-certificate","push-events","smart-http","forced-command-ssh","archive-ssh","reconcile","promote"],
-        "effects":"binding-specific GitRead/GitWrite/GitAdmin plus current repository resource policy",
+        "operations":["create","head","tree","blob","history","diff","review-gate","fast-forward-merge","protect","unprotect","gate","deploy-key","ssh-certificate","push-events","smart-http","forced-command-ssh","archive-ssh","reconcile","promote"],
+        "effects":"binding-specific GitRead/GitWrite/GitReview/GitAdmin plus current repository resource policy",
         "maximum_blob_preview_bytes":BLOB_LIMIT,
         "maximum_output_bytes":OUTPUT_LIMIT,
         "command_deadline_ms":COMMAND_DEADLINE.as_millis(),
         "process":"fixed Git executable and arguments, no client-controlled shell, cleared environment with validated Git quarantine paths only, disabled credentials and file protocol, exact runtime-owned pre/post-receive hooks",
-        "transaction":"repository reads are external to PostgreSQL; create is idempotent; pushes commit Git refs authoritatively, spool durable events, and reconcile an exact fenced ref inventory",
+        "transaction":"repository reads are external to PostgreSQL; create is idempotent; web merges use an exact fast-forward compare-and-swap, commit Git refs authoritatively, and spool durable events; review gates are exact database writes and reconciliation rebuilds the fenced ref inventory",
         "replay":"no automatic replay",
         "failure":"redacted policy, validation, resource, repository or Git failure"
     })

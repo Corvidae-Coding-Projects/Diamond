@@ -6,12 +6,12 @@
     "postgres": "postgres (PostgreSQL) 18.6",
     "python": "3.14.8"
   },
-  "passed": 108,
-  "total": 108,
+  "passed": 109,
+  "total": 109,
   "metrics": {
-    "server_rss_baseline_kib": 50204,
-    "server_rss_peak_kib": 50240,
-    "server_rss_delta_kib": 36
+    "server_rss_baseline_kib": 75072,
+    "server_rss_peak_kib": 75648,
+    "server_rss_delta_kib": 576
   },
   "results": [
     {
@@ -24,6 +24,10 @@
     },
     {
       "name": "project schema init",
+      "pass": true
+    },
+    {
+      "name": "shared object store init",
       "pass": true
     },
     {

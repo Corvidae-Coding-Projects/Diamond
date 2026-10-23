@@ -7,8 +7,8 @@
     "postgres": "postgres (PostgreSQL) 18.6",
     "python": "3.14.8"
   },
-  "passed": 191,
-  "total": 191,
+  "passed": 192,
+  "total": 192,
   "results": [
     {
       "name": "initialize PostgreSQL",
@@ -20,6 +20,10 @@
     },
     {
       "name": "initialize project schema",
+      "pass": true
+    },
+    {
+      "name": "initialize shared object store",
       "pass": true
     },
     {

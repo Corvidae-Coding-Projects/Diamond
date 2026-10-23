@@ -329,7 +329,8 @@ Git configuration access.
 
 ```toml
 provides = ["DbRead<Repositories>", "DbWrite<Repositories>",
-            "GitRead<repos>", "GitWrite<repos>", "GitAdmin<repos>"]
+            "GitRead<repos>", "GitWrite<repos>",
+            "GitReview<repos>", "GitAdmin<repos>"]
 
 [git]
 profile = "git-v2"
@@ -353,12 +354,23 @@ export fn protect(repository: Text) -> Result<Text, DataError>:
 
 export fn gate(repository: Text, reference: Text, object: Text) -> Result<Text, DataError>:
   host.git_gate("repos", repository, reference, object, 2, true, true, 86400)
+
+export fn merge(repository: Text, source: Text, target: Text, source_object: Text, target_object: Text) -> Result<Text, DataError>:
+  host.git_merge("repos", repository, source, target, source_object, target_object)
 ```
 
 Available read operations are `head`, `tree`, `blob`, `history`, and `diff`.
 The binding and operation are static so the checker can preserve authority.
 Repository creation is kept separate from application database writes because
 Git and PostgreSQL cannot share a transaction.
+
+`git_review_gate` lets the application review path update approval and
+discussion evidence for one exact candidate without receiving Git
+administration authority. `git_merge` performs only a fast-forward ref
+compare-and-swap: both object IDs must still match, the source must descend from
+the target, and the live protected-ref rules must pass. A merge flow prepares a
+read-only plan, performs this isolated Git operation, then finalizes application
+state by rereading the authoritative target ref.
 
 `git_protect` accepts an exact branch or tag, or one terminal wildcard such as
 `refs/heads/release/*`. Its arguments set the live account role, force-push and
@@ -379,9 +391,11 @@ closed.
 Initialize the Git store after the PostgreSQL schema:
 
 ```sh
-mkdir -m 700 /srv/diamond-git
-export DIAMOND_RUNTIME='{"git":{"repos":{"root":"/srv/diamond-git","executable":"/usr/bin/git"}},"http":{}}'
+mkdir -m 700 /srv/diamond-git /srv/diamond-objects
+export DIAMOND_RUNTIME='{"objects":"/srv/diamond-objects","git":{"repos":{"root":"/srv/diamond-git","executable":"/usr/bin/git"}},"http":{}}'
 diamond project-init examples/git-browser/diamond.toml --postgres-env DIAMOND_POSTGRES
+diamond project-files-init examples/git-browser/diamond.toml \
+  --postgres-env DIAMOND_POSTGRES --runtime-env DIAMOND_RUNTIME
 diamond project-git-init examples/git-browser/diamond.toml \
   --postgres-env DIAMOND_POSTGRES --runtime-env DIAMOND_RUNTIME
 ```

@@ -4,14 +4,15 @@ import base64, http.client, json, os, pathlib, re, shutil, socket, subprocess, s
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 BIN=ROOT/'target/debug/diamond'
 TMP=pathlib.Path(tempfile.mkdtemp(prefix='diamond-git-redteam-'))
-PG=TMP/'pg'; SOCK=TMP/'sock'; GITROOT=TMP/'git'; MAIL=TMP/'mail'; LOG=TMP/'server.log'
-for p in (SOCK,GITROOT,MAIL): p.mkdir(mode=0o700)
+PG=TMP/'pg'; SOCK=TMP/'sock'; GITROOT=TMP/'git'; OBJECTS=TMP/'objects'; MAIL=TMP/'mail'; LOG=TMP/'server.log'
+for p in (SOCK,GITROOT,OBJECTS,MAIL): p.mkdir(mode=0o700)
 
 def free_port():
     s=socket.socket(); s.bind(('127.0.0.1',0)); p=s.getsockname()[1]; s.close(); return p
 pgport=free_port(); port=free_port()
 pgcfg=f'host={SOCK} port={pgport} user=diamond_rt dbname=postgres'
 runtime={
+ 'objects':str(OBJECTS),
  'git':{'repos':{'root':str(GITROOT),'executable':'/usr/bin/git'}},
  'oauth':{
   'transaction_key_env':'DIA_OAUTH_KEY',
@@ -67,6 +68,7 @@ try:
     cmd_ok('postgres init',['initdb','-D',str(PG),'-A','trust','--no-locale','-E','UTF8','-U','diamond_rt','--no-sync'])
     cmd_ok('postgres start',['pg_ctl','-D',str(PG),'-l',str(TMP/'postgres.log'),'-o',f'-k {SOCK} -p {pgport} -c listen_addresses=', '-w','start'])
     cmd_ok('project schema init',[str(BIN),'project-init','examples/git-browser/diamond.toml','--postgres-env','DIAMOND_POSTGRES'])
+    cmd_ok('shared object store init',[str(BIN),'project-files-init','examples/git-browser/diamond.toml','--postgres-env','DIAMOND_POSTGRES','--runtime-env','DIAMOND_RUNTIME'])
     cmd_ok('git store init',[str(BIN),'project-git-init','examples/git-browser/diamond.toml','--postgres-env','DIAMOND_POSTGRES','--runtime-env','DIAMOND_RUNTIME'])
     pw='Synthetic browser password 91!'
     r=run([str(BIN),'project-admin-add','examples/git-browser/diamond.toml','--postgres-env','DIAMOND_POSTGRES','--user','alice','--email','alice@example.test','--password-stdin'],input=pw+'\n')
@@ -310,7 +312,7 @@ try:
     check('credential stored digest-only',db_secrets=='0',db_secrets)
     logs=LOG.read_text(errors='replace')
     check('tokens absent from logs',token not in logs and ro not in logs and state not in logs)
-    print(json.dumps({
+    receipt={
       'profile':'Diamond Git and OAuth foundation red-team campaign',
       'versions':{
         'diamond':run([str(BIN),'--version']).stdout.strip(),
@@ -322,7 +324,9 @@ try:
       'total':len(results),
       'metrics':metrics,
       'results':results,
-    },indent=2))
+    }
+    (ROOT/'verification/git_foundation_redteam_results.json').write_text(json.dumps(receipt,indent=2)+'\n')
+    print(json.dumps(receipt,indent=2))
 finally:
     if server is not None:
         server.terminate()

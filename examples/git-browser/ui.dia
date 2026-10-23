@@ -1,65 +1,191 @@
-export component GitBrowser:
+export component GitForge:
   state username: Text = ""
   state password: Text = ""
+  state email: Text = ""
+  state invitation: Text = ""
+  state challenge: Text = ""
   state signed_in: Text = ""
-  state label: Text = "example"
+  state account_status: Text = "Use a local account or continue with Google or GitHub."
+  state organization_name: Text = "example-team"
+  state organization: Text = ""
+  state organizations: List<OrganizationCard> = []
+  state member_user: Text = ""
+  state member_id: Text = ""
+  state repository_name: Text = "example"
+  state repository_description: Text = "A repository hosted by Diamond Forge."
+  state repository_public: Bool = true
   state repository: Text = ""
-  state current: GitHead = GitHead(reference: "", object: None)
+  state repositories: RepositoryPage = RepositoryPage(cards: [], after: "", total: 0)
   state credential: Text = ""
-  state ssh_label: Text = "workstation"
-  state ssh_key: Text = ""
-  state reference: Text = "refs/heads/main"
+  state head: GitHead = GitHead(reference: "", object: None)
+  state revision: Text = "refs/heads/main"
+  state path: Text = ""
+  state old_revision: Text = "refs/heads/main~1"
+  state tree: GitTree = GitTree(revision: "", path: "", entries: [], truncated: false)
+  state blob: GitBlob = GitBlob(revision: "", path: "", object: "", size: "0", text: "")
+  state history: GitHistory = GitHistory(revision: "0000000000000000000000000000000000000000", commits: [])
+  state diff: GitDiff = GitDiff(old: "", new: "", text: "")
+  state issue_title: Text = ""
+  state issue_body: Text = ""
+  state issue: Text = ""
+  state issue_detail: IssueDetail = IssueDetail(id: "", title: "", body: "", state: "", author: "")
+  state issues: IssuePage = IssuePage(cards: [], after: "", total: 0)
+  state issue_comments: List<CommentCard> = []
+  state comment_body: Text = ""
+  state attachment: Text = ""
+  state attachment_status: Text = ""
+  state merge_title: Text = ""
+  state merge_body: Text = ""
+  state merge_request: Text = ""
+  state source_reference: Text = "refs/heads/feature"
+  state target_reference: Text = "refs/heads/main"
+  state merge_requests: MergeRequestPage = MergeRequestPage(cards: [], after: "", total: 0)
+  state selected_merge: MergeRequestCard = MergeRequestCard(id: "", title: "", state: "", source_reference: "", target_reference: "", source_object: "", target_object: "", approvals: 0, author: "")
+  state merge_plan: MergePlan = MergePlan(merge_request: "", repository: "", source_reference: "", target_reference: "", source_object: "", target_object: "")
+  state protected_reference: Text = "refs/heads/main"
   state deploy_label: Text = "automation"
   state deploy_key: Text = ""
   state deploy_id: Text = ""
-  state certificate_principal: Text = ""
-  state certificate_id: Text = ""
   state push_events: Text = ""
   state push_event_id: Text = ""
-  state output: Text = "Sign in and register a repository."
+  state activity: Text = "Waiting for repository activity."
+  state activity_cursor: Text = "0"
+  state output: Text = "Sign in, create an organization, then create a repository."
+  derived repository_total: Text = int_text(repositories.total) + " visible repositories"
+  derived issue_total: Text = int_text(issues.total) + " visible issues"
+  derived merge_total: Text = int_text(merge_requests.total) + " visible merge requests"
 
   on sign_in:
     signed_in = session.login(username, password)
     password = ""
+    credential = ""
     output = "Signed in."
   on sign_out:
     signed_in = session.logout()
-    repository = ""
     credential = ""
+    organization = ""
+    repository = ""
+    issue = ""
+    merge_request = ""
     output = "Signed out."
-  on google_login:
-    output = session.oauth_login("google", "")
-  on github_login:
-    output = session.oauth_login("github", "")
   on register:
-    repository = rpc.register_repository(label, true)
-    output = "Repository metadata registered."
-  on initialize:
+    account_status = session.register(username, email, password, invitation)
+    password = ""
+    invitation = ""
+  on verify:
+    account_status = session.verify(challenge)
+    challenge = ""
+  on google_login:
+    account_status = session.oauth_login("google", invitation)
+  on github_login:
+    account_status = session.oauth_login("github", invitation)
+  on create_organization:
+    organization = rpc.create_organization(organization_name)
+    organizations = rpc.organizations_list()
+    output = "Organization created."
+  on load_organizations:
+    organizations = rpc.organizations_list()
+  on grant_maintainer:
+    member_id = rpc.grant_maintainer(organization, member_user)
+    output = "Maintainer granted."
+  on grant_developer:
+    member_id = rpc.grant_developer(organization, member_user)
+    output = "Developer granted."
+  on grant_reporter:
+    member_id = rpc.grant_reporter(organization, member_user)
+    output = "Reporter granted."
+  on revoke_member:
+    output = rpc.revoke_member(member_id)
+  on create_repository:
+    repository = rpc.create_repository(organization, repository_name, repository_description, repository_public)
+    output = "Repository metadata created. Initialize Git before pushing."
+  on initialize_repository:
     output = rpc.initialize_repository(repository)
-  on head:
-    current = rpc.repository_head(repository)
-    output = current.reference
+  on load_repositories:
+    repositories = rpc.repository_page(organization, "")
+  on next_repositories:
+    repositories = rpc.repository_page(organization, repositories.after)
   on create_credential:
     credential = session.create_token("Git client", ["git:repos:read", "git:repos:write"], "{\"repository\":[\"" + repository + "\"]}", 3600)
-    output = "Copy the credential now; it is shown only once."
-  on add_ssh_key:
-    output = session.add_ssh_key(ssh_label, ssh_key)
-    ssh_key = ""
-  on protect:
-    output = rpc.protect_reference(repository, reference, "authenticated", false, false, 1, true, true, true, true)
-  on unprotect:
-    output = rpc.unprotect_reference(repository, reference)
+    output = "Copy this one-hour credential now."
+  on load_head:
+    head = rpc.repository_head(repository)
+  on load_tree:
+    tree = rpc.repository_tree(repository, revision, path)
+  on load_blob:
+    blob = rpc.repository_blob(repository, revision, path)
+  on load_history:
+    history = rpc.repository_history(repository, revision)
+  on load_diff:
+    diff = rpc.repository_diff(repository, old_revision, revision)
+  on create_issue:
+    issue = rpc.create_issue(repository, issue_title, issue_body)
+    issue_detail = rpc.read_issue(issue)
+    issues = rpc.issue_page(organization, repository, "")
+  on load_issues:
+    issues = rpc.issue_page(organization, repository, "")
+  on next_issues:
+    issues = rpc.issue_page(organization, repository, issues.after)
+  on read_issue:
+    issue_detail = rpc.read_issue(issue)
+    issue_title = issue_detail.title
+    issue_body = issue_detail.body
+  on edit_issue:
+    issue_detail = rpc.edit_issue(issue, issue_title, issue_body)
+    issues = rpc.issue_page(organization, repository, "")
+  on close_issue:
+    issue_detail = rpc.close_issue(issue)
+    issues = rpc.issue_page(organization, repository, "")
+  on add_comment:
+    output = rpc.add_issue_comment(issue, comment_body)
+    comment_body = ""
+    issue_comments = rpc.issue_comments(organization, repository, issue)
+  on load_comments:
+    issue_comments = rpc.issue_comments(organization, repository, issue)
+  on upload_attachment:
+    attachment = files.upload("issue_attachments", issue, "issue_attachment")
+    attachment_status = files.status("issue_attachments", attachment)
+  on download_attachment:
+    attachment = files.download("issue_attachments", attachment)
+  on delete_attachment:
+    attachment = files.delete("issue_attachments", attachment)
+    attachment_status = "Attachment deleted."
+  on create_merge_request:
+    merge_request = rpc.create_merge_request(repository, merge_title, merge_body, source_reference, target_reference)
+    selected_merge = rpc.read_merge_request(merge_request)
+    merge_requests = rpc.merge_request_page(organization, repository, "")
+  on load_merge_requests:
+    merge_requests = rpc.merge_request_page(organization, repository, "")
+  on next_merge_requests:
+    merge_requests = rpc.merge_request_page(organization, repository, merge_requests.after)
+  on read_merge_request:
+    selected_merge = rpc.read_merge_request(merge_request)
+  on approve_merge_request:
+    selected_merge = rpc.approve_merge_request(merge_request)
+  on resolve_discussions:
+    selected_merge = rpc.resolve_merge_discussions(merge_request)
+  on merge_selected:
+    merge_plan = rpc.prepare_merge_request(merge_request)
+    output = rpc.execute_merge(merge_plan.repository, merge_plan.source_reference, merge_plan.target_reference, merge_plan.source_object, merge_plan.target_object)
+    selected_merge = rpc.finalize_merge_request(merge_plan.merge_request)
+    merge_requests = rpc.merge_request_page(organization, repository, "")
+    output = "Merge completed at " + output
+  on finalize_merge:
+    selected_merge = rpc.finalize_merge_request(merge_request)
+    merge_requests = rpc.merge_request_page(organization, repository, "")
+  on close_merge_request:
+    selected_merge = rpc.close_merge_request(merge_request)
+    merge_requests = rpc.merge_request_page(organization, repository, "")
+  on protect_main:
+    output = rpc.protect_reference(repository, protected_reference, "authenticated", false, false, 1, false, true, false, false)
+  on unprotect_main:
+    output = rpc.unprotect_reference(repository, protected_reference)
   on add_deploy_key:
     deploy_id = rpc.add_deploy_key(repository, deploy_label, deploy_key, false)
     deploy_key = ""
     output = "Read-only deploy key added."
   on revoke_deploy_key:
     output = rpc.revoke_deploy_key(repository, deploy_id)
-  on add_certificate:
-    certificate_id = rpc.add_certificate(repository, certificate_principal, false)
-    output = "Read-only SSH certificate principal added."
-  on revoke_certificate:
-    output = rpc.revoke_certificate(repository, certificate_id)
   on load_push_events:
     push_events = rpc.pending_push_events(100)
   on acknowledge_push_event:
@@ -67,46 +193,66 @@ export component GitBrowser:
 
   html:
     <main>
-      <h1>Diamond Git browser</h1>
-      <section>
-        <h2>Account</h2>
-        <label for="username">Username</label><input id="username" bind-value={username}>
-        <label for="password">Password</label><input id="password" type="password" bind-value={password}>
-        <button on-click={sign_in}>Sign in</button>
-        <button on-click={google_login}>Continue with Google</button>
-        <button on-click={github_login}>Continue with GitHub</button>
-        <button on-click={sign_out}>Sign out</button>
-        <p>{signed_in}</p>
+      <header class="masthead"><div><p class="eyebrow">DIAMOND FORGE</p><h1>Git collaboration without a heavyweight application stack</h1><p>Organizations, repositories, issues, reviews, and Git stay under one checked policy model.</p></div></header>
+      <nav aria-label="Primary"><a href="/">Repositories</a><a href="/issues">Issues</a><a href="/merge-requests">Merge requests</a><a href="/settings">Settings</a></nav>
+      <watch channel="repository_activity" parent={repository} into="activity" cursor="activity_cursor"></watch>
+      <when test={pending}><p class="notice" role="status">Working…</p></when>
+      <when test={error != ""}><p class="error" role="alert">{error}</p></when>
+      <p class="notice" role="status" aria-live="polite">{output}</p>
+      <section class="panel" aria-labelledby="account-heading"><h2 id="account-heading">Account</h2>
+        <div class="grid"><div><label for="username">Username</label><input id="username" autocomplete="username" bind-value={username}></div><div><label for="email">Email</label><input id="email" autocomplete="email" bind-value={email}></div><div><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" bind-value={password}></div><div><label for="invitation">Invite code</label><input id="invitation" type="password" bind-value={invitation}></div></div>
+        <div class="actions"><button on-click={sign_in}>Sign in</button><button on-click={register}>Create account</button><button on-click={google_login}>Continue with Google</button><button on-click={github_login}>Continue with GitHub</button><button class="quiet" on-click={sign_out}>Sign out</button></div>
+        <label for="challenge">Verification code</label><input id="challenge" type="password" bind-value={challenge}><button on-click={verify}>Verify account</button>
+        <p>{signed_in}</p><p role="status">{account_status}</p>
       </section>
-      <section>
-        <h2>Repository</h2>
-        <label for="label">Name</label><input id="label" bind-value={label}>
-        <button on-click={register}>Register</button>
-        <button on-click={initialize}>Initialize Git</button>
-        <button on-click={head}>Read HEAD</button>
-        <button on-click={create_credential}>Create one-hour Git credential</button>
-        <label for="reference">Protected ref</label><input id="reference" bind-value={reference}>
-        <button on-click={protect}>Protect ref</button>
-        <button on-click={unprotect}>Remove protection</button>
-        <label for="ssh-label">SSH key label</label><input id="ssh-label" bind-value={ssh_label}>
-        <label for="ssh-key">Ed25519 public key</label><textarea id="ssh-key" bind-value={ssh_key}></textarea>
-        <button on-click={add_ssh_key}>Add SSH key</button>
-        <label for="deploy-label">Deploy key label</label><input id="deploy-label" bind-value={deploy_label}>
-        <label for="deploy-key">Deploy Ed25519 public key</label><textarea id="deploy-key" bind-value={deploy_key}></textarea>
-        <button on-click={add_deploy_key}>Add read-only deploy key</button>
-        <label for="deploy-id">Deploy key ID</label><input id="deploy-id" bind-value={deploy_id}>
-        <button on-click={revoke_deploy_key}>Revoke deploy key</button>
-        <label for="certificate-principal">SSH certificate principal</label><input id="certificate-principal" bind-value={certificate_principal}>
-        <button on-click={add_certificate}>Add read-only certificate principal</button>
-        <label for="certificate-id">Certificate principal ID</label><input id="certificate-id" bind-value={certificate_id}>
-        <button on-click={revoke_certificate}>Revoke certificate principal</button>
-        <button on-click={load_push_events}>Load pending push events</button>
-        <label for="push-event-id">Push event ID</label><input id="push-event-id" bind-value={push_event_id}>
-        <button on-click={acknowledge_push_event}>Acknowledge push event</button>
-        <p>Repository ID: {repository}</p>
-        <p>Git username: diamond</p>
-        <pre>{credential}</pre>
-        <pre>{push_events}</pre>
-        <pre>{output}</pre>
-      </section>
+      <route path="/">
+        <section class="panel" aria-labelledby="organization-heading"><h2 id="organization-heading">Organizations</h2>
+          <div class="grid"><div><label for="organization-name">Organization name</label><input id="organization-name" minlength="1" maxlength="80" bind-value={organization_name}></div><div><label for="organization-id">Selected organization ID</label><input id="organization-id" bind-value={organization}></div></div>
+          <div class="actions"><button on-click={create_organization}>Create organization</button><button on-click={load_organizations}>Refresh organizations</button></div>
+          <ul class="cards"><each items={organizations} as="organization_card" key={organization_card.id}><li><strong>{organization_card.name}</strong><code>{organization_card.id}</code></li></each></ul>
+          <h3>Membership</h3><div class="grid"><div><label for="member-user">User ID</label><input id="member-user" bind-value={member_user}></div><div><label for="member-id">Membership ID</label><input id="member-id" bind-value={member_id}></div></div>
+          <div class="actions"><button on-click={grant_maintainer}>Grant maintainer</button><button on-click={grant_developer}>Grant developer</button><button on-click={grant_reporter}>Grant reporter</button><button class="danger" on-click={revoke_member}>Revoke member</button></div>
+        </section>
+        <section class="panel" aria-labelledby="repository-heading"><h2 id="repository-heading">Repositories</h2>
+          <div class="grid"><div><label for="repository-name">Name</label><input id="repository-name" minlength="1" maxlength="80" bind-value={repository_name}></div><div><label for="repository-id">Selected repository ID</label><input id="repository-id" bind-value={repository}></div></div>
+          <label for="repository-description">Description</label><textarea id="repository-description" maxlength="500" bind-value={repository_description}></textarea><label class="check"><input id="repository-public" type="checkbox" bind-checked={repository_public}> Public repository</label>
+          <div class="actions"><button on-click={create_repository}>Create metadata</button><button on-click={initialize_repository}>Initialize Git</button><button on-click={load_repositories}>Refresh list</button><button on-click={next_repositories}>Next page</button><button on-click={create_credential}>Create one-hour Git credential</button></div>
+          <p>{repository_total}</p><ul class="cards"><each items={repositories.cards} as="repository_card" key={repository_card.id}><li><strong>{repository_card.name}</strong><span class="badge">{repository_card.visibility}</span><p>{repository_card.description}</p><code>{repository_card.id}</code></li></each></ul><pre class="secret">{credential}</pre>
+        </section>
+        <section class="panel" aria-labelledby="browse-heading"><h2 id="browse-heading">Browse repository</h2>
+          <div class="grid"><div><label for="revision">Revision</label><input id="revision" bind-value={revision}></div><div><label for="path">Path</label><input id="path" bind-value={path}></div><div><label for="old-revision">Compare from</label><input id="old-revision" bind-value={old_revision}></div></div>
+          <div class="actions"><button on-click={load_head}>HEAD</button><button on-click={load_tree}>Tree</button><button on-click={load_blob}>File</button><button on-click={load_history}>History</button><button on-click={load_diff}>Compare</button></div>
+          <p>HEAD: {head.reference}</p><ul class="tree"><each items={tree.entries} as="entry" key={entry.object + entry.name}><li><span class="badge">{entry.kind}</span><code>{entry.name}</code></li></each></ul>
+          <h3>File preview</h3><p>{blob.path} · {blob.size} bytes</p><pre>{blob.text}</pre>
+          <h3>Commit history</h3><ol class="commits"><each items={history.commits} as="commit" key={commit.object}><li><strong>{commit.subject}</strong><p>{commit.author_name} · {commit.authored_at}</p><code>{commit.object}</code></li></each></ol>
+          <h3>Diff</h3><pre>{diff.text}</pre>
+        </section>
+      </route>
+      <route path="/issues">
+        <section class="panel" aria-labelledby="issues-heading"><h2 id="issues-heading">Issues</h2><p>Current organization: <code>{organization}</code> · repository: <code>{repository}</code></p>
+          <label for="issue-title">Title</label><input id="issue-title" minlength="1" maxlength="160" bind-value={issue_title}><label for="issue-body">Description</label><textarea id="issue-body" maxlength="16000" bind-value={issue_body}></textarea><label for="issue-id">Selected issue ID</label><input id="issue-id" bind-value={issue}>
+          <div class="actions"><button on-click={create_issue}>Open issue</button><button on-click={load_issues}>Refresh</button><button on-click={next_issues}>Next page</button><button on-click={read_issue}>Read</button><button on-click={edit_issue}>Save edit</button><button on-click={close_issue}>Close</button></div>
+          <p>{issue_total}</p><ul class="cards"><each items={issues.cards} as="issue_card" key={issue_card.id}><li><span class="badge">{issue_card.state}</span><strong>{issue_card.title}</strong><p>by {issue_card.author}</p><code>{issue_card.id}</code></li></each></ul>
+          <article class="detail"><h3>{issue_detail.title}</h3><p>{issue_detail.body}</p><p>{issue_detail.state} · {issue_detail.author}</p></article>
+          <h3>Discussion</h3><label for="comment-body">Comment</label><textarea id="comment-body" maxlength="16000" bind-value={comment_body}></textarea><div class="actions"><button on-click={add_comment}>Add comment</button><button on-click={load_comments}>Refresh comments</button></div><ol class="comments"><each items={issue_comments} as="comment" key={comment.id}><li><p>{comment.body}</p><p class="byline">{comment.author}</p></li></each></ol>
+          <h3>Attachments</h3><label for="issue_attachment">Choose a file up to 8 MiB</label><input id="issue_attachment" type="file"><button on-click={upload_attachment}>Upload</button><label for="attachment-id">Attachment ID</label><input id="attachment-id" bind-value={attachment}><div class="actions"><button on-click={download_attachment}>Download</button><button class="danger" on-click={delete_attachment}>Delete</button></div><p>{attachment_status}</p>
+        </section>
+      </route>
+      <route path="/merge-requests">
+        <section class="panel" aria-labelledby="merges-heading"><h2 id="merges-heading">Merge requests</h2><p>Fast-forward merges use exact reviewed source and target objects. Changed refs abort.</p>
+          <label for="merge-title">Title</label><input id="merge-title" minlength="1" maxlength="160" bind-value={merge_title}><label for="merge-body">Description</label><textarea id="merge-body" maxlength="16000" bind-value={merge_body}></textarea>
+          <div class="grid"><div><label for="source-reference">Source ref</label><input id="source-reference" bind-value={source_reference}></div><div><label for="target-reference">Target ref</label><input id="target-reference" bind-value={target_reference}></div><div><label for="merge-id">Selected merge request ID</label><input id="merge-id" bind-value={merge_request}></div></div>
+          <div class="actions"><button on-click={create_merge_request}>Open merge request</button><button on-click={load_merge_requests}>Refresh</button><button on-click={next_merge_requests}>Next page</button><button on-click={read_merge_request}>Read</button><button on-click={approve_merge_request}>Approve</button><button on-click={resolve_discussions}>Resolve discussions</button><button on-click={merge_selected}>Merge</button><button on-click={finalize_merge}>Finalize committed merge</button><button class="danger" on-click={close_merge_request}>Close</button></div>
+          <p>{merge_total}</p><ul class="cards"><each items={merge_requests.cards} as="merge_card" key={merge_card.id}><li><span class="badge">{merge_card.state}</span><strong>{merge_card.title}</strong><p>{merge_card.source_reference} → {merge_card.target_reference} · {int_text(merge_card.approvals)} approvals</p><code>{merge_card.id}</code></li></each></ul>
+          <article class="detail"><h3>{selected_merge.title}</h3><p>{selected_merge.state} · {selected_merge.source_reference} → {selected_merge.target_reference}</p><p>{int_text(selected_merge.approvals)} approvals · author {selected_merge.author}</p><code>{selected_merge.source_object}</code></article>
+        </section>
+      </route>
+      <route path="/settings">
+        <section class="panel" aria-labelledby="settings-heading"><h2 id="settings-heading">Repository security and automation</h2><p>These controls require an account administrator except the normal review gate used by merge-request approval.</p>
+          <label for="protected-reference">Protected ref</label><input id="protected-reference" bind-value={protected_reference}><div class="actions"><button on-click={protect_main}>Require approval and resolved discussions</button><button class="danger" on-click={unprotect_main}>Remove protection</button></div>
+          <h3>Deploy key</h3><label for="deploy-label">Label</label><input id="deploy-label" bind-value={deploy_label}><label for="deploy-key">Ed25519 public key</label><textarea id="deploy-key" bind-value={deploy_key}></textarea><div class="actions"><button on-click={add_deploy_key}>Add read-only deploy key</button><button class="danger" on-click={revoke_deploy_key}>Revoke key</button></div><label for="deploy-id">Deploy key ID</label><input id="deploy-id" bind-value={deploy_id}>
+          <h3>Durable push events</h3><button on-click={load_push_events}>Load pending events</button><pre>{push_events}</pre><label for="push-event-id">Event ID</label><input id="push-event-id" bind-value={push_event_id}><button on-click={acknowledge_push_event}>Acknowledge event</button>
+        </section>
+      </route>
+      <div class="activity" aria-live="polite"><strong>Live activity</strong><p>{activity}</p></div>
     </main>

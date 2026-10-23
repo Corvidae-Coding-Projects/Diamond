@@ -1,0 +1,23 @@
+{
+  "profile": "Diamond Forge real Chrome browser qualification",
+  "date": "2026-10-23",
+  "passed": 15,
+  "total": 15,
+  "results": [
+    {"name": "reactive application hydrates with primary navigation", "pass": true},
+    {"name": "local account signs in through browser controls", "pass": true},
+    {"name": "organization list renders authorized organization", "pass": true},
+    {"name": "repository list renders exact private repository", "pass": true},
+    {"name": "HEAD action renders symbolic main reference", "pass": true},
+    {"name": "tree action renders README and feature blobs", "pass": true},
+    {"name": "file action renders exact README content", "pass": true},
+    {"name": "history action renders both commits", "pass": true},
+    {"name": "route navigation preserves selected organization and repository", "pass": true},
+    {"name": "issue first page renders 20 of 22 records", "pass": true},
+    {"name": "issue next page renders the remaining two records", "pass": true},
+    {"name": "hostile issue title remains literal and opens no dialog", "pass": true},
+    {"name": "merge request route renders open, merged, and stale cases", "pass": true},
+    {"name": "settings route renders durable push events", "pass": true},
+    {"name": "375 pixel viewport has visible navigation and no horizontal overflow", "pass": true}
+  ]
+}

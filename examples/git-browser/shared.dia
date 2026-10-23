@@ -31,10 +31,73 @@ export type GitCommit:
   subject: Text
 
 export type GitHistory:
-  revision: Text
+  revision: Text<length: 40..64>
   commits: List<GitCommit>
 
 export type GitDiff:
   old: Text
   new: Text
   text: Text
+
+export type OrganizationCard:
+  id: Text
+  name: Text
+
+export type RepositoryCard:
+  id: Text
+  organization: Text
+  name: Text
+  description: Text
+  visibility: Text
+
+export type RepositoryPage:
+  cards: List<RepositoryCard>
+  after: Text
+  total: Int
+
+export type IssueCard:
+  id: Text
+  title: Text
+  state: Text
+  author: Text
+
+export type IssuePage:
+  cards: List<IssueCard>
+  after: Text
+  total: Int
+
+export type IssueDetail:
+  id: Text
+  title: Text
+  body: Text
+  state: Text
+  author: Text
+
+export type CommentCard:
+  id: Text
+  body: Text
+  author: Text
+
+export type MergeRequestCard:
+  id: Text
+  title: Text
+  state: Text
+  source_reference: Text
+  target_reference: Text
+  source_object: Text
+  target_object: Text
+  approvals: Int
+  author: Text
+
+export type MergeRequestPage:
+  cards: List<MergeRequestCard>
+  after: Text
+  total: Int
+
+export type MergePlan:
+  merge_request: Text
+  repository: Text
+  source_reference: Text
+  target_reference: Text
+  source_object: Text
+  target_object: Text

@@ -249,6 +249,14 @@ The implementation follows broad working strokes first and reserves fine-grained
 5. **G5 — Product completion.** Fill protocol edge cases, accessibility, mobile layout, import/export compatibility, search quality, notification preferences, artifact workflows, runner executor profiles, custom-domain operations, and administrator documentation.
 6. **G6 — Adversarial qualification.** Attack every trust boundary and distributed transition through real interfaces, repair reproduced issues, replay the full regression corpus, measure memory under concurrent streaming load, restore from backup, and publish the bounded release evidence.
 
+G1 is implemented as `examples/git-browser`. Its retained application replay
+exercises the Diamond browser/server surface, PostgreSQL policy, stock smart
+HTTP Git, protected fast-forward merge, event recovery, and strict repository
+fsck. The separate foundation and SSH campaigns preserve the existing transport,
+OAuth, protected-ref, OpenSSH, deploy-key, certificate, streaming, and shard
+promotion coverage. G2 through G6 remain distinct product checkpoints rather
+than hidden prerequisites for this runnable slice.
+
 Each checkpoint must leave a runnable vertical slice. Schema and service protocols are versioned early, but no compatibility machinery for unreleased external users is required while the project has no users. Later checkpoints may replace internal rough implementations as long as the checkpoint's public behavior and retained regression cases continue to pass.
 
 ## Open Questions

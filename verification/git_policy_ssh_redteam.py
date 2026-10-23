@@ -24,8 +24,9 @@ TMP = pathlib.Path(tempfile.mkdtemp(prefix="diamond-git-policy-ssh-"))
 PG = TMP / "pg"
 SOCK = TMP / "sock"
 GITROOT = TMP / "git"
+OBJECTS = TMP / "objects"
 MAIL = TMP / "mail"
-for directory in (SOCK, GITROOT, MAIL):
+for directory in (SOCK, GITROOT, OBJECTS, MAIL):
     directory.mkdir(mode=0o700)
 
 
@@ -40,6 +41,7 @@ def free_port():
 pgport, webport, sshport = free_port(), free_port(), free_port()
 pgcfg = f"host={SOCK} port={pgport} user=diamond_rt dbname=postgres"
 runtime = {
+    "objects": str(OBJECTS),
     "git": {"repos": {"root": str(GITROOT), "executable": "/usr/bin/git"}},
     "oauth": {
         "transaction_key_env": "DIA_OAUTH_KEY",
@@ -188,6 +190,18 @@ try:
     ok(
         "initialize project schema",
         [str(BIN), "project-init", "examples/git-browser/diamond.toml", "--postgres-env", "DIAMOND_POSTGRES"],
+    )
+    ok(
+        "initialize shared object store",
+        [
+            str(BIN),
+            "project-files-init",
+            "examples/git-browser/diamond.toml",
+            "--postgres-env",
+            "DIAMOND_POSTGRES",
+            "--runtime-env",
+            "DIAMOND_RUNTIME",
+        ],
     )
     ok(
         "install runtime Git hook",

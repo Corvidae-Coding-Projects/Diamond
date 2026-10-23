@@ -1403,7 +1403,9 @@ impl<'a> Checker<'a> {
         if matches!(
             method,
             "git_create"
+                | "git_merge"
                 | "git_query"
+                | "git_review_gate"
                 | "git_protect"
                 | "git_unprotect"
                 | "git_gate"

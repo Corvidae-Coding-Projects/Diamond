@@ -127,7 +127,7 @@ impl Checker<'_> {
         let boolean_arguments: &[usize] = match method {
             "git_protect" => &[4, 5, 7, 8, 9, 10],
             "git_gate" => &[5, 6],
-            "git_deploy_key" => &[4],
+            "git_deploy_key" | "git_review_gate" => &[4],
             "git_certificate" => &[3],
             _ => &[],
         };
@@ -187,11 +187,12 @@ impl Checker<'_> {
         }
         let (expected_arguments, expected_types, text_arguments) = match method {
             "git_create" | "git_ack_event" => (2, 0, 2),
+            "git_merge" => (6, 0, 6),
             "git_query" => (6, 1, 5),
             "git_protect" => (11, 0, 4),
             "git_unprotect" | "git_revoke_deploy_key" | "git_revoke_certificate" => (3, 0, 3),
             "git_gate" => (8, 0, 4),
-            "git_deploy_key" => (5, 0, 4),
+            "git_review_gate" | "git_deploy_key" => (5, 0, 4),
             "git_certificate" => (5, 0, 3),
             "git_events" => (2, 0, 1),
             _ => return Err(Error::Denied),
@@ -213,19 +214,24 @@ impl Checker<'_> {
             }
         }
         self.check_git_specific(method, args, location)?;
-        let write = method == "git_create";
-        let admin = !matches!(method, "git_create" | "git_query");
-        self.effects.insert(Effect::Host(format!(
-            "Git{}<{binding}>",
-            if admin {
-                "Admin"
-            } else if write {
-                "Write"
-            } else {
-                "Read"
-            }
-        )));
-        let result = if write || admin {
+        let write = matches!(method, "git_create" | "git_merge");
+        let review = method == "git_review_gate";
+        let admin = !matches!(
+            method,
+            "git_create" | "git_merge" | "git_query" | "git_review_gate"
+        );
+        let capability = if admin {
+            "Admin"
+        } else if write {
+            "Write"
+        } else if review {
+            "Review"
+        } else {
+            "Read"
+        };
+        self.effects
+            .insert(Effect::Host(format!("Git{capability}<{binding}>")));
+        let result = if write || review || admin {
             Type::Text
         } else {
             let result = resolve_type(types.first().ok_or(Error::Denied)?, self.program, location)?;
