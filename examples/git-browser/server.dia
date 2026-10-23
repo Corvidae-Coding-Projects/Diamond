@@ -1242,3 +1242,73 @@ export fn delivery_pages(repository: Text) -> Result<PageResults, DataError>:
 
 export fn delivery_environments(repository: Text) -> Result<EnvironmentResults, DataError>:
   host.delivery_query<EnvironmentResults>("builds", repository, "environments", 50)
+
+export fn operations_nodes() -> Result<OperationsResults, DataError>:
+  host.ops_query<OperationsResults>("control", "nodes", "", 100)
+
+export fn operations_shards() -> Result<OperationsResults, DataError>:
+  host.ops_query<OperationsResults>("control", "shards", "", 100)
+
+export fn operations_placements() -> Result<OperationsResults, DataError>:
+  host.ops_query<OperationsResults>("control", "placements", "", 100)
+
+export fn operations_tasks() -> Result<OperationsResults, DataError>:
+  host.ops_query<OperationsResults>("control", "tasks", "", 100)
+
+export fn operations_mirrors() -> Result<OperationsResults, DataError>:
+  host.ops_query<OperationsResults>("control", "mirrors", "", 100)
+
+export fn operations_backups() -> Result<OperationsResults, DataError>:
+  host.ops_query<OperationsResults>("control", "backups", "", 100)
+
+export fn operations_restores() -> Result<OperationsResults, DataError>:
+  host.ops_query<OperationsResults>("control", "restores", "", 100)
+
+export fn operations_gc() -> Result<OperationsResults, DataError>:
+  host.ops_query<OperationsResults>("control", "gc", "", 100)
+
+export fn operations_policies() -> Result<OperationsResults, DataError>:
+  host.ops_query<OperationsResults>("control", "policies", "", 100)
+
+export fn operations_audit() -> Result<OperationsResults, DataError>:
+  host.ops_query<OperationsResults>("control", "audit", "", 100)
+
+export fn global_search(query: Text<length: 1..128>) -> Result<SearchResults, DataError>:
+  let admission = host.ops_rate("control", "global_search", 1)?
+  host.ops_query<SearchResults>("control", "search", query, 50)
+
+export fn drain_operations_node(node: Text, generation: Int) -> Result<Text, DataError>:
+  host.ops_command("control", "node_drain", node, "", "", "", generation)
+
+export fn schedule_search_rebuild(dedup: Text<length: 1..128>) -> Result<Text, DataError>:
+  host.ops_command("control", "search_schedule", "all", dedup, "", "", 0)
+
+export fn schedule_gc(dedup: Text<length: 1..128>) -> Result<Text, DataError>:
+  host.ops_command("control", "gc_schedule", "delivery", dedup, "", "", 0)
+
+export fn set_object_hold(digest: Text, reason: Text) -> Result<Text, DataError>:
+  host.ops_command("control", "hold_set", digest, "true", reason, "", 0)
+
+export fn clear_object_hold(digest: Text) -> Result<Text, DataError>:
+  host.ops_command("control", "hold_set", digest, "false", "", "", 0)
+
+export fn record_shard(shard: Text, state: Text, generation: Int) -> Result<Text, DataError>:
+  host.ops_command("control", "shard_record", shard, "", state, "", generation)
+
+export fn record_placement(repository: Text, shard: Text, object: Text, generation: Int) -> Result<Text, DataError>:
+  host.ops_command("control", "placement_record", repository, shard, object, "", generation)
+
+export fn schedule_mirror(repository: Text, shard: Text, object: Text, generation: Int, dedup: Text) -> Result<Text, DataError>:
+  host.ops_command("control", "mirror_schedule", repository, shard, object, dedup, generation)
+
+export fn schedule_promotion(repository: Text, shard: Text, object: Text, generation: Int, dedup: Text) -> Result<Text, DataError>:
+  host.ops_command("control", "promotion_schedule", repository, shard, object, dedup, generation)
+
+export fn record_backup(backup: Text, state: Text, digest: Text, generation: Int) -> Result<Text, DataError>:
+  host.ops_command("control", "backup_record", backup, state, digest, "", generation)
+
+export fn record_restore(restore: Text, backup: Text, state: Text, details: Text) -> Result<Text, DataError>:
+  host.ops_command("control", "restore_record", restore, backup, state, details, 0)
+
+export fn set_operations_policy(key: Text, value: Text, generation: Int) -> Result<Text, DataError>:
+  host.ops_command("control", "policy_set", key, value, "", "", generation)

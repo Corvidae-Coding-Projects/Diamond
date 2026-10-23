@@ -26,6 +26,8 @@ struct Configuration {
     #[serde(default)]
     delivery: BTreeMap<String, DeliveryGrant>,
     #[serde(default)]
+    operations: BTreeMap<String, OperationsGrant>,
+    #[serde(default)]
     http: BTreeMap<String, Destination>,
 }
 
@@ -66,6 +68,11 @@ pub(crate) struct DeliveryGrant {
     pub(crate) root: PathBuf,
     pub(crate) sandbox: PathBuf,
     pub(crate) limit: PathBuf,
+}
+#[derive(Clone, Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub(crate) struct OperationsGrant {
+    pub(crate) root: PathBuf,
 }
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -112,6 +119,7 @@ pub struct RuntimeGrants {
     pub(crate) objects: Option<PathBuf>,
     pub(crate) git: BTreeMap<String, GitGrant>,
     pub(crate) delivery: BTreeMap<String, DeliveryGrant>,
+    pub(crate) operations: BTreeMap<String, OperationsGrant>,
     pub(crate) oauth: Option<OAuthRuntime>,
     destinations: BTreeMap<String, Destination>,
 }
@@ -215,6 +223,7 @@ impl RuntimeGrants {
             objects: config.objects,
             git: config.git,
             delivery: config.delivery,
+            operations: config.operations,
             oauth,
             destinations: config.http,
         })
@@ -317,7 +326,11 @@ fn validate_native_grants(config: &Configuration) -> Result<()> {
                 || !grant.sandbox.is_absolute()
                 || !grant.limit.is_absolute()
         });
-    if invalid_git || invalid_delivery {
+    let invalid_operations = config.operations.len() > 16
+        || config.operations.iter().any(|(name, grant)| {
+            !crate::project::resolve::identifier(name) || !grant.root.is_absolute()
+        });
+    if invalid_git || invalid_delivery || invalid_operations {
         Err(invalid())
     } else {
         Ok(())

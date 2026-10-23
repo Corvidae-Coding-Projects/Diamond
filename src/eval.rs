@@ -898,6 +898,74 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
         Value::operation(crate::project::wire::decode(&result, &value, self.program))
     }
 
+    fn operations_call(
+        &mut self,
+        method: &str,
+        arguments: &[(Option<String>, Expr)],
+        types: &[crate::syntax::TypeName],
+        locals: &BTreeMap<String, Value>,
+        location: crate::error::Location,
+    ) -> Result<Value> {
+        let values = arguments
+            .iter()
+            .map(|(_, value)| self.expr(value, locals))
+            .collect::<Result<Vec<_>>>()?;
+        let text = |index: usize| match values.get(index).map(|value| &value.0) {
+            Some(ValueKind::Text(value)) => Ok(value.as_str()),
+            _ => Err(Error::Denied),
+        };
+        let integer = |index: usize| match values.get(index).map(|value| &value.0) {
+            Some(ValueKind::Int(value)) => Ok(*value),
+            _ => Err(Error::Denied),
+        };
+        let binding = text(0)?;
+        self.scope.require(&crate::authority::Effect::Host(format!(
+            "Ops{}<{binding}>",
+            if method == "ops_command" {
+                "Admin"
+            } else {
+                "Read"
+            }
+        )))?;
+        let database = self.postgres.as_deref_mut().ok_or(Error::Denied)?;
+        if method == "ops_command" {
+            let result = crate::project::operations::command(
+                database,
+                self.scope,
+                binding,
+                text(1)?,
+                text(2)?,
+                [text(3)?, text(4)?, text(5)?],
+                integer(6)?,
+            );
+            return Value::operation(result.map(|value| Value(ValueKind::Text(value))));
+        }
+        if method == "ops_rate" {
+            let result = crate::project::operations::rate(
+                database,
+                self.scope,
+                binding,
+                text(1)?,
+                integer(2)?,
+            );
+            return Value::operation(result.map(|value| Value(ValueKind::Text(value))));
+        }
+        let value = crate::project::operations::query(
+            database,
+            self.scope,
+            binding,
+            text(1)?,
+            text(2)?,
+            integer(3)?,
+        )?;
+        let result = crate::checker::resolve_type(
+            types.first().ok_or(Error::Denied)?,
+            self.program,
+            location,
+        )?;
+        Value::operation(crate::project::wire::decode(&result, &value, self.program))
+    }
+
     fn git_review_call(&mut self, values: &[Value]) -> Result<Value> {
         let text = |index: usize| match values.get(index).map(|value| &value.0) {
             Some(ValueKind::Text(value)) => Ok(value.as_str()),
@@ -969,6 +1037,26 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
         Value::operation(merged.map(|object| Value(ValueKind::Text(object))))
     }
 
+    fn project_adapter_call(
+        &mut self,
+        method: &str,
+        arguments: &[(Option<String>, Expr)],
+        types: &[crate::syntax::TypeName],
+        locals: &BTreeMap<String, Value>,
+        location: crate::error::Location,
+    ) -> Option<Result<Value>> {
+        if matches!(
+            method,
+            "delivery_schedule" | "delivery_query" | "delivery_cancel"
+        ) {
+            Some(self.delivery_call(method, arguments, types, locals, location))
+        } else if matches!(method, "ops_command" | "ops_query" | "ops_rate") {
+            Some(self.operations_call(method, arguments, types, locals, location))
+        } else {
+            None
+        }
+    }
+
     fn call(
         &mut self,
         callee: &Expr,
@@ -1003,11 +1091,10 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
                         callee.location,
                     );
                 }
-                if matches!(
-                    method.as_str(),
-                    "delivery_schedule" | "delivery_query" | "delivery_cancel"
-                ) {
-                    return self.delivery_call(method, arguments, types, locals, callee.location);
+                if let Some(result) =
+                    self.project_adapter_call(method, arguments, types, locals, callee.location)
+                {
+                    return result;
                 }
                 if matches!(
                     method.as_str(),

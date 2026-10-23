@@ -171,7 +171,7 @@ async fn backend_response(
     permit: tokio::sync::OwnedSemaphorePermit,
     configuration: &str,
 ) -> Result<Response> {
-    let fence = transport.fence.take();
+    let fences = std::mem::take(&mut transport.fences);
     let mut command = Command::new(&transport.executable);
     command
         .args([
@@ -252,7 +252,7 @@ async fn backend_response(
             }
         };
 
-    let receiver = spawn_stream(child, stdout, input, errors, permit, fence);
+    let receiver = spawn_stream(child, stdout, input, errors, permit, fences);
     let stream = futures_util::stream::unfold(receiver, |mut receiver| async move {
         receiver.recv().await.map(|item| (item, receiver))
     });
@@ -272,12 +272,12 @@ fn spawn_stream(
     mut input: tokio::task::JoinHandle<io::Result<()>>,
     mut errors: tokio::task::JoinHandle<io::Result<()>>,
     permit: tokio::sync::OwnedSemaphorePermit,
-    fence: Option<super::super::git::ReceiveFence>,
+    fences: Vec<super::super::git::ReceiveFence>,
 ) -> mpsc::Receiver<io::Result<Bytes>> {
     let (sender, receiver) = mpsc::channel(4);
     tokio::spawn(async move {
         let _permit = permit;
-        let _fence = fence;
+        let _fences = fences;
         let output_ok = tokio::time::timeout(
             TRANSPORT_DEADLINE,
             pump_output(&mut stdout, &sender, super::super::git::MAX_TRANSPORT_BYTES),

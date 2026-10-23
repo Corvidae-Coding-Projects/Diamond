@@ -1,0 +1,429 @@
+{
+  "profile": "diamond-forge-g4-scale-recovery",
+  "checks": 104,
+  "passed": 104,
+  "contract": "a5c2b1bb08d883b2842f59c6e9ffefc82ff1b5ae9e05c22a7ee2c456b7a879ff",
+  "commit": "f091e3a25b289b4282e7f9a90dabd48ebbef95b0",
+  "worker_tasks": [
+    "9e958deba13d6e5dcd988b483b262126194701b7e8fdee4ba439c428037a23be",
+    "8972923da06616acb2e1cb2cf22750827ebcfce14730a082dedc0fe52b283d4b"
+  ],
+  "results": [
+    {
+      "name": "initialize PostgreSQL cluster",
+      "pass": true
+    },
+    {
+      "name": "start PostgreSQL",
+      "pass": true
+    },
+    {
+      "name": "initialize application schema",
+      "pass": true
+    },
+    {
+      "name": "initialize attachment store",
+      "pass": true
+    },
+    {
+      "name": "initialize Git store",
+      "pass": true
+    },
+    {
+      "name": "initialize delivery store",
+      "pass": true
+    },
+    {
+      "name": "initialize operations store",
+      "pass": true
+    },
+    {
+      "name": "operations store is private and application-bound",
+      "pass": true
+    },
+    {
+      "name": "provision administrator",
+      "pass": true
+    },
+    {
+      "name": "provision ordinary user",
+      "pass": true
+    },
+    {
+      "name": "both web nodes serve the same checked contract",
+      "pass": true
+    },
+    {
+      "name": "Diamond renders the G4 operations console",
+      "pass": true
+    },
+    {
+      "name": "node 45233 is live and ready",
+      "pass": true
+    },
+    {
+      "name": "node 37009 is live and ready",
+      "pass": true
+    },
+    {
+      "name": "bootstrap alice session",
+      "pass": true
+    },
+    {
+      "name": "login alice",
+      "pass": true
+    },
+    {
+      "name": "bootstrap bob session",
+      "pass": true
+    },
+    {
+      "name": "login bob",
+      "pass": true
+    },
+    {
+      "name": "query shared node registry through peer",
+      "pass": true
+    },
+    {
+      "name": "session and CSRF state work across two web nodes",
+      "pass": true
+    },
+    {
+      "name": "ordinary users cannot inspect administrative topology",
+      "pass": true
+    },
+    {
+      "name": "create organization",
+      "pass": true
+    },
+    {
+      "name": "create scale-public repository through second node",
+      "pass": true
+    },
+    {
+      "name": "initialize scale-public through first node",
+      "pass": true
+    },
+    {
+      "name": "create scale-secret repository through second node",
+      "pass": true
+    },
+    {
+      "name": "initialize scale-secret through first node",
+      "pass": true
+    },
+    {
+      "name": "create repository-scoped Git credential on second node",
+      "pass": true
+    },
+    {
+      "name": "clone through first node",
+      "pass": true
+    },
+    {
+      "name": "configure Git author",
+      "pass": true
+    },
+    {
+      "name": "configure Git name",
+      "pass": true
+    },
+    {
+      "name": "stage G4 fixture",
+      "pass": true
+    },
+    {
+      "name": "commit G4 fixture",
+      "pass": true
+    },
+    {
+      "name": "push through first node",
+      "pass": true
+    },
+    {
+      "name": "register secondary shard",
+      "pass": true
+    },
+    {
+      "name": "path-shaped shard identity is rejected",
+      "pass": true
+    },
+    {
+      "name": "repository creation and push automatically establish the primary placement",
+      "pass": true
+    },
+    {
+      "name": "schedule durable search rebuild",
+      "pass": true
+    },
+    {
+      "name": "schedule exact-object replica",
+      "pass": true
+    },
+    {
+      "name": "set explicit object hold",
+      "pass": true
+    },
+    {
+      "name": "schedule bounded object GC",
+      "pass": true
+    },
+    {
+      "name": "operations worker expected outcome",
+      "pass": true
+    },
+    {
+      "name": "operations worker expected outcome",
+      "pass": true
+    },
+    {
+      "name": "operations worker expected outcome",
+      "pass": true
+    },
+    {
+      "name": "mirror is a verified stock-Git replica",
+      "pass": true
+    },
+    {
+      "name": "GC deletes only the expired orphan",
+      "pass": true
+    },
+    {
+      "name": "durable tasks complete with bounded receipts",
+      "pass": true
+    },
+    {
+      "name": "replica catalog records verified object",
+      "pass": true
+    },
+    {
+      "name": "ordinary user can search an authorized public repository",
+      "pass": true
+    },
+    {
+      "name": "search hides unauthorized private candidates",
+      "pass": true
+    },
+    {
+      "name": "grant reporter for stale-index authorization probe",
+      "pass": true
+    },
+    {
+      "name": "fresh authorization reveals existing indexed candidate",
+      "pass": true
+    },
+    {
+      "name": "revoke reporter",
+      "pass": true
+    },
+    {
+      "name": "revocation immediately hides stale search index data",
+      "pass": true
+    },
+    {
+      "name": "schedule verified repository promotion",
+      "pass": true
+    },
+    {
+      "name": "operations worker expected outcome",
+      "pass": true
+    },
+    {
+      "name": "worker atomically promotes the verified replica",
+      "pass": true
+    },
+    {
+      "name": "stale placement generation cannot overwrite failover",
+      "pass": true
+    },
+    {
+      "name": "register hostile mirror probe shard",
+      "pass": true
+    },
+    {
+      "name": "queue hostile symlink mirror without granting path authority",
+      "pass": true
+    },
+    {
+      "name": "operations worker expected outcome",
+      "pass": true
+    },
+    {
+      "name": "worker fails closed on a symlink replica root",
+      "pass": true
+    },
+    {
+      "name": "stage routed fixture",
+      "pass": true
+    },
+    {
+      "name": "commit routed fixture",
+      "pass": true
+    },
+    {
+      "name": "push through placement-routed data plane",
+      "pass": true
+    },
+    {
+      "name": "post-promotion writes reach only the promoted shard",
+      "pass": true
+    },
+    {
+      "name": "fresh clone reads from promoted shard",
+      "pass": true
+    },
+    {
+      "name": "fresh clone observes promoted-shard write",
+      "pass": true
+    },
+    {
+      "name": "receive hook advances placement object without changing owner generation",
+      "pass": true
+    },
+    {
+      "name": "reconcile push spools across active placement roots",
+      "pass": true
+    },
+    {
+      "name": "reconciliation scans promoted-shard events without reverting refs",
+      "pass": true
+    },
+    {
+      "name": "schedule search-concurrent task",
+      "pass": true
+    },
+    {
+      "name": "schedule gc-concurrent task",
+      "pass": true
+    },
+    {
+      "name": "two workers claim distinct durable tasks",
+      "pass": true
+    },
+    {
+      "name": "catalog completed encrypted backup evidence",
+      "pass": true
+    },
+    {
+      "name": "stale backup generation cannot report a false update",
+      "pass": true
+    },
+    {
+      "name": "catalog isolated restore evidence",
+      "pass": true
+    },
+    {
+      "name": "restore evidence cannot reference an incomplete backup",
+      "pass": true
+    },
+    {
+      "name": "create versioned operations policy",
+      "pass": true
+    },
+    {
+      "name": "compare-and-set operations policy",
+      "pass": true
+    },
+    {
+      "name": "stale policy generation is rejected",
+      "pass": true
+    },
+    {
+      "name": "shared search rate spans both application nodes",
+      "pass": true
+    },
+    {
+      "name": "operator drain uses exact node generation",
+      "pass": true
+    },
+    {
+      "name": "drained node stops ordinary traffic while peer remains ready",
+      "pass": true
+    },
+    {
+      "name": "readiness reflects coordinated drain",
+      "pass": true
+    },
+    {
+      "name": "operational metrics remain bounded and identity-free",
+      "pass": true
+    },
+    {
+      "name": "administrative mutations leave a redacted audit trail",
+      "pass": true
+    },
+    {
+      "name": "backup rejects symlinked runtime content without traversing it",
+      "pass": true
+    },
+    {
+      "name": "create encrypted database and runtime-root snapshot",
+      "pass": true
+    },
+    {
+      "name": "backup covers shared objects, Git, delivery, and operations roots",
+      "pass": true
+    },
+    {
+      "name": "backup leaves only encrypted artifacts",
+      "pass": true
+    },
+    {
+      "name": "create isolated restore database",
+      "pass": true
+    },
+    {
+      "name": "wrong backup key fails before database or filesystem writes",
+      "pass": true
+    },
+    {
+      "name": "tampered encrypted runtime bundle fails before database or filesystem writes",
+      "pass": true
+    },
+    {
+      "name": "restore encrypted snapshot into isolated database and roots",
+      "pass": true
+    },
+    {
+      "name": "restore independently verifies every runtime root",
+      "pass": true
+    },
+    {
+      "name": "isolated restore preserves primary and promoted-shard histories",
+      "pass": true
+    },
+    {
+      "name": "isolated restore preserves held delivery bytes and operations metadata",
+      "pass": true
+    },
+    {
+      "name": "restored server exposes the same checked contract",
+      "pass": true
+    },
+    {
+      "name": "restore revokes pre-snapshot API credentials",
+      "pass": true
+    },
+    {
+      "name": "bootstrap alice session",
+      "pass": true
+    },
+    {
+      "name": "login alice",
+      "pass": true
+    },
+    {
+      "name": "restored account can mint a fresh bounded credential",
+      "pass": true
+    },
+    {
+      "name": "clone through restored placement-routed server",
+      "pass": true
+    },
+    {
+      "name": "restored data plane routes to promoted shard",
+      "pass": true
+    }
+  ]
+}

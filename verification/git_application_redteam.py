@@ -28,8 +28,9 @@ SOCK = TMP / "sock"
 GITROOT = TMP / "git"
 OBJECTS = TMP / "objects"
 DELIVERY = TMP / "delivery"
+OPERATIONS = TMP / "operations"
 MAIL = TMP / "mail"
-for directory in (SOCK, GITROOT, OBJECTS, DELIVERY, MAIL):
+for directory in (SOCK, GITROOT, OBJECTS, DELIVERY, OPERATIONS, MAIL):
     directory.mkdir(mode=0o700)
 
 
@@ -59,6 +60,7 @@ runtime = {
             "limit": "/usr/bin/prlimit",
         }
     },
+    "operations": {"control": {"root": str(OPERATIONS)}},
     "oauth": {
         "transaction_key_env": "DIA_OAUTH_KEY",
         "google": {
@@ -246,6 +248,10 @@ try:
     ok(
         "initialize delivery store",
         [str(BIN), "project-delivery-init", PROJECT, "--postgres-env", "DIAMOND_POSTGRES", "--runtime-env", "DIAMOND_RUNTIME"],
+    )
+    ok(
+        "initialize operations store",
+        [str(BIN), "project-ops-init", PROJECT, "--postgres-env", "DIAMOND_POSTGRES", "--runtime-env", "DIAMOND_RUNTIME"],
     )
     passwords = {
         "alice": "Synthetic forge password 81!",

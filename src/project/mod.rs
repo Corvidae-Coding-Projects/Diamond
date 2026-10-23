@@ -14,6 +14,7 @@ pub(crate) mod git;
 mod identity;
 mod jobs;
 mod lower;
+pub(crate) mod operations;
 mod render;
 pub(crate) mod resolve;
 mod rpc;
@@ -87,6 +88,8 @@ struct Manifest {
     git: Option<git::Config>,
     #[serde(default)]
     delivery: Option<delivery::Config>,
+    #[serde(default)]
+    operations: Option<operations::Config>,
     #[serde(default)]
     jobs: BTreeMap<String, jobs::Binding>,
     #[serde(default)]
@@ -614,6 +617,34 @@ impl CheckedProject {
         delivery::serve_pages(self, address, configuration, grants, binding)
     }
 
+    /// Bind every declared G4 operations store to this application.
+    ///
+    /// # Errors
+    /// Rejects missing grants, unsafe roots, incompatible metadata, or changed
+    /// store identities.
+    pub fn initialize_operations(
+        &self,
+        configuration: &str,
+        grants: &crate::RuntimeGrants,
+    ) -> Result<String> {
+        synchronous_context()?;
+        operations::initialize(self, configuration, grants)
+    }
+
+    /// Claim and execute one bounded search, mirror, or garbage-collection task.
+    ///
+    /// # Errors
+    /// Rejects invalid grants, stale task fences, unsafe repositories or object
+    /// stores, and failed bounded native operations.
+    pub fn work_operations_once(
+        &self,
+        configuration: &str,
+        grants: &crate::RuntimeGrants,
+    ) -> Result<String> {
+        synchronous_context()?;
+        operations::work(self, configuration, grants)
+    }
+
     /// Promote the configured Git root for one binding with compare-and-swap fencing.
     ///
     /// # Errors
@@ -733,6 +764,13 @@ fn manifest(source: &str) -> Result<Manifest> {
     }
     if manifest.delivery.is_some() && (manifest.identity.is_none() || manifest.git.is_none()) {
         return Err(input("delivery-v1 requires accounts-v1 and Git"));
+    }
+    if manifest.operations.is_some()
+        && (manifest.identity.is_none() || manifest.git.is_none() || manifest.delivery.is_none())
+    {
+        return Err(input(
+            "operations-v1 requires accounts-v1, Git, and delivery-v1",
+        ));
     }
     if manifest.http_api.is_some() && manifest.identity.is_none() {
         return Err(input("HTTP APIs require accounts-v1"));
@@ -1022,6 +1060,9 @@ fn check_server(manifest: &Manifest, modules: &BTreeMap<String, Module>) -> Resu
     if let Some(config) = &manifest.delivery {
         config.check(manifest, &server)?;
     }
+    if let Some(config) = &manifest.operations {
+        config.check(manifest, &server)?;
+    }
     check_effect_boundaries(&server)?;
     if !wire::safe_type(&server.functions["main"].result, &server)
         && contains_secret(&server.functions["main"].result, &server, 0)
@@ -1139,6 +1180,8 @@ fn capability_effect(name: &str) -> Result<Effect> {
         "GitAdmin<",
         "DeliveryRead<",
         "DeliveryWrite<",
+        "OpsRead<",
+        "OpsAdmin<",
     ]
     .iter()
     .any(|prefix| {

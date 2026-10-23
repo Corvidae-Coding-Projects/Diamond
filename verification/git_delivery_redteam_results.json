@@ -1,7 +1,7 @@
 {
   "profile": "diamond-forge-g3-delivery",
-  "passed": 80,
-  "total": 80,
+  "passed": 81,
+  "total": 81,
   "results": [
     {
       "name": "initialize PostgreSQL cluster",
@@ -25,6 +25,10 @@
     },
     {
       "name": "initialize delivery store",
+      "pass": true
+    },
+    {
+      "name": "initialize operations store",
       "pass": true
     },
     {

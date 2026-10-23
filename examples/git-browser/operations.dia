@@ -1,0 +1,97 @@
+export component OperationsConsole(repository: Text):
+  state nodes: OperationsResults = OperationsResults(cards: [], total: 0)
+  state shards: OperationsResults = OperationsResults(cards: [], total: 0)
+  state placements: OperationsResults = OperationsResults(cards: [], total: 0)
+  state tasks: OperationsResults = OperationsResults(cards: [], total: 0)
+  state mirrors: OperationsResults = OperationsResults(cards: [], total: 0)
+  state backups: OperationsResults = OperationsResults(cards: [], total: 0)
+  state restores: OperationsResults = OperationsResults(cards: [], total: 0)
+  state gc_runs: OperationsResults = OperationsResults(cards: [], total: 0)
+  state policies: OperationsResults = OperationsResults(cards: [], total: 0)
+  state audit: OperationsResults = OperationsResults(cards: [], total: 0)
+  state search_query: Text = ""
+  state search_results: SearchResults = SearchResults(cards: [], total: 0)
+  state node_id: Text = ""
+  state shard_id: Text = "primary"
+  state shard_state: Text = "active"
+  state target_shard: Text = "secondary"
+  state expected_object: Text = ""
+  state generation: Int = 0
+  state dedup: Text = "manual-1"
+  state object_digest: Text = ""
+  state hold_reason: Text = "administrative hold"
+  state backup_id: Text = ""
+  state backup_state: Text = "complete"
+  state backup_digest: Text = ""
+  state restore_id: Text = ""
+  state restore_state: Text = "verified"
+  state restore_details: Text = "isolated restore verified"
+  state policy_key: Text = "maintenance"
+  state policy_value: Text = "normal"
+  state result: Text = "Refresh to inspect shared operational state."
+
+  on refresh:
+    nodes = rpc.operations_nodes()
+    shards = rpc.operations_shards()
+    placements = rpc.operations_placements()
+    tasks = rpc.operations_tasks()
+    mirrors = rpc.operations_mirrors()
+    backups = rpc.operations_backups()
+    restores = rpc.operations_restores()
+    gc_runs = rpc.operations_gc()
+    policies = rpc.operations_policies()
+    audit = rpc.operations_audit()
+  on increment_generation:
+    generation = generation + 1
+  on reset_generation:
+    generation = 0
+  on search:
+    search_results = rpc.global_search(search_query)
+  on drain_node:
+    result = rpc.drain_operations_node(node_id, generation)
+    nodes = rpc.operations_nodes()
+  on record_shard:
+    result = rpc.record_shard(shard_id, shard_state, generation)
+    shards = rpc.operations_shards()
+  on record_placement:
+    result = rpc.record_placement(repository, shard_id, expected_object, generation)
+    placements = rpc.operations_placements()
+  on schedule_mirror:
+    result = rpc.schedule_mirror(repository, target_shard, expected_object, generation, dedup)
+    tasks = rpc.operations_tasks()
+    mirrors = rpc.operations_mirrors()
+  on schedule_promotion:
+    result = rpc.schedule_promotion(repository, target_shard, expected_object, generation, dedup)
+    tasks = rpc.operations_tasks()
+    placements = rpc.operations_placements()
+  on schedule_search:
+    result = rpc.schedule_search_rebuild(dedup)
+    tasks = rpc.operations_tasks()
+  on schedule_gc:
+    result = rpc.schedule_gc(dedup)
+    tasks = rpc.operations_tasks()
+  on set_hold:
+    result = rpc.set_object_hold(object_digest, hold_reason)
+  on clear_hold:
+    result = rpc.clear_object_hold(object_digest)
+  on record_backup:
+    result = rpc.record_backup(backup_id, backup_state, backup_digest, generation)
+    backups = rpc.operations_backups()
+  on record_restore:
+    result = rpc.record_restore(restore_id, backup_id, restore_state, restore_details)
+    restores = rpc.operations_restores()
+  on set_policy:
+    result = rpc.set_operations_policy(policy_key, policy_value, generation)
+    policies = rpc.operations_policies()
+
+  html:
+    <section class="panel" aria-labelledby="operations-heading"><h2 id="operations-heading">Scale, recovery, and administration</h2><p>Shared coordination is stored in PostgreSQL. Search results are reauthorized at read time; mirror promotion and policy changes use compare-and-swap generations.</p><p class="notice" role="status">{result}</p>
+      <div class="actions"><button on-click={refresh}>Refresh all</button></div>
+      <h3>Global search</h3><label for="global-search">Search visible repositories</label><input id="global-search" maxlength="128" bind-value={search_query}><button on-click={search}>Search</button><ul class="cards"><each items={search_results.cards} as="item" key={item.id}><li><span class="badge">{item.kind}</span><strong>{item.title}</strong><p>{item.body}</p><code>{item.repository}</code></li></each></ul>
+      <h3>Nodes</h3><div class="grid"><div><label for="ops-node">Node ID</label><input id="ops-node" bind-value={node_id}></div><div><span>Expected generation</span><p><code>{int_text(generation)}</code></p><div class="actions"><button class="quiet" on-click={increment_generation}>Add one</button><button class="quiet" on-click={reset_generation}>Reset</button></div></div></div><button class="danger" on-click={drain_node}>Drain selected node</button><ul class="cards"><each items={nodes.cards} as="item" key={item.id}><li><span class="badge">{item.three}</span><strong>{item.id}</strong><p>{item.one} · version {item.two} · capacity {item.four}</p><code>generation {item.five}</code></li></each></ul>
+      <h3>Repository shards and placement</h3><div class="grid"><div><label for="ops-shard">Shard ID</label><input id="ops-shard" bind-value={shard_id}></div><div><label for="ops-shard-state">State</label><select id="ops-shard-state" bind-value={shard_state}><option value="active">active</option><option value="draining">draining</option><option value="fenced">fenced</option></select></div><div><label for="ops-object">Exact Git object</label><input id="ops-object" bind-value={expected_object}></div></div><div class="actions"><button on-click={record_shard}>Record shard</button><button on-click={record_placement}>Record placement</button></div><ul class="cards"><each items={shards.cards} as="item" key={item.id}><li><strong>{item.id}</strong><p>{item.one} · {item.two}</p><code>generation {item.three}</code></li></each></ul><ul class="cards"><each items={placements.cards} as="item" key={item.id}><li><strong>{item.id}</strong><p>shard {item.one}</p><code>{item.two} · generation {item.three}</code></li></each></ul>
+      <h3>Mirrors and durable work</h3><div class="grid"><div><label for="ops-target-shard">Target shard</label><input id="ops-target-shard" bind-value={target_shard}></div><div><label for="ops-dedup">Unique request key</label><input id="ops-dedup" maxlength="128" bind-value={dedup}></div></div><div class="actions"><button on-click={schedule_mirror}>Schedule verified mirror</button><button on-click={schedule_promotion}>Promote verified mirror</button><button on-click={schedule_search}>Rebuild search index</button><button on-click={schedule_gc}>Run object GC</button></div><ul class="cards"><each items={tasks.cards} as="item" key={item.id}><li><span class="badge">{item.three}</span><strong>{item.one}</strong><p>{item.two}</p><code>{item.id} · fence {item.four} · {item.five}</code></li></each></ul><ul class="cards"><each items={mirrors.cards} as="item" key={item.id}><li><span class="badge">{item.three}</span><strong>{item.one}</strong><p>target {item.two}</p><code>{item.four} · generation {item.five}</code></li></each></ul>
+      <h3>Object retention</h3><div class="grid"><div><label for="ops-digest">SHA-256 object digest</label><input id="ops-digest" maxlength="64" bind-value={object_digest}></div><div><label for="ops-hold-reason">Hold reason</label><input id="ops-hold-reason" maxlength="160" bind-value={hold_reason}></div></div><div class="actions"><button on-click={set_hold}>Apply hold</button><button class="danger" on-click={clear_hold}>Clear hold</button></div><ul class="cards"><each items={gc_runs.cards} as="item" key={item.id}><li><strong>GC {item.id}</strong><p>removed {item.one}; retained {item.two}; bytes {item.three}</p><code>{item.four}</code></li></each></ul>
+      <h3>Backup and restore catalog</h3><div class="grid"><div><label for="ops-backup">Backup ID</label><input id="ops-backup" bind-value={backup_id}></div><div><label for="ops-backup-state">Backup state</label><input id="ops-backup-state" bind-value={backup_state}></div><div><label for="ops-backup-digest">Backup SHA-256</label><input id="ops-backup-digest" maxlength="64" bind-value={backup_digest}></div><div><label for="ops-restore">Restore ID</label><input id="ops-restore" bind-value={restore_id}></div><div><label for="ops-restore-state">Restore state</label><input id="ops-restore-state" bind-value={restore_state}></div><div><label for="ops-restore-details">Restore evidence</label><input id="ops-restore-details" maxlength="1024" bind-value={restore_details}></div></div><div class="actions"><button on-click={record_backup}>Record backup result</button><button on-click={record_restore}>Record isolated restore</button></div><ul class="cards"><each items={backups.cards} as="item" key={item.id}><li><span class="badge">{item.one}</span><strong>{item.id}</strong><code>{item.two} · generation {item.three} · {item.four}</code></li></each></ul><ul class="cards"><each items={restores.cards} as="item" key={item.id}><li><span class="badge">{item.two}</span><strong>{item.id}</strong><p>backup {item.one}</p><code>{item.three} · {item.four}</code></li></each></ul>
+      <h3>Runtime policy and audit</h3><div class="grid"><div><label for="ops-policy-key">Policy key</label><input id="ops-policy-key" bind-value={policy_key}></div><div><label for="ops-policy-value">Policy value</label><input id="ops-policy-value" maxlength="1024" bind-value={policy_value}></div></div><button on-click={set_policy}>Compare and set policy</button><ul class="cards"><each items={policies.cards} as="item" key={item.id}><li><strong>{item.id}</strong><p>{item.one}</p><code>generation {item.two} · {item.three}</code></li></each></ul><ol class="commits"><each items={audit.cards} as="item" key={item.id}><li><strong>{item.two}</strong><p>{item.three}</p><p class="byline">actor {item.one} · {item.four}</p><code>{item.id}</code></li></each></ol>
+    </section>

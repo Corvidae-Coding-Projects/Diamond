@@ -1,13 +1,14 @@
 # Diamond Forge
 
 Diamond Forge is a working Git collaboration application written in Diamond. It
-is the runnable G3 slice of the Git web-interface design: accounts, Google and
+is the runnable G4-complete slice of the Git web-interface design: accounts, Google and
 GitHub login, configurable enrollment, organizations, teams, direct repository
 permissions, forks, HTTPS and SSH Git transport, repository browsing, issues,
 boards, wikis, snippets, review threads, three merge strategies, notifications,
 releases, Git LFS, REST operations, bounded webhooks, audit events, protected
 refs, deploy keys, durable push events, isolated CI jobs, caches, generic
-artifacts, OCI pulls, environments, and static Pages.
+artifacts, OCI pulls, environments, static Pages, shared node coordination,
+authorized global search, verified repository mirrors, and bounded object GC.
 
 Diamond uses the installed `git` executable for Git semantics. The application
 never receives a shell command, filesystem path, process environment, or raw
@@ -18,20 +19,21 @@ interface; the bounded Rust host adapter performs Git operations.
 
 You need Diamond, Git, PostgreSQL, and an empty private directory for Git and
 uploaded files. CI additionally needs an owner-private delivery directory,
+and G4 coordination needs an owner-private operations directory,
 `prlimit`, and either Bubblewrap or a per-user systemd service manager. Create
 the PostgreSQL database and role using your normal administration process, then
 set these values:
 
 ```sh
-mkdir -p .diamond/forge/git .diamond/forge/objects .diamond/forge/delivery .diamond/forge/mail
-chmod 700 .diamond/forge .diamond/forge/git .diamond/forge/objects .diamond/forge/delivery .diamond/forge/mail
+mkdir -p .diamond/forge/git .diamond/forge/objects .diamond/forge/delivery .diamond/forge/operations .diamond/forge/mail
+chmod 700 .diamond/forge .diamond/forge/git .diamond/forge/objects .diamond/forge/delivery .diamond/forge/operations .diamond/forge/mail
 
 export DIAMOND_POSTGRES='host=/run/postgresql dbname=diamond_forge user=diamond_forge'
 export DIAMOND_OAUTH_KEY='replace-with-at-least-32-random-characters'
 export DIAMOND_GOOGLE_SECRET='replace-with-the-provider-secret'
 export DIAMOND_GITHUB_SECRET='replace-with-the-provider-secret'
 export DIAMOND_WEBHOOK_SECRET='replace-with-the-webhook-bearer-secret'
-export DIAMOND_RUNTIME="{\"objects\":\"$PWD/.diamond/forge/objects\",\"git\":{\"repos\":{\"root\":\"$PWD/.diamond/forge/git\",\"executable\":\"/usr/bin/git\"}},\"delivery\":{\"builds\":{\"root\":\"$PWD/.diamond/forge/delivery\",\"sandbox\":\"/usr/bin/systemd-run\",\"limit\":\"/usr/bin/prlimit\"}},\"oauth\":{\"transaction_key_env\":\"DIAMOND_OAUTH_KEY\",\"google\":{\"client_id\":\"replace-with-client-id\",\"client_secret_env\":\"DIAMOND_GOOGLE_SECRET\"},\"github\":{\"client_id\":\"replace-with-client-id\",\"client_secret_env\":\"DIAMOND_GITHUB_SECRET\"}},\"http\":{\"webhook\":{\"origin\":\"http://127.0.0.1:4000\",\"network\":\"loopback\",\"paths\":[\"/hooks/\"],\"methods\":[\"POST\"],\"credential_env\":\"DIAMOND_WEBHOOK_SECRET\",\"timeout_ms\":3000,\"max_response_bytes\":65536,\"max_redirects\":0}}}"
+export DIAMOND_RUNTIME="{\"objects\":\"$PWD/.diamond/forge/objects\",\"git\":{\"repos\":{\"root\":\"$PWD/.diamond/forge/git\",\"executable\":\"/usr/bin/git\"}},\"delivery\":{\"builds\":{\"root\":\"$PWD/.diamond/forge/delivery\",\"sandbox\":\"/usr/bin/systemd-run\",\"limit\":\"/usr/bin/prlimit\"}},\"operations\":{\"control\":{\"root\":\"$PWD/.diamond/forge/operations\"}},\"oauth\":{\"transaction_key_env\":\"DIAMOND_OAUTH_KEY\",\"google\":{\"client_id\":\"replace-with-client-id\",\"client_secret_env\":\"DIAMOND_GOOGLE_SECRET\"},\"github\":{\"client_id\":\"replace-with-client-id\",\"client_secret_env\":\"DIAMOND_GITHUB_SECRET\"}},\"http\":{\"webhook\":{\"origin\":\"http://127.0.0.1:4000\",\"network\":\"loopback\",\"paths\":[\"/hooks/\"],\"methods\":[\"POST\"],\"credential_env\":\"DIAMOND_WEBHOOK_SECRET\",\"timeout_ms\":3000,\"max_response_bytes\":65536,\"max_redirects\":0}}}"
 
 diamond project-init examples/git-browser/diamond.toml --postgres-env DIAMOND_POSTGRES
 diamond project-files-init examples/git-browser/diamond.toml \
@@ -39,6 +41,8 @@ diamond project-files-init examples/git-browser/diamond.toml \
 diamond project-git-init examples/git-browser/diamond.toml \
   --postgres-env DIAMOND_POSTGRES --runtime-env DIAMOND_RUNTIME
 diamond project-delivery-init examples/git-browser/diamond.toml \
+  --postgres-env DIAMOND_POSTGRES --runtime-env DIAMOND_RUNTIME
+diamond project-ops-init examples/git-browser/diamond.toml \
   --postgres-env DIAMOND_POSTGRES --runtime-env DIAMOND_RUNTIME
 diamond project-admin-add examples/git-browser/diamond.toml \
   --postgres-env DIAMOND_POSTGRES --user alice --email alice@example.test
@@ -186,6 +190,41 @@ diamond project-pages-serve examples/git-browser/diamond.toml \
 The `docs` site above is available at `http://127.0.0.1:3001/docs/`. Put the
 Pages listener on a distinct public origin in production.
 
+## Run the G4 operations plane
+
+Every web process registers a random node ID in shared PostgreSQL and refreshes
+its heartbeat. Start multiple `diamond serve` processes against the same
+database and runtime stores, placing each on a different loopback port behind a
+proxy. Sessions, authorization, rate counters, tasks, and node drain state are
+shared; request memory and concurrency remain bounded per process.
+
+The **Scale & recovery** route exposes the checked `operations-v1` adapter. Its
+fixed operations can rebuild the search index, record shards and placements,
+create exact-object mirror tasks, hold delivery objects, run bounded GC, record
+backup/restore evidence, drain a node with a compare-and-swap generation, and
+inspect redacted audit state. It does not expose SQL, paths, commands, or process
+authority to Diamond code. Run one durable task per supervised invocation:
+
+```sh
+diamond project-ops-work examples/git-browser/diamond.toml \
+  --postgres-env DIAMOND_POSTGRES --runtime-env DIAMOND_RUNTIME
+```
+
+Search candidates are indexed by a native worker but reauthorized against the
+current repository policy on every result, so revocation does not wait for a
+reindex. Mirrors use stock Git, require the exact placed commit, reject symlink
+roots, run `git fsck --strict`, and record verification before an administrator
+can queue automatic promotion. Promotion and receive-pack share a repository
+fence; subsequent HTTP, SSH, LFS, and checked repository reads resolve the new
+placement, while signed hook claims reject a stale owner or generation. GC preserves every database reference and explicit
+hold, honors the grace window, and removes at most 1,000 objects per task.
+
+G4 recovery streams PostgreSQL and all shared-object, Git, delivery, and operations
+roots into a bounded encrypted snapshot. Restore accepts only empty isolated roots,
+verifies ciphertext and per-file hashes before import, repairs restored Git hook
+paths, revokes old sessions and API credentials, and validates a routed clone from
+the promoted shard before the target is eligible for production traffic.
+
 ## Use the REST API and webhooks
 
 Create a short-lived token whose operation allowlist and organization or
@@ -223,6 +262,8 @@ diamond project-git-reconcile examples/git-browser/diamond.toml \
   calls, issues, reviews, and the three-stage merge flow.
 - `ui.dia` defines reactive state, events, routes, forms, file operations, and
   accessible status output.
+- `operations.dia` keeps the larger scale/recovery console in its own bounded
+  browser component.
 - `diamond.toml` binds modules, least-authority capabilities, PostgreSQL
   resources, APIs, files, events, identity, and Git.
 - `git.css` supplies the responsive visual layout.
@@ -234,6 +275,12 @@ REST, stock Git, LFS, webhook, PostgreSQL, and recovery interfaces and writes
 and SSH campaigns are `verification/git_foundation_redteam.py` and
 `verification/git_policy_ssh_redteam.py`. They create disposable databases and
 repositories and never target a production deployment.
+
+The G4 scale, routing, and recovery replay is
+`python3 verification/git_scale_recovery_redteam.py`. It starts two real web
+nodes and concurrent workers, uses stock Git, and attacks search revocation,
+replica roots, promotion/reconciliation races, stale generations, shared limits,
+object holds, node drain, encrypted backup tampering, and isolated restore.
 
 SSH deployment, protected-ref semantics, shard promotion, and the complete
 runtime command reference are documented in the root `README.md`.

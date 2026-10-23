@@ -203,6 +203,46 @@ impl Store {
         Ok(store)
     }
 
+    fn open_for_repository(
+        database: &mut PostgresStore,
+        grants: &crate::RuntimeGrants,
+        binding: &str,
+        repository: &str,
+    ) -> Result<(Self, String, i64)> {
+        let Some(route) = super::operations::git_route(database, grants, binding, repository)?
+        else {
+            let store = Self::open(database, grants, binding, false)?;
+            return Ok((store, String::new(), 0));
+        };
+        let grant = grants.git.get(binding).ok_or(Error::Denied)?;
+        executable(&grant.executable)?;
+        private_directory(&route.root)?;
+        if store_identity(&route.root.join(MARKER))? != route.store_identity {
+            return Err(input("Git shard identity mismatch"));
+        }
+        let rows = database.connection.query(
+            "SELECT generation FROM diamond_git.stores WHERE app=$1 AND binding=$2",
+            &[&database.app, &binding],
+        )?;
+        if rows.len() != 1 {
+            return Err(Error::Denied);
+        }
+        let generation = rows[0].try_get::<_, i64>(0).map_err(|_| Error::Denied)?;
+        if generation <= 0 {
+            return Err(Error::Denied);
+        }
+        let store = Self {
+            root: route.root,
+            executable: grant.executable.clone(),
+            identity: route.store_identity,
+            generation,
+            app: database.app.clone(),
+            binding: binding.to_owned(),
+        };
+        store.verify()?;
+        Ok((store, route.shard, route.placement_generation))
+    }
+
     fn verify(&self) -> Result<()> {
         private_directory(&self.root)?;
         executable(&self.executable)?;
@@ -782,11 +822,13 @@ pub(super) struct Transport {
     pub(super) repository_id: String,
     pub(super) identity: String,
     pub(super) generation: i64,
+    pub(super) shard: String,
+    pub(super) placement_generation: i64,
     pub(super) app: String,
     pub(super) binding: String,
     pub(super) actor: String,
     pub(super) actor_kind: String,
-    pub(super) fence: Option<ReceiveFence>,
+    pub(super) fences: Vec<ReceiveFence>,
 }
 
 pub(super) fn lfs_object_path(transport: &Transport, oid: &str) -> Result<PathBuf> {
@@ -837,12 +879,19 @@ fn receive_fence(
     configuration: &str,
     app: &str,
     binding: &str,
+    repository: Option<&str>,
     shared: bool,
 ) -> Result<ReceiveFence> {
-    if !valid_app(app) || !super::resolve::identifier(binding) {
+    if !valid_app(app)
+        || !super::resolve::identifier(binding)
+        || repository.is_some_and(|value| !crate::auth::valid_id(value))
+    {
         return Err(Error::Denied);
     }
-    let key = format!("diamond-git:{app}:{binding}");
+    let key = match repository {
+        Some(repository) => repository_fence_key(app, binding, repository)?,
+        None => binding_fence_key(app, binding)?,
+    };
     let configuration = zeroize::Zeroizing::new(configuration.to_owned());
     let (ready_send, ready_receive) = std::sync::mpsc::sync_channel(1);
     let (release_send, release_receive) = std::sync::mpsc::channel();
@@ -916,7 +965,7 @@ pub(super) fn promote(
         return Err(Error::Denied);
     }
     let app = artifact::hash(project.manifest.name.as_bytes());
-    let _fence = receive_fence(configuration, &app, binding, false)?;
+    let _fence = receive_fence(configuration, &app, binding, None, false)?;
     let grant = grants.git.get(binding).ok_or(Error::Denied)?;
     validate_grant(grant)?;
     let marker = grant.root.join(MARKER);
@@ -943,6 +992,10 @@ pub(super) fn promote(
     {
         return database.finish_request(Err(Error::Conflict));
     }
+    let prior_identity = rows[0]
+        .try_get::<_, Option<String>>(0)
+        .map_err(|_| Error::Denied)?
+        .ok_or(Error::Conflict)?;
     let store = Store {
         root: grant.root.clone(),
         executable: grant.executable.clone(),
@@ -968,6 +1021,12 @@ pub(super) fn promote(
         return database.finish_request(Err(Error::Conflict));
     }
     File::open(&store.root)?.sync_all()?;
+    super::operations::replace_primary_store_identity(
+        &mut database,
+        binding,
+        &prior_identity,
+        &identity,
+    )?;
     let changed = database.connection.query(
         "UPDATE diamond_git.stores SET identity=$4,generation=$3 WHERE app=$1 AND binding=$2 AND generation=$5 RETURNING generation",
         &[&database.app, &binding, &generation, &identity, &expected_generation],
@@ -1130,32 +1189,38 @@ pub(super) fn reconcile_events(
     let mut remove = Vec::new();
     for binding in git.bindings.keys() {
         let fence_app = database.app.clone();
-        let _fence = receive_fence(configuration, &fence_app, binding, false)?;
-        let store = Store::open(&mut database, grants, binding, false)?;
-        let mut entries = fs::read_dir(store.event_path())?.collect::<std::io::Result<Vec<_>>>()?;
-        if entries.len() > 2048 {
-            return database.finish_request(Err(Error::Limit("Git event spool files")));
-        }
-        entries.sort_by_key(fs::DirEntry::file_name);
-        for entry in entries {
-            let (nonce, is_prepared, mut path, event) =
-                read_reconciliation_event(&database, binding, &entry)?;
-            if is_prepared {
-                prepared += 1;
-                if let Some(committed_path) =
-                    recover_prepared_event(&mut database, &store, &nonce, &path, &event)?
-                {
-                    path = committed_path;
-                } else {
-                    remove.push((store.event_path(), path));
-                    continue;
-                }
+        let _fence = receive_fence(configuration, &fence_app, binding, None, false)?;
+        let (stores, inventory) = active_routed_state(&mut database, grants, binding)?;
+        let mut spool_files = 0_usize;
+        for store in stores {
+            let mut entries =
+                fs::read_dir(store.event_path())?.collect::<std::io::Result<Vec<_>>>()?;
+            spool_files = spool_files
+                .checked_add(entries.len())
+                .ok_or(Error::Denied)?;
+            if spool_files > 2048 {
+                return database.finish_request(Err(Error::Limit("Git event spool files")));
             }
-            persist_reconciled_event(&mut database, &event)?;
-            committed += 1;
-            remove.push((store.event_path(), path));
+            entries.sort_by_key(fs::DirEntry::file_name);
+            for entry in entries {
+                let (nonce, is_prepared, mut path, event) =
+                    read_reconciliation_event(&database, binding, &entry)?;
+                if is_prepared {
+                    prepared += 1;
+                    if let Some(committed_path) =
+                        recover_prepared_event(&mut database, &store, &nonce, &path, &event)?
+                    {
+                        path = committed_path;
+                    } else {
+                        remove.push((store.event_path(), path));
+                        continue;
+                    }
+                }
+                persist_reconciled_event(&mut database, &event)?;
+                committed += 1;
+                remove.push((store.event_path(), path));
+            }
         }
-        let inventory = store_inventory(&store)?;
         replace_database_inventory(&mut database, binding, &inventory)?;
     }
     database.finish_request(Ok(()))?;
@@ -1164,6 +1229,74 @@ pub(super) fn reconcile_events(
         File::open(directory)?.sync_all()?;
     }
     Ok(serde_json::json!({"committed":committed,"prepared":prepared}).to_string())
+}
+
+fn active_routed_state(
+    database: &mut PostgresStore,
+    grants: &crate::RuntimeGrants,
+    binding: &str,
+) -> Result<(Vec<Store>, GitInventory)> {
+    let primary = Store::open(database, grants, binding, false)?;
+    let mut stores = BTreeMap::from([(primary.root.clone(), primary)]);
+    let rows = database.connection.query(
+        "SELECT repository FROM diamond_git.repositories WHERE app=$1 AND binding=$2 ORDER BY repository LIMIT 10001",
+        &[&database.app, &binding],
+    )?;
+    if rows.len() > 10_000 {
+        return Err(Error::Limit("Git repository inventory"));
+    }
+    let mut inventory = GitInventory::default();
+    for row in rows {
+        let repository: String = row.try_get(0).map_err(|_| Error::Denied)?;
+        let (store, _, _) = Store::open_for_repository(database, grants, binding, &repository)?;
+        let repository_inventory = one_repository_inventory(&store, &repository)?;
+        inventory.repositories.insert(repository);
+        inventory.refs.extend(repository_inventory);
+        if inventory.refs.len() > 100_000 {
+            return Err(Error::Limit("Git ref inventory"));
+        }
+        stores.entry(store.root.clone()).or_insert(store);
+    }
+    Ok((stores.into_values().collect(), inventory))
+}
+
+fn one_repository_inventory(
+    store: &Store,
+    repository: &str,
+) -> Result<BTreeSet<(String, String, String)>> {
+    let path = store.repository_path(repository)?;
+    if path.canonicalize()? != path {
+        return Err(Error::Denied);
+    }
+    store.require_repository(&path)?;
+    let output = store.run(
+        &[
+            "--git-dir".into(),
+            path.as_os_str().to_owned(),
+            "for-each-ref".into(),
+            "--format=%(refname) %(objectname)".into(),
+            "refs/heads".into(),
+            "refs/tags".into(),
+        ],
+        OUTPUT_LIMIT,
+    )?;
+    let mut refs = BTreeSet::new();
+    for line in text(&output)?.lines() {
+        if refs.len() >= 100_000 {
+            return Err(Error::Limit("Git ref inventory"));
+        }
+        let (reference, object) = line.split_once(' ').ok_or(Error::Denied)?;
+        valid_reference(reference)?;
+        if !valid_oid(object) {
+            return Err(Error::Denied);
+        }
+        refs.insert((
+            repository.to_owned(),
+            reference.to_owned(),
+            object.to_owned(),
+        ));
+    }
+    Ok(refs)
 }
 
 fn read_reconciliation_event(
@@ -1186,7 +1319,8 @@ fn read_reconciliation_event(
     let path = entry.path();
     let bytes = read_private_file(&path, 600 * 1024)?;
     let event: SpoolEvent = super::wire::strict_from_slice(&bytes).map_err(|_| Error::Denied)?;
-    if event.claim.nonce != nonce
+    if event.claim.version != 3
+        || event.claim.nonce != nonce
         || event.claim.app != database.app
         || event.claim.binding != binding
         || !crate::auth::valid_id(&event.claim.repository)
@@ -1196,6 +1330,9 @@ fn read_reconciliation_event(
             "user" | "deploy" | "certificate"
         )
         || event.claim.store_generation <= 0
+        || !(event.claim.shard.is_empty() && event.claim.placement_generation == 0
+            || super::resolve::identifier(&event.claim.shard)
+                && event.claim.placement_generation > 0)
         || event.updates.is_empty()
         || event.updates.len() > 256
     {
@@ -1421,7 +1558,22 @@ pub(super) fn authorize_transport(
             |value| Scope::restricted(principal, &effects, &value.restrictions, false),
         );
         database.attachment(&scope, &config.resource, request.repository, request.write)?;
-        let store = Store::open(&mut database, grants, request.binding, false)?;
+        let fences = if request.write {
+            vec![
+                receive_fence(configuration, &database.app, request.binding, None, true)?,
+                receive_fence(
+                    configuration,
+                    &database.app,
+                    request.binding,
+                    Some(request.repository),
+                    false,
+                )?,
+            ]
+        } else {
+            Vec::new()
+        };
+        let (store, shard, placement_generation) =
+            Store::open_for_repository(&mut database, grants, request.binding, request.repository)?;
         let path = store.repository_path(request.repository)?;
         if path.canonicalize()? != path {
             return Err(Error::Denied);
@@ -1432,16 +1584,6 @@ pub(super) fn authorize_transport(
             .and_then(std::ffi::OsStr::to_str)
             .ok_or(Error::Denied)?
             .to_owned();
-        let fence = if request.write {
-            Some(receive_fence(
-                configuration,
-                &store.app,
-                &store.binding,
-                false,
-            )?)
-        } else {
-            None
-        };
         Ok(Transport {
             executable: store.executable,
             root: store.root,
@@ -1449,11 +1591,13 @@ pub(super) fn authorize_transport(
             repository_id: request.repository.to_owned(),
             identity: store.identity,
             generation: store.generation,
+            shard,
+            placement_generation,
             app: store.app,
             binding: store.binding,
             actor: principal.id().unwrap_or_default().to_owned(),
             actor_kind: "user".into(),
-            fence,
+            fences,
         })
     })();
     database.finish_request(result)
@@ -1616,7 +1760,22 @@ fn authorize_ssh_transport(
                 (id.clone(), (*kind).to_owned())
             }
         };
-        let store = Store::open(&mut database, grants, binding, false)?;
+        let fences = if write {
+            vec![
+                receive_fence(configuration, &database.app, binding, None, true)?,
+                receive_fence(
+                    configuration,
+                    &database.app,
+                    binding,
+                    Some(repository),
+                    false,
+                )?,
+            ]
+        } else {
+            Vec::new()
+        };
+        let (store, shard, placement_generation) =
+            Store::open_for_repository(&mut database, grants, binding, repository)?;
         let path = store.repository_path(repository)?;
         if path.canonicalize()? != path {
             return Err(Error::Denied);
@@ -1627,16 +1786,6 @@ fn authorize_ssh_transport(
             .and_then(std::ffi::OsStr::to_str)
             .ok_or(Error::Denied)?
             .to_owned();
-        let fence = if write {
-            Some(receive_fence(
-                configuration,
-                &store.app,
-                &store.binding,
-                false,
-            )?)
-        } else {
-            None
-        };
         Ok(Transport {
             executable: store.executable,
             root: store.root,
@@ -1644,11 +1793,13 @@ fn authorize_ssh_transport(
             repository_id: repository.to_owned(),
             identity: store.identity,
             generation: store.generation,
+            shard,
+            placement_generation,
             app: store.app,
             binding: store.binding,
             actor,
             actor_kind,
-            fence,
+            fences,
         })
     })();
     database.finish_request(result)
@@ -1806,6 +1957,8 @@ struct PolicyClaim {
     actor: String,
     actor_kind: String,
     store_generation: i64,
+    shard: String,
+    placement_generation: i64,
     nonce: String,
     expires: u64,
 }
@@ -1820,13 +1973,15 @@ pub(super) fn policy_environment(transport: &Transport) -> Result<PolicyEnvironm
         return Err(Error::Unauthenticated);
     }
     let claim = PolicyClaim {
-        version: 2,
+        version: 3,
         app: transport.app.clone(),
         binding: transport.binding.clone(),
         repository: transport.repository_id.clone(),
         actor: transport.actor.clone(),
         actor_kind: transport.actor_kind.clone(),
         store_generation: transport.generation,
+        shard: transport.shard.clone(),
+        placement_generation: transport.placement_generation,
         nonce: crate::authority::random_hex()?,
         expires: unix_time()?.saturating_add(20 * 60),
     };
@@ -1897,7 +2052,8 @@ pub(crate) fn protect(
     ]);
     let adapter_scope = Scope::new(scope.principal(), &effects);
     database.attachment(&adapter_scope, &config.resource, request.repository, true)?;
-    let store = Store::open(database, grants, request.binding, false)?;
+    let (store, _, _) =
+        Store::open_for_repository(database, grants, request.binding, request.repository)?;
     let path = store.repository_path(request.repository)?;
     if path.canonicalize()? != path {
         return Err(Error::Denied);
@@ -1994,7 +2150,7 @@ fn authorize_repository_write(
     ]);
     let adapter_scope = Scope::new(scope.principal(), &effects);
     database.attachment(&adapter_scope, &config.resource, repository, true)?;
-    let store = Store::open(database, grants, binding, false)?;
+    let (store, _, _) = Store::open_for_repository(database, grants, binding, repository)?;
     let path = store.repository_path(repository)?;
     if path.canonicalize()? != path {
         return Err(Error::Denied);
@@ -2250,6 +2406,20 @@ fn persist_committed_event(
                     &[&claim.app, &claim.binding, &claim.repository, &update.reference, &update.new],
                 )?;
             }
+            if update.reference == "refs/heads/main" && !claim.shard.is_empty() {
+                let object = if update.new.bytes().all(|byte| byte == b'0') {
+                    ""
+                } else {
+                    update.new.as_str()
+                };
+                let placement = database.query(
+                    "UPDATE diamond_g4_ops.placements SET object=$4,updated=clock_timestamp() WHERE app=$1 AND binding=(SELECT binding FROM diamond_g4_ops.stores WHERE app=$1 AND git_binding=$2) AND repository=$3 AND shard=$5 AND generation=$6 RETURNING repository",
+                    &[&claim.app, &claim.binding, &claim.repository, &object, &claim.shard, &claim.placement_generation],
+                )?;
+                if placement.len() != 1 {
+                    return Err(Error::Conflict);
+                }
+            }
         }
         Ok(())
     })();
@@ -2288,13 +2458,15 @@ fn hook_request(
     let claim: PolicyClaim =
         super::wire::strict_from_slice(&claim_bytes).map_err(|_| Error::Denied)?;
     let now = unix_time()?;
-    if claim.version != 2
+    if claim.version != 3
         || !valid_app(&claim.app)
         || !super::resolve::identifier(&claim.binding)
         || !crate::auth::valid_id(&claim.repository)
         || !valid_actor(&claim.actor)
         || !matches!(claim.actor_kind.as_str(), "user" | "deploy" | "certificate")
         || claim.store_generation <= 0
+        || !(claim.shard.is_empty() && claim.placement_generation == 0
+            || super::resolve::identifier(&claim.shard) && claim.placement_generation > 0)
         || !valid_identity(&claim.nonce)
         || now > claim.expires
         || claim.expires.saturating_sub(now) > 20 * 60
@@ -2461,14 +2633,44 @@ fn enforce_updates(configuration: &str, claim: &PolicyClaim, updates: &[RefUpdat
     let root = PathBuf::from(required_environment("DIAMOND_GIT_STORE_ROOT")?);
     let identity = store_identity(&root.join(MARKER))?;
     if stores.len() != 1
-        || stores[0]
+        || stores[0].try_get::<_, i64>(1).map_err(|_| Error::Denied)? != claim.store_generation
+    {
+        return Err(Error::Denied);
+    }
+    if claim.shard.is_empty() {
+        if stores[0]
             .try_get::<_, Option<String>>(0)
             .map_err(|_| Error::Denied)?
             .as_deref()
             != Some(identity.as_str())
-        || stores[0].try_get::<_, i64>(1).map_err(|_| Error::Denied)? != claim.store_generation
-    {
-        return Err(Error::Denied);
+        {
+            return Err(Error::Denied);
+        }
+    } else {
+        let placements = database.query(
+            "SELECT p.shard,p.generation,s.identity,s.state FROM diamond_g4_ops.stores o JOIN diamond_g4_ops.placements p ON p.app=o.app AND p.binding=o.binding JOIN diamond_g4_ops.shards s ON s.app=p.app AND s.binding=p.binding AND s.id=p.shard WHERE o.app=$1 AND o.git_binding=$2 AND p.repository=$3",
+            &[&claim.app, &claim.binding, &claim.repository],
+        )?;
+        if placements.len() != 1
+            || placements[0]
+                .try_get::<_, String>(0)
+                .map_err(|_| Error::Denied)?
+                != claim.shard
+            || placements[0]
+                .try_get::<_, i64>(1)
+                .map_err(|_| Error::Denied)?
+                != claim.placement_generation
+            || placements[0]
+                .try_get::<_, String>(2)
+                .map_err(|_| Error::Denied)?
+                != identity
+            || placements[0]
+                .try_get::<_, String>(3)
+                .map_err(|_| Error::Denied)?
+                != "active"
+        {
+            return Err(Error::Conflict);
+        }
     }
     let administrator = authorize_claim_actor(&mut database, claim)?;
     let rules = load_protection_rules(&mut database, claim)?;
@@ -3078,6 +3280,75 @@ pub(super) fn validate(
     database.finish_request(Ok(()))
 }
 
+pub(super) fn repair_after_restore(
+    project: &CheckedProject,
+    configuration: &str,
+    grants: &crate::RuntimeGrants,
+) -> Result<()> {
+    let git = project.manifest.git.as_ref().ok_or(Error::Denied)?;
+    let mut database = PostgresStore::open_control(project, configuration, None)?;
+    for binding in git.bindings.keys() {
+        let primary = Store::open(&mut database, grants, binding, false)?;
+        primary.install_hook()?;
+        repair_store_repositories(&primary)?;
+        let repositories = database.connection.query(
+            "SELECT repository FROM diamond_git.repositories WHERE app=$1 AND binding=$2 ORDER BY repository LIMIT 10001",
+            &[&database.app, &binding],
+        )?;
+        if repositories.len() > 10_000 {
+            return database.finish_request(Err(Error::Limit("Git repository inventory")));
+        }
+        for row in repositories {
+            let repository: String = row.try_get(0).map_err(|_| Error::Denied)?;
+            let (store, _, _) =
+                Store::open_for_repository(&mut database, grants, binding, &repository)?;
+            store.install_hook()?;
+            let path = store.repository_path(&repository)?;
+            if path.canonicalize()? != path {
+                return database.finish_request(Err(Error::Denied));
+            }
+            store.configure_repository(&path)?;
+            store.require_repository(&path)?;
+            store.run_repo(&path, &["fsck", "--strict"], OUTPUT_LIMIT)?;
+        }
+    }
+    database.finish_request(Ok(()))
+}
+
+fn repair_store_repositories(store: &Store) -> Result<()> {
+    let prefix = format!("{}-{}-", store.app, store.binding);
+    let mut count = 0_usize;
+    for entry in fs::read_dir(&store.root)? {
+        let entry = entry?;
+        let Some(name) = entry.file_name().to_str().map(ToOwned::to_owned) else {
+            return Err(Error::Denied);
+        };
+        if matches!(
+            name.as_str(),
+            MARKER | ".diamond-hooks" | ".diamond-events" | ".diamond-lfs"
+        ) {
+            continue;
+        }
+        let repository = name
+            .strip_prefix(&prefix)
+            .and_then(|value| value.strip_suffix(".git"))
+            .filter(|value| crate::auth::valid_id(value))
+            .ok_or(Error::Denied)?;
+        count += 1;
+        if count > 10_000 {
+            return Err(Error::Limit("Git repository inventory"));
+        }
+        let path = store.repository_path(repository)?;
+        if !entry.file_type()?.is_dir() || path != entry.path() || path.canonicalize()? != path {
+            return Err(Error::Denied);
+        }
+        store.configure_repository(&path)?;
+        store.require_repository(&path)?;
+        store.run_repo(&path, &["fsck", "--strict"], OUTPUT_LIMIT)?;
+    }
+    Ok(())
+}
+
 #[derive(Clone, Copy)]
 pub(crate) struct Query<'a> {
     pub(crate) binding: &'a str,
@@ -3112,18 +3383,22 @@ pub(crate) fn call(
         query.repository,
         query.write,
     )?;
-    let store = Store::open(database, grants, query.binding, false)?;
     if query.write {
         if query.operation != "create" {
             return Err(Error::Denied);
         }
+        binding_transaction_fence(database, query.binding)?;
+        let store = Store::open(database, grants, query.binding, false)?;
         let created = store.create(query.repository)?;
         database.connection.query(
             "INSERT INTO diamond_git.repositories(app,binding,repository) VALUES($1,$2,$3) ON CONFLICT DO NOTHING",
             &[&database.app, &query.binding, &query.repository],
         )?;
+        super::operations::place_primary(database, grants, query.binding, query.repository)?;
         Ok(created)
     } else {
+        let (store, _, _) =
+            Store::open_for_repository(database, grants, query.binding, query.repository)?;
         if query.operation == "integration" {
             let repository = store.repository_path(query.repository)?;
             if repository.canonicalize()? != repository {
@@ -3194,19 +3469,23 @@ pub(crate) fn fork(
         target_repository,
         true,
     )?;
-    let store = Store::open(database, grants, binding, false)?;
-    let source = store.repository_path(source_repository)?;
-    let target = store.repository_path(target_repository)?;
+    binding_transaction_fence(database, binding)?;
+    let (source_store, _, _) =
+        Store::open_for_repository(database, grants, binding, source_repository)?;
+    let target_store = Store::open(database, grants, binding, false)?;
+    let source = source_store.repository_path(source_repository)?;
+    let target = target_store.repository_path(target_repository)?;
     if source.canonicalize()? != source {
         return Err(Error::Denied);
     }
-    store.require_repository(&source)?;
-    let state = create_fork_repository(&store, &source, &target)?;
+    source_store.require_repository(&source)?;
+    let state = create_fork_repository(&target_store, &source, &target)?;
     database.connection.query(
         "INSERT INTO diamond_git.repositories(app,binding,repository) VALUES($1,$2,$3) ON CONFLICT DO NOTHING",
         &[&database.app, &binding, &target_repository],
     )?;
-    record_fork_references(database, &store, binding, target_repository, &target)?;
+    super::operations::place_primary(database, grants, binding, target_repository)?;
+    record_fork_references(database, &target_store, binding, target_repository, &target)?;
     Ok(state.into())
 }
 
@@ -3328,12 +3607,14 @@ pub(crate) fn merge(
     ]);
     let adapter_scope = Scope::new(scope.principal(), &effects);
     database.attachment(&adapter_scope, &config.resource, request.repository, true)?;
-    let lock = format!("diamond-git:{}:{}", database.app, request.binding);
+    binding_transaction_fence(database, request.binding)?;
+    let lock = repository_fence_key(&database.app, request.binding, request.repository)?;
     database.connection.query(
         "SELECT pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended($1,0))",
         &[&lock],
     )?;
-    let store = Store::open(database, grants, request.binding, false)?;
+    let (store, shard, placement_generation) =
+        Store::open_for_repository(database, grants, request.binding, request.repository)?;
     let repository = store.repository_path(request.repository)?;
     if repository.canonicalize()? != repository {
         return Err(Error::Denied);
@@ -3361,13 +3642,15 @@ pub(crate) fn merge(
         return Err(Error::Denied);
     }
     let claim = PolicyClaim {
-        version: 2,
+        version: 3,
         app: database.app.clone(),
         binding: request.binding.to_owned(),
         repository: request.repository.to_owned(),
         actor: actor.to_owned(),
         actor_kind: "user".into(),
         store_generation: store.generation,
+        shard,
+        placement_generation,
         nonce: crate::authority::random_hex()?,
         expires: unix_time()?.saturating_add(20 * 60),
     };
@@ -3542,12 +3825,149 @@ fn persist_application_merge(
         "INSERT INTO diamond_git.ref_states(app,binding,repository,reference,object) VALUES($1,$2,$3,$4,$5) ON CONFLICT(app,binding,repository,reference) DO UPDATE SET object=EXCLUDED.object",
         &[&claim.app, &claim.binding, &claim.repository, &update.reference, &update.new],
     )?;
+    if update.reference == "refs/heads/main" && !claim.shard.is_empty() {
+        let rows = database.connection.query(
+            "UPDATE diamond_g4_ops.placements SET object=$4,updated=clock_timestamp() WHERE app=$1 AND binding=(SELECT binding FROM diamond_g4_ops.stores WHERE app=$1 AND git_binding=$2) AND repository=$3 AND shard=$5 AND generation=$6 RETURNING repository",
+            &[&claim.app, &claim.binding, &claim.repository, &update.new, &claim.shard, &claim.placement_generation],
+        )?;
+        if rows.len() != 1 {
+            return Err(Error::Conflict);
+        }
+    }
     Ok(())
 }
 
-fn validate_grant(grant: &GitGrant) -> Result<()> {
+pub(crate) fn validate_grant(grant: &GitGrant) -> Result<()> {
     private_directory(&grant.root)?;
     executable(&grant.executable)
+}
+
+pub(super) fn repository_fence_key(app: &str, binding: &str, repository: &str) -> Result<String> {
+    if !valid_app(app) || !super::resolve::identifier(binding) || !crate::auth::valid_id(repository)
+    {
+        return Err(Error::Denied);
+    }
+    Ok(format!(
+        "diamond-git-repository:{app}:{binding}:{repository}"
+    ))
+}
+
+pub(super) fn binding_fence_key(app: &str, binding: &str) -> Result<String> {
+    if !valid_app(app) || !super::resolve::identifier(binding) {
+        return Err(Error::Denied);
+    }
+    Ok(format!("diamond-git:{app}:{binding}"))
+}
+
+fn binding_transaction_fence(database: &mut PostgresStore, binding: &str) -> Result<()> {
+    let key = binding_fence_key(&database.app, binding)?;
+    database.connection.query(
+        "SELECT pg_catalog.pg_advisory_xact_lock_shared(pg_catalog.hashtextextended($1,0))",
+        &[&key],
+    )?;
+    Ok(())
+}
+
+pub(super) fn primary_store_identity(
+    grants: &crate::RuntimeGrants,
+    binding: &str,
+) -> Result<String> {
+    let grant = grants.git.get(binding).ok_or(Error::Denied)?;
+    validate_grant(grant)?;
+    store_identity(&grant.root.join(MARKER))
+}
+
+pub(super) fn prepare_shard_store(
+    database: &mut PostgresStore,
+    binding: &str,
+    executable_path: &Path,
+    root: &Path,
+    identity: &str,
+) -> Result<()> {
+    if !valid_identity(identity) || !super::resolve::identifier(binding) {
+        return Err(Error::Denied);
+    }
+    private_directory(root)?;
+    executable(executable_path)?;
+    let marker = root.join(MARKER);
+    if !marker.exists() {
+        let mut file = options().write(true).create_new(true).open(&marker)?;
+        file.write_all(identity.as_bytes())?;
+        file.sync_all()?;
+        File::open(root)?.sync_all()?;
+    }
+    if store_identity(&marker)? != identity {
+        return Err(input("Git shard identity changed"));
+    }
+    let rows = database.connection.query(
+        "SELECT generation FROM diamond_git.stores WHERE app=$1 AND binding=$2",
+        &[&database.app, &binding],
+    )?;
+    if rows.len() != 1 {
+        return Err(Error::Denied);
+    }
+    let generation = rows[0].try_get::<_, i64>(0).map_err(|_| Error::Denied)?;
+    let store = Store {
+        root: root.to_path_buf(),
+        executable: executable_path.to_path_buf(),
+        identity: identity.to_owned(),
+        generation,
+        app: database.app.clone(),
+        binding: binding.to_owned(),
+    };
+    store.install_hook()?;
+    store.verify()
+}
+
+pub(super) fn verify_shard_repository(
+    database: &mut PostgresStore,
+    binding: &str,
+    executable_path: &Path,
+    root: &Path,
+    identity: &str,
+    repository: &str,
+    expected_object: &str,
+) -> Result<()> {
+    prepare_shard_store(database, binding, executable_path, root, identity)?;
+    let rows = database.connection.query(
+        "SELECT generation FROM diamond_git.stores WHERE app=$1 AND binding=$2",
+        &[&database.app, &binding],
+    )?;
+    let generation = rows
+        .first()
+        .ok_or(Error::Denied)?
+        .try_get::<_, i64>(0)
+        .map_err(|_| Error::Denied)?;
+    let store = Store {
+        root: root.to_path_buf(),
+        executable: executable_path.to_path_buf(),
+        identity: identity.to_owned(),
+        generation,
+        app: database.app.clone(),
+        binding: binding.to_owned(),
+    };
+    let path = store.repository_path(repository)?;
+    if path.canonicalize()? != path {
+        return Err(Error::Denied);
+    }
+    let _removed_remote = store.run(
+        &[
+            "--git-dir".into(),
+            path.as_os_str().to_owned(),
+            "config".into(),
+            "--local".into(),
+            "--remove-section".into(),
+            "remote.origin".into(),
+        ],
+        16_384,
+    );
+    store.configure_repository(&path)?;
+    store.require_repository(&path)?;
+    store.run_repo(&path, &["fsck", "--strict", "--no-dangling"], OUTPUT_LIMIT)?;
+    if store.resolve(&path, "HEAD^{commit}")? != expected_object {
+        return Err(Error::Conflict);
+    }
+    Ok(())
 }
 
 fn private_directory(path: &Path) -> Result<()> {

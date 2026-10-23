@@ -3,6 +3,33 @@ use super::{
     Checker, Effect, Error, Expr, ExprKind, Location, Result, TransactionContext, Type, TypeName,
     resolve_type,
 };
+
+const OPERATIONS_QUERIES: &[&str] = &[
+    "search",
+    "nodes",
+    "shards",
+    "placements",
+    "tasks",
+    "mirrors",
+    "backups",
+    "restores",
+    "gc",
+    "policies",
+    "audit",
+];
+const OPERATIONS_COMMANDS: &[&str] = &[
+    "node_drain",
+    "shard_record",
+    "placement_record",
+    "mirror_schedule",
+    "promotion_schedule",
+    "search_schedule",
+    "gc_schedule",
+    "hold_set",
+    "backup_record",
+    "restore_record",
+    "policy_set",
+];
 impl Checker<'_> {
     pub(super) fn integration_call(
         &mut self,
@@ -95,6 +122,100 @@ impl Checker<'_> {
 }
 
 impl Checker<'_> {
+    pub(super) fn operations_call(
+        &mut self,
+        method: &str,
+        args: &[(Option<String>, Expr)],
+        types: &[TypeName],
+        location: Location,
+    ) -> Result<Type> {
+        if matches!(self.transaction_context, TransactionContext::Inside) {
+            return Err(Error::unsupported(
+                location,
+                "operations adapter call in a transaction",
+            ));
+        }
+        let Some(Expr {
+            kind: ExprKind::Text(binding),
+            ..
+        }) = args.first().map(|(_, expression)| expression)
+        else {
+            return Err(Error::diagnostic(
+                "D310",
+                location,
+                "operations binding requires a static name",
+            ));
+        };
+        let (arguments, generic, text_arguments, integer, admin) = match method {
+            "ops_command" => (7, 0, 6, 6, true),
+            "ops_query" => (4, 1, 3, 3, false),
+            "ops_rate" => (3, 0, 2, 2, false),
+            _ => return Err(Error::Denied),
+        };
+        if !crate::project::resolve::identifier(binding)
+            || args.len() != arguments
+            || types.len() != generic
+            || args.iter().any(|(name, _)| name.is_some())
+        {
+            return Err(Error::diagnostic(
+                "D310",
+                location,
+                "invalid registered operations signature",
+            ));
+        }
+        for (_, argument) in args.iter().take(text_arguments) {
+            if !Type::Text.accepts(&self.expr(argument)?) {
+                return Err(Error::diagnostic(
+                    "D310",
+                    location,
+                    "operations text argument mismatch",
+                ));
+            }
+        }
+        if !Type::Int.accepts(&self.expr(&args[integer].1)?) {
+            return Err(Error::diagnostic(
+                "D310",
+                location,
+                "operations integer argument mismatch",
+            ));
+        }
+        if method != "ops_rate" {
+            let Some(Expr {
+                kind: ExprKind::Text(operation),
+                ..
+            }) = args.get(1).map(|(_, expression)| expression)
+            else {
+                return Err(Error::diagnostic(
+                    "D310",
+                    location,
+                    "operations selector requires a static name",
+                ));
+            };
+            let allowed = if method == "ops_query" {
+                OPERATIONS_QUERIES
+            } else {
+                OPERATIONS_COMMANDS
+            };
+            if !allowed.contains(&operation.as_str()) {
+                return Err(Error::Denied);
+            }
+        }
+        self.effects.insert(Effect::Host(format!(
+            "Ops{}<{binding}>",
+            if admin { "Admin" } else { "Read" }
+        )));
+        let result = if method == "ops_query" {
+            let result = resolve_type(types.first().ok_or(Error::Denied)?, self.program, location)?;
+            if !crate::project::wire::safe_type(&result, self.program) {
+                return Err(Error::Denied);
+            }
+            result
+        } else {
+            Type::Text
+        };
+        Ok(Type::Result(Box::new(result)))
+    }
+
     pub(super) fn delivery_call(
         &mut self,
         method: &str,

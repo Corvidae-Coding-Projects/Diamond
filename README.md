@@ -396,14 +396,16 @@ closed.
 Initialize the Git store after the PostgreSQL schema:
 
 ```sh
-mkdir -m 700 /srv/diamond-git /srv/diamond-objects /srv/diamond-delivery
-export DIAMOND_RUNTIME='{"objects":"/srv/diamond-objects","git":{"repos":{"root":"/srv/diamond-git","executable":"/usr/bin/git"}},"delivery":{"builds":{"root":"/srv/diamond-delivery","sandbox":"/usr/bin/systemd-run","limit":"/usr/bin/prlimit"}},"http":{}}'
+mkdir -m 700 /srv/diamond-git /srv/diamond-objects /srv/diamond-delivery /srv/diamond-operations
+export DIAMOND_RUNTIME='{"objects":"/srv/diamond-objects","git":{"repos":{"root":"/srv/diamond-git","executable":"/usr/bin/git"}},"delivery":{"builds":{"root":"/srv/diamond-delivery","sandbox":"/usr/bin/systemd-run","limit":"/usr/bin/prlimit"}},"operations":{"control":{"root":"/srv/diamond-operations"}},"http":{}}'
 diamond project-init examples/git-browser/diamond.toml --postgres-env DIAMOND_POSTGRES
 diamond project-files-init examples/git-browser/diamond.toml \
   --postgres-env DIAMOND_POSTGRES --runtime-env DIAMOND_RUNTIME
 diamond project-git-init examples/git-browser/diamond.toml \
   --postgres-env DIAMOND_POSTGRES --runtime-env DIAMOND_RUNTIME
 diamond project-delivery-init examples/git-browser/diamond.toml \
+  --postgres-env DIAMOND_POSTGRES --runtime-env DIAMOND_RUNTIME
+diamond project-ops-init examples/git-browser/diamond.toml \
   --postgres-env DIAMOND_POSTGRES --runtime-env DIAMOND_RUNTIME
 ```
 
@@ -429,6 +431,32 @@ read-only executable mounts, no network, no host `/etc` or home view, and
 memory, task, file-size, and wall-time limits. Isolation failure fails the job.
 Artifact, OCI blob, and Pages responses stream in 64 KiB chunks; Pages is a
 separate cookie-free listener.
+
+The versioned `operations-v1` adapter adds checked `OpsRead<binding>` and
+`OpsAdmin<binding>` capabilities for shared node heartbeats and drain,
+policy-reauthorized global search, leased search/mirror/GC work, exact-object
+replica verification, shard/placement generations, object holds, recovery
+catalogs, shared rate buckets, and redacted audit queries. Initialize its private
+store with `project-ops-init`, then run one claim per worker invocation:
+
+```sh
+diamond project-ops-work examples/git-browser/diamond.toml \
+  --postgres-env DIAMOND_POSTGRES --runtime-env DIAMOND_RUNTIME
+```
+
+Diamond source chooses only fixed selectors and bounded values. It cannot choose
+SQL, a filesystem path, a Git executable, or a command line. Repository creation
+records the primary placement automatically. A verified mirror can be queued for
+promotion; the worker takes a repository-scoped fence, advances the placement
+generation, and all subsequent smart HTTP, SSH, LFS, and checked repository reads
+resolve the selected shard. Signed receive claims include the placement generation,
+so a late request against the previous owner fails closed.
+
+`project-backup` streams PostgreSQL and every declared shared-object, Git,
+delivery, and operations root into three private AES256-GnuPG artifacts. Restore
+requires an empty database and empty canonical roots, verifies all hashes before
+database import, repairs root-relative Git hook configuration, revokes sessions and
+API credentials, and validates the restored adapters before returning.
 
 Stock Git clients use the smart HTTP route
 `/_diamond/git/repos/REPOSITORY_ID.git`. Public read follows the resource
@@ -559,6 +587,7 @@ validation, backup, restore, and process supervision.
 | `diamond user-add --auth PATH --user NAME` | Add a local development account. |
 | `diamond project-init PROJECT --postgres-env NAME` | Initialize the current PostgreSQL profile. |
 | `diamond project-git-init ...` | Bind and initialize a private native Git store. |
+| `diamond project-ops-init/work ...` | Initialize G4 coordination and run one bounded search, mirror, or GC task. |
 | `diamond project-admin-add ...` | Provision the first connected-app administrator. |
 | `diamond project-work ...` | Run one restricted durable worker. |
 | `diamond project-deploy-check ...` | Validate capabilities and deployment configuration. |

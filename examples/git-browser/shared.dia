@@ -279,3 +279,26 @@ export type PageResults:
 
 export type EnvironmentResults:
   cards: List<EnvironmentCard>
+
+export type OperationsCard:
+  id: Text
+  one: Text
+  two: Text
+  three: Text
+  four: Text
+  five: Text
+
+export type OperationsResults:
+  cards: List<OperationsCard>
+  total: Int
+
+export type SearchCard:
+  id: Text
+  repository: Text
+  kind: Text
+  title: Text
+  body: Text
+
+export type SearchResults:
+  cards: List<SearchCard>
+  total: Int

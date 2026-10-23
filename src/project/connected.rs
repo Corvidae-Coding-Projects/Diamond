@@ -54,6 +54,7 @@ pub(super) struct Server {
     pub(super) sockets: Arc<Semaphore>,
     pub(super) draining: std::sync::atomic::AtomicBool,
     pub(super) requests: std::sync::atomic::AtomicU64,
+    pub(super) node_id: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -119,6 +120,7 @@ pub(super) fn serve_runtime(
     let objects = super::files::Store::open(project, configuration, &runtime, false)?;
     super::git::validate(project, configuration, &runtime)?;
     super::delivery::validate(project, configuration, &runtime)?;
+    super::operations::validate(project, configuration, &runtime)?;
     oauth::validate_runtime(project, &runtime)?;
     let authority = check_origin(origin)?;
     let mailbox = match (&project.manifest.identity, mailbox) {
@@ -132,6 +134,7 @@ pub(super) fn serve_runtime(
     };
     let mut store = PostgresStore::open(project, configuration, false)?;
     store.finish_request(Ok(()))?;
+    let node_id = register_web_node(project, configuration)?;
     let secrets = Arc::new(Secrets {
         configuration: Zeroizing::new(configuration.into()),
         dummy: Zeroizing::new(crate::accounts::hash_password(
@@ -144,6 +147,7 @@ pub(super) fn serve_runtime(
         sockets: Arc::new(Semaphore::new(32)),
         draining: std::sync::atomic::AtomicBool::new(false),
         requests: std::sync::atomic::AtomicU64::new(0),
+        node_id,
         mailbox,
         project: project.clone(),
         files: artifact::files(project)?
@@ -177,6 +181,36 @@ pub(super) fn serve_runtime(
     run(state, address)
 }
 
+fn register_web_node(project: &CheckedProject, configuration: &str) -> Result<Option<String>> {
+    let node = project
+        .manifest
+        .operations
+        .as_ref()
+        .map(|_| crate::authority::random_hex())
+        .transpose()?
+        .map(|value| format!("web_{}", &value[..16]));
+    if let Some(id) = &node {
+        for binding in project
+            .manifest
+            .operations
+            .as_ref()
+            .into_iter()
+            .flat_map(|config| config.bindings.keys())
+        {
+            super::operations::heartbeat(
+                project,
+                configuration,
+                binding,
+                id,
+                "web",
+                env!("CARGO_PKG_VERSION"),
+                16,
+            )?;
+        }
+    }
+    Ok(node)
+}
+
 fn run(state: Arc<Server>, address: SocketAddr) -> Result<()> {
     let runtime = tokio::runtime::Builder::new_multi_thread()
         .worker_threads(2)
@@ -190,6 +224,24 @@ fn run(state: Arc<Server>, address: SocketAddr) -> Result<()> {
             .with_state(Arc::clone(&state));
         eprintln!("Diamond connected server: {}", state.origin);
         let (stop, cleaner) = super::files::cleaner(Arc::clone(&state));
+        let (heartbeat_stop, mut heartbeat_stopped) = tokio::sync::watch::channel(false);
+        let heartbeat_state = Arc::clone(&state);
+        let heartbeat = tokio::spawn(async move {
+            let mut interval = tokio::time::interval(Duration::from_secs(10));
+            loop {
+                tokio::select! {
+                    _ = interval.tick() => {
+                        let current = Arc::clone(&heartbeat_state);
+                        let _joined = tokio::task::spawn_blocking(move || heartbeat_all(&current)).await;
+                    }
+                    changed = heartbeat_stopped.changed() => {
+                        if changed.is_err() || *heartbeat_stopped.borrow() {
+                            break;
+                        }
+                    }
+                }
+            }
+        });
         let draining_state = Arc::clone(&state);
         let result = axum::serve(
             listener,
@@ -205,6 +257,29 @@ fn run(state: Arc<Server>, address: SocketAddr) -> Result<()> {
         .map_err(Error::Io);
         let _sent = stop.send(());
         let _joined = cleaner.await;
+        let _heartbeat_sent = heartbeat_stop.send(true);
+        let _heartbeat_joined = heartbeat.await;
+        if let Some(node) = &state.node_id {
+            let project = state.project.clone();
+            let configuration = state.secrets.configuration.clone();
+            let node = node.clone();
+            let bindings = state
+                .project
+                .manifest
+                .operations
+                .as_ref()
+                .into_iter()
+                .flat_map(|config| config.bindings.keys())
+                .cloned()
+                .collect::<Vec<_>>();
+            let _offline = tokio::task::spawn_blocking(move || {
+                for binding in bindings {
+                    super::operations::offline(&project, &configuration, &binding, &node)?;
+                }
+                Ok::<(), Error>(())
+            })
+            .await;
+        }
         let _sockets = tokio::time::timeout(
             Duration::from_secs(5),
             Arc::clone(&state.sockets).acquire_many_owned(32),
@@ -217,6 +292,37 @@ fn run(state: Arc<Server>, address: SocketAddr) -> Result<()> {
     drop(runtime);
     drop(state);
     result
+}
+
+fn heartbeat_all(server: &Server) {
+    let Some(node) = &server.node_id else { return };
+    let mut active = true;
+    for binding in server
+        .project
+        .manifest
+        .operations
+        .as_ref()
+        .into_iter()
+        .flat_map(|config| config.bindings.keys())
+    {
+        match super::operations::heartbeat(
+            &server.project,
+            &server.secrets.configuration,
+            binding,
+            node,
+            "web",
+            env!("CARGO_PKG_VERSION"),
+            16,
+        ) {
+            Ok(true) => {}
+            Ok(false) | Err(_) => active = false,
+        }
+    }
+    if !active {
+        server
+            .draining
+            .store(true, std::sync::atomic::Ordering::Relaxed);
+    }
 }
 
 async fn handler(
@@ -438,18 +544,10 @@ fn work(
     body: &[u8],
     peer: &str,
 ) -> Result<(Json, Option<String>)> {
-    if server.project.manifest.identity.is_some() && !path.starts_with("/_diamond/rpc/") {
-        super::accounts::charge(
-            &server.project,
-            &server.secrets.configuration,
-            server.pool.as_ref(),
-            "auth",
-            peer,
-            &super::accounts::subject(path, body),
-        )?;
-        if !path.starts_with("/_diamond/rpc/") {
-            return profiles::account_work(server, path, token, csrf, body);
-        }
+    if server.project.manifest.identity.is_some()
+        && charge_request(server, path, token, body, peer)?
+    {
+        return profiles::account_work(server, path, token, csrf, body);
     }
     // Decode public input/contract before opening an application transaction.
     let decoded = if let Some(name) = path.strip_prefix("/_diamond/rpc/") {
@@ -535,6 +633,30 @@ fn work(
         &server.runtime,
     )?;
     Ok((json!({"value":value}), None))
+}
+
+fn charge_request(
+    server: &Server,
+    path: &str,
+    token: Option<&str>,
+    body: &[u8],
+    peer: &str,
+) -> Result<bool> {
+    let rpc = path.starts_with("/_diamond/rpc/");
+    let (class, subject) = if rpc {
+        ("api", token.unwrap_or("public").to_owned())
+    } else {
+        ("auth", super::accounts::subject(path, body))
+    };
+    super::accounts::charge(
+        &server.project,
+        &server.secrets.configuration,
+        server.pool.as_ref(),
+        class,
+        peer,
+        &subject,
+    )?;
+    Ok(!rpc)
 }
 
 pub(super) fn one_header<'a>(request: &'a Request, name: &str) -> Option<&'a str> {
@@ -653,12 +775,26 @@ pub(super) fn failure(error: &Error) -> Response {
             (StatusCode::SERVICE_UNAVAILABLE, "unavailable")
         }
         Error::Input(_) => (StatusCode::BAD_REQUEST, "invalid_input"),
-        Error::Limit("shared login rate" | "identity rate") => {
+        Error::Limit("shared login rate" | "identity rate" | "shared operations rate") => {
             (StatusCode::TOO_MANY_REQUESTS, "rate_limited")
         }
         _ => (StatusCode::SERVICE_UNAVAILABLE, "unavailable"),
     };
     let mut response = json_response(status, &json!({"error":code}));
+    if status.is_server_error() {
+        let class = match error {
+            Error::Postgres => "postgres",
+            Error::Database(_) => "database",
+            Error::Io(_) => "io",
+            Error::Limit(_) => "limit",
+            Error::OutcomeUnknown(_) => "outcome_unknown",
+            _ => "internal",
+        };
+        eprintln!(
+            "{}",
+            serde_json::json!({"event":"request_failure","class":class})
+        );
+    }
     if status == StatusCode::UNAUTHORIZED {
         response.headers_mut().insert(
             header::WWW_AUTHENTICATE,

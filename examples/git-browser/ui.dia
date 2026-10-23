@@ -355,7 +355,7 @@ export component GitForge:
   html:
     <main>
       <header class="masthead"><div><p class="eyebrow">DIAMOND FORGE</p><h1>Git collaboration without a heavyweight application stack</h1><p>Organizations, repositories, issues, reviews, and Git stay under one checked policy model.</p></div></header>
-      <nav aria-label="Primary"><a href="/">Repositories</a><a href="/collaboration">Collaboration</a><a href="/issues">Issues &amp; boards</a><a href="/merge-requests">Merge requests</a><a href="/delivery">CI &amp; delivery</a><a href="/knowledge">Wiki &amp; snippets</a><a href="/releases">Releases</a><a href="/activity">Activity</a><a href="/settings">Settings</a></nav>
+      <nav aria-label="Primary"><a href="/">Repositories</a><a href="/collaboration">Collaboration</a><a href="/issues">Issues &amp; boards</a><a href="/merge-requests">Merge requests</a><a href="/delivery">CI &amp; delivery</a><a href="/operations">Scale &amp; recovery</a><a href="/knowledge">Wiki &amp; snippets</a><a href="/releases">Releases</a><a href="/activity">Activity</a><a href="/settings">Settings</a></nav>
       <watch channel="repository_activity" parent={repository} into="activity" cursor="activity_cursor"></watch>
       <when test={pending}><p class="notice" role="status">Working…</p></when>
       <when test={error != ""}><p class="error" role="alert">{error}</p></when>
@@ -449,6 +449,9 @@ export component GitForge:
           <h3>OCI images</h3><ul class="cards"><each items={pipeline_images.cards} as="item" key={item.digest}><li><span class="badge">{item.tag}</span><strong>{item.name}</strong><code>{item.digest}</code></li></each></ul>
           <h3>Pages and environments</h3><ul class="cards"><each items={pipeline_pages.cards} as="item" key={item.site}><li><strong>{item.site}</strong><code>{item.deployment}</code></li></each></ul><ul class="cards"><each items={pipeline_environments.cards} as="item" key={item.name}><li><span class="badge">{item.state}</span><strong>{item.name}</strong><p>pipeline {item.pipeline}</p><code>{item.deployment}</code></li></each></ul>
         </section>
+      </route>
+      <route path="/operations">
+        <use component="OperationsConsole" repository={repository}></use>
       </route>
       <route path="/releases">
         <section class="panel" aria-labelledby="releases-heading"><h2 id="releases-heading">Releases and Git LFS</h2><p>Release tags must resolve to a commit. Large working-tree objects use the standard Git LFS URL exposed beside clone and push.</p>

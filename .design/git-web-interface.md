@@ -245,11 +245,11 @@ The implementation follows broad working strokes first and reserves fine-grained
 1. **G1 — Walking repository slice.** Add the Git service contract, one storage shard, Google and GitHub login, configurable enrollment, repository creation, HTTPS/SSH clone and push, bounded tree/blob/history views, one issue flow, one merge-request flow, and a basic Diamond interface. Run the first browser and stock-Git demonstrations immediately.
 2. **G2 — Collaboration breadth (complete).** Organizations, teams, forks, repository permissions, protected refs, full issues, boards, wikis, snippets, review threads, revocable approvals, fast-forward/squash/merge-commit strategies, notifications, releases, LFS, versioned REST operations, bounded webhooks, and audit events are implemented in the runnable Diamond application. Retained qualification exercises each trust boundary before visual refinement.
 3. **G3 — Delivery and artifact breadth (complete).** The runnable application schedules immutable-commit pipelines from strict repository configuration, executes fenced jobs through an explicitly granted Bubblewrap or chroot-style systemd sandbox, restores reference-scoped caches, publishes environments and content-addressed generic artifacts, exposes repository-authorized streamed artifact and OCI pull routes, and atomically deploys static output to a separate cookie-free Pages listener. Retained qualification proves push through pipeline, artifact, OCI image, release, and Pages, plus cancellation, event deduplication, cache restoration, dependency failure, traversal, symlink, authorization, filesystem, network, and cleanup boundaries.
-4. **G4 — Scale and recovery.** Add multiple web nodes and workers, repository sharding/failover, global search, mirrors, object-storage garbage collection, rate-limit coordination, backups, isolated restore, observability, and administrative controls.
+4. **G4 — Scale and recovery (complete).** The `operations-v1` layer provides shared web/worker heartbeats, compare-and-swap drain and policy controls, leased concurrent tasks, policy-reauthorized global search, exact-object stock-Git mirrors, repository-scoped promotion fencing, authoritative per-repository data-plane routing, held/grace-bounded delivery-object GC, shared search limits, recovery catalogs, redacted audit/metrics, and a separate Diamond operations console. The encrypted snapshot streams PostgreSQL plus every shared-object, Git, delivery, and operations root; isolated restore verifies the complete manifest before import, revokes credentials, repairs root-relative Git policy configuration, and revalidates the restored adapters.
 5. **G5 — Product completion.** Fill protocol edge cases, accessibility, mobile layout, import/export compatibility, search quality, notification preferences, artifact workflows, runner executor profiles, custom-domain operations, and administrator documentation.
 6. **G6 — Adversarial qualification.** Attack every trust boundary and distributed transition through real interfaces, repair reproduced issues, replay the full regression corpus, measure memory under concurrent streaming load, restore from backup, and publish the bounded release evidence.
 
-G1 through G3 are implemented as `examples/git-browser`. The retained application
+G1 through G4 are implemented as `examples/git-browser`. The retained application
 replay exercises the Diamond browser/server surface, PostgreSQL policy, team and
 direct revocation, fork isolation, issue/board/knowledge flows, review-state
 revocation, all three merge strategies, versioned REST authorization, bounded
@@ -257,8 +257,11 @@ webhook delivery, LFS integrity and ownership, stock smart HTTP Git, event
 recovery, and strict repository fsck. The separate foundation and SSH campaigns
 preserve the transport, OAuth, protected-ref, OpenSSH, deploy-key, certificate,
 streaming, and shard-promotion coverage. The G3 delivery replay preserves the
-CI, artifact, OCI pull, release, and Pages path. G4 through G6 remain distinct
-product checkpoints rather than hidden prerequisites for this runnable slice.
+CI, artifact, OCI pull, release, and Pages path. The G4 replay adds two web nodes,
+concurrent leased workers, search revocation, exact mirrors, hostile replica roots,
+repository-routed promotion, promoted-root reconciliation, GC holds, stale failover
+generations, cross-node limits, coordinated drain, and full encrypted isolated
+restore. G5 and G6 remain distinct product checkpoints.
 
 Each checkpoint must leave a runnable vertical slice. Schema and service protocols are versioned early, but no compatibility machinery for unreleased external users is required while the project has no users. Later checkpoints may replace internal rough implementations as long as the checkpoint's public behavior and retained regression cases continue to pass.
 

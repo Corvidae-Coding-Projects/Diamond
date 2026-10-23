@@ -156,6 +156,8 @@ fn is_project_command(command: &str) -> bool {
         "project-delivery-init",
         "project-delivery-work",
         "project-pages-serve",
+        "project-ops-init",
+        "project-ops-work",
         "project-work",
         "project-deploy-check",
         "project-recover",
@@ -269,6 +271,8 @@ fn parse_project_value_option<'a>(
             | "project-delivery-init"
             | "project-delivery-work"
             | "project-pages-serve"
+            | "project-ops-init"
+            | "project-ops-work"
             | "project-work"
             | "project-deploy-check"
             | "project-backup"
@@ -320,6 +324,8 @@ fn parse_project_value_option<'a>(
             | "project-delivery-init"
             | "project-delivery-work"
             | "project-pages-serve"
+            | "project-ops-init"
+            | "project-ops-work"
             | "project-user-add"
             | "project-admin-add"
             | "project-status"
@@ -364,6 +370,9 @@ fn project_command(command: &str, arguments: &[String]) -> Result<()> {
         return Ok(());
     }
     if project_delivery_command(command, &project, &options, configuration.as_deref())? {
+        return Ok(());
+    }
+    if project_operations_command(command, &project, &options, configuration.as_deref())? {
         return Ok(());
     }
     match command {
@@ -503,6 +512,36 @@ fn project_delivery_command(
         };
         println!("{report}");
     }
+    Ok(true)
+}
+
+fn project_operations_command(
+    command: &str,
+    project: &diamond::CheckedProject,
+    options: &ProjectOptions<'_>,
+    configuration: Option<&String>,
+) -> Result<bool> {
+    if !["project-ops-init", "project-ops-work"].contains(&command) {
+        return Ok(false);
+    }
+    let source = Zeroizing::new(
+        std::env::var(
+            options
+                .runtime_env
+                .context("operations administration requires --runtime-env VARIABLE")?,
+        )
+        .map_err(|_| anyhow::Error::msg("runtime configuration is missing or invalid UTF-8"))?,
+    );
+    let grants = diamond::RuntimeGrants::from_json(&source)?;
+    let configuration = configuration
+        .map(String::as_str)
+        .context("operations administration requires --postgres-env VARIABLE")?;
+    let report = if command == "project-ops-init" {
+        project.initialize_operations(configuration, &grants)?
+    } else {
+        project.work_operations_once(configuration, &grants)?
+    };
+    println!("{report}");
     Ok(true)
 }
 
@@ -1145,6 +1184,9 @@ fn help() {
     );
     println!(
         "\nDelivery commands:\n  diamond project-delivery-init PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-delivery-work PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-pages-serve PROJECT --listen 127.0.0.1:PORT --binding NAME --postgres-env VARIABLE --runtime-env VARIABLE"
+    );
+    println!(
+        "\nOperations commands:\n  diamond project-ops-init PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-ops-work PROJECT --postgres-env VARIABLE --runtime-env VARIABLE"
     );
 }
 

@@ -7,8 +7,8 @@
     "postgres": "postgres (PostgreSQL) 18.6",
     "python": "3.14.8"
   },
-  "passed": 192,
-  "total": 192,
+  "passed": 194,
+  "total": 194,
   "results": [
     {
       "name": "initialize PostgreSQL",
@@ -28,6 +28,14 @@
     },
     {
       "name": "install runtime Git hook",
+      "pass": true
+    },
+    {
+      "name": "initialize delivery store",
+      "pass": true
+    },
+    {
+      "name": "initialize operations store",
       "pass": true
     },
     {

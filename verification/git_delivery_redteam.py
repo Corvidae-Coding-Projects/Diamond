@@ -21,8 +21,8 @@ BIN = ROOT / "target/debug/diamond"
 PROJECT = "examples/git-browser/diamond.toml"
 TMP = pathlib.Path(tempfile.mkdtemp(prefix="diamond-g3-delivery-"))
 PG, SOCK, GITROOT = TMP / "pg", TMP / "sock", TMP / "git"
-OBJECTS, DELIVERY, MAIL = TMP / "objects", TMP / "delivery", TMP / "mail"
-for directory in (SOCK, GITROOT, OBJECTS, DELIVERY, MAIL):
+OBJECTS, DELIVERY, OPERATIONS, MAIL = TMP / "objects", TMP / "delivery", TMP / "operations", TMP / "mail"
+for directory in (SOCK, GITROOT, OBJECTS, DELIVERY, OPERATIONS, MAIL):
     directory.mkdir(mode=0o700)
 
 
@@ -46,6 +46,7 @@ runtime = {
             "limit": "/usr/bin/prlimit",
         }
     },
+    "operations": {"control": {"root": str(OPERATIONS)}},
     "oauth": {
         "transaction_key_env": "DIA_OAUTH_KEY",
         "google": {
@@ -229,6 +230,10 @@ try:
     ok(
         "initialize delivery store",
         [str(BIN), "project-delivery-init", PROJECT, "--postgres-env", "DIAMOND_POSTGRES", "--runtime-env", "DIAMOND_RUNTIME"],
+    )
+    ok(
+        "initialize operations store",
+        [str(BIN), "project-ops-init", PROJECT, "--postgres-env", "DIAMOND_POSTGRES", "--runtime-env", "DIAMOND_RUNTIME"],
     )
     password = "Synthetic G3 password 91!"
     ok(

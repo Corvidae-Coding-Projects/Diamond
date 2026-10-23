@@ -4,8 +4,8 @@ import base64, http.client, json, os, pathlib, re, shutil, socket, subprocess, s
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 BIN=ROOT/'target/debug/diamond'
 TMP=pathlib.Path(tempfile.mkdtemp(prefix='diamond-git-redteam-'))
-PG=TMP/'pg'; SOCK=TMP/'sock'; GITROOT=TMP/'git'; OBJECTS=TMP/'objects'; MAIL=TMP/'mail'; LOG=TMP/'server.log'
-for p in (SOCK,GITROOT,OBJECTS,MAIL): p.mkdir(mode=0o700)
+PG=TMP/'pg'; SOCK=TMP/'sock'; GITROOT=TMP/'git'; OBJECTS=TMP/'objects'; DELIVERY=TMP/'delivery'; OPERATIONS=TMP/'operations'; MAIL=TMP/'mail'; LOG=TMP/'server.log'
+for p in (SOCK,GITROOT,OBJECTS,DELIVERY,OPERATIONS,MAIL): p.mkdir(mode=0o700)
 
 def free_port():
     s=socket.socket(); s.bind(('127.0.0.1',0)); p=s.getsockname()[1]; s.close(); return p
@@ -14,11 +14,13 @@ pgcfg=f'host={SOCK} port={pgport} user=diamond_rt dbname=postgres'
 runtime={
  'objects':str(OBJECTS),
  'git':{'repos':{'root':str(GITROOT),'executable':'/usr/bin/git'}},
+ 'delivery':{'builds':{'root':str(DELIVERY),'sandbox':'/usr/bin/systemd-run','limit':'/usr/bin/prlimit'}},
+ 'operations':{'control':{'root':str(OPERATIONS)}},
  'oauth':{
   'transaction_key_env':'DIA_OAUTH_KEY',
   'google':{'client_id':'synthetic-google-client','client_secret_env':'DIA_GOOGLE_SECRET'},
   'github':{'client_id':'synthetic-github-client','client_secret_env':'DIA_GITHUB_SECRET'}},
- 'http':{}}
+ 'http':{'webhook':{'origin':'http://127.0.0.1:9','network':'loopback','paths':['/hooks/'],'methods':['POST'],'timeout_ms':100,'max_response_bytes':1024,'max_redirects':0}}}
 env=os.environ.copy(); env.update(DIAMOND_POSTGRES=pgcfg,DIAMOND_RUNTIME=json.dumps(runtime),DIA_OAUTH_KEY='K'*48,DIA_GOOGLE_SECRET='google-test-secret',DIA_GITHUB_SECRET='github-test-secret',GIT_TERMINAL_PROMPT='0',GIT_CONFIG_COUNT='1',GIT_CONFIG_KEY_0='credential.helper',GIT_CONFIG_VALUE_0='')
 results=[]; server=None; metrics={}
 def check(name, cond, detail=''):
@@ -70,6 +72,8 @@ try:
     cmd_ok('project schema init',[str(BIN),'project-init','examples/git-browser/diamond.toml','--postgres-env','DIAMOND_POSTGRES'])
     cmd_ok('shared object store init',[str(BIN),'project-files-init','examples/git-browser/diamond.toml','--postgres-env','DIAMOND_POSTGRES','--runtime-env','DIAMOND_RUNTIME'])
     cmd_ok('git store init',[str(BIN),'project-git-init','examples/git-browser/diamond.toml','--postgres-env','DIAMOND_POSTGRES','--runtime-env','DIAMOND_RUNTIME'])
+    cmd_ok('delivery store init',[str(BIN),'project-delivery-init','examples/git-browser/diamond.toml','--postgres-env','DIAMOND_POSTGRES','--runtime-env','DIAMOND_RUNTIME'])
+    cmd_ok('operations store init',[str(BIN),'project-ops-init','examples/git-browser/diamond.toml','--postgres-env','DIAMOND_POSTGRES','--runtime-env','DIAMOND_RUNTIME'])
     pw='Synthetic browser password 91!'
     r=run([str(BIN),'project-admin-add','examples/git-browser/diamond.toml','--postgres-env','DIAMOND_POSTGRES','--user','alice','--email','alice@example.test','--password-stdin'],input=pw+'\n')
     check('admin provision',r.returncode==0,(r.stdout+r.stderr)[-1000:])

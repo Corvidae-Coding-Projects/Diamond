@@ -25,8 +25,10 @@ PG = TMP / "pg"
 SOCK = TMP / "sock"
 GITROOT = TMP / "git"
 OBJECTS = TMP / "objects"
+DELIVERY = TMP / "delivery"
+OPERATIONS = TMP / "operations"
 MAIL = TMP / "mail"
-for directory in (SOCK, GITROOT, OBJECTS, MAIL):
+for directory in (SOCK, GITROOT, OBJECTS, DELIVERY, OPERATIONS, MAIL):
     directory.mkdir(mode=0o700)
 
 
@@ -43,6 +45,14 @@ pgcfg = f"host={SOCK} port={pgport} user=diamond_rt dbname=postgres"
 runtime = {
     "objects": str(OBJECTS),
     "git": {"repos": {"root": str(GITROOT), "executable": "/usr/bin/git"}},
+    "delivery": {
+        "builds": {
+            "root": str(DELIVERY),
+            "sandbox": "/usr/bin/systemd-run",
+            "limit": "/usr/bin/prlimit",
+        }
+    },
+    "operations": {"control": {"root": str(OPERATIONS)}},
     "oauth": {
         "transaction_key_env": "DIA_OAUTH_KEY",
         "google": {
@@ -54,7 +64,17 @@ runtime = {
             "client_secret_env": "DIA_GITHUB_SECRET",
         },
     },
-    "http": {},
+    "http": {
+        "webhook": {
+            "origin": "http://127.0.0.1:9",
+            "network": "loopback",
+            "paths": ["/hooks/"],
+            "methods": ["POST"],
+            "timeout_ms": 100,
+            "max_response_bytes": 1024,
+            "max_redirects": 0,
+        }
+    },
 }
 env = os.environ.copy()
 env.update(
@@ -208,6 +228,30 @@ try:
         [
             str(BIN),
             "project-git-init",
+            "examples/git-browser/diamond.toml",
+            "--postgres-env",
+            "DIAMOND_POSTGRES",
+            "--runtime-env",
+            "DIAMOND_RUNTIME",
+        ],
+    )
+    ok(
+        "initialize delivery store",
+        [
+            str(BIN),
+            "project-delivery-init",
+            "examples/git-browser/diamond.toml",
+            "--postgres-env",
+            "DIAMOND_POSTGRES",
+            "--runtime-env",
+            "DIAMOND_RUNTIME",
+        ],
+    )
+    ok(
+        "initialize operations store",
+        [
+            str(BIN),
+            "project-ops-init",
             "examples/git-browser/diamond.toml",
             "--postgres-env",
             "DIAMOND_POSTGRES",

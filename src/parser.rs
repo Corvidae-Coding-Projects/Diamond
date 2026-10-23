@@ -734,6 +734,7 @@ impl Parser {
                     "event_emit",
                     "git_query",
                     "delivery_query",
+                    "ops_query",
                 ]
                 .contains(&name.as_str())
                     && self.is_symbol("<")

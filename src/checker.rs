@@ -1406,6 +1406,9 @@ impl<'a> Checker<'a> {
         ) {
             return self.delivery_call(method, args, types, location);
         }
+        if matches!(method, "ops_command" | "ops_query" | "ops_rate") {
+            return self.operations_call(method, args, types, location);
+        }
         if matches!(
             method,
             "git_create"

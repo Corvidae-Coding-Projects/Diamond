@@ -221,8 +221,10 @@ zero-downtime version-compatibility promise.
 Backup uses `pg_dump`, `pg_restore` and `/usr/bin/gpg`. The passphrase comes from a
 separate named environment variable and is passed to GnuPG over stdin. Use at
 least 24 bytes, protect its source, and retain it separately from snapshots.
-Snapshots contain encrypted database dump, encrypted object/marker files and an
-encrypted manifest with plaintext lengths/hashes and the exact build contract.
+Snapshots contain an encrypted database dump, one streamed encrypted runtime bundle
+covering every declared shared-object, Git, delivery, and operations root, and an
+encrypted manifest with component-safe paths, modes, plaintext lengths/hashes, and
+the exact build contract.
 No key or database configuration is written into that manifest. Snapshot directories
 are newly created mode 0700; output files are private. The AES256 GnuPG files include
 integrity protection. Never decrypt into a public/static/served directory.
@@ -239,14 +241,18 @@ integrity protection. Never decrypt into a public/static/served directory.
    build, and verify ciphertext checksums at the destination. Scheduling, storage
    retention and actual off-host transfer are operator responsibilities; no off-host
    upload was performed during local checkpoint verification.
-4. Restore into a separate empty database and empty canonical 0700 object root,
-   with isolated environment variables and no production routing:
+4. Restore into a separate empty database and empty canonical 0700 roots for every
+   configured shared-object, Git, delivery, and operations binding, with isolated
+   environment variables and no production routing:
 
    ```sh
    diamond project-restore .diamond/release --postgres-env DIAMOND_RESTORE_POSTGRES --runtime-env DIAMOND_RESTORE_RUNTIME --from /private/backups/new-snapshot --backup-key-env DIAMOND_BACKUP_PASSPHRASE
    ```
 
-5. Compare independently recorded records/accounts and attachment bytes/hashes.
+5. Compare independently recorded records/accounts, Git refs, promoted placement,
+   artifacts, Pages files, operations state, and attachment bytes/hashes. Restore
+   rewrites fixed Git hook paths for the isolated roots and runs `git fsck` before
+   adapter validation.
    Every restored session, API credential and one-use account challenge is revoked;
    passwords/accounts remain for fresh sign-in. Mail spool messages are not restored.
    Jobs are paused in the snapshot itself and remain inert if restoration is
@@ -261,7 +267,7 @@ integrity protection. Never decrypt into a public/static/served directory.
 Recovery requires stopped actors. `resume` allows at-least-once redelivery; it does
 not rewrite incompatible handler versions. Start workers only after the chosen
 policy and application verification. Wrong keys/tampered ciphertext are rejected
-before database import; nonempty database/object targets are refused. Failed
+before database import; nonempty database/runtime-root targets are refused. Failed
 snapshots may leave a partial new backup directory; absence of a verified encrypted
 manifest means it is incomplete. A failed/interrupted snapshot may leave jobs
 paused for safety; inspect state and choose recovery explicitly.
@@ -270,5 +276,7 @@ This is an offline snapshot: the data-loss window is changes since its recorded
 quiesced snapshot, and recovery time includes decryption/import/reconciliation and
 operator steps. The [checkpoint evidence](../verification/web_seven_eight_results.md)
 records measured local drill durations and observations without promising a
-production RTO/RPO. Native operator authority and encrypted off-host retention
+production RTO/RPO. The G4 filesystem-root and promoted-shard drill is recorded in
+[`verification/git_scale_recovery_results.md`](../verification/git_scale_recovery_results.md).
+Native operator authority and encrypted off-host retention
 remain explicit trust/deployment responsibilities.

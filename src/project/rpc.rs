@@ -70,7 +70,7 @@ pub(super) fn operations(
             if checked
                 .effects
                 .iter()
-                    .any(|effect| matches!(effect, crate::authority::Effect::Host(name) if !name.starts_with("Http<") && !name.starts_with("GitRead<") && !name.starts_with("GitWrite<") && !name.starts_with("GitReview<") && !name.starts_with("GitAdmin<") && !name.starts_with("DeliveryRead<") && !name.starts_with("DeliveryWrite<") && !["Jobs","Events","JobKey"].contains(&name.as_str())))
+                    .any(|effect| matches!(effect, crate::authority::Effect::Host(name) if !name.starts_with("Http<") && !name.starts_with("GitRead<") && !name.starts_with("GitWrite<") && !name.starts_with("GitReview<") && !name.starts_with("GitAdmin<") && !name.starts_with("DeliveryRead<") && !name.starts_with("DeliveryWrite<") && !name.starts_with("OpsRead<") && !name.starts_with("OpsAdmin<") && !["Jobs","Events","JobKey"].contains(&name.as_str())))
             {
                 return Err(input("RPC does not dispatch this native host operation"));
             }
