@@ -182,9 +182,9 @@ impl Storage {
                 .map(|f| key_bytes(&record.fields[f].ty, p))
                 .try_fold(0usize, |a, b| b.and_then(|b| a.checked_add(b)));
             if bytes.is_none_or(|n| n > 1800) {
-                return Err(invalid(
-                    "index keys require bounded values totaling at most 1800 encoded bytes",
-                ));
+                return Err(invalid(&format!(
+                    "{name} index {fields:?} requires bounded values totaling at most 1800 encoded bytes"
+                )));
             }
         }
         for fields in &r.unique {
@@ -199,7 +199,7 @@ impl Storage {
     fn check_references(&self, name: &str, p: &CheckedProgram) -> Result<()> {
         let r = &self.resources[name];
         let record = &p.records[&p.resources[name]];
-        for reference in r.references.values() {
+        for (reference_name, reference) in &r.references {
             let target = p
                 .resources
                 .get(&reference.resource)
@@ -239,9 +239,9 @@ impl Storage {
             if let (Some(a), Some(b)) = (&r.scope, &self.resources[&reference.resource].scope)
                 && reference.fields.get(a) != Some(b)
             {
-                return Err(invalid(
-                    "scoped references must bind both resources' scopes",
-                ));
+                return Err(invalid(&format!(
+                    "{name}.{reference_name} scoped reference must bind both resources' scopes"
+                )));
             }
         }
         Ok(())

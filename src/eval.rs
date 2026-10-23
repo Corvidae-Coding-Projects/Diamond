@@ -702,38 +702,36 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
         Value::operation(state.map(|state| Value(ValueKind::Text(state))))
     }
 
-    fn git_call(
+    fn git_fork_call(&mut self, values: &[Value]) -> Result<Value> {
+        let texts = values
+            .iter()
+            .map(|value| match &value.0 {
+                ValueKind::Text(text) => Ok(text.as_str()),
+                _ => Err(Error::Denied),
+            })
+            .collect::<Result<Vec<_>>>()?;
+        let binding = *texts.first().ok_or(Error::Denied)?;
+        self.scope.require(&crate::authority::Effect::Host(format!(
+            "GitWrite<{binding}>"
+        )))?;
+        let state = crate::project::git::fork(
+            self.postgres.as_deref_mut().ok_or(Error::Denied)?,
+            self.scope,
+            self.integrations.ok_or(Error::Denied)?,
+            binding,
+            texts[1],
+            texts[2],
+        );
+        Value::operation(state.map(|state| Value(ValueKind::Text(state))))
+    }
+
+    fn git_query_call(
         &mut self,
         method: &str,
-        arguments: &[(Option<String>, Expr)],
+        values: &[Value],
         types: &[crate::syntax::TypeName],
-        locals: &BTreeMap<String, Value>,
         location: crate::error::Location,
     ) -> Result<Value> {
-        let values = arguments
-            .iter()
-            .map(|(_, value)| self.expr(value, locals))
-            .collect::<Result<Vec<_>>>()?;
-        if method == "git_review_gate" {
-            return self.git_review_call(&values);
-        }
-        if matches!(
-            method,
-            "git_protect"
-                | "git_unprotect"
-                | "git_gate"
-                | "git_deploy_key"
-                | "git_revoke_deploy_key"
-                | "git_certificate"
-                | "git_revoke_certificate"
-                | "git_events"
-                | "git_ack_event"
-        ) {
-            return self.git_admin_call(method, &values);
-        }
-        if method == "git_merge" {
-            return self.git_merge_call(&values);
-        }
         let texts = values
             .iter()
             .take(if method == "git_create" { 2 } else { 5 })
@@ -795,13 +793,122 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
         Value::operation(crate::project::wire::decode(&result, &json, self.program))
     }
 
+    fn git_call(
+        &mut self,
+        method: &str,
+        arguments: &[(Option<String>, Expr)],
+        types: &[crate::syntax::TypeName],
+        locals: &BTreeMap<String, Value>,
+        location: crate::error::Location,
+    ) -> Result<Value> {
+        let values = arguments
+            .iter()
+            .map(|(_, value)| self.expr(value, locals))
+            .collect::<Result<Vec<_>>>()?;
+        if method == "git_review_gate" {
+            return self.git_review_call(&values);
+        }
+        if matches!(
+            method,
+            "git_protect"
+                | "git_unprotect"
+                | "git_gate"
+                | "git_deploy_key"
+                | "git_revoke_deploy_key"
+                | "git_certificate"
+                | "git_revoke_certificate"
+                | "git_events"
+                | "git_ack_event"
+        ) {
+            return self.git_admin_call(method, &values);
+        }
+        if matches!(method, "git_merge" | "git_integrate") {
+            return self.git_merge_call(&values);
+        }
+        if method == "git_fork" {
+            return self.git_fork_call(&values);
+        }
+        self.git_query_call(method, &values, types, location)
+    }
+
+    fn delivery_call(
+        &mut self,
+        method: &str,
+        arguments: &[(Option<String>, Expr)],
+        types: &[crate::syntax::TypeName],
+        locals: &BTreeMap<String, Value>,
+        location: crate::error::Location,
+    ) -> Result<Value> {
+        let values = arguments
+            .iter()
+            .map(|(_, value)| self.expr(value, locals))
+            .collect::<Result<Vec<_>>>()?;
+        let text = |index: usize| match values.get(index).map(|value| &value.0) {
+            Some(ValueKind::Text(value)) => Ok(value.as_str()),
+            _ => Err(Error::Denied),
+        };
+        let binding = text(0)?;
+        self.scope.require(&crate::authority::Effect::Host(format!(
+            "Delivery{}<{binding}>",
+            if method == "delivery_query" {
+                "Read"
+            } else {
+                "Write"
+            }
+        )))?;
+        let database = self.postgres.as_deref_mut().ok_or(Error::Denied)?;
+        let grants = self.integrations.ok_or(Error::Denied)?;
+        if method == "delivery_schedule" {
+            let value = crate::project::delivery::schedule(
+                database,
+                self.scope,
+                grants,
+                crate::project::delivery::ScheduleRequest {
+                    binding,
+                    repository: text(1)?,
+                    commit: text(2)?,
+                    reference: text(3)?,
+                    event: text(4)?,
+                },
+            );
+            return Value::operation(value.map(|value| Value(ValueKind::Text(value))));
+        }
+        if method == "delivery_cancel" {
+            let value =
+                crate::project::delivery::cancel(database, self.scope, binding, text(1)?, text(2)?);
+            return Value::operation(value.map(|value| Value(ValueKind::Text(value))));
+        }
+        let limit = match values.get(3).map(|value| &value.0) {
+            Some(ValueKind::Int(value)) => *value,
+            _ => return Err(Error::Denied),
+        };
+        let value = crate::project::delivery::query(
+            database,
+            self.scope,
+            binding,
+            text(1)?,
+            text(2)?,
+            limit,
+        )?;
+        let result = crate::checker::resolve_type(
+            types.first().ok_or(Error::Denied)?,
+            self.program,
+            location,
+        )?;
+        Value::operation(crate::project::wire::decode(&result, &value, self.program))
+    }
+
     fn git_review_call(&mut self, values: &[Value]) -> Result<Value> {
         let text = |index: usize| match values.get(index).map(|value| &value.0) {
             Some(ValueKind::Text(value)) => Ok(value.as_str()),
             _ => Err(Error::Denied),
         };
         let binding = text(0)?;
-        let discussions_resolved = match values.get(4).map(|value| &value.0) {
+        let approved = match values.get(4).map(|value| &value.0) {
+            Some(ValueKind::Bool(value)) => *value,
+            _ => return Err(Error::Denied),
+        };
+        let discussions_resolved = match values.get(5).map(|value| &value.0) {
             Some(ValueKind::Bool(value)) => *value,
             _ => return Err(Error::Denied),
         };
@@ -817,6 +924,7 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
                 repository: text(1)?,
                 reference: text(2)?,
                 object: text(3)?,
+                approved,
                 discussions_resolved,
             },
         );
@@ -835,6 +943,13 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
         self.scope.require(&crate::authority::Effect::Host(format!(
             "GitWrite<{binding}>"
         )))?;
+        let strategy = if texts.len() == 9 {
+            texts[6]
+        } else {
+            "fast_forward"
+        };
+        let message = if texts.len() == 9 { texts[7] } else { "" };
+        let receipt = if texts.len() == 9 { texts[8] } else { "" };
         let merged = crate::project::git::merge(
             self.postgres.as_deref_mut().ok_or(Error::Denied)?,
             self.scope,
@@ -846,6 +961,9 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
                 target_reference: texts[3],
                 expected_source: texts[4],
                 expected_target: texts[5],
+                strategy,
+                message,
+                receipt,
             },
         );
         Value::operation(merged.map(|object| Value(ValueKind::Text(object))))
@@ -887,8 +1005,16 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
                 }
                 if matches!(
                     method.as_str(),
+                    "delivery_schedule" | "delivery_query" | "delivery_cancel"
+                ) {
+                    return self.delivery_call(method, arguments, types, locals, callee.location);
+                }
+                if matches!(
+                    method.as_str(),
                     "git_create"
+                        | "git_fork"
                         | "git_merge"
+                        | "git_integrate"
                         | "git_query"
                         | "git_review_gate"
                         | "git_protect"

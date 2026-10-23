@@ -38,8 +38,8 @@ pub(super) fn operations(
     let Some(config) = &m.http_api else {
         return Ok(BTreeMap::new());
     };
-    if config.version != 1 || config.operations.is_empty() || config.operations.len() > 64 {
-        return Err(input("HTTP API requires version 1 and 1..64 operations"));
+    if config.version != 1 || config.operations.is_empty() || config.operations.len() > 128 {
+        return Err(input("HTTP API requires version 1 and 1..128 operations"));
     }
     let mut proxy = m.clone();
     proxy.rpc = config

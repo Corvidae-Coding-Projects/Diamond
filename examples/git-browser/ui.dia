@@ -40,7 +40,7 @@ export component GitForge:
   state source_reference: Text = "refs/heads/feature"
   state target_reference: Text = "refs/heads/main"
   state merge_requests: MergeRequestPage = MergeRequestPage(cards: [], after: "", total: 0)
-  state selected_merge: MergeRequestCard = MergeRequestCard(id: "", title: "", state: "", source_reference: "", target_reference: "", source_object: "", target_object: "", approvals: 0, author: "")
+  state selected_merge: MergeRequestCard = MergeRequestCard(id: "", title: "", state: "", source_reference: "", target_reference: "", source_object: "", target_object: "", approvals: 0, author: "", strategy: "")
   state merge_plan: MergePlan = MergePlan(merge_request: "", repository: "", source_reference: "", target_reference: "", source_object: "", target_object: "")
   state protected_reference: Text = "refs/heads/main"
   state deploy_label: Text = "automation"
@@ -48,6 +48,58 @@ export component GitForge:
   state deploy_id: Text = ""
   state push_events: Text = ""
   state push_event_id: Text = ""
+  state team_name: Text = "platform"
+  state team: Text = ""
+  state team_member: Text = ""
+  state repository_grant: Text = ""
+  state permission_user: Text = ""
+  state fork_name: Text = "fork"
+  state fork: Text = ""
+  state milestone_title: Text = "Next milestone"
+  state milestone_due: Text = ""
+  state milestone: Text = ""
+  state label_name: Text = "feature"
+  state label_color: Text = "2563eb"
+  state label: Text = ""
+  state assignee: Text = ""
+  state board_column_title: Text = "Backlog"
+  state board_column: Text = ""
+  state board_card: Text = ""
+  state wiki_page: Text = ""
+  state wiki_slug: Text = "home"
+  state wiki_title: Text = "Home"
+  state wiki_body: Text = "Project knowledge starts here."
+  state snippet_title: Text = "Example"
+  state snippet_filename: Text = "example.txt"
+  state snippet_body: Text = ""
+  state snippet: Text = ""
+  state review_thread: Text = ""
+  state review_thread_body: Text = "Please address this before merging."
+  state review_id: Text = ""
+  state merge_message: Text = "Merge reviewed changes"
+  state integrated_object: Text = ""
+  state notification: Text = ""
+  state release: Text = ""
+  state release_tag: Text = "refs/tags/v0.1.0"
+  state release_name: Text = "v0.1.0"
+  state release_notes: Text = "Release notes"
+  state release_draft: Bool = false
+  state release_asset: Text = ""
+  state release_asset_status: Text = ""
+  state pipeline: Text = ""
+  state pipeline_event: Text = "manual-1"
+  state pipeline_reference: Text = "refs/heads/main"
+  state pipelines: PipelineResults = PipelineResults(cards: [])
+  state pipeline_jobs: JobResults = JobResults(cards: [])
+  state pipeline_artifacts: ArtifactResults = ArtifactResults(cards: [])
+  state pipeline_images: ImageResults = ImageResults(cards: [])
+  state pipeline_pages: PageResults = PageResults(cards: [])
+  state pipeline_environments: EnvironmentResults = EnvironmentResults(cards: [])
+  state webhook: Text = ""
+  state webhook_path: Text = "/hooks/diamond"
+  state webhook_event: Text = "manual-test"
+  state webhook_payload: Text = "{}"
+  state dashboard: CollaborationDashboard = CollaborationDashboard(teams: [], team_permissions: [], direct_permissions: [], forks: [], milestones: [], labels: [], columns: [], cards: [], wiki: [], snippets: [], threads: [], reviews: [], notifications: [], releases: [], webhooks: [], audit: [])
   state activity: Text = "Waiting for repository activity."
   state activity_cursor: Text = "0"
   state output: Text = "Sign in, create an organization, then create a repository."
@@ -165,14 +217,10 @@ export component GitForge:
   on resolve_discussions:
     selected_merge = rpc.resolve_merge_discussions(merge_request)
   on merge_selected:
-    merge_plan = rpc.prepare_merge_request(merge_request)
-    output = rpc.execute_merge(merge_plan.repository, merge_plan.source_reference, merge_plan.target_reference, merge_plan.source_object, merge_plan.target_object)
-    selected_merge = rpc.finalize_merge_request(merge_plan.merge_request)
+    output = rpc.merge_approved_request(merge_request, "")
+    selected_merge = rpc.finalize_approved_request(merge_request, output)
     merge_requests = rpc.merge_request_page(organization, repository, "")
     output = "Merge completed at " + output
-  on finalize_merge:
-    selected_merge = rpc.finalize_merge_request(merge_request)
-    merge_requests = rpc.merge_request_page(organization, repository, "")
   on close_merge_request:
     selected_merge = rpc.close_merge_request(merge_request)
     merge_requests = rpc.merge_request_page(organization, repository, "")
@@ -190,11 +238,124 @@ export component GitForge:
     push_events = rpc.pending_push_events(100)
   on acknowledge_push_event:
     output = rpc.acknowledge_push_event(push_event_id)
+  on refresh_collaboration:
+    dashboard = rpc.collaboration_dashboard(organization, repository)
+  on create_team:
+    team = rpc.create_team(organization, team_name)
+    dashboard = rpc.collaboration_dashboard(organization, repository)
+  on add_team_developer:
+    team_member = rpc.add_team_member(team, repository, permission_user, Developer)
+    dashboard = rpc.collaboration_dashboard(organization, repository)
+  on add_team_reporter:
+    team_member = rpc.add_team_member(team, repository, permission_user, Reporter)
+    dashboard = rpc.collaboration_dashboard(organization, repository)
+  on revoke_team_permission:
+    output = rpc.revoke_team_member(team_member)
+    dashboard = rpc.collaboration_dashboard(organization, repository)
+  on grant_repository_developer:
+    repository_grant = rpc.grant_repository_permission(repository, permission_user, Developer)
+    dashboard = rpc.collaboration_dashboard(organization, repository)
+  on grant_repository_reporter:
+    repository_grant = rpc.grant_repository_permission(repository, permission_user, Reporter)
+    dashboard = rpc.collaboration_dashboard(organization, repository)
+  on revoke_repository_permission:
+    output = rpc.revoke_repository_permission(repository_grant)
+    dashboard = rpc.collaboration_dashboard(organization, repository)
+  on create_fork:
+    fork = rpc.create_fork_metadata(repository, organization, fork_name, "Forked through Diamond Forge", repository_public)
+    output = rpc.initialize_fork(fork)
+    dashboard = rpc.collaboration_dashboard(organization, repository)
+  on create_milestone:
+    milestone = rpc.create_milestone(repository, milestone_title, milestone_due)
+    dashboard = rpc.collaboration_dashboard(organization, repository)
+  on create_label:
+    label = rpc.create_label(repository, label_name, label_color)
+    dashboard = rpc.collaboration_dashboard(organization, repository)
+  on label_issue:
+    output = rpc.label_issue(issue, label)
+  on assign_issue:
+    output = rpc.assign_issue(issue, assignee)
+  on reopen_issue:
+    issue_detail = rpc.reopen_issue(issue)
+    issues = rpc.issue_page(organization, repository, "")
+  on create_board_column:
+    board_column = rpc.create_board_column(repository, board_column_title)
+    dashboard = rpc.collaboration_dashboard(organization, repository)
+  on add_board_card:
+    board_card = rpc.add_board_card(issue, board_column)
+    dashboard = rpc.collaboration_dashboard(organization, repository)
+  on move_board_card:
+    board_card = rpc.move_board_card(board_card, board_column)
+    dashboard = rpc.collaboration_dashboard(organization, repository)
+  on create_wiki_page:
+    wiki_page = rpc.create_wiki_page(repository, wiki_slug, wiki_title, wiki_body)
+    dashboard = rpc.collaboration_dashboard(organization, repository)
+  on update_wiki_page:
+    wiki_page = rpc.update_wiki_page(wiki_page, wiki_title, wiki_body)
+    dashboard = rpc.collaboration_dashboard(organization, repository)
+  on create_snippet:
+    snippet = rpc.create_snippet(repository, snippet_title, snippet_filename, snippet_body)
+    dashboard = rpc.collaboration_dashboard(organization, repository)
+  on add_review_thread:
+    review_thread = rpc.add_review_thread(merge_request, review_thread_body)
+    selected_merge = rpc.read_merge_request(merge_request)
+    dashboard = rpc.collaboration_dashboard(organization, repository)
+  on resolve_review_thread:
+    review_thread = rpc.resolve_review_thread(review_thread)
+    selected_merge = rpc.read_merge_request(merge_request)
+    dashboard = rpc.collaboration_dashboard(organization, repository)
+  on dismiss_approval:
+    selected_merge = rpc.dismiss_approval(review_id)
+  on create_squash_merge_request:
+    merge_request = rpc.create_merge_request_strategy(repository, merge_title, merge_body, source_reference, target_reference, Squash)
+    selected_merge = rpc.read_merge_request(merge_request)
+  on create_merge_commit_request:
+    merge_request = rpc.create_merge_request_strategy(repository, merge_title, merge_body, source_reference, target_reference, MergeCommit)
+    selected_merge = rpc.read_merge_request(merge_request)
+  on merge_squash:
+    integrated_object = rpc.merge_approved_request(merge_request, merge_message)
+    selected_merge = rpc.finalize_approved_request(merge_request, integrated_object)
+  on merge_commit:
+    integrated_object = rpc.merge_approved_request(merge_request, merge_message)
+    selected_merge = rpc.finalize_approved_request(merge_request, integrated_object)
+  on mark_notification_read:
+    notification = rpc.mark_notification_read(notification)
+    dashboard = rpc.collaboration_dashboard(organization, repository)
+  on create_release:
+    release = rpc.create_release(repository, release_tag, release_name, release_notes, release_draft)
+    dashboard = rpc.collaboration_dashboard(organization, repository)
+  on schedule_pipeline:
+    pipeline = rpc.schedule_pipeline(repository, pipeline_reference, pipeline_event)
+    pipelines = rpc.delivery_pipelines(repository)
+    output = "Pipeline scheduled from the immutable Git commit."
+  on refresh_delivery:
+    pipelines = rpc.delivery_pipelines(repository)
+    pipeline_jobs = rpc.delivery_jobs(repository, pipeline)
+    pipeline_artifacts = rpc.delivery_artifacts(repository, pipeline)
+    pipeline_images = rpc.delivery_images(repository)
+    pipeline_pages = rpc.delivery_pages(repository)
+    pipeline_environments = rpc.delivery_environments(repository)
+  on cancel_pipeline:
+    output = rpc.cancel_pipeline(repository, pipeline)
+    pipelines = rpc.delivery_pipelines(repository)
+  on upload_release_asset:
+    release_asset = files.upload("release_assets", release, "release_asset_file")
+    release_asset_status = files.status("release_assets", release_asset)
+  on download_release_asset:
+    release_asset = files.download("release_assets", release_asset)
+  on delete_release_asset:
+    release_asset = files.delete("release_assets", release_asset)
+    release_asset_status = "Release asset deleted."
+  on create_webhook:
+    webhook = rpc.create_webhook(repository, webhook_path)
+    dashboard = rpc.collaboration_dashboard(organization, repository)
+  on test_webhook:
+    output = rpc.deliver_webhook(webhook, webhook_event, webhook_payload)
 
   html:
     <main>
       <header class="masthead"><div><p class="eyebrow">DIAMOND FORGE</p><h1>Git collaboration without a heavyweight application stack</h1><p>Organizations, repositories, issues, reviews, and Git stay under one checked policy model.</p></div></header>
-      <nav aria-label="Primary"><a href="/">Repositories</a><a href="/issues">Issues</a><a href="/merge-requests">Merge requests</a><a href="/settings">Settings</a></nav>
+      <nav aria-label="Primary"><a href="/">Repositories</a><a href="/collaboration">Collaboration</a><a href="/issues">Issues &amp; boards</a><a href="/merge-requests">Merge requests</a><a href="/delivery">CI &amp; delivery</a><a href="/knowledge">Wiki &amp; snippets</a><a href="/releases">Releases</a><a href="/activity">Activity</a><a href="/settings">Settings</a></nav>
       <watch channel="repository_activity" parent={repository} into="activity" cursor="activity_cursor"></watch>
       <when test={pending}><p class="notice" role="status">Working…</p></when>
       <when test={error != ""}><p class="error" role="alert">{error}</p></when>
@@ -228,6 +389,19 @@ export component GitForge:
           <h3>Diff</h3><pre>{diff.text}</pre>
         </section>
       </route>
+      <route path="/collaboration">
+        <section class="panel" aria-labelledby="collaboration-heading"><h2 id="collaboration-heading">Teams, repository permissions, and forks</h2><p>Permissions are repository-scoped and evaluated on every request. Revocation is immediate.</p>
+          <div class="actions"><button on-click={refresh_collaboration}>Refresh collaboration data</button></div>
+          <h3>Teams</h3><div class="grid"><div><label for="team-name">Team name</label><input id="team-name" maxlength="80" bind-value={team_name}></div><div><label for="team-id">Team ID</label><input id="team-id" bind-value={team}></div><div><label for="permission-user">User ID</label><input id="permission-user" bind-value={permission_user}></div><div><label for="team-member-id">Team permission ID</label><input id="team-member-id" bind-value={team_member}></div></div>
+          <div class="actions"><button on-click={create_team}>Create team</button><button on-click={add_team_developer}>Grant team developer</button><button on-click={add_team_reporter}>Grant team reporter</button><button class="danger" on-click={revoke_team_permission}>Revoke team permission</button></div>
+          <ul class="cards"><each items={dashboard.teams} as="team_card" key={team_card.id}><li><strong>{team_card.name}</strong><code>{team_card.id}</code></li></each></ul>
+          <ul class="cards"><each items={dashboard.team_permissions} as="permission" key={permission.id}><li><span class="badge">{permission.role}</span><strong>{permission.user}</strong><p>{permission.source}</p><code>{permission.id}</code></li></each></ul>
+          <h3>Direct collaborators</h3><label for="repository-grant-id">Direct permission ID</label><input id="repository-grant-id" bind-value={repository_grant}><div class="actions"><button on-click={grant_repository_developer}>Grant developer</button><button on-click={grant_repository_reporter}>Grant reporter</button><button class="danger" on-click={revoke_repository_permission}>Revoke direct permission</button></div>
+          <ul class="cards"><each items={dashboard.direct_permissions} as="permission" key={permission.id}><li><span class="badge">{permission.role}</span><strong>{permission.user}</strong><code>{permission.id}</code></li></each></ul>
+          <h3>Fork repository</h3><label for="fork-name">Fork name</label><input id="fork-name" maxlength="80" bind-value={fork_name}><label for="fork-id">Fork operation ID</label><input id="fork-id" bind-value={fork}><button on-click={create_fork}>Create and initialize fork</button>
+          <ul class="cards"><each items={dashboard.forks} as="fork_card" key={fork_card.id}><li><strong>{fork_card.repository}</strong><p>forked from {fork_card.parent}</p><code>{fork_card.id}</code></li></each></ul>
+        </section>
+      </route>
       <route path="/issues">
         <section class="panel" aria-labelledby="issues-heading"><h2 id="issues-heading">Issues</h2><p>Current organization: <code>{organization}</code> · repository: <code>{repository}</code></p>
           <label for="issue-title">Title</label><input id="issue-title" minlength="1" maxlength="160" bind-value={issue_title}><label for="issue-body">Description</label><textarea id="issue-body" maxlength="16000" bind-value={issue_body}></textarea><label for="issue-id">Selected issue ID</label><input id="issue-id" bind-value={issue}>
@@ -236,15 +410,58 @@ export component GitForge:
           <article class="detail"><h3>{issue_detail.title}</h3><p>{issue_detail.body}</p><p>{issue_detail.state} · {issue_detail.author}</p></article>
           <h3>Discussion</h3><label for="comment-body">Comment</label><textarea id="comment-body" maxlength="16000" bind-value={comment_body}></textarea><div class="actions"><button on-click={add_comment}>Add comment</button><button on-click={load_comments}>Refresh comments</button></div><ol class="comments"><each items={issue_comments} as="comment" key={comment.id}><li><p>{comment.body}</p><p class="byline">{comment.author}</p></li></each></ol>
           <h3>Attachments</h3><label for="issue_attachment">Choose a file up to 8 MiB</label><input id="issue_attachment" type="file"><button on-click={upload_attachment}>Upload</button><label for="attachment-id">Attachment ID</label><input id="attachment-id" bind-value={attachment}><div class="actions"><button on-click={download_attachment}>Download</button><button class="danger" on-click={delete_attachment}>Delete</button></div><p>{attachment_status}</p>
+          <h3>Labels, milestones, and assignees</h3><div class="grid"><div><label for="milestone-title">Milestone</label><input id="milestone-title" maxlength="120" bind-value={milestone_title}></div><div><label for="milestone-due">Due</label><input id="milestone-due" maxlength="40" bind-value={milestone_due}></div><div><label for="label-name">Label</label><input id="label-name" maxlength="60" bind-value={label_name}></div><div><label for="label-color">Six-digit hex label color</label><input id="label-color" maxlength="6" bind-value={label_color}></div><div><label for="assignee">Assignee user ID</label><input id="assignee" bind-value={assignee}></div></div>
+          <div class="actions"><button on-click={create_milestone}>Create milestone</button><button on-click={create_label}>Create label</button><button on-click={label_issue}>Label selected issue</button><button on-click={assign_issue}>Assign selected issue</button><button on-click={reopen_issue}>Reopen issue</button></div>
+          <ul class="cards"><each items={dashboard.milestones} as="milestone_card" key={milestone_card.id}><li><strong>{milestone_card.title}</strong><p>{milestone_card.due}</p><code>{milestone_card.id}</code></li></each></ul>
+          <ul class="chips"><each items={dashboard.labels} as="label_card" key={label_card.id}><li><span class="badge">{label_card.name}</span><code>{label_card.id}</code></li></each></ul>
+          <h3>Issue board</h3><div class="grid"><div><label for="board-column-title">Column title</label><input id="board-column-title" maxlength="80" bind-value={board_column_title}></div><div><label for="board-column-id">Column ID</label><input id="board-column-id" bind-value={board_column}></div><div><label for="board-card-id">Card ID</label><input id="board-card-id" bind-value={board_card}></div></div><div class="actions"><button on-click={create_board_column}>Create column</button><button on-click={add_board_card}>Add issue to column</button><button on-click={move_board_card}>Move card here</button><button on-click={refresh_collaboration}>Refresh board</button></div>
+          <div class="board"><each items={dashboard.columns} as="column" key={column.id}><section><h3>{column.title}</h3><code>{column.id}</code><ul><each items={dashboard.cards} as="card" key={card.id}><when test={card.column == column.id}><li>Issue {card.issue}<code>{card.id}</code></li></when></each></ul></section></each></div>
         </section>
       </route>
       <route path="/merge-requests">
         <section class="panel" aria-labelledby="merges-heading"><h2 id="merges-heading">Merge requests</h2><p>Fast-forward merges use exact reviewed source and target objects. Changed refs abort.</p>
           <label for="merge-title">Title</label><input id="merge-title" minlength="1" maxlength="160" bind-value={merge_title}><label for="merge-body">Description</label><textarea id="merge-body" maxlength="16000" bind-value={merge_body}></textarea>
           <div class="grid"><div><label for="source-reference">Source ref</label><input id="source-reference" bind-value={source_reference}></div><div><label for="target-reference">Target ref</label><input id="target-reference" bind-value={target_reference}></div><div><label for="merge-id">Selected merge request ID</label><input id="merge-id" bind-value={merge_request}></div></div>
-          <div class="actions"><button on-click={create_merge_request}>Open merge request</button><button on-click={load_merge_requests}>Refresh</button><button on-click={next_merge_requests}>Next page</button><button on-click={read_merge_request}>Read</button><button on-click={approve_merge_request}>Approve</button><button on-click={resolve_discussions}>Resolve discussions</button><button on-click={merge_selected}>Merge</button><button on-click={finalize_merge}>Finalize committed merge</button><button class="danger" on-click={close_merge_request}>Close</button></div>
+          <div class="actions"><button on-click={create_merge_request}>Open merge request</button><button on-click={load_merge_requests}>Refresh</button><button on-click={next_merge_requests}>Next page</button><button on-click={read_merge_request}>Read</button><button on-click={approve_merge_request}>Approve</button><button on-click={resolve_discussions}>Resolve discussions</button><button on-click={merge_selected}>Merge</button><button class="danger" on-click={close_merge_request}>Close</button></div>
           <p>{merge_total}</p><ul class="cards"><each items={merge_requests.cards} as="merge_card" key={merge_card.id}><li><span class="badge">{merge_card.state}</span><strong>{merge_card.title}</strong><p>{merge_card.source_reference} → {merge_card.target_reference} · {int_text(merge_card.approvals)} approvals</p><code>{merge_card.id}</code></li></each></ul>
           <article class="detail"><h3>{selected_merge.title}</h3><p>{selected_merge.state} · {selected_merge.source_reference} → {selected_merge.target_reference}</p><p>{int_text(selected_merge.approvals)} approvals · author {selected_merge.author}</p><code>{selected_merge.source_object}</code></article>
+          <h3>Merge strategy</h3><label for="merge-message">Commit message</label><input id="merge-message" maxlength="4096" bind-value={merge_message}><div class="actions"><button on-click={create_squash_merge_request}>Open squash request</button><button on-click={create_merge_commit_request}>Open merge-commit request</button><button on-click={merge_squash}>Squash and merge</button><button on-click={merge_commit}>Create merge commit</button></div><p>Selected strategy: {selected_merge.strategy} · integrated object: <code>{integrated_object}</code></p>
+          <h3>Review threads</h3><label for="review-thread-body">Thread</label><textarea id="review-thread-body" maxlength="16000" bind-value={review_thread_body}></textarea><div class="grid"><div><label for="review-thread-id">Thread ID</label><input id="review-thread-id" bind-value={review_thread}></div><div><label for="review-id">Approval ID to dismiss</label><input id="review-id" bind-value={review_id}></div></div><div class="actions"><button on-click={add_review_thread}>Start thread</button><button on-click={resolve_review_thread}>Resolve thread</button><button class="danger" on-click={dismiss_approval}>Dismiss approval</button><button on-click={refresh_collaboration}>Refresh threads</button></div>
+          <ol class="comments"><each items={dashboard.threads} as="thread" key={thread.id}><li><span class="badge">{thread.resolved}</span><p>{thread.body}</p><p class="byline">{thread.author} · MR {thread.merge_request}</p><code>{thread.id}</code></li></each></ol>
+          <h3>Approvals</h3><ul class="cards"><each items={dashboard.reviews} as="review" key={review.id}><li><strong>{review.reviewer}</strong><p>MR {review.merge_request}</p><code>{review.id}</code></li></each></ul>
+        </section>
+      </route>
+      <route path="/knowledge">
+        <section class="panel" aria-labelledby="knowledge-heading"><h2 id="knowledge-heading">Wiki and snippets</h2>
+          <h3>Wiki page</h3><div class="grid"><div><label for="wiki-slug">Slug</label><input id="wiki-slug" maxlength="120" bind-value={wiki_slug}></div><div><label for="wiki-page-id">Page ID</label><input id="wiki-page-id" bind-value={wiki_page}></div></div><label for="wiki-title">Title</label><input id="wiki-title" maxlength="160" bind-value={wiki_title}><label for="wiki-body">Content</label><textarea id="wiki-body" maxlength="16000" bind-value={wiki_body}></textarea><div class="actions"><button on-click={create_wiki_page}>Create page</button><button on-click={update_wiki_page}>Save revision</button><button on-click={refresh_collaboration}>Refresh</button></div>
+          <ul class="cards"><each items={dashboard.wiki} as="page" key={page.id}><li><strong>{page.title}</strong><span class="badge">revision {int_text(page.revision)}</span><p>{page.body}</p><code>{page.slug} · {page.id}</code></li></each></ul>
+          <h3>Snippet</h3><div class="grid"><div><label for="snippet-title">Title</label><input id="snippet-title" maxlength="160" bind-value={snippet_title}></div><div><label for="snippet-filename">Filename</label><input id="snippet-filename" maxlength="255" bind-value={snippet_filename}></div></div><label for="snippet-body">Content</label><textarea id="snippet-body" maxlength="16000" bind-value={snippet_body}></textarea><button on-click={create_snippet}>Create snippet</button>
+          <ul class="cards"><each items={dashboard.snippets} as="snippet_card" key={snippet_card.id}><li><strong>{snippet_card.title}</strong><code>{snippet_card.filename}</code><pre>{snippet_card.body}</pre></li></each></ul>
+        </section>
+      </route>
+      <route path="/delivery">
+        <section class="panel" aria-labelledby="delivery-heading"><h2 id="delivery-heading">CI, artifacts, registry, and Pages</h2><p>Pipelines read <code>.diamond-ci.json</code> from an exact Git commit and run without network access in the bounded native sandbox.</p>
+          <div class="grid"><div><label for="pipeline-reference">Git ref</label><input id="pipeline-reference" bind-value={pipeline_reference}></div><div><label for="pipeline-event">Unique event ID</label><input id="pipeline-event" maxlength="128" bind-value={pipeline_event}></div><div><label for="pipeline-id">Pipeline ID</label><input id="pipeline-id" bind-value={pipeline}></div></div>
+          <div class="actions"><button on-click={schedule_pipeline}>Run pipeline</button><button on-click={refresh_delivery}>Refresh delivery</button><button class="danger" on-click={cancel_pipeline}>Cancel pipeline</button></div>
+          <h3>Pipelines</h3><ul class="cards"><each items={pipelines.cards} as="item" key={item.id}><li><span class="badge">{item.state}</span><strong>{item.reference}</strong><p>{item.created}</p><code>{item.id} · {item.commit}</code></li></each></ul>
+          <h3>Jobs</h3><ol class="commits"><each items={pipeline_jobs.cards} as="job" key={job.id}><li><span class="badge">{job.state}</span><strong>{job.name}</strong><p>attempts {job.attempts}</p><pre>{job.log}</pre><code>{job.id}</code></li></each></ol>
+          <h3>Artifacts</h3><p>Use the repository credential with <code>/_diamond/delivery/builds/REPOSITORY/artifacts/ID</code>.</p><ul class="cards"><each items={pipeline_artifacts.cards} as="item" key={item.id}><li><strong>{item.name}</strong><p>{item.size} bytes</p><code>{item.id} · {item.digest}</code></li></each></ul>
+          <h3>OCI images</h3><ul class="cards"><each items={pipeline_images.cards} as="item" key={item.digest}><li><span class="badge">{item.tag}</span><strong>{item.name}</strong><code>{item.digest}</code></li></each></ul>
+          <h3>Pages and environments</h3><ul class="cards"><each items={pipeline_pages.cards} as="item" key={item.site}><li><strong>{item.site}</strong><code>{item.deployment}</code></li></each></ul><ul class="cards"><each items={pipeline_environments.cards} as="item" key={item.name}><li><span class="badge">{item.state}</span><strong>{item.name}</strong><p>pipeline {item.pipeline}</p><code>{item.deployment}</code></li></each></ul>
+        </section>
+      </route>
+      <route path="/releases">
+        <section class="panel" aria-labelledby="releases-heading"><h2 id="releases-heading">Releases and Git LFS</h2><p>Release tags must resolve to a commit. Large working-tree objects use the standard Git LFS URL exposed beside clone and push.</p>
+          <div class="grid"><div><label for="release-tag">Tag or ref</label><input id="release-tag" maxlength="120" bind-value={release_tag}></div><div><label for="release-name">Name</label><input id="release-name" maxlength="160" bind-value={release_name}></div><div><label for="release-id">Release ID</label><input id="release-id" bind-value={release}></div></div><label for="release-notes">Notes</label><textarea id="release-notes" maxlength="16000" bind-value={release_notes}></textarea><label class="check"><input id="release-draft" type="checkbox" bind-checked={release_draft}> Draft release</label><div class="actions"><button on-click={create_release}>Create release</button><button on-click={refresh_collaboration}>Refresh releases</button></div>
+          <ul class="cards"><each items={dashboard.releases} as="release_card" key={release_card.id}><li><span class="badge">{release_card.tag}</span><strong>{release_card.name}</strong><p>{release_card.notes}</p><code>{release_card.id}</code></li></each></ul>
+          <h3>Release asset</h3><label for="release_asset_file">Choose an asset up to 8 MiB</label><input id="release_asset_file" type="file"><div class="actions"><button on-click={upload_release_asset}>Upload</button><button on-click={download_release_asset}>Download</button><button class="danger" on-click={delete_release_asset}>Delete</button></div><label for="release-asset-id">Asset ID</label><input id="release-asset-id" bind-value={release_asset}><p>{release_asset_status}</p>
+          <h3>Git LFS client configuration</h3><pre>git lfs install; git lfs track "*.bin"; git add .gitattributes your-file.bin; git commit; git push</pre>
+        </section>
+      </route>
+      <route path="/activity">
+        <section class="panel" aria-labelledby="activity-heading"><h2 id="activity-heading">Notifications and audit trail</h2><button on-click={refresh_collaboration}>Refresh activity</button><label for="notification-id">Notification ID</label><input id="notification-id" bind-value={notification}><button on-click={mark_notification_read}>Mark read</button>
+          <h3>Notifications</h3><ul class="cards"><each items={dashboard.notifications} as="notice" key={notice.id}><li><span class="badge">{notice.kind}</span><strong>{notice.message}</strong><p>repository {notice.repository}</p><code>{notice.id}</code></li></each></ul>
+          <h3>Administrative audit</h3><ol class="commits"><each items={dashboard.audit} as="audit" key={audit.id}><li><strong>{audit.action}</strong><p>{audit.subject}</p><p class="byline">actor {audit.actor}</p><code>{audit.id}</code></li></each></ol>
         </section>
       </route>
       <route path="/settings">
@@ -252,6 +469,7 @@ export component GitForge:
           <label for="protected-reference">Protected ref</label><input id="protected-reference" bind-value={protected_reference}><div class="actions"><button on-click={protect_main}>Require approval and resolved discussions</button><button class="danger" on-click={unprotect_main}>Remove protection</button></div>
           <h3>Deploy key</h3><label for="deploy-label">Label</label><input id="deploy-label" bind-value={deploy_label}><label for="deploy-key">Ed25519 public key</label><textarea id="deploy-key" bind-value={deploy_key}></textarea><div class="actions"><button on-click={add_deploy_key}>Add read-only deploy key</button><button class="danger" on-click={revoke_deploy_key}>Revoke key</button></div><label for="deploy-id">Deploy key ID</label><input id="deploy-id" bind-value={deploy_id}>
           <h3>Durable push events</h3><button on-click={load_push_events}>Load pending events</button><pre>{push_events}</pre><label for="push-event-id">Event ID</label><input id="push-event-id" bind-value={push_event_id}><button on-click={acknowledge_push_event}>Acknowledge event</button>
+          <h3>Webhooks</h3><p>Webhook destinations are selected from the administrator-bound <code>webhook</code> origin. Application users control only a permitted path.</p><div class="grid"><div><label for="webhook-path">Destination path</label><input id="webhook-path" maxlength="120" bind-value={webhook_path}></div><div><label for="webhook-id">Webhook ID</label><input id="webhook-id" bind-value={webhook}></div><div><label for="webhook-event">Event ID</label><input id="webhook-event" maxlength="128" bind-value={webhook_event}></div></div><label for="webhook-payload">Payload</label><textarea id="webhook-payload" maxlength="16000" bind-value={webhook_payload}></textarea><div class="actions"><button on-click={create_webhook}>Create webhook</button><button on-click={test_webhook}>Deliver test event</button><button on-click={refresh_collaboration}>Refresh webhooks</button></div><ul class="cards"><each items={dashboard.webhooks} as="hook" key={hook.id}><li><span class="badge">{hook.active}</span><strong>{hook.path}</strong><code>{hook.id}</code></li></each></ul>
         </section>
       </route>
       <div class="activity" aria-live="polite"><strong>Live activity</strong><p>{activity}</p></div>

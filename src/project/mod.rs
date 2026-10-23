@@ -6,6 +6,7 @@ pub(crate) mod artifact;
 mod assets;
 mod browser;
 mod connected;
+pub(crate) mod delivery;
 mod deployment;
 mod events;
 mod files;
@@ -84,6 +85,8 @@ struct Manifest {
     files: Option<files::Config>,
     #[serde(default)]
     git: Option<git::Config>,
+    #[serde(default)]
+    delivery: Option<delivery::Config>,
     #[serde(default)]
     jobs: BTreeMap<String, jobs::Binding>,
     #[serde(default)]
@@ -567,6 +570,50 @@ impl CheckedProject {
         git::initialize(self, configuration, grants)
     }
 
+    /// Bind every declared delivery store to this application.
+    ///
+    /// # Errors
+    /// Rejects missing grants, unsafe roots or runner executables, identity
+    /// mismatches, incompatible database metadata, and storage failures.
+    pub fn initialize_delivery(
+        &self,
+        configuration: &str,
+        grants: &crate::RuntimeGrants,
+    ) -> Result<String> {
+        synchronous_context()?;
+        delivery::initialize(self, configuration, grants)
+    }
+
+    /// Claim and run one queued delivery job in the isolated native runner.
+    ///
+    /// # Errors
+    /// Rejects invalid grants and records a claimed job as failed when its
+    /// checkout, sandbox, resource limits, or output publication fails.
+    pub fn work_delivery_once(
+        &self,
+        configuration: &str,
+        grants: &crate::RuntimeGrants,
+    ) -> Result<String> {
+        synchronous_context()?;
+        delivery::work(self, configuration, grants, true)
+    }
+
+    /// Serve the active static Pages deployments on a cookie-free listener.
+    ///
+    /// # Errors
+    /// Rejects an unknown binding, invalid grants, listener failures, and
+    /// incompatible delivery metadata.
+    pub fn serve_pages(
+        &self,
+        address: SocketAddr,
+        configuration: &str,
+        grants: &crate::RuntimeGrants,
+        binding: &str,
+    ) -> Result<()> {
+        synchronous_context()?;
+        delivery::serve_pages(self, address, configuration, grants, binding)
+    }
+
     /// Promote the configured Git root for one binding with compare-and-swap fencing.
     ///
     /// # Errors
@@ -684,11 +731,14 @@ fn manifest(source: &str) -> Result<Manifest> {
     if manifest.git.is_some() && manifest.identity.is_none() {
         return Err(input("Git bindings require accounts-v1"));
     }
+    if manifest.delivery.is_some() && (manifest.identity.is_none() || manifest.git.is_none()) {
+        return Err(input("delivery-v1 requires accounts-v1 and Git"));
+    }
     if manifest.http_api.is_some() && manifest.identity.is_none() {
         return Err(input("HTTP APIs require accounts-v1"));
     }
-    if manifest.rpc.len() > 64 {
-        return Err(input("at most 64 RPC operations are supported"));
+    if manifest.rpc.len() > 128 {
+        return Err(input("at most 128 RPC operations are supported"));
     }
     let mut paths = BTreeSet::new();
     for (name, config) in &manifest.modules {
@@ -969,6 +1019,9 @@ fn check_server(manifest: &Manifest, modules: &BTreeMap<String, Module>) -> Resu
     if let Some(config) = &manifest.git {
         config.check(manifest, &server)?;
     }
+    if let Some(config) = &manifest.delivery {
+        config.check(manifest, &server)?;
+    }
     check_effect_boundaries(&server)?;
     if !wire::safe_type(&server.functions["main"].result, &server)
         && contains_secret(&server.functions["main"].result, &server, 0)
@@ -1079,14 +1132,20 @@ fn capability_effect(name: &str) -> Result<Effect> {
     if ["PostgresRead", "Jobs", "Events", "JobKey"].contains(&name) {
         return Ok(Effect::Host(name.into()));
     }
-    if ["GitRead<", "GitWrite<", "GitReview<", "GitAdmin<"]
-        .iter()
-        .any(|prefix| {
-            name.strip_prefix(prefix)
-                .and_then(|value| value.strip_suffix('>'))
-                .is_some_and(resolve::identifier)
-        })
-    {
+    if [
+        "GitRead<",
+        "GitWrite<",
+        "GitReview<",
+        "GitAdmin<",
+        "DeliveryRead<",
+        "DeliveryWrite<",
+    ]
+    .iter()
+    .any(|prefix| {
+        name.strip_prefix(prefix)
+            .and_then(|value| value.strip_suffix('>'))
+            .is_some_and(resolve::identifier)
+    }) {
         return Ok(Effect::Host(name.into()));
     }
     for (prefix, write) in [("DbRead<", false), ("DbWrite<", true)] {

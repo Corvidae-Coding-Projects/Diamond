@@ -1,6 +1,8 @@
 //! Connected loopback serving with exact-origin RPC and shared `PostgreSQL` identity.
 
+mod delivery;
 mod git;
+mod git_lfs;
 mod oauth;
 mod profiles;
 
@@ -116,6 +118,7 @@ pub(super) fn serve_runtime(
     let _deployment_guard = super::deployment::guard(project, configuration, false)?;
     let objects = super::files::Store::open(project, configuration, &runtime, false)?;
     super::git::validate(project, configuration, &runtime)?;
+    super::delivery::validate(project, configuration, &runtime)?;
     oauth::validate_runtime(project, &runtime)?;
     let authority = check_origin(origin)?;
     let mailbox = match (&project.manifest.identity, mailbox) {
@@ -223,6 +226,10 @@ async fn handler(
 ) -> Response {
     let class = if request.uri().path().starts_with("/api/") {
         "api"
+    } else if request.uri().path().starts_with("/v2/")
+        || request.uri().path().starts_with("/_diamond/delivery/")
+    {
+        "delivery"
     } else if request.uri().path().starts_with("/_diamond/git/") {
         "git"
     } else if request.uri().path().starts_with("/_diamond/rpc/") {
@@ -268,7 +275,15 @@ async fn handler_inner(
         return failure(&Error::Limit("server draining"));
     }
     if request.uri().path().starts_with("/_diamond/git/") {
+        if request.uri().path().contains(".git/info/lfs/") {
+            return git_lfs::request(server, request, peer.ip().to_string(), permit).await;
+        }
         return git::request(server, request, peer.ip().to_string(), permit).await;
+    }
+    if request.uri().path().starts_with("/v2/")
+        || request.uri().path().starts_with("/_diamond/delivery/")
+    {
+        return delivery::request(server, request, peer.ip().to_string(), permit).await;
     }
     if request.uri().path().starts_with("/_diamond/oauth/") {
         return oauth::request(server, request, peer.ip().to_string(), permit).await;

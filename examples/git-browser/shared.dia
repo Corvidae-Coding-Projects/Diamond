@@ -1,3 +1,13 @@
+export enum MemberRole:
+  Maintainer
+  Developer
+  Reporter
+
+export enum MergeStrategy:
+  FastForward
+  Squash
+  MergeCommit
+
 export type GitHead:
   reference: Text
   object: Option<Text>
@@ -38,6 +48,14 @@ export type GitDiff:
   old: Text
   new: Text
   text: Text
+
+export type GitIntegration:
+  receipt: Text
+  result: Text
+  source_object: Text
+  target_object: Text
+  strategy: Text
+  actor: Text
 
 export type OrganizationCard:
   id: Text
@@ -88,6 +106,7 @@ export type MergeRequestCard:
   target_object: Text
   approvals: Int
   author: Text
+  strategy: Text
 
 export type MergeRequestPage:
   cards: List<MergeRequestCard>
@@ -101,3 +120,162 @@ export type MergePlan:
   target_reference: Text
   source_object: Text
   target_object: Text
+
+export type TeamCard:
+  id: Text
+  name: Text
+
+export type PermissionCard:
+  id: Text
+  source: Text
+  user: Text
+  role: Text
+
+export type ForkCard:
+  id: Text
+  parent: Text
+  repository: Text
+
+export type MilestoneCard:
+  id: Text
+  title: Text
+  due: Text
+  closed: Bool
+
+export type LabelCard:
+  id: Text
+  name: Text
+  color: Text
+
+export type BoardColumnCard:
+  id: Text
+  title: Text
+  position: Int
+
+export type BoardIssueCard:
+  id: Text
+  issue: Text
+  column: Text
+  position: Int
+
+export type WikiCard:
+  id: Text
+  slug: Text
+  title: Text
+  body: Text
+  revision: Int
+
+export type SnippetCard:
+  id: Text
+  title: Text
+  filename: Text
+  body: Text
+
+export type ThreadCard:
+  id: Text
+  merge_request: Text
+  body: Text
+  author: Text
+  resolved: Bool
+
+export type ReviewCard:
+  id: Text
+  merge_request: Text
+  reviewer: Text
+  head: Text
+
+export type NotificationCard:
+  id: Text
+  kind: Text
+  message: Text
+  repository: Text
+  read: Bool
+
+export type ReleaseCard:
+  id: Text
+  tag: Text
+  name: Text
+  notes: Text
+  draft: Bool
+
+export type WebhookCard:
+  id: Text
+  path: Text
+  active: Bool
+
+export type AuditCard:
+  id: Text
+  action: Text
+  subject: Text
+  actor: Text
+
+export type CollaborationDashboard:
+  teams: List<TeamCard>
+  team_permissions: List<PermissionCard>
+  direct_permissions: List<PermissionCard>
+  forks: List<ForkCard>
+  milestones: List<MilestoneCard>
+  labels: List<LabelCard>
+  columns: List<BoardColumnCard>
+  cards: List<BoardIssueCard>
+  wiki: List<WikiCard>
+  snippets: List<SnippetCard>
+  threads: List<ThreadCard>
+  reviews: List<ReviewCard>
+  notifications: List<NotificationCard>
+  releases: List<ReleaseCard>
+  webhooks: List<WebhookCard>
+  audit: List<AuditCard>
+
+export type PipelineCard:
+  id: Text
+  commit: Text
+  reference: Text
+  state: Text
+  created: Text
+
+export type JobCard:
+  id: Text
+  name: Text
+  state: Text
+  attempts: Text
+  log: Text
+
+export type ArtifactCard:
+  id: Text
+  name: Text
+  digest: Text
+  size: Text
+
+export type ImageCard:
+  name: Text
+  tag: Text
+  digest: Text
+
+export type PageCard:
+  site: Text
+  deployment: Text
+
+export type EnvironmentCard:
+  name: Text
+  state: Text
+  deployment: Text
+  pipeline: Text
+
+export type PipelineResults:
+  cards: List<PipelineCard>
+
+export type JobResults:
+  cards: List<JobCard>
+
+export type ArtifactResults:
+  cards: List<ArtifactCard>
+
+export type ImageResults:
+  cards: List<ImageCard>
+
+export type PageResults:
+  cards: List<PageCard>
+
+export type EnvironmentResults:
+  cards: List<EnvironmentCard>

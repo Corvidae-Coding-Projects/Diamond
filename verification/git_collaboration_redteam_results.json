@@ -1,0 +1,739 @@
+{
+  "profile": "diamond-forge-g2-collaboration",
+  "passed": 183,
+  "total": 183,
+  "results": [
+    {
+      "name": "initialize PostgreSQL",
+      "pass": true
+    },
+    {
+      "name": "start PostgreSQL",
+      "pass": true
+    },
+    {
+      "name": "initialize application schema",
+      "pass": true
+    },
+    {
+      "name": "initialize shared object store",
+      "pass": true
+    },
+    {
+      "name": "initialize Git store",
+      "pass": true
+    },
+    {
+      "name": "initialize delivery store",
+      "pass": true
+    },
+    {
+      "name": "provision administrator",
+      "pass": true
+    },
+    {
+      "name": "provision bob",
+      "pass": true
+    },
+    {
+      "name": "provision charlie",
+      "pass": true
+    },
+    {
+      "name": "server renders application navigation",
+      "pass": true
+    },
+    {
+      "name": "bootstrap alice session",
+      "pass": true
+    },
+    {
+      "name": "login alice",
+      "pass": true
+    },
+    {
+      "name": "bootstrap bob session",
+      "pass": true
+    },
+    {
+      "name": "login bob",
+      "pass": true
+    },
+    {
+      "name": "bootstrap charlie session",
+      "pass": true
+    },
+    {
+      "name": "login charlie",
+      "pass": true
+    },
+    {
+      "name": "create organization",
+      "pass": true
+    },
+    {
+      "name": "create private repository",
+      "pass": true
+    },
+    {
+      "name": "initialize private Git repository",
+      "pass": true
+    },
+    {
+      "name": "nonmember cannot discover private repository",
+      "pass": true
+    },
+    {
+      "name": "nonmember cannot create issue",
+      "pass": true
+    },
+    {
+      "name": "grant developer",
+      "pass": true
+    },
+    {
+      "name": "grant second developer",
+      "pass": true
+    },
+    {
+      "name": "member sees private repository",
+      "pass": true
+    },
+    {
+      "name": "create bounded issue 00",
+      "pass": true
+    },
+    {
+      "name": "create bounded issue 01",
+      "pass": true
+    },
+    {
+      "name": "create bounded issue 02",
+      "pass": true
+    },
+    {
+      "name": "create bounded issue 03",
+      "pass": true
+    },
+    {
+      "name": "create bounded issue 04",
+      "pass": true
+    },
+    {
+      "name": "create bounded issue 05",
+      "pass": true
+    },
+    {
+      "name": "create bounded issue 06",
+      "pass": true
+    },
+    {
+      "name": "create bounded issue 07",
+      "pass": true
+    },
+    {
+      "name": "create bounded issue 08",
+      "pass": true
+    },
+    {
+      "name": "create bounded issue 09",
+      "pass": true
+    },
+    {
+      "name": "create bounded issue 10",
+      "pass": true
+    },
+    {
+      "name": "create bounded issue 11",
+      "pass": true
+    },
+    {
+      "name": "create bounded issue 12",
+      "pass": true
+    },
+    {
+      "name": "create bounded issue 13",
+      "pass": true
+    },
+    {
+      "name": "create bounded issue 14",
+      "pass": true
+    },
+    {
+      "name": "create bounded issue 15",
+      "pass": true
+    },
+    {
+      "name": "create bounded issue 16",
+      "pass": true
+    },
+    {
+      "name": "create bounded issue 17",
+      "pass": true
+    },
+    {
+      "name": "create bounded issue 18",
+      "pass": true
+    },
+    {
+      "name": "create bounded issue 19",
+      "pass": true
+    },
+    {
+      "name": "create bounded issue 20",
+      "pass": true
+    },
+    {
+      "name": "create bounded issue 21",
+      "pass": true
+    },
+    {
+      "name": "issue first page bounded",
+      "pass": true
+    },
+    {
+      "name": "issue cursor reaches remaining rows",
+      "pass": true
+    },
+    {
+      "name": "caller cannot inject child visibility",
+      "pass": true
+    },
+    {
+      "name": "hostile issue text remains literal",
+      "pass": true
+    },
+    {
+      "name": "add issue comment",
+      "pass": true
+    },
+    {
+      "name": "authorized collaborator reads literal comment",
+      "pass": true
+    },
+    {
+      "name": "revoke developer",
+      "pass": true
+    },
+    {
+      "name": "revocation immediately hides private issue",
+      "pass": true
+    },
+    {
+      "name": "restore developer for merge flow",
+      "pass": true
+    },
+    {
+      "name": "create scoped Git credential",
+      "pass": true
+    },
+    {
+      "name": "clone empty repository",
+      "pass": true
+    },
+    {
+      "name": "configure Git author email",
+      "pass": true
+    },
+    {
+      "name": "configure Git author name",
+      "pass": true
+    },
+    {
+      "name": "stage main",
+      "pass": true
+    },
+    {
+      "name": "commit main",
+      "pass": true
+    },
+    {
+      "name": "push main",
+      "pass": true
+    },
+    {
+      "name": "create feature branch",
+      "pass": true
+    },
+    {
+      "name": "stage feature",
+      "pass": true
+    },
+    {
+      "name": "commit feature",
+      "pass": true
+    },
+    {
+      "name": "push feature",
+      "pass": true
+    },
+    {
+      "name": "create unprotected recovery target",
+      "pass": true
+    },
+    {
+      "name": "open recovery-finalization probe",
+      "pass": true
+    },
+    {
+      "name": "move recovery target outside merge flow",
+      "pass": true
+    },
+    {
+      "name": "legacy receipt-free finalization endpoint is absent",
+      "pass": true
+    },
+    {
+      "name": "protect main with approval and discussion gate",
+      "pass": true
+    },
+    {
+      "name": "open merge request",
+      "pass": true
+    },
+    {
+      "name": "author cannot self-approve",
+      "pass": true
+    },
+    {
+      "name": "non-author approval records exact review gate",
+      "pass": true
+    },
+    {
+      "name": "second approval remains bounded and unique by reviewer",
+      "pass": true
+    },
+    {
+      "name": "duplicate reviewer approval rejected",
+      "pass": true
+    },
+    {
+      "name": "unresolved discussion blocks merge preparation",
+      "pass": true
+    },
+    {
+      "name": "unresolved discussion blocks native merge",
+      "pass": true
+    },
+    {
+      "name": "resolve discussions updates exact native gate",
+      "pass": true
+    },
+    {
+      "name": "prepare exact merge plan",
+      "pass": true
+    },
+    {
+      "name": "raw client-supplied merge primitive is absent",
+      "pass": true
+    },
+    {
+      "name": "approved exact-CAS merge succeeds",
+      "pass": true
+    },
+    {
+      "name": "native receipt finalizes exact merge request",
+      "pass": true
+    },
+    {
+      "name": "merged request cannot transition to closed",
+      "pass": true
+    },
+    {
+      "name": "merged request cannot receive another approval",
+      "pass": true
+    },
+    {
+      "name": "merge replay rejected without moving target",
+      "pass": true
+    },
+    {
+      "name": "create stale branch",
+      "pass": true
+    },
+    {
+      "name": "stage stale branch",
+      "pass": true
+    },
+    {
+      "name": "commit stale branch",
+      "pass": true
+    },
+    {
+      "name": "push stale branch",
+      "pass": true
+    },
+    {
+      "name": "open stale-head probe",
+      "pass": true
+    },
+    {
+      "name": "approve stale-head probe",
+      "pass": true
+    },
+    {
+      "name": "resolve stale-head probe",
+      "pass": true
+    },
+    {
+      "name": "commit source movement",
+      "pass": true
+    },
+    {
+      "name": "push source movement",
+      "pass": true
+    },
+    {
+      "name": "changed source invalidates reviewed merge",
+      "pass": true
+    },
+    {
+      "name": "remove organization-wide access before scoped permission tests",
+      "pass": true
+    },
+    {
+      "name": "create organization team",
+      "pass": true
+    },
+    {
+      "name": "grant repository access through team",
+      "pass": true
+    },
+    {
+      "name": "team developer discovers private repository",
+      "pass": true
+    },
+    {
+      "name": "team developer contributes issue",
+      "pass": true
+    },
+    {
+      "name": "revoke team repository access",
+      "pass": true
+    },
+    {
+      "name": "team revocation immediately hides private repository",
+      "pass": true
+    },
+    {
+      "name": "grant direct reporter permission",
+      "pass": true
+    },
+    {
+      "name": "direct reporter reads private repository",
+      "pass": true
+    },
+    {
+      "name": "reporter cannot create issue",
+      "pass": true
+    },
+    {
+      "name": "revoke direct repository permission",
+      "pass": true
+    },
+    {
+      "name": "restore second developer after scoped permission tests",
+      "pass": true
+    },
+    {
+      "name": "create fork metadata",
+      "pass": true
+    },
+    {
+      "name": "copy authorized bare repository for fork",
+      "pass": true
+    },
+    {
+      "name": "fork preserves main object without hard links",
+      "pass": true
+    },
+    {
+      "name": "create milestone",
+      "pass": true
+    },
+    {
+      "name": "create label",
+      "pass": true
+    },
+    {
+      "name": "attach repository label to issue",
+      "pass": true
+    },
+    {
+      "name": "assign issue and emit notification",
+      "pass": true
+    },
+    {
+      "name": "create first board column",
+      "pass": true
+    },
+    {
+      "name": "create second board column",
+      "pass": true
+    },
+    {
+      "name": "add issue to board",
+      "pass": true
+    },
+    {
+      "name": "move board card",
+      "pass": true
+    },
+    {
+      "name": "create wiki page with hostile literal text",
+      "pass": true
+    },
+    {
+      "name": "create next wiki revision",
+      "pass": true
+    },
+    {
+      "name": "create repository snippet",
+      "pass": true
+    },
+    {
+      "name": "notifications are recipient-visible",
+      "pass": true
+    },
+    {
+      "name": "hostile wiki and snippet content remains data",
+      "pass": true
+    },
+    {
+      "name": "create issue in fork",
+      "pass": true
+    },
+    {
+      "name": "cross-repository label attachment rejected",
+      "pass": true
+    },
+    {
+      "name": "refresh integrated main",
+      "pass": true
+    },
+    {
+      "name": "create squash branch",
+      "pass": true
+    },
+    {
+      "name": "stage squash branch",
+      "pass": true
+    },
+    {
+      "name": "commit squash branch",
+      "pass": true
+    },
+    {
+      "name": "push squash branch",
+      "pass": true
+    },
+    {
+      "name": "open squash merge request",
+      "pass": true
+    },
+    {
+      "name": "approve squash merge request",
+      "pass": true
+    },
+    {
+      "name": "start review thread and revoke resolved gate",
+      "pass": true
+    },
+    {
+      "name": "generic discussion resolution cannot bypass open thread",
+      "pass": true
+    },
+    {
+      "name": "new review thread revokes native protected-ref authorization",
+      "pass": true
+    },
+    {
+      "name": "resolve exact review thread",
+      "pass": true
+    },
+    {
+      "name": "execute receipt-bound squash integration",
+      "pass": true
+    },
+    {
+      "name": "finalize squash only with matching native receipt",
+      "pass": true
+    },
+    {
+      "name": "squash result has target parent and source tree",
+      "pass": true
+    },
+    {
+      "name": "forged integration receipt cannot finalize",
+      "pass": true
+    },
+    {
+      "name": "refresh squashed main",
+      "pass": true
+    },
+    {
+      "name": "create merge-commit branch",
+      "pass": true
+    },
+    {
+      "name": "stage merge-commit branch",
+      "pass": true
+    },
+    {
+      "name": "commit merge-commit branch",
+      "pass": true
+    },
+    {
+      "name": "push merge-commit branch",
+      "pass": true
+    },
+    {
+      "name": "open merge-commit request",
+      "pass": true
+    },
+    {
+      "name": "approve merge-commit request",
+      "pass": true
+    },
+    {
+      "name": "resolve thread-free merge request",
+      "pass": true
+    },
+    {
+      "name": "dismiss recorded approval",
+      "pass": true
+    },
+    {
+      "name": "approval dismissal revokes native protected-ref gate",
+      "pass": true
+    },
+    {
+      "name": "independent reviewer restores exact approval gate",
+      "pass": true
+    },
+    {
+      "name": "execute receipt-bound merge commit",
+      "pass": true
+    },
+    {
+      "name": "finalize merge commit",
+      "pass": true
+    },
+    {
+      "name": "merge-commit result records target and source parents",
+      "pass": true
+    },
+    {
+      "name": "create release from resolvable ref",
+      "pass": true
+    },
+    {
+      "name": "create allowlisted webhook",
+      "pass": true
+    },
+    {
+      "name": "deliver bounded outbound webhook",
+      "pass": true
+    },
+    {
+      "name": "webhook uses configured bearer secret and literal payload",
+      "pass": true
+    },
+    {
+      "name": "store hostile webhook probe without contacting it",
+      "pass": true
+    },
+    {
+      "name": "absolute webhook URL cannot escape runtime destination",
+      "pass": true
+    },
+    {
+      "name": "create scope-limited REST credential",
+      "pass": true
+    },
+    {
+      "name": "versioned REST dashboard succeeds",
+      "pass": true
+    },
+    {
+      "name": "REST credential cannot exceed operation allowlist",
+      "pass": true
+    },
+    {
+      "name": "maintainer audit feed records administrative actions",
+      "pass": true
+    },
+    {
+      "name": "LFS upload batch returns bounded basic action",
+      "pass": true
+    },
+    {
+      "name": "stream LFS object with digest verification",
+      "pass": true
+    },
+    {
+      "name": "download exact LFS object",
+      "pass": true
+    },
+    {
+      "name": "LFS digest mismatch rejected",
+      "pass": true
+    },
+    {
+      "name": "private LFS upload requires credential",
+      "pass": true
+    },
+    {
+      "name": "create owner-bound LFS lock",
+      "pass": true
+    },
+    {
+      "name": "create second writer credential for lock attack",
+      "pass": true
+    },
+    {
+      "name": "repository writer cannot force-unlock another owner's LFS lock",
+      "pass": true
+    },
+    {
+      "name": "lock owner can unlock",
+      "pass": true
+    },
+    {
+      "name": "web merge emits durable user push event",
+      "pass": true
+    },
+    {
+      "name": "web merge leaves recovery spool until reconciliation",
+      "pass": true
+    },
+    {
+      "name": "locate exact web-merge recovery event",
+      "pass": true
+    },
+    {
+      "name": "stage committed and abandoned prepared-spool faults",
+      "pass": true
+    },
+    {
+      "name": "reconcile web merge event spool",
+      "pass": true
+    },
+    {
+      "name": "reconciliation distinguishes committed and abandoned prepared events",
+      "pass": true
+    },
+    {
+      "name": "reconciliation clears committed spool",
+      "pass": true
+    },
+    {
+      "name": "reconciliation clears prepared spool",
+      "pass": true
+    },
+    {
+      "name": "repository passes strict fsck",
+      "pass": true
+    }
+  ]
+}

@@ -85,7 +85,10 @@ CREATE TABLE IF NOT EXISTS diamond_git.deploy_keys(app TEXT NOT NULL, id TEXT NO
 CREATE INDEX IF NOT EXISTS git_deploy_key_repository ON diamond_git.deploy_keys(app,binding,repository);
 CREATE TABLE IF NOT EXISTS diamond_git.certificate_principals(app TEXT NOT NULL, id TEXT NOT NULL, principal TEXT NOT NULL CHECK(octet_length(principal)<=160), binding TEXT NOT NULL, repository TEXT NOT NULL, can_write BOOLEAN NOT NULL, expires TIMESTAMPTZ NOT NULL, revoked BOOLEAN NOT NULL DEFAULT false, PRIMARY KEY(app,id), UNIQUE(app,principal), FOREIGN KEY(app,binding) REFERENCES diamond_git.stores(app,binding));
 CREATE TABLE IF NOT EXISTS diamond_git.push_events(app TEXT NOT NULL, nonce TEXT NOT NULL, binding TEXT NOT NULL, repository TEXT NOT NULL, actor_kind TEXT NOT NULL CHECK(actor_kind IN ('user','deploy','certificate')), actor TEXT NOT NULL CHECK(octet_length(actor)<=160), store_generation BIGINT NOT NULL CHECK(store_generation>0), updates TEXT NOT NULL CHECK(octet_length(updates)<=524288), state TEXT NOT NULL CHECK(state IN ('prepared','committed')), created TIMESTAMPTZ NOT NULL DEFAULT pg_catalog.clock_timestamp(), committed TIMESTAMPTZ, delivered TIMESTAMPTZ, PRIMARY KEY(app,nonce), FOREIGN KEY(app,binding) REFERENCES diamond_git.stores(app,binding));
-CREATE INDEX IF NOT EXISTS git_push_event_delivery ON diamond_git.push_events(app,state,created);";
+CREATE INDEX IF NOT EXISTS git_push_event_delivery ON diamond_git.push_events(app,state,created);
+CREATE TABLE IF NOT EXISTS diamond_git.integrations(app TEXT NOT NULL, binding TEXT NOT NULL, repository TEXT NOT NULL, receipt TEXT NOT NULL CHECK(octet_length(receipt) BETWEEN 1 AND 128), result TEXT NOT NULL CHECK(octet_length(result) IN (40,64)), source_object TEXT NOT NULL CHECK(octet_length(source_object) IN (40,64)), target_object TEXT NOT NULL CHECK(octet_length(target_object) IN (40,64)), strategy TEXT NOT NULL CHECK(strategy IN ('fast_forward','squash','merge_commit')), actor TEXT NOT NULL CHECK(octet_length(actor) BETWEEN 1 AND 128), created TIMESTAMPTZ NOT NULL DEFAULT pg_catalog.clock_timestamp(), PRIMARY KEY(app,binding,repository,receipt), UNIQUE(app,binding,repository,result), FOREIGN KEY(app,binding,repository) REFERENCES diamond_git.repositories(app,binding,repository));
+CREATE TABLE IF NOT EXISTS diamond_git.lfs_objects(app TEXT NOT NULL, binding TEXT NOT NULL, repository TEXT NOT NULL, oid TEXT NOT NULL CHECK(oid ~ '^[0-9a-f]{64}$'), size BIGINT NOT NULL CHECK(size BETWEEN 0 AND 2147483648), created TIMESTAMPTZ NOT NULL DEFAULT pg_catalog.clock_timestamp(), PRIMARY KEY(app,binding,repository,oid), FOREIGN KEY(app,binding,repository) REFERENCES diamond_git.repositories(app,binding,repository));
+CREATE TABLE IF NOT EXISTS diamond_git.lfs_locks(app TEXT NOT NULL, binding TEXT NOT NULL, repository TEXT NOT NULL, id TEXT NOT NULL CHECK(id ~ '^[0-9a-f]{64}$'), path TEXT NOT NULL CHECK(octet_length(path) BETWEEN 1 AND 1024), owner TEXT NOT NULL CHECK(octet_length(owner) BETWEEN 1 AND 160), created TIMESTAMPTZ NOT NULL DEFAULT pg_catalog.clock_timestamp(), PRIMARY KEY(app,binding,repository,id), UNIQUE(app,binding,repository,path), FOREIGN KEY(app,binding,repository) REFERENCES diamond_git.repositories(app,binding,repository));";
 
 pub(super) fn schema(store: &mut PostgresStore, config: &Config, initialize: bool) -> Result<()> {
     let shape = artifact::hash(&serde_json::to_vec(config).map_err(|_| Error::Denied)?);
@@ -209,6 +212,7 @@ impl Store {
         validate_hook(&self.root, "pre-receive")?;
         validate_hook(&self.root, "post-receive")?;
         private_directory(&self.event_path())?;
+        private_directory(&self.lfs_path())?;
         Ok(())
     }
 
@@ -218,6 +222,10 @@ impl Store {
 
     fn event_path(&self) -> PathBuf {
         self.root.join(".diamond-events")
+    }
+
+    fn lfs_path(&self) -> PathBuf {
+        self.root.join(".diamond-lfs")
     }
 
     fn install_hook(&self) -> Result<()> {
@@ -243,6 +251,17 @@ impl Store {
             builder.create(&events)?;
         }
         private_directory(&events)?;
+        let lfs = self.lfs_path();
+        if !lfs.exists() {
+            let mut builder = fs::DirBuilder::new();
+            #[cfg(unix)]
+            {
+                use std::os::unix::fs::DirBuilderExt;
+                builder.mode(0o700);
+            }
+            builder.create(&lfs)?;
+        }
+        private_directory(&lfs)?;
         for hook in ["pre-receive", "post-receive"] {
             let temporary = directory.join(format!(".{hook}-{}", crate::authority::random_hex()?));
             let mut output = options().write(true).create_new(true).open(&temporary)?;
@@ -297,6 +316,13 @@ impl Store {
             }
             Err(error) => return Err(error.into()),
         };
+        self.configure_repository(&path)?;
+        self.require_repository(&path)?;
+        File::open(&self.root)?.sync_all()?;
+        Ok(serde_json::json!({"state":if created { "created" } else { "existing" }}))
+    }
+
+    fn configure_repository(&self, path: &Path) -> Result<()> {
         for (key, value) in [
             ("core.hooksPath", self.hook_path()),
             ("receive.fsckObjects", PathBuf::from("true")),
@@ -320,9 +346,7 @@ impl Store {
                 16_384,
             )?;
         }
-        self.require_repository(&path)?;
-        File::open(&self.root)?.sync_all()?;
-        Ok(serde_json::json!({"state":if created { "created" } else { "existing" }}))
+        Ok(())
     }
 
     fn require_bare(&self, path: &Path) -> Result<()> {
@@ -634,6 +658,70 @@ impl Store {
         self.run(&owned, limit)
     }
 
+    fn run_repo_with_input(
+        &self,
+        repository: &Path,
+        arguments: &[&str],
+        input: &[u8],
+        limit: usize,
+    ) -> Result<Vec<u8>> {
+        self.verify()?;
+        let mut command = Command::new(&self.executable);
+        command
+            .args([
+                "-c",
+                "protocol.file.allow=never",
+                "-c",
+                "core.askPass=",
+                "-c",
+                "credential.helper=",
+                "-c",
+                "pack.threads=1",
+                "-c",
+                "core.deltaBaseCacheLimit=16777216",
+                "--git-dir",
+            ])
+            .arg(repository)
+            .args(arguments)
+            .env_clear()
+            .env("HOME", &self.root)
+            .env("GIT_CONFIG_GLOBAL", "/dev/null")
+            .env("GIT_CONFIG_NOSYSTEM", "1")
+            .env("GIT_TERMINAL_PROMPT", "0")
+            .env("GIT_AUTHOR_NAME", "Diamond Forge")
+            .env("GIT_AUTHOR_EMAIL", "forge@diamond.invalid")
+            .env("GIT_COMMITTER_NAME", "Diamond Forge")
+            .env("GIT_COMMITTER_EMAIL", "forge@diamond.invalid")
+            .env("LC_ALL", "C.UTF-8")
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped());
+        let mut child = command.spawn().map_err(|_| git_failure())?;
+        child.stdin.take().ok_or(Error::Denied)?.write_all(input)?;
+        let stdout = child.stdout.take().ok_or(Error::Denied)?;
+        let stderr = child.stderr.take().ok_or(Error::Denied)?;
+        let stdout_reader = thread::spawn(move || read_bounded(stdout, limit));
+        let stderr_reader = thread::spawn(move || read_bounded(stderr, 16_384));
+        let deadline = Instant::now() + COMMAND_DEADLINE;
+        let status = loop {
+            if let Some(status) = child.try_wait().map_err(|_| git_failure())? {
+                break status;
+            }
+            if Instant::now() >= deadline {
+                let _killed = child.kill();
+                let _waited = child.wait();
+                return Err(Error::Limit("Git command deadline"));
+            }
+            thread::sleep(Duration::from_millis(5));
+        };
+        let stdout = stdout_reader.join().map_err(|_| git_failure())??;
+        let _stderr = stderr_reader.join().map_err(|_| git_failure())??;
+        if !status.success() {
+            return Err(git_failure());
+        }
+        Ok(stdout)
+    }
+
     fn run(&self, arguments: &[std::ffi::OsString], limit: usize) -> Result<Vec<u8>> {
         self.verify()?;
         let mut command = Command::new(&self.executable);
@@ -699,6 +787,27 @@ pub(super) struct Transport {
     pub(super) actor: String,
     pub(super) actor_kind: String,
     pub(super) fence: Option<ReceiveFence>,
+}
+
+pub(super) fn lfs_object_path(transport: &Transport, oid: &str) -> Result<PathBuf> {
+    if !valid_oid(oid)
+        || oid.len() != 64
+        || !valid_app(&transport.app)
+        || !super::resolve::identifier(&transport.binding)
+        || !crate::auth::valid_id(&transport.repository_id)
+    {
+        return Err(Error::Denied);
+    }
+    let directory = transport.root.join(".diamond-lfs");
+    private_directory(&directory)?;
+    let namespace = artifact::hash(
+        format!(
+            "diamond-lfs:{}:{}:{}",
+            transport.app, transport.binding, transport.repository_id
+        )
+        .as_bytes(),
+    );
+    Ok(directory.join(format!("{namespace}-{oid}.lfs")))
 }
 
 #[derive(Clone, Copy)]
@@ -955,7 +1064,10 @@ fn store_inventory(store: &Store) -> Result<GitInventory> {
         let Some(name) = name.to_str() else {
             return Err(Error::Denied);
         };
-        if matches!(name, MARKER | ".diamond-hooks" | ".diamond-events") {
+        if matches!(
+            name,
+            MARKER | ".diamond-hooks" | ".diamond-events" | ".diamond-lfs"
+        ) {
             continue;
         }
         entries += 1;
@@ -1828,6 +1940,7 @@ pub(crate) struct ReviewGate<'a> {
     pub(crate) repository: &'a str,
     pub(crate) reference: &'a str,
     pub(crate) object: &'a str,
+    pub(crate) approved: bool,
     pub(crate) discussions_resolved: bool,
 }
 
@@ -1922,9 +2035,11 @@ pub(crate) fn set_review_gate(
         return Err(input("invalid Git review gate"));
     }
     authorize_repository_write(database, scope, grants, request.binding, request.repository)?;
+    let approvals = i32::from(request.approved);
+    let discussions_resolved = request.approved && request.discussions_resolved;
     database.connection.query(
-        "INSERT INTO diamond_git.gates(app,binding,repository,reference,object,approvals,pipeline_succeeded,discussions_resolved,expires) VALUES($1,$2,$3,$4,$5,1,false,$6,pg_catalog.clock_timestamp()+INTERVAL '24 hours') ON CONFLICT(app,binding,repository,reference,object) DO UPDATE SET approvals=GREATEST(diamond_git.gates.approvals,1),discussions_resolved=diamond_git.gates.discussions_resolved OR EXCLUDED.discussions_resolved,expires=GREATEST(diamond_git.gates.expires,EXCLUDED.expires),generation=diamond_git.gates.generation+1",
-        &[&database.app, &request.binding, &request.repository, &request.reference, &request.object, &request.discussions_resolved],
+        "INSERT INTO diamond_git.gates(app,binding,repository,reference,object,approvals,pipeline_succeeded,discussions_resolved,expires) VALUES($1,$2,$3,$4,$5,$6,false,$7,pg_catalog.clock_timestamp()+INTERVAL '24 hours') ON CONFLICT(app,binding,repository,reference,object) DO UPDATE SET approvals=EXCLUDED.approvals,pipeline_succeeded=false,discussions_resolved=EXCLUDED.discussions_resolved,expires=EXCLUDED.expires,generation=diamond_git.gates.generation+1",
+        &[&database.app, &request.binding, &request.repository, &request.reference, &request.object, &approvals, &discussions_resolved],
     )?;
     Ok("review-gate-recorded".into())
 }
@@ -3009,6 +3124,31 @@ pub(crate) fn call(
         )?;
         Ok(created)
     } else {
+        if query.operation == "integration" {
+            let repository = store.repository_path(query.repository)?;
+            if repository.canonicalize()? != repository {
+                return Err(Error::Denied);
+            }
+            store.require_repository(&repository)?;
+            if !valid_actor(query.revision) || !valid_oid(query.path) || query.limit != 1 {
+                return Err(input("invalid Git integration receipt query"));
+            }
+            let rows = database.connection.query(
+                "SELECT receipt,result,source_object,target_object,strategy,actor FROM diamond_git.integrations WHERE app=$1 AND binding=$2 AND repository=$3 AND receipt=$4 AND result=$5",
+                &[&database.app, &query.binding, &query.repository, &query.revision, &query.path],
+            )?;
+            if rows.len() != 1 {
+                return Err(Error::Denied);
+            }
+            return Ok(serde_json::json!({
+                "receipt":rows[0].try_get::<_, String>(0).map_err(|_| Error::Denied)?,
+                "result":rows[0].try_get::<_, String>(1).map_err(|_| Error::Denied)?,
+                "source_object":rows[0].try_get::<_, String>(2).map_err(|_| Error::Denied)?,
+                "target_object":rows[0].try_get::<_, String>(3).map_err(|_| Error::Denied)?,
+                "strategy":rows[0].try_get::<_, String>(4).map_err(|_| Error::Denied)?,
+                "actor":rows[0].try_get::<_, String>(5).map_err(|_| Error::Denied)?,
+            }));
+        }
         store.query(
             query.repository,
             query.operation,
@@ -3017,6 +3157,142 @@ pub(crate) fn call(
             query.limit,
         )
     }
+}
+
+/// Copy an authorized bare repository into a newly authorized repository.
+pub(crate) fn fork(
+    database: &mut PostgresStore,
+    scope: &Scope<'_>,
+    grants: &crate::RuntimeGrants,
+    binding: &str,
+    source_repository: &str,
+    target_repository: &str,
+) -> Result<String> {
+    if source_repository == target_repository {
+        return Err(input("a fork requires distinct repositories"));
+    }
+    let config = database
+        .git
+        .as_ref()
+        .and_then(|git| git.bindings.get(binding))
+        .cloned()
+        .ok_or(Error::Denied)?;
+    let read_effects = BTreeSet::from([Effect::Read(config.resource.clone())]);
+    let write_effects = BTreeSet::from([
+        Effect::Read(config.resource.clone()),
+        Effect::Write(config.resource.clone()),
+    ]);
+    database.attachment(
+        &Scope::new(scope.principal(), &read_effects),
+        &config.resource,
+        source_repository,
+        false,
+    )?;
+    database.attachment(
+        &Scope::new(scope.principal(), &write_effects),
+        &config.resource,
+        target_repository,
+        true,
+    )?;
+    let store = Store::open(database, grants, binding, false)?;
+    let source = store.repository_path(source_repository)?;
+    let target = store.repository_path(target_repository)?;
+    if source.canonicalize()? != source {
+        return Err(Error::Denied);
+    }
+    store.require_repository(&source)?;
+    let state = create_fork_repository(&store, &source, &target)?;
+    database.connection.query(
+        "INSERT INTO diamond_git.repositories(app,binding,repository) VALUES($1,$2,$3) ON CONFLICT DO NOTHING",
+        &[&database.app, &binding, &target_repository],
+    )?;
+    record_fork_references(database, &store, binding, target_repository, &target)?;
+    Ok(state.into())
+}
+
+fn create_fork_repository(store: &Store, source: &Path, target: &Path) -> Result<&'static str> {
+    match fs::symlink_metadata(target) {
+        Ok(metadata) => {
+            if !metadata.is_dir() || target.canonicalize()? != target {
+                return Err(Error::Denied);
+            }
+            store.require_repository(target)?;
+            Ok("existing")
+        }
+        Err(error) if error.kind() == io::ErrorKind::NotFound => {
+            let result = store.run(
+                &[
+                    "-c".into(),
+                    "protocol.file.allow=always".into(),
+                    "clone".into(),
+                    "--bare".into(),
+                    "--no-hardlinks".into(),
+                    source.as_os_str().to_owned(),
+                    target.as_os_str().to_owned(),
+                ],
+                16_384,
+            );
+            if let Err(error) = result {
+                if target.starts_with(&store.root) {
+                    let _removed = fs::remove_dir_all(target);
+                }
+                return Err(error);
+            }
+            if target.canonicalize()? != target {
+                return Err(Error::Denied);
+            }
+            store.run(
+                &[
+                    "--git-dir".into(),
+                    target.as_os_str().to_owned(),
+                    "config".into(),
+                    "--local".into(),
+                    "--remove-section".into(),
+                    "remote.origin".into(),
+                ],
+                16_384,
+            )?;
+            store.configure_repository(target)?;
+            store.require_repository(target)?;
+            File::open(&store.root)?.sync_all()?;
+            Ok("forked")
+        }
+        Err(error) => Err(error.into()),
+    }
+}
+
+fn record_fork_references(
+    database: &mut PostgresStore,
+    store: &Store,
+    binding: &str,
+    target_repository: &str,
+    target: &Path,
+) -> Result<()> {
+    let refs = store.run_repo(
+        target,
+        &["for-each-ref", "--format=%(refname)%00%(objectname)%00"],
+        1024 * 1024,
+    )?;
+    let fields = refs.split(|byte| *byte == 0).collect::<Vec<_>>();
+    if fields.len() > 4097 {
+        return Err(Error::Limit("Git fork references"));
+    }
+    for pair in fields.chunks(2) {
+        if pair.len() != 2 || pair[0].is_empty() || pair[1].is_empty() {
+            continue;
+        }
+        let reference = text(pair[0])?.trim().to_owned();
+        let object = text(pair[1])?.trim().to_owned();
+        valid_reference(&reference)?;
+        if !valid_oid(&object) {
+            return Err(Error::Denied);
+        }
+        database.connection.query(
+            "INSERT INTO diamond_git.ref_states(app,binding,repository,reference,object) VALUES($1,$2,$3,$4,$5) ON CONFLICT(app,binding,repository,reference) DO UPDATE SET object=EXCLUDED.object",
+            &[&database.app, &binding, &target_repository, &reference, &object],
+        )?;
+    }
+    Ok(())
 }
 
 /// Exact compare-and-swap fast-forward requested by the Diamond application.
@@ -3028,6 +3304,9 @@ pub(crate) struct Merge<'a> {
     pub(crate) target_reference: &'a str,
     pub(crate) expected_source: &'a str,
     pub(crate) expected_target: &'a str,
+    pub(crate) strategy: &'a str,
+    pub(crate) message: &'a str,
+    pub(crate) receipt: &'a str,
 }
 
 pub(crate) fn merge(
@@ -3062,10 +3341,11 @@ pub(crate) fn merge(
     store.require_repository(&repository)?;
     let source = store.resolve(&repository, request.source_reference)?;
     let target = store.resolve(&repository, request.target_reference)?;
-    if source != request.expected_source
-        || target != request.expected_target
-        || source == target
-        || store
+    if source != request.expected_source || target != request.expected_target || source == target {
+        return Err(Error::Conflict);
+    }
+    if request.strategy == "fast_forward"
+        && store
             .run_repo(
                 &repository,
                 &["merge-base", "--is-ancestor", &target, &source],
@@ -3091,9 +3371,10 @@ pub(crate) fn merge(
         nonce: crate::authority::random_hex()?,
         expires: unix_time()?.saturating_add(20 * 60),
     };
+    let integrated = integrate_object(&store, &repository, request, &source, &target)?;
     let update = RefUpdate {
         old: target,
-        new: source.clone(),
+        new: integrated.clone(),
         reference: request.target_reference.to_owned(),
     };
     write_spool_event_at(&store.root, &claim, std::slice::from_ref(&update))?;
@@ -3103,7 +3384,7 @@ pub(crate) fn merge(
             "update-ref",
             "--no-deref",
             request.target_reference,
-            &source,
+            &integrated,
             request.expected_target,
         ],
         32,
@@ -3118,7 +3399,17 @@ pub(crate) fn merge(
     persist_application_merge(database, &claim, &update).map_err(|_| {
         Error::OutcomeUnknown("Git merge committed but metadata needs reconciliation".into())
     })?;
-    Ok(source)
+    if request.receipt.is_empty() {
+        if request.strategy != "fast_forward" {
+            return Err(Error::Denied);
+        }
+    } else {
+        database.connection.query(
+            "INSERT INTO diamond_git.integrations(app,binding,repository,receipt,result,source_object,target_object,strategy,actor) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)",
+            &[&database.app, &request.binding, &request.repository, &request.receipt, &integrated, &request.expected_source, &request.expected_target, &request.strategy, &actor],
+        ).map_err(|_| Error::OutcomeUnknown("Git merge committed but its application receipt was not recorded".into()))?;
+    }
+    Ok(integrated)
 }
 
 fn validate_merge_request(request: Merge<'_>) -> Result<()> {
@@ -3130,10 +3421,42 @@ fn validate_merge_request(request: Merge<'_>) -> Result<()> {
         || !valid_oid(request.expected_source)
         || !valid_oid(request.expected_target)
         || request.expected_source.len() != request.expected_target.len()
+        || !matches!(request.strategy, "fast_forward" | "squash" | "merge_commit")
+        || request.message.is_empty() && request.strategy != "fast_forward"
+        || request.message.len() > 4096
+        || request.message.bytes().any(|byte| byte == 0)
+        || !request.receipt.is_empty() && !valid_actor(request.receipt)
     {
         return Err(input("invalid Git merge request"));
     }
     Ok(())
+}
+
+fn integrate_object(
+    store: &Store,
+    repository: &Path,
+    request: Merge<'_>,
+    source: &str,
+    target: &str,
+) -> Result<String> {
+    if request.strategy == "fast_forward" {
+        return Ok(source.to_owned());
+    }
+    let tree = store.resolve_object(repository, &format!("{source}^{{tree}}"))?;
+    let mut arguments = vec!["commit-tree", tree.as_str(), "-p", target];
+    if request.strategy == "merge_commit" {
+        arguments.extend(["-p", source]);
+    }
+    let mut message = request.message.as_bytes().to_vec();
+    if !message.ends_with(b"\n") {
+        message.push(b'\n');
+    }
+    let output = store.run_repo_with_input(repository, &arguments, &message, 128)?;
+    let object = text(&output)?.trim().to_owned();
+    if !valid_oid(&object) || object.len() != source.len() {
+        return Err(Error::Denied);
+    }
+    Ok(object)
 }
 
 fn enforce_web_merge_rules(

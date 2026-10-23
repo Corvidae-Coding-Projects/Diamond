@@ -4,7 +4,7 @@ server = "server"
 browser = "ui"
 component = "GitForge"
 styles = ["git.css"]
-provides = ["Events", "DbRead<Organizations>", "DbWrite<Organizations>", "DbRead<Members>", "DbWrite<Members>", "DbRead<Repositories>", "DbWrite<Repositories>", "DbRead<Issues>", "DbWrite<Issues>", "DbRead<Comments>", "DbWrite<Comments>", "DbRead<MergeRequests>", "DbWrite<MergeRequests>", "DbRead<Reviews>", "DbWrite<Reviews>", "GitRead<repos>", "GitWrite<repos>", "GitReview<repos>", "GitAdmin<repos>"]
+provides = ["Events", "Http<webhook>", "DbRead<Organizations>", "DbWrite<Organizations>", "DbRead<Members>", "DbWrite<Members>", "DbRead<Repositories>", "DbWrite<Repositories>", "DbRead<Issues>", "DbWrite<Issues>", "DbRead<Comments>", "DbWrite<Comments>", "DbRead<MergeRequests>", "DbWrite<MergeRequests>", "DbRead<Reviews>", "DbWrite<Reviews>", "DbRead<Teams>", "DbWrite<Teams>", "DbRead<TeamMembers>", "DbWrite<TeamMembers>", "DbRead<RepositoryGrants>", "DbWrite<RepositoryGrants>", "DbRead<Forks>", "DbWrite<Forks>", "DbRead<Milestones>", "DbWrite<Milestones>", "DbRead<Labels>", "DbWrite<Labels>", "DbRead<IssueLabels>", "DbWrite<IssueLabels>", "DbRead<IssueAssignees>", "DbWrite<IssueAssignees>", "DbRead<BoardColumns>", "DbWrite<BoardColumns>", "DbRead<BoardCards>", "DbWrite<BoardCards>", "DbRead<WikiPages>", "DbWrite<WikiPages>", "DbRead<Snippets>", "DbWrite<Snippets>", "DbRead<ReviewThreads>", "DbWrite<ReviewThreads>", "DbRead<Notifications>", "DbWrite<Notifications>", "DbRead<Releases>", "DbWrite<Releases>", "DbRead<Webhooks>", "DbWrite<Webhooks>", "DbRead<AuditEvents>", "DbWrite<AuditEvents>", "GitRead<repos>", "GitWrite<repos>", "GitReview<repos>", "GitAdmin<repos>", "DeliveryRead<builds>", "DeliveryWrite<builds>"]
 
 [modules.shared]
 path = "shared.dia"
@@ -14,7 +14,7 @@ target = "shared"
 path = "server.dia"
 target = "server"
 imports = ["shared"]
-provides = ["Events", "DbRead<Organizations>", "DbWrite<Organizations>", "DbRead<Members>", "DbWrite<Members>", "DbRead<Repositories>", "DbWrite<Repositories>", "DbRead<Issues>", "DbWrite<Issues>", "DbRead<Comments>", "DbWrite<Comments>", "DbRead<MergeRequests>", "DbWrite<MergeRequests>", "DbRead<Reviews>", "DbWrite<Reviews>", "GitRead<repos>", "GitWrite<repos>", "GitReview<repos>", "GitAdmin<repos>"]
+provides = ["Events", "Http<webhook>", "DbRead<Organizations>", "DbWrite<Organizations>", "DbRead<Members>", "DbWrite<Members>", "DbRead<Repositories>", "DbWrite<Repositories>", "DbRead<Issues>", "DbWrite<Issues>", "DbRead<Comments>", "DbWrite<Comments>", "DbRead<MergeRequests>", "DbWrite<MergeRequests>", "DbRead<Reviews>", "DbWrite<Reviews>", "DbRead<Teams>", "DbWrite<Teams>", "DbRead<TeamMembers>", "DbWrite<TeamMembers>", "DbRead<RepositoryGrants>", "DbWrite<RepositoryGrants>", "DbRead<Forks>", "DbWrite<Forks>", "DbRead<Milestones>", "DbWrite<Milestones>", "DbRead<Labels>", "DbWrite<Labels>", "DbRead<IssueLabels>", "DbWrite<IssueLabels>", "DbRead<IssueAssignees>", "DbWrite<IssueAssignees>", "DbRead<BoardColumns>", "DbWrite<BoardColumns>", "DbRead<BoardCards>", "DbWrite<BoardCards>", "DbRead<WikiPages>", "DbWrite<WikiPages>", "DbRead<Snippets>", "DbWrite<Snippets>", "DbRead<ReviewThreads>", "DbWrite<ReviewThreads>", "DbRead<Notifications>", "DbWrite<Notifications>", "DbRead<Releases>", "DbWrite<Releases>", "DbRead<Webhooks>", "DbWrite<Webhooks>", "DbRead<AuditEvents>", "DbWrite<AuditEvents>", "GitRead<repos>", "GitWrite<repos>", "GitReview<repos>", "GitAdmin<repos>", "DeliveryRead<builds>", "DeliveryWrite<builds>"]
 
 [modules.ui]
 path = "ui.dia"
@@ -50,8 +50,8 @@ read_merge_request = "server.read_merge_request"
 approve_merge_request = "server.approve_merge_request"
 resolve_merge_discussions = "server.resolve_merge_discussions"
 prepare_merge_request = "server.prepare_merge_request"
-execute_merge = "server.execute_merge"
-finalize_merge_request = "server.finalize_merge_request"
+merge_approved_request = "server.merge_approved_request"
+finalize_approved_request = "server.finalize_approved_request"
 close_merge_request = "server.close_merge_request"
 protect_reference = "server.protect_reference"
 unprotect_reference = "server.unprotect_reference"
@@ -62,6 +62,41 @@ add_certificate = "server.add_certificate"
 revoke_certificate = "server.revoke_certificate"
 pending_push_events = "server.pending_push_events"
 acknowledge_push_event = "server.acknowledge_push_event"
+create_team = "server.create_team"
+add_team_member = "server.add_team_member"
+grant_repository_permission = "server.grant_repository_permission"
+revoke_team_member = "server.revoke_team_member"
+revoke_repository_permission = "server.revoke_repository_permission"
+create_fork_metadata = "server.create_fork_metadata"
+initialize_fork = "server.initialize_fork"
+create_milestone = "server.create_milestone"
+create_label = "server.create_label"
+label_issue = "server.label_issue"
+assign_issue = "server.assign_issue"
+reopen_issue = "server.reopen_issue"
+create_board_column = "server.create_board_column"
+add_board_card = "server.add_board_card"
+move_board_card = "server.move_board_card"
+create_wiki_page = "server.create_wiki_page"
+update_wiki_page = "server.update_wiki_page"
+create_snippet = "server.create_snippet"
+add_review_thread = "server.add_review_thread"
+resolve_review_thread = "server.resolve_review_thread"
+dismiss_approval = "server.dismiss_approval"
+create_merge_request_strategy = "server.create_merge_request_strategy"
+mark_notification_read = "server.mark_notification_read"
+create_release = "server.create_release"
+create_webhook = "server.create_webhook"
+deliver_webhook = "server.deliver_webhook"
+collaboration_dashboard = "server.collaboration_dashboard"
+schedule_pipeline = "server.schedule_pipeline"
+cancel_pipeline = "server.cancel_pipeline"
+delivery_pipelines = "server.delivery_pipelines"
+delivery_jobs = "server.delivery_jobs"
+delivery_artifacts = "server.delivery_artifacts"
+delivery_images = "server.delivery_images"
+delivery_pages = "server.delivery_pages"
+delivery_environments = "server.delivery_environments"
 
 [storage]
 profile = "relational-v1"
@@ -122,6 +157,167 @@ indexes = [["organization", "repository", "merge_request", "head"]]
 resource = "MergeRequests"
 fields = { organization = "organization", repository = "repository", merge_request = "id" }
 
+[storage.resources.Teams]
+scope = "organization"
+unique = [["organization", "name"], ["organization", "id"]]
+indexes = [["organization", "name"]]
+
+[storage.resources.Teams.references.organization]
+resource = "Organizations"
+fields = { organization = "id" }
+
+[storage.resources.TeamMembers]
+scope = "repository"
+unique = [["organization", "repository", "team", "user"]]
+indexes = [["repository", "user"], ["organization", "repository", "team"]]
+
+[storage.resources.TeamMembers.references.repository]
+resource = "Repositories"
+fields = { organization = "organization", repository = "id" }
+
+[storage.resources.RepositoryGrants]
+scope = "repository"
+unique = [["organization", "repository", "user"]]
+indexes = [["repository", "user"], ["organization", "repository"]]
+
+[storage.resources.RepositoryGrants.references.repository]
+resource = "Repositories"
+fields = { organization = "organization", repository = "id" }
+
+[storage.resources.Forks]
+scope = "repository"
+unique = [["organization", "repository"], ["organization", "parent", "repository"]]
+indexes = [["organization", "parent"], ["organization", "repository"]]
+
+[storage.resources.Forks.references.repository]
+resource = "Repositories"
+fields = { organization = "organization", repository = "id" }
+
+[storage.resources.Milestones]
+scope = "repository"
+unique = [["repository", "title"]]
+indexes = [["repository", "title"]]
+
+[storage.resources.Milestones.references.repository]
+resource = "Repositories"
+fields = { organization = "organization", repository = "id" }
+
+[storage.resources.Labels]
+scope = "repository"
+unique = [["repository", "name"], ["organization", "repository", "id"]]
+indexes = [["repository", "name"]]
+
+[storage.resources.Labels.references.repository]
+resource = "Repositories"
+fields = { organization = "organization", repository = "id" }
+
+[storage.resources.IssueLabels]
+scope = "repository"
+unique = [["organization", "repository", "issue", "label"]]
+indexes = [["organization", "repository", "issue"]]
+
+[storage.resources.IssueLabels.references.issue]
+resource = "Issues"
+fields = { organization = "organization", repository = "repository", issue = "id" }
+
+[storage.resources.IssueLabels.references.label]
+resource = "Labels"
+fields = { organization = "organization", repository = "repository", label = "id" }
+
+[storage.resources.IssueAssignees]
+scope = "repository"
+unique = [["organization", "repository", "issue", "user"]]
+indexes = [["organization", "repository", "issue"], ["repository", "user"]]
+
+[storage.resources.IssueAssignees.references.issue]
+resource = "Issues"
+fields = { organization = "organization", repository = "repository", issue = "id" }
+
+[storage.resources.BoardColumns]
+scope = "repository"
+unique = [["repository", "title"], ["repository", "position"], ["organization", "repository", "id"]]
+indexes = [["repository", "position"]]
+
+[storage.resources.BoardColumns.references.repository]
+resource = "Repositories"
+fields = { organization = "organization", repository = "id" }
+
+[storage.resources.BoardCards]
+scope = "repository"
+unique = [["organization", "repository", "issue"], ["organization", "repository", "column", "position"]]
+indexes = [["organization", "repository", "column", "position"]]
+
+[storage.resources.BoardCards.references.issue]
+resource = "Issues"
+fields = { organization = "organization", repository = "repository", issue = "id" }
+
+[storage.resources.BoardCards.references.column]
+resource = "BoardColumns"
+fields = { organization = "organization", repository = "repository", column = "id" }
+
+[storage.resources.WikiPages]
+scope = "repository"
+unique = [["repository", "slug"]]
+indexes = [["repository", "slug"]]
+
+[storage.resources.WikiPages.references.repository]
+resource = "Repositories"
+fields = { organization = "organization", repository = "id" }
+
+[storage.resources.Snippets]
+scope = "repository"
+unique = [["organization", "repository", "rank"]]
+indexes = [["organization", "repository", "rank"]]
+
+[storage.resources.Snippets.references.repository]
+resource = "Repositories"
+fields = { organization = "organization", repository = "id" }
+
+[storage.resources.ReviewThreads]
+scope = "repository"
+unique = [["organization", "repository", "merge_request", "rank"]]
+indexes = [["organization", "repository", "merge_request", "rank"]]
+
+[storage.resources.ReviewThreads.references.merge_request]
+resource = "MergeRequests"
+fields = { organization = "organization", repository = "repository", merge_request = "id" }
+
+[storage.resources.Notifications]
+scope = "repository"
+unique = [["organization", "repository", "id"]]
+indexes = [["recipient", "read", "rank"], ["organization", "repository"]]
+
+[storage.resources.Notifications.references.repository]
+resource = "Repositories"
+fields = { organization = "organization", repository = "id" }
+
+[storage.resources.Releases]
+scope = "repository"
+unique = [["repository", "tag"], ["repository", "rank"]]
+indexes = [["organization", "repository", "rank"]]
+
+[storage.resources.Releases.references.repository]
+resource = "Repositories"
+fields = { organization = "organization", repository = "id" }
+
+[storage.resources.Webhooks]
+scope = "repository"
+unique = [["repository", "path"]]
+indexes = [["repository", "path"]]
+
+[storage.resources.Webhooks.references.repository]
+resource = "Repositories"
+fields = { organization = "organization", repository = "id" }
+
+[storage.resources.AuditEvents]
+scope = "repository"
+unique = [["organization", "repository", "rank"]]
+indexes = [["organization", "repository", "rank"]]
+
+[storage.resources.AuditEvents.references.repository]
+resource = "Repositories"
+fields = { organization = "organization", repository = "id" }
+
 [storage.lookups.OrganizationOwnership]
 resource = "Organizations"
 scope = "id"
@@ -134,6 +330,20 @@ scope = "organization"
 principal = "user"
 role = "role"
 purpose = "Authorize organization members without exposing the member directory."
+
+[storage.lookups.TeamAccess]
+resource = "TeamMembers"
+scope = "repository"
+principal = "user"
+role = "role"
+purpose = "Authorize repository access granted through an organization team."
+
+[storage.lookups.RepositoryPermission]
+resource = "RepositoryGrants"
+scope = "repository"
+principal = "user"
+role = "role"
+purpose = "Authorize direct repository collaborator access."
 
 [identity]
 profile = "accounts-v1"
@@ -162,11 +372,47 @@ auth = "token"
 function = "server.merge_request_page"
 auth = "token"
 
+[http_api.operations.collaboration_dashboard]
+function = "server.collaboration_dashboard"
+auth = "token"
+
+[http_api.operations.create_issue]
+function = "server.create_issue"
+auth = "token"
+
+[http_api.operations.add_issue_comment]
+function = "server.add_issue_comment"
+auth = "token"
+
+[http_api.operations.create_merge_request_strategy]
+function = "server.create_merge_request_strategy"
+auth = "token"
+
+[http_api.operations.approve_merge_request]
+function = "server.approve_merge_request"
+auth = "token"
+
+[http_api.operations.create_release]
+function = "server.create_release"
+auth = "token"
+
+[http_api.operations.create_wiki_page]
+function = "server.create_wiki_page"
+auth = "token"
+
+[http_api.operations.create_snippet]
+function = "server.create_snippet"
+auth = "token"
+
 [files]
 profile = "shared-fs-v1"
 
 [files.bindings.issue_attachments]
 resource = "Issues"
+max_bytes = 8388608
+
+[files.bindings.release_assets]
+resource = "Releases"
 max_bytes = 8388608
 
 [events.repository_activity]
@@ -178,3 +424,13 @@ profile = "git-v2"
 
 [git.bindings.repos]
 resource = "Repositories"
+
+[delivery]
+profile = "delivery-v1"
+
+[delivery.bindings.builds]
+resource = "Repositories"
+git = "repos"
+max_artifact_bytes = 67108864
+max_pages_bytes = 67108864
+max_pages_files = 1000

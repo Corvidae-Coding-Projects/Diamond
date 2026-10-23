@@ -1402,8 +1402,16 @@ impl<'a> Checker<'a> {
         }
         if matches!(
             method,
+            "delivery_schedule" | "delivery_query" | "delivery_cancel"
+        ) {
+            return self.delivery_call(method, args, types, location);
+        }
+        if matches!(
+            method,
             "git_create"
+                | "git_fork"
                 | "git_merge"
+                | "git_integrate"
                 | "git_query"
                 | "git_review_gate"
                 | "git_protect"

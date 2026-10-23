@@ -1,0 +1,22 @@
+{
+  "profile": "Diamond Forge G2 real Chrome qualification",
+  "date": "2026-10-23",
+  "passed": 14,
+  "total": 14,
+  "results": [
+    {"name": "reactive application renders G2 primary navigation", "pass": true},
+    {"name": "local synthetic account signs in through browser controls", "pass": true},
+    {"name": "authorized organization list loads", "pass": true},
+    {"name": "private repository and fork list loads", "pass": true},
+    {"name": "selected organization and repository survive route navigation", "pass": true},
+    {"name": "team is created and rendered through the browser", "pass": true},
+    {"name": "collaboration route renders teams, direct grants, and fork controls", "pass": true},
+    {"name": "issues route renders labels, milestones, assignees, attachments, and board controls", "pass": true},
+    {"name": "merge-request route renders strategies, review threads, approvals, and dismissal", "pass": true},
+    {"name": "knowledge route renders wiki revision and snippet controls", "pass": true},
+    {"name": "releases route renders release assets and Git LFS guidance", "pass": true},
+    {"name": "activity route renders notifications and administrative audit", "pass": true},
+    {"name": "settings route renders protected refs and bounded webhooks", "pass": true},
+    {"name": "existing isolated fork is visibly associated with its parent", "pass": true}
+  ]
+}

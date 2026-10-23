@@ -95,6 +95,79 @@ impl Checker<'_> {
 }
 
 impl Checker<'_> {
+    pub(super) fn delivery_call(
+        &mut self,
+        method: &str,
+        args: &[(Option<String>, Expr)],
+        types: &[TypeName],
+        location: Location,
+    ) -> Result<Type> {
+        if matches!(self.transaction_context, TransactionContext::Inside) {
+            return Err(Error::unsupported(
+                location,
+                "delivery operation in a transaction",
+            ));
+        }
+        let Some(Expr {
+            kind: ExprKind::Text(binding),
+            ..
+        }) = args.first().map(|(_, expression)| expression)
+        else {
+            return Err(Error::diagnostic(
+                "D310",
+                location,
+                "delivery binding requires a static name",
+            ));
+        };
+        let (arguments, generic, text_arguments, write) = match method {
+            "delivery_schedule" => (5, 0, 5, true),
+            "delivery_cancel" => (3, 0, 3, true),
+            "delivery_query" => (4, 1, 3, false),
+            _ => return Err(Error::Denied),
+        };
+        if !crate::project::resolve::identifier(binding)
+            || args.len() != arguments
+            || types.len() != generic
+            || args.iter().any(|(name, _)| name.is_some())
+        {
+            return Err(Error::diagnostic(
+                "D310",
+                location,
+                "invalid registered delivery signature",
+            ));
+        }
+        for (_, argument) in args.iter().take(text_arguments) {
+            if !Type::Text.accepts(&self.expr(argument)?) {
+                return Err(Error::diagnostic(
+                    "D310",
+                    location,
+                    "delivery arguments require Text values",
+                ));
+            }
+        }
+        if method == "delivery_query" && !Type::Int.accepts(&self.expr(&args[3].1)?) {
+            return Err(Error::diagnostic(
+                "D310",
+                location,
+                "delivery query limit requires Int",
+            ));
+        }
+        self.effects.insert(Effect::Host(format!(
+            "Delivery{}<{binding}>",
+            if write { "Write" } else { "Read" }
+        )));
+        let result = if method == "delivery_query" {
+            let result = resolve_type(types.first().ok_or(Error::Denied)?, self.program, location)?;
+            if !crate::project::wire::safe_type(&result, self.program) {
+                return Err(Error::Denied);
+            }
+            result
+        } else {
+            Type::Text
+        };
+        Ok(Type::Result(Box::new(result)))
+    }
+
     fn check_git_specific(
         &mut self,
         method: &str,
@@ -120,14 +193,17 @@ impl Checker<'_> {
                     "Git query operation requires a static name",
                 ));
             };
-            if !["head", "tree", "blob", "history", "diff"].contains(&operation.as_str()) {
+            if !["head", "tree", "blob", "history", "diff", "integration"]
+                .contains(&operation.as_str())
+            {
                 return Err(Error::Denied);
             }
         }
         let boolean_arguments: &[usize] = match method {
             "git_protect" => &[4, 5, 7, 8, 9, 10],
             "git_gate" => &[5, 6],
-            "git_deploy_key" | "git_review_gate" => &[4],
+            "git_review_gate" => &[4, 5],
+            "git_deploy_key" => &[4],
             "git_certificate" => &[3],
             _ => &[],
         };
@@ -187,12 +263,16 @@ impl Checker<'_> {
         }
         let (expected_arguments, expected_types, text_arguments) = match method {
             "git_create" | "git_ack_event" => (2, 0, 2),
+            "git_fork" | "git_unprotect" | "git_revoke_deploy_key" | "git_revoke_certificate" => {
+                (3, 0, 3)
+            }
             "git_merge" => (6, 0, 6),
+            "git_integrate" => (9, 0, 9),
             "git_query" => (6, 1, 5),
             "git_protect" => (11, 0, 4),
-            "git_unprotect" | "git_revoke_deploy_key" | "git_revoke_certificate" => (3, 0, 3),
             "git_gate" => (8, 0, 4),
-            "git_review_gate" | "git_deploy_key" => (5, 0, 4),
+            "git_review_gate" => (6, 0, 4),
+            "git_deploy_key" => (5, 0, 4),
             "git_certificate" => (5, 0, 3),
             "git_events" => (2, 0, 1),
             _ => return Err(Error::Denied),
@@ -214,11 +294,19 @@ impl Checker<'_> {
             }
         }
         self.check_git_specific(method, args, location)?;
-        let write = matches!(method, "git_create" | "git_merge");
+        let write = matches!(
+            method,
+            "git_create" | "git_fork" | "git_merge" | "git_integrate"
+        );
         let review = method == "git_review_gate";
         let admin = !matches!(
             method,
-            "git_create" | "git_merge" | "git_query" | "git_review_gate"
+            "git_create"
+                | "git_fork"
+                | "git_merge"
+                | "git_integrate"
+                | "git_query"
+                | "git_review_gate"
         );
         let capability = if admin {
             "Admin"

@@ -243,19 +243,22 @@ Security-sensitive parsers and protocol adapters use memory-safe Rust, strict sc
 The implementation follows broad working strokes first and reserves fine-grained completion for the end.
 
 1. **G1 — Walking repository slice.** Add the Git service contract, one storage shard, Google and GitHub login, configurable enrollment, repository creation, HTTPS/SSH clone and push, bounded tree/blob/history views, one issue flow, one merge-request flow, and a basic Diamond interface. Run the first browser and stock-Git demonstrations immediately.
-2. **G2 — Collaboration breadth.** Add organizations, teams, forks, permissions, protected refs, full issues, boards, wikis, snippets, review threads, approvals, merge strategies, notifications, releases, LFS, REST APIs, webhooks, and audit events. Keep each surface functional before refining visual detail.
-3. **G3 — Delivery and artifact breadth.** Add the CI scheduler and isolated runner, artifacts/caches/environments, generic artifact storage, OCI registry, and Pages. Prove one end-to-end path from push through pipeline to artifact, image, release, and Pages deployment.
+2. **G2 — Collaboration breadth (complete).** Organizations, teams, forks, repository permissions, protected refs, full issues, boards, wikis, snippets, review threads, revocable approvals, fast-forward/squash/merge-commit strategies, notifications, releases, LFS, versioned REST operations, bounded webhooks, and audit events are implemented in the runnable Diamond application. Retained qualification exercises each trust boundary before visual refinement.
+3. **G3 — Delivery and artifact breadth (complete).** The runnable application schedules immutable-commit pipelines from strict repository configuration, executes fenced jobs through an explicitly granted Bubblewrap or chroot-style systemd sandbox, restores reference-scoped caches, publishes environments and content-addressed generic artifacts, exposes repository-authorized streamed artifact and OCI pull routes, and atomically deploys static output to a separate cookie-free Pages listener. Retained qualification proves push through pipeline, artifact, OCI image, release, and Pages, plus cancellation, event deduplication, cache restoration, dependency failure, traversal, symlink, authorization, filesystem, network, and cleanup boundaries.
 4. **G4 — Scale and recovery.** Add multiple web nodes and workers, repository sharding/failover, global search, mirrors, object-storage garbage collection, rate-limit coordination, backups, isolated restore, observability, and administrative controls.
 5. **G5 — Product completion.** Fill protocol edge cases, accessibility, mobile layout, import/export compatibility, search quality, notification preferences, artifact workflows, runner executor profiles, custom-domain operations, and administrator documentation.
 6. **G6 — Adversarial qualification.** Attack every trust boundary and distributed transition through real interfaces, repair reproduced issues, replay the full regression corpus, measure memory under concurrent streaming load, restore from backup, and publish the bounded release evidence.
 
-G1 is implemented as `examples/git-browser`. Its retained application replay
-exercises the Diamond browser/server surface, PostgreSQL policy, stock smart
-HTTP Git, protected fast-forward merge, event recovery, and strict repository
-fsck. The separate foundation and SSH campaigns preserve the existing transport,
-OAuth, protected-ref, OpenSSH, deploy-key, certificate, streaming, and shard
-promotion coverage. G2 through G6 remain distinct product checkpoints rather
-than hidden prerequisites for this runnable slice.
+G1 through G3 are implemented as `examples/git-browser`. The retained application
+replay exercises the Diamond browser/server surface, PostgreSQL policy, team and
+direct revocation, fork isolation, issue/board/knowledge flows, review-state
+revocation, all three merge strategies, versioned REST authorization, bounded
+webhook delivery, LFS integrity and ownership, stock smart HTTP Git, event
+recovery, and strict repository fsck. The separate foundation and SSH campaigns
+preserve the transport, OAuth, protected-ref, OpenSSH, deploy-key, certificate,
+streaming, and shard-promotion coverage. The G3 delivery replay preserves the
+CI, artifact, OCI pull, release, and Pages path. G4 through G6 remain distinct
+product checkpoints rather than hidden prerequisites for this runnable slice.
 
 Each checkpoint must leave a runnable vertical slice. Schema and service protocols are versioned early, but no compatibility machinery for unreleased external users is required while the project has no users. Later checkpoints may replace internal rough implementations as long as the checkpoint's public behavior and retained regression cases continue to pass.
 

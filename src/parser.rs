@@ -212,8 +212,8 @@ impl Parser {
             } else {
                 return Err(self.error("expected state, on event, or html in component"));
             }
-            if component.states.len() + component.derived.len() + component.properties.len() > 64
-                || component.events.len() > 64
+            if component.states.len() + component.derived.len() + component.properties.len() > 128
+                || component.events.len() > 128
             {
                 return Err(Error::Limit("component state/events"));
             }
@@ -733,6 +733,7 @@ impl Parser {
                     "job_submit",
                     "event_emit",
                     "git_query",
+                    "delivery_query",
                 ]
                 .contains(&name.as_str())
                     && self.is_symbol("<")

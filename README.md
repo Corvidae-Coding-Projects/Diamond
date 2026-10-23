@@ -26,6 +26,9 @@ Diamond currently supports:
   destination-scoped outbound HTTP, durable jobs, and live events;
 - policy-bound bare Git repositories, stock Git smart HTTP, bounded repository
   views, and Google or GitHub login;
+- repository-defined CI with fenced PostgreSQL scheduling, explicitly isolated
+  native runners, caches, streamed generic artifacts, OCI pulls, environments,
+  and cookie-free static Pages;
 - multiple application servers and workers behind an HTTPS proxy, with health
   checks, draining, encrypted snapshots, and isolated restore.
 
@@ -364,13 +367,15 @@ The binding and operation are static so the checker can preserve authority.
 Repository creation is kept separate from application database writes because
 Git and PostgreSQL cannot share a transaction.
 
-`git_review_gate` lets the application review path update approval and
+`git_review_gate` lets the application review path replace approval and
 discussion evidence for one exact candidate without receiving Git
-administration authority. `git_merge` performs only a fast-forward ref
-compare-and-swap: both object IDs must still match, the source must descend from
-the target, and the live protected-ref rules must pass. A merge flow prepares a
-read-only plan, performs this isolated Git operation, then finalizes application
-state by rereading the authoritative target ref.
+administration authority. `git_integrate` performs fast-forward, squash, or
+merge-commit integration only after both object IDs, the current review gate,
+and live protected-ref rules match. It records an application-bound receipt;
+the database finalizer must prove that exact receipt and current target object.
+`git_fork` creates a hardened bare clone without hard links or a retained origin
+remote. These bounded operations expose neither paths nor shell commands to
+Diamond source.
 
 `git_protect` accepts an exact branch or tag, or one terminal wildcard such as
 `refs/heads/release/*`. Its arguments set the live account role, force-push and
@@ -391,20 +396,47 @@ closed.
 Initialize the Git store after the PostgreSQL schema:
 
 ```sh
-mkdir -m 700 /srv/diamond-git /srv/diamond-objects
-export DIAMOND_RUNTIME='{"objects":"/srv/diamond-objects","git":{"repos":{"root":"/srv/diamond-git","executable":"/usr/bin/git"}},"http":{}}'
+mkdir -m 700 /srv/diamond-git /srv/diamond-objects /srv/diamond-delivery
+export DIAMOND_RUNTIME='{"objects":"/srv/diamond-objects","git":{"repos":{"root":"/srv/diamond-git","executable":"/usr/bin/git"}},"delivery":{"builds":{"root":"/srv/diamond-delivery","sandbox":"/usr/bin/systemd-run","limit":"/usr/bin/prlimit"}},"http":{}}'
 diamond project-init examples/git-browser/diamond.toml --postgres-env DIAMOND_POSTGRES
 diamond project-files-init examples/git-browser/diamond.toml \
   --postgres-env DIAMOND_POSTGRES --runtime-env DIAMOND_RUNTIME
 diamond project-git-init examples/git-browser/diamond.toml \
   --postgres-env DIAMOND_POSTGRES --runtime-env DIAMOND_RUNTIME
+diamond project-delivery-init examples/git-browser/diamond.toml \
+  --postgres-env DIAMOND_POSTGRES --runtime-env DIAMOND_RUNTIME
 ```
+
+The `delivery-v1` adapter reads a strict `.diamond-ci.json` from an exact Git
+commit. Diamond source schedules, cancels, and queries pipelines through
+`host.delivery_schedule`, `host.delivery_cancel`, and
+`host.delivery_query<T>`. Native workers alone receive checkout paths and
+process authority. Run one claim per supervised invocation:
+
+```sh
+diamond project-delivery-work examples/git-browser/diamond.toml \
+  --postgres-env DIAMOND_POSTGRES --runtime-env DIAMOND_RUNTIME
+
+diamond project-pages-serve examples/git-browser/diamond.toml \
+  --listen 127.0.0.1:3001 --binding builds \
+  --postgres-env DIAMOND_POSTGRES --runtime-env DIAMOND_RUNTIME
+```
+
+The configured sandbox must be the canonical `bwrap` or `systemd-run`
+executable. Bubblewrap uses new user, mount, PID, IPC, UTS, cgroup, and network
+namespaces. The systemd backend uses a transient chroot-style unit with
+read-only executable mounts, no network, no host `/etc` or home view, and
+memory, task, file-size, and wall-time limits. Isolation failure fails the job.
+Artifact, OCI blob, and Pages responses stream in 64 KiB chunks; Pages is a
+separate cookie-free listener.
 
 Stock Git clients use the smart HTTP route
 `/_diamond/git/repos/REPOSITORY_ID.git`. Public read follows the resource
 policy. Push and private read use a `dia_...` credential scoped to the repository
 and `git:repos:read` or `git:repos:write`; the fixed Basic username is
-`diamond`.
+`diamond`. Git LFS batch/basic transfer and owner-bound locking use the standard
+`/_diamond/git/repos/REPOSITORY_ID.git/info/lfs` namespace. Objects are streamed
+through a private content-addressed directory with size and SHA-256 checks.
 
 Users enroll an OpenSSH Ed25519 public key with
 `session.add_ssh_key(label, public_key)`. `session.list_ssh_keys()` returns key
@@ -482,8 +514,10 @@ deployments can combine `email_domains`, `google_tenants`,
 when every configured condition must match. Provider client IDs and secret
 environment-variable names belong in the native runtime JSON, never in `.dia`
 source or build artifacts. The complete runnable project and runtime shape are
-in [`examples/git-browser/`](examples/git-browser/). Its bounded security and
-behavioral evidence is recorded in the
+in [`examples/git-browser/`](examples/git-browser/). G2 application and
+adversarial evidence is recorded in the
+[`Diamond Forge application qualification`](verification/git_application_results.md);
+the lower-level transport evidence remains in the
 [`Git and OAuth foundation qualification`](verification/git_foundation_results.md).
 
 Running a connected application requires a local PostgreSQL Unix-socket grant.

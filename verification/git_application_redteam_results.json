@@ -1,7 +1,7 @@
 {
-  "profile": "diamond-forge-g1-application",
-  "passed": 103,
-  "total": 103,
+  "profile": "diamond-forge-g2-collaboration",
+  "passed": 183,
+  "total": 183,
   "results": [
     {
       "name": "initialize PostgreSQL",
@@ -21,6 +21,10 @@
     },
     {
       "name": "initialize Git store",
+      "pass": true
+    },
+    {
+      "name": "initialize delivery store",
       "pass": true
     },
     {
@@ -276,7 +280,7 @@
       "pass": true
     },
     {
-      "name": "ref movement cannot finalize unapproved merge request",
+      "name": "legacy receipt-free finalization endpoint is absent",
       "pass": true
     },
     {
@@ -304,7 +308,7 @@
       "pass": true
     },
     {
-      "name": "prepare exact merge plan",
+      "name": "unresolved discussion blocks merge preparation",
       "pass": true
     },
     {
@@ -316,7 +320,11 @@
       "pass": true
     },
     {
-      "name": "forged candidate object rejected",
+      "name": "prepare exact merge plan",
+      "pass": true
+    },
+    {
+      "name": "raw client-supplied merge primitive is absent",
       "pass": true
     },
     {
@@ -324,7 +332,7 @@
       "pass": true
     },
     {
-      "name": "authoritative target finalizes merge request",
+      "name": "native receipt finalizes exact merge request",
       "pass": true
     },
     {
@@ -377,6 +385,318 @@
     },
     {
       "name": "changed source invalidates reviewed merge",
+      "pass": true
+    },
+    {
+      "name": "remove organization-wide access before scoped permission tests",
+      "pass": true
+    },
+    {
+      "name": "create organization team",
+      "pass": true
+    },
+    {
+      "name": "grant repository access through team",
+      "pass": true
+    },
+    {
+      "name": "team developer discovers private repository",
+      "pass": true
+    },
+    {
+      "name": "team developer contributes issue",
+      "pass": true
+    },
+    {
+      "name": "revoke team repository access",
+      "pass": true
+    },
+    {
+      "name": "team revocation immediately hides private repository",
+      "pass": true
+    },
+    {
+      "name": "grant direct reporter permission",
+      "pass": true
+    },
+    {
+      "name": "direct reporter reads private repository",
+      "pass": true
+    },
+    {
+      "name": "reporter cannot create issue",
+      "pass": true
+    },
+    {
+      "name": "revoke direct repository permission",
+      "pass": true
+    },
+    {
+      "name": "restore second developer after scoped permission tests",
+      "pass": true
+    },
+    {
+      "name": "create fork metadata",
+      "pass": true
+    },
+    {
+      "name": "copy authorized bare repository for fork",
+      "pass": true
+    },
+    {
+      "name": "fork preserves main object without hard links",
+      "pass": true
+    },
+    {
+      "name": "create milestone",
+      "pass": true
+    },
+    {
+      "name": "create label",
+      "pass": true
+    },
+    {
+      "name": "attach repository label to issue",
+      "pass": true
+    },
+    {
+      "name": "assign issue and emit notification",
+      "pass": true
+    },
+    {
+      "name": "create first board column",
+      "pass": true
+    },
+    {
+      "name": "create second board column",
+      "pass": true
+    },
+    {
+      "name": "add issue to board",
+      "pass": true
+    },
+    {
+      "name": "move board card",
+      "pass": true
+    },
+    {
+      "name": "create wiki page with hostile literal text",
+      "pass": true
+    },
+    {
+      "name": "create next wiki revision",
+      "pass": true
+    },
+    {
+      "name": "create repository snippet",
+      "pass": true
+    },
+    {
+      "name": "notifications are recipient-visible",
+      "pass": true
+    },
+    {
+      "name": "hostile wiki and snippet content remains data",
+      "pass": true
+    },
+    {
+      "name": "create issue in fork",
+      "pass": true
+    },
+    {
+      "name": "cross-repository label attachment rejected",
+      "pass": true
+    },
+    {
+      "name": "refresh integrated main",
+      "pass": true
+    },
+    {
+      "name": "create squash branch",
+      "pass": true
+    },
+    {
+      "name": "stage squash branch",
+      "pass": true
+    },
+    {
+      "name": "commit squash branch",
+      "pass": true
+    },
+    {
+      "name": "push squash branch",
+      "pass": true
+    },
+    {
+      "name": "open squash merge request",
+      "pass": true
+    },
+    {
+      "name": "approve squash merge request",
+      "pass": true
+    },
+    {
+      "name": "start review thread and revoke resolved gate",
+      "pass": true
+    },
+    {
+      "name": "generic discussion resolution cannot bypass open thread",
+      "pass": true
+    },
+    {
+      "name": "new review thread revokes native protected-ref authorization",
+      "pass": true
+    },
+    {
+      "name": "resolve exact review thread",
+      "pass": true
+    },
+    {
+      "name": "execute receipt-bound squash integration",
+      "pass": true
+    },
+    {
+      "name": "finalize squash only with matching native receipt",
+      "pass": true
+    },
+    {
+      "name": "squash result has target parent and source tree",
+      "pass": true
+    },
+    {
+      "name": "forged integration receipt cannot finalize",
+      "pass": true
+    },
+    {
+      "name": "refresh squashed main",
+      "pass": true
+    },
+    {
+      "name": "create merge-commit branch",
+      "pass": true
+    },
+    {
+      "name": "stage merge-commit branch",
+      "pass": true
+    },
+    {
+      "name": "commit merge-commit branch",
+      "pass": true
+    },
+    {
+      "name": "push merge-commit branch",
+      "pass": true
+    },
+    {
+      "name": "open merge-commit request",
+      "pass": true
+    },
+    {
+      "name": "approve merge-commit request",
+      "pass": true
+    },
+    {
+      "name": "resolve thread-free merge request",
+      "pass": true
+    },
+    {
+      "name": "dismiss recorded approval",
+      "pass": true
+    },
+    {
+      "name": "approval dismissal revokes native protected-ref gate",
+      "pass": true
+    },
+    {
+      "name": "independent reviewer restores exact approval gate",
+      "pass": true
+    },
+    {
+      "name": "execute receipt-bound merge commit",
+      "pass": true
+    },
+    {
+      "name": "finalize merge commit",
+      "pass": true
+    },
+    {
+      "name": "merge-commit result records target and source parents",
+      "pass": true
+    },
+    {
+      "name": "create release from resolvable ref",
+      "pass": true
+    },
+    {
+      "name": "create allowlisted webhook",
+      "pass": true
+    },
+    {
+      "name": "deliver bounded outbound webhook",
+      "pass": true
+    },
+    {
+      "name": "webhook uses configured bearer secret and literal payload",
+      "pass": true
+    },
+    {
+      "name": "store hostile webhook probe without contacting it",
+      "pass": true
+    },
+    {
+      "name": "absolute webhook URL cannot escape runtime destination",
+      "pass": true
+    },
+    {
+      "name": "create scope-limited REST credential",
+      "pass": true
+    },
+    {
+      "name": "versioned REST dashboard succeeds",
+      "pass": true
+    },
+    {
+      "name": "REST credential cannot exceed operation allowlist",
+      "pass": true
+    },
+    {
+      "name": "maintainer audit feed records administrative actions",
+      "pass": true
+    },
+    {
+      "name": "LFS upload batch returns bounded basic action",
+      "pass": true
+    },
+    {
+      "name": "stream LFS object with digest verification",
+      "pass": true
+    },
+    {
+      "name": "download exact LFS object",
+      "pass": true
+    },
+    {
+      "name": "LFS digest mismatch rejected",
+      "pass": true
+    },
+    {
+      "name": "private LFS upload requires credential",
+      "pass": true
+    },
+    {
+      "name": "create owner-bound LFS lock",
+      "pass": true
+    },
+    {
+      "name": "create second writer credential for lock attack",
+      "pass": true
+    },
+    {
+      "name": "repository writer cannot force-unlock another owner's LFS lock",
+      "pass": true
+    },
+    {
+      "name": "lock owner can unlock",
       "pass": true
     },
     {

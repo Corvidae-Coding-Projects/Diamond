@@ -1,0 +1,327 @@
+{
+  "profile": "diamond-forge-g3-delivery",
+  "passed": 80,
+  "total": 80,
+  "results": [
+    {
+      "name": "initialize PostgreSQL cluster",
+      "pass": true
+    },
+    {
+      "name": "start PostgreSQL",
+      "pass": true
+    },
+    {
+      "name": "initialize application schema",
+      "pass": true
+    },
+    {
+      "name": "initialize attachment store",
+      "pass": true
+    },
+    {
+      "name": "initialize Git store",
+      "pass": true
+    },
+    {
+      "name": "initialize delivery store",
+      "pass": true
+    },
+    {
+      "name": "provision administrator",
+      "pass": true
+    },
+    {
+      "name": "delivery UI is rendered",
+      "pass": true
+    },
+    {
+      "name": "bootstrap authenticated session",
+      "pass": true
+    },
+    {
+      "name": "login administrator",
+      "pass": true
+    },
+    {
+      "name": "create organization",
+      "pass": true
+    },
+    {
+      "name": "create private repository",
+      "pass": true
+    },
+    {
+      "name": "initialize repository",
+      "pass": true
+    },
+    {
+      "name": "create repository-scoped credential",
+      "pass": true
+    },
+    {
+      "name": "clone empty repository",
+      "pass": true
+    },
+    {
+      "name": "configure author email",
+      "pass": true
+    },
+    {
+      "name": "configure author name",
+      "pass": true
+    },
+    {
+      "name": "stage delivery fixture",
+      "pass": true
+    },
+    {
+      "name": "commit delivery fixture",
+      "pass": true
+    },
+    {
+      "name": "push delivery fixture",
+      "pass": true
+    },
+    {
+      "name": "schedule exact pushed commit",
+      "pass": true
+    },
+    {
+      "name": "duplicate push event is idempotent",
+      "pass": true
+    },
+    {
+      "name": "run one isolated delivery job",
+      "pass": true
+    },
+    {
+      "name": "worker reports completion",
+      "pass": true
+    },
+    {
+      "name": "pipeline succeeds at immutable commit",
+      "pass": true
+    },
+    {
+      "name": "sandbox job succeeds with bounded log",
+      "pass": true
+    },
+    {
+      "name": "artifact downloads through scoped credential",
+      "pass": true
+    },
+    {
+      "name": "private artifact denies anonymous access",
+      "pass": true
+    },
+    {
+      "name": "create cross-scope repository",
+      "pass": true
+    },
+    {
+      "name": "initialize cross-scope repository",
+      "pass": true
+    },
+    {
+      "name": "repository token cannot cross artifact scope",
+      "pass": true
+    },
+    {
+      "name": "OCI manifest is distribution-readable",
+      "pass": true
+    },
+    {
+      "name": "OCI manifest resolves by digest with bodyless HEAD",
+      "pass": true
+    },
+    {
+      "name": "OCI layer digest and bytes agree",
+      "pass": true
+    },
+    {
+      "name": "OCI tags list is repository scoped",
+      "pass": true
+    },
+    {
+      "name": "Pages deployment is publicly served",
+      "pass": true
+    },
+    {
+      "name": "Pages listener sets isolation headers and no cookie",
+      "pass": true
+    },
+    {
+      "name": "Pages listener rejects ambient cookies",
+      "pass": true
+    },
+    {
+      "name": "Pages traversal is unavailable",
+      "pass": true
+    },
+    {
+      "name": "successful pipeline commit can become a release",
+      "pass": true
+    },
+    {
+      "name": "stage cache consumer",
+      "pass": true
+    },
+    {
+      "name": "commit cache consumer",
+      "pass": true
+    },
+    {
+      "name": "push cache consumer",
+      "pass": true
+    },
+    {
+      "name": "schedule cache consumer",
+      "pass": true
+    },
+    {
+      "name": "run cache consumer",
+      "pass": true
+    },
+    {
+      "name": "trusted reference cache restores before execution",
+      "pass": true
+    },
+    {
+      "name": "create symlink-output branch",
+      "pass": true
+    },
+    {
+      "name": "stage symlink-output configuration",
+      "pass": true
+    },
+    {
+      "name": "commit symlink-output configuration",
+      "pass": true
+    },
+    {
+      "name": "push symlink-output configuration",
+      "pass": true
+    },
+    {
+      "name": "schedule output-symlink attack",
+      "pass": true
+    },
+    {
+      "name": "run output-symlink attack",
+      "pass": true
+    },
+    {
+      "name": "artifact symlink cannot publish a host file",
+      "pass": true
+    },
+    {
+      "name": "failed symlink attack publishes no artifact",
+      "pass": true
+    },
+    {
+      "name": "return to main for dependency attack",
+      "pass": true
+    },
+    {
+      "name": "create dependency-failure branch",
+      "pass": true
+    },
+    {
+      "name": "stage dependency-failure configuration",
+      "pass": true
+    },
+    {
+      "name": "commit dependency-failure configuration",
+      "pass": true
+    },
+    {
+      "name": "push dependency-failure configuration",
+      "pass": true
+    },
+    {
+      "name": "schedule dependency-failure pipeline",
+      "pass": true
+    },
+    {
+      "name": "run failing dependency root",
+      "pass": true
+    },
+    {
+      "name": "failed job fences and cancels dependent work",
+      "pass": true
+    },
+    {
+      "name": "return to main for invalid configuration",
+      "pass": true
+    },
+    {
+      "name": "create hostile configuration branch",
+      "pass": true
+    },
+    {
+      "name": "commit hostile configuration",
+      "pass": true
+    },
+    {
+      "name": "record hostile configuration",
+      "pass": true
+    },
+    {
+      "name": "push hostile configuration",
+      "pass": true
+    },
+    {
+      "name": "pipeline parser rejects artifact traversal before execution",
+      "pass": true
+    },
+    {
+      "name": "return to valid configuration",
+      "pass": true
+    },
+    {
+      "name": "stage cancellation commit",
+      "pass": true
+    },
+    {
+      "name": "commit cancellation target",
+      "pass": true
+    },
+    {
+      "name": "push cancellation target",
+      "pass": true
+    },
+    {
+      "name": "schedule cancellation target",
+      "pass": true
+    },
+    {
+      "name": "cancel fences pending pipeline",
+      "pass": true
+    },
+    {
+      "name": "worker skips cancelled jobs",
+      "pass": true
+    },
+    {
+      "name": "cancelled queue remains idle",
+      "pass": true
+    },
+    {
+      "name": "event identity cannot be rebound to another commit",
+      "pass": true
+    },
+    {
+      "name": "delivery marker is private and app-bound",
+      "pass": true
+    },
+    {
+      "name": "runner workspaces are removed",
+      "pass": true
+    },
+    {
+      "name": "content-addressed objects are private files",
+      "pass": true
+    }
+  ]
+}

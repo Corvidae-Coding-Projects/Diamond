@@ -362,7 +362,7 @@ fn route(request: &Request) -> Result<Route> {
     })
 }
 
-fn authorization(request: &Request) -> Result<Option<Zeroizing<String>>> {
+pub(super) fn authorization(request: &Request) -> Result<Option<Zeroizing<String>>> {
     let Some(value) = one_header(request, header::AUTHORIZATION.as_str()) else {
         return Ok(None);
     };

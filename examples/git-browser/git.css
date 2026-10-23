@@ -38,6 +38,13 @@ button:hover, button:focus-visible { background: var(--accent-strong); outline: 
 button.quiet { color: var(--text); background: transparent; border-color: var(--border); }
 button.danger { color: #2b080c; background: var(--danger); }
 .cards, .tree, .commits, .comments { display: grid; gap: .65rem; margin: .75rem 0; padding: 0; list-style: none; }
+.chips { display: flex; flex-wrap: wrap; gap: .45rem; margin: .75rem 0; padding: 0; list-style: none; }
+.chips li { padding: .4rem .55rem; background: var(--surface-raised); border: 1px solid var(--border); border-radius: 999px; }
+.board { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: .75rem; align-items: start; }
+.board section { min-width: 0; padding: .8rem; background: var(--background); border: 1px solid var(--border); border-radius: .6rem; }
+.board section h3 { margin-top: 0; }
+.board ul { display: grid; gap: .45rem; padding: 0; list-style: none; }
+.board li { padding: .65rem; background: var(--surface-raised); border-radius: .45rem; overflow-wrap: anywhere; }
 .cards li, .tree li, .commits li, .comments li, .detail { padding: .85rem; background: var(--surface-raised); border: 1px solid var(--border); border-radius: .55rem; overflow-wrap: anywhere; }
 .cards strong { display: inline-block; margin-inline-end: .45rem; }
 .badge { display: inline-block; padding: .15rem .45rem; margin-inline-end: .4rem; color: var(--accent); border: 1px solid var(--border); border-radius: 999px; font-size: .78rem; font-weight: 750; }

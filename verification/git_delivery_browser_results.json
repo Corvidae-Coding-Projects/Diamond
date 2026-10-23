@@ -1,0 +1,11 @@
+{
+  "profile": "Diamond Forge G3 real Chrome qualification",
+  "date": "2026-10-23",
+  "passed": 3,
+  "total": 3,
+  "results": [
+    {"name": "reactive application renders CI and delivery navigation", "pass": true},
+    {"name": "delivery route exposes exact ref, event, and pipeline controls", "pass": true},
+    {"name": "delivery route renders pipeline, job, artifact, OCI, Pages, and environment regions", "pass": true}
+  ]
+}

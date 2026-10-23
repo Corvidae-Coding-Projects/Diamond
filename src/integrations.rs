@@ -24,6 +24,8 @@ struct Configuration {
     #[serde(default)]
     git: BTreeMap<String, GitGrant>,
     #[serde(default)]
+    delivery: BTreeMap<String, DeliveryGrant>,
+    #[serde(default)]
     http: BTreeMap<String, Destination>,
 }
 
@@ -57,6 +59,13 @@ pub(crate) struct OAuthClient {
 pub(crate) struct GitGrant {
     pub(crate) root: PathBuf,
     pub(crate) executable: PathBuf,
+}
+#[derive(Clone, Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub(crate) struct DeliveryGrant {
+    pub(crate) root: PathBuf,
+    pub(crate) sandbox: PathBuf,
+    pub(crate) limit: PathBuf,
 }
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -102,6 +111,7 @@ const fn output_limit() -> usize {
 pub struct RuntimeGrants {
     pub(crate) objects: Option<PathBuf>,
     pub(crate) git: BTreeMap<String, GitGrant>,
+    pub(crate) delivery: BTreeMap<String, DeliveryGrant>,
     pub(crate) oauth: Option<OAuthRuntime>,
     destinations: BTreeMap<String, Destination>,
 }
@@ -132,15 +142,7 @@ impl RuntimeGrants {
         if config.http.len() > 16 {
             return Err(invalid());
         }
-        if config.git.len() > 16
-            || config.git.iter().any(|(name, grant)| {
-                !crate::project::resolve::identifier(name)
-                    || !grant.root.is_absolute()
-                    || !grant.executable.is_absolute()
-            })
-        {
-            return Err(invalid());
-        }
+        validate_native_grants(&config)?;
         for (name, dest) in &mut config.http {
             let origin = url::Url::parse(&dest.origin).map_err(|_| invalid())?;
             if !crate::project::resolve::identifier(name)
@@ -212,6 +214,7 @@ impl RuntimeGrants {
         Ok(Self {
             objects: config.objects,
             git: config.git,
+            delivery: config.delivery,
             oauth,
             destinations: config.http,
         })
@@ -297,6 +300,27 @@ impl RuntimeGrants {
         } else {
             value
         }
+    }
+}
+
+fn validate_native_grants(config: &Configuration) -> Result<()> {
+    let invalid_git = config.git.len() > 16
+        || config.git.iter().any(|(name, grant)| {
+            !crate::project::resolve::identifier(name)
+                || !grant.root.is_absolute()
+                || !grant.executable.is_absolute()
+        });
+    let invalid_delivery = config.delivery.len() > 16
+        || config.delivery.iter().any(|(name, grant)| {
+            !crate::project::resolve::identifier(name)
+                || !grant.root.is_absolute()
+                || !grant.sandbox.is_absolute()
+                || !grant.limit.is_absolute()
+        });
+    if invalid_git || invalid_delivery {
+        Err(invalid())
+    } else {
+        Ok(())
     }
 }
 

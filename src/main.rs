@@ -153,6 +153,9 @@ fn is_project_command(command: &str) -> bool {
         "project-git-authorized-key",
         "project-git-authorized-principals",
         "project-git-ssh",
+        "project-delivery-init",
+        "project-delivery-work",
+        "project-pages-serve",
         "project-work",
         "project-deploy-check",
         "project-recover",
@@ -263,6 +266,9 @@ fn parse_project_value_option<'a>(
             | "project-git-authorized-key"
             | "project-git-authorized-principals"
             | "project-git-ssh"
+            | "project-delivery-init"
+            | "project-delivery-work"
+            | "project-pages-serve"
             | "project-work"
             | "project-deploy-check"
             | "project-backup"
@@ -281,7 +287,9 @@ fn parse_project_value_option<'a>(
             parsed.ssh_launcher = Some(PathBuf::from(value));
         }
         ("project-git-ssh", "--key-id") => parsed.key_id = Some(value),
-        ("project-git-promote", "--binding") => parsed.git_binding = Some(value),
+        ("project-git-promote" | "project-pages-serve", "--binding") => {
+            parsed.git_binding = Some(value);
+        }
         ("project-git-promote", "--expected-generation") => {
             parsed.expected_generation =
                 Some(value.parse().context("invalid Git store generation")?);
@@ -290,7 +298,7 @@ fn parse_project_value_option<'a>(
             parsed.batch = value.parse().context("invalid backfill batch")?;
         }
 
-        ("serve", "--listen") => parsed.listen = value,
+        ("serve" | "project-pages-serve", "--listen") => parsed.listen = value,
         ("serve" | "project-deploy-check", "--origin") => parsed.origin = Some(value),
         ("project-user-add" | "project-admin-add", "--user") => parsed.username = Some(value),
         ("project-admin-add", "--email") => parsed.email = Some(value),
@@ -309,6 +317,9 @@ fn parse_project_value_option<'a>(
             | "project-git-authorized-key"
             | "project-git-authorized-principals"
             | "project-git-ssh"
+            | "project-delivery-init"
+            | "project-delivery-work"
+            | "project-pages-serve"
             | "project-user-add"
             | "project-admin-add"
             | "project-status"
@@ -347,14 +358,12 @@ fn project_command(command: &str, arguments: &[String]) -> Result<()> {
             .context("a project manifest or build directory is required")?,
     );
     let options = project_options(command, &arguments[1..])?;
-    let project = if path.is_dir() {
-        diamond::load_project_build(path)
-    } else {
-        diamond::compile_project(path)
-    }
-    .map_err(|error| anyhow::Error::msg(safe_text(&error.to_string())))?;
+    let project = load_checked_project(path)?;
     let configuration = project_configuration(&options)?;
     if project_git_command(command, &project, path, &options, configuration.as_deref())? {
+        return Ok(());
+    }
+    if project_delivery_command(command, &project, &options, configuration.as_deref())? {
         return Ok(());
     }
     match command {
@@ -439,6 +448,62 @@ fn project_command(command: &str, arguments: &[String]) -> Result<()> {
         _ => bail!("unsupported project command"),
     }
     Ok(())
+}
+
+fn load_checked_project(path: &Path) -> Result<diamond::CheckedProject> {
+    if path.is_dir() {
+        diamond::load_project_build(path)
+    } else {
+        diamond::compile_project(path)
+    }
+    .map_err(|error| anyhow::Error::msg(safe_text(&error.to_string())))
+}
+
+fn project_delivery_command(
+    command: &str,
+    project: &diamond::CheckedProject,
+    options: &ProjectOptions<'_>,
+    configuration: Option<&String>,
+) -> Result<bool> {
+    if ![
+        "project-delivery-init",
+        "project-delivery-work",
+        "project-pages-serve",
+    ]
+    .contains(&command)
+    {
+        return Ok(false);
+    }
+    let source = Zeroizing::new(
+        std::env::var(
+            options
+                .runtime_env
+                .context("delivery administration requires --runtime-env VARIABLE")?,
+        )
+        .map_err(|_| anyhow::Error::msg("runtime configuration is missing or invalid UTF-8"))?,
+    );
+    let grants = diamond::RuntimeGrants::from_json(&source)?;
+    let configuration = configuration
+        .map(String::as_str)
+        .context("delivery administration requires --postgres-env VARIABLE")?;
+    if command == "project-pages-serve" {
+        project.serve_pages(
+            options.listen.parse().context("invalid Pages listener")?,
+            configuration,
+            &grants,
+            options
+                .git_binding
+                .context("Pages serving requires --binding NAME")?,
+        )?;
+    } else {
+        let report = if command == "project-delivery-init" {
+            project.initialize_delivery(configuration, &grants)?
+        } else {
+            project.work_delivery_once(configuration, &grants)?
+        };
+        println!("{report}");
+    }
+    Ok(true)
 }
 
 fn project_git_command(
@@ -1077,6 +1142,9 @@ fn help() {
     println!(
         "Diamond {} — W10 release-qualified web application profile\n\n  diamond new NEW_DIRECTORY [--template workspace|catalog]\n  diamond project-work PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-deploy-check PROJECT --postgres-env VARIABLE --runtime-env VARIABLE --origin https://app.example --identity-mailbox PRIVATE_DIRECTORY\n  diamond project-backup PROJECT --postgres-env VARIABLE --runtime-env VARIABLE --out NEW_DIRECTORY --backup-key-env VARIABLE\n  diamond project-restore PROJECT --postgres-env VARIABLE --runtime-env VARIABLE --from BACKUP_DIRECTORY --backup-key-env VARIABLE\n  diamond project-recover PROJECT --postgres-env VARIABLE --policy resume|cancel\n  diamond check FILE_OR_PROJECT\n  diamond build PROJECT --out NEW_DIRECTORY\n  diamond serve PROJECT_OR_BUILD [--listen 127.0.0.1:PORT] [--postgres-env VARIABLE --origin http://localhost:PORT] [--identity-mailbox PRIVATE_DIRECTORY] [--runtime-env VARIABLE]\n  diamond run PROJECT_OR_BUILD [--postgres-env VARIABLE]\n  diamond project-init PROJECT --postgres-env VARIABLE\n  diamond project-files-init PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-files-clean PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-git-init PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-git-reconcile PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-git-promote PROJECT --postgres-env VARIABLE --runtime-env VARIABLE --binding NAME --expected-generation N\n  diamond project-git-authorized-key PROJECT --postgres-env VARIABLE --fingerprint SHA256:VALUE --ssh-launcher ABSOLUTE_EXECUTABLE\n  diamond project-git-authorized-principals PROJECT --postgres-env VARIABLE --ssh-launcher ABSOLUTE_EXECUTABLE\n  diamond project-git-ssh PROJECT --postgres-env VARIABLE --runtime-env VARIABLE --key-id VALUE\n  diamond project-user-add PROJECT --postgres-env VARIABLE --user USERNAME [--password-stdin]\n  diamond project-admin-add PROJECT --postgres-env VARIABLE --user USERNAME --email ADDRESS [--password-stdin]\n  diamond project-status PROJECT --postgres-env VARIABLE\n  diamond project-migrate PROJECT --postgres-env VARIABLE\n  diamond project-backfill PROJECT --postgres-env VARIABLE [--batch 100]\n  diamond project-audit PROJECT --postgres-env VARIABLE\n  diamond run FILE [--database PATH] [--auth PATH] [--listen 127.0.0.1:PORT] [--max-requests N]\n  diamond db-init FILE --database PATH\n  diamond user-add --auth PATH --user USERNAME [--password-stdin]\n  diamond explain CODE\n\nOpen http://localhost:PORT for browser secure-cookie support.\nSee README.md for installation, examples, supported language, limits, and W10 evidence.",
         env!("CARGO_PKG_VERSION")
+    );
+    println!(
+        "\nDelivery commands:\n  diamond project-delivery-init PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-delivery-work PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-pages-serve PROJECT --listen 127.0.0.1:PORT --binding NAME --postgres-env VARIABLE --runtime-env VARIABLE"
     );
 }
 

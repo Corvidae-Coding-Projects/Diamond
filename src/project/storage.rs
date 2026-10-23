@@ -34,6 +34,7 @@ pub(crate) struct PostgresStore {
     pub(super) jobs: std::collections::BTreeMap<String, super::jobs::Binding>,
     pub(super) events: std::collections::BTreeMap<String, super::events::Binding>,
     pub(super) git: Option<super::git::Config>,
+    pub(super) delivery: Option<super::delivery::Config>,
     pub(super) event_types: std::collections::BTreeMap<String, Type>,
     pub(super) job_version: String,
     pub(super) job_operations: std::collections::BTreeMap<String, super::rpc::Operation>,
@@ -84,6 +85,7 @@ impl PostgresStore {
             jobs: project.manifest.jobs.clone(),
             events: project.manifest.events.clone(),
             git: project.manifest.git.clone(),
+            delivery: project.manifest.delivery.clone(),
             event_types: project
                 .manifest
                 .events
@@ -156,6 +158,9 @@ impl PostgresStore {
             }
             if let Some(config) = &project.manifest.git {
                 super::git::schema(&mut store, config, initialize)?;
+            }
+            if let Some(config) = &project.manifest.delivery {
+                super::delivery::schema(&mut store, config, initialize)?;
             }
             if !store.jobs.is_empty() || !store.events.is_empty() {
                 super::jobs::schema(&mut store, project, initialize)?;
