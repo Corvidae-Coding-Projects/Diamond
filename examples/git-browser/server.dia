@@ -1,0 +1,47 @@
+type UserId = Id<"user">
+type RepositoryId = Id<"repository">
+
+type Repository:
+  id: RepositoryId
+  owner: UserId @created_by_principal
+  label: Text<length: 1..80>
+  public: Bool
+
+type NewRepository:
+  label: Text<length: 1..80>
+  public: Bool
+
+resource Repositories: Repository
+
+policy Repositories:
+  read(row, by principal):
+    row.public or principal.is_user(row.owner)
+  create(row, by principal):
+    principal.is_user(row.owner)
+  update(before, after, by principal):
+    before.id == after.id and before.owner == after.owner and principal.is_user(before.owner)
+
+export fn main() -> Text:
+  "Diamond Git browser"
+
+export fn register_repository(label: Text<length: 1..80>, public: Bool) -> Result<Text, DataError>:
+  let repository = repositories.create(NewRepository(label: label, public: public))?
+  Ok(id_text(repository.id))
+
+export fn initialize_repository(repository: Text) -> Result<Text, DataError>:
+  host.git_create("repos", repository)
+
+export fn repository_head(repository: Text) -> Result<GitHead, DataError>:
+  host.git_query<GitHead>("repos", repository, "head", "HEAD", "", 1)
+
+export fn repository_tree(repository: Text, revision: Text, path: Text) -> Result<GitTree, DataError>:
+  host.git_query<GitTree>("repos", repository, "tree", revision, path, 100)
+
+export fn repository_blob(repository: Text, revision: Text, path: Text) -> Result<GitBlob, DataError>:
+  host.git_query<GitBlob>("repos", repository, "blob", revision, path, 1)
+
+export fn repository_history(repository: Text, revision: Text) -> Result<GitHistory, DataError>:
+  host.git_query<GitHistory>("repos", repository, "history", revision, "", 50)
+
+export fn repository_diff(repository: Text, old: Text, new: Text) -> Result<GitDiff, DataError>:
+  host.git_query<GitDiff>("repos", repository, "diff", old, new, 1)

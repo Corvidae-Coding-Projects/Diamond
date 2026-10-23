@@ -9,6 +9,7 @@ mod connected;
 mod deployment;
 mod events;
 mod files;
+pub(crate) mod git;
 mod identity;
 mod jobs;
 mod lower;
@@ -81,6 +82,8 @@ struct Manifest {
     http_api: Option<api::Config>,
     #[serde(default)]
     files: Option<files::Config>,
+    #[serde(default)]
+    git: Option<git::Config>,
     #[serde(default)]
     jobs: BTreeMap<String, jobs::Binding>,
     #[serde(default)]
@@ -538,6 +541,31 @@ impl CheckedProject {
         synchronous_context()?;
         files::maintain(self, configuration, grants, initialize)
     }
+
+    /// Bind every declared Git repository store to this application.
+    ///
+    /// The private roots and fixed Git executables come from native runtime grants;
+    /// neither value is exposed to Diamond source or build artifacts.
+    ///
+    /// # Errors
+    /// Rejects missing bindings, unsafe roots or executables, identity mismatches,
+    /// incompatible database metadata, and storage failures.
+    ///
+    /// ```no_run
+    /// let project = diamond::compile_project(std::path::Path::new("examples/git-browser/diamond.toml"))?;
+    /// let grants = diamond::RuntimeGrants::from_json(&std::env::var("DIAMOND_RUNTIME")?)?;
+    /// let report = project.initialize_git(&std::env::var("DIAMOND_POSTGRES")?, &grants)?;
+    /// assert!(report.contains("initialized"));
+    /// # Ok::<(), Box<dyn std::error::Error>>(())
+    /// ```
+    pub fn initialize_git(
+        &self,
+        configuration: &str,
+        grants: &crate::RuntimeGrants,
+    ) -> Result<String> {
+        synchronous_context()?;
+        git::initialize(self, configuration, grants)
+    }
 }
 
 fn synchronous_context() -> Result<()> {
@@ -572,6 +600,9 @@ fn manifest(source: &str) -> Result<Manifest> {
         if manifest.storage.is_none() {
             return Err(input("accounts-v1 requires relational storage"));
         }
+    }
+    if manifest.git.is_some() && manifest.identity.is_none() {
+        return Err(input("Git bindings require accounts-v1"));
     }
     if manifest.http_api.is_some() && manifest.identity.is_none() {
         return Err(input("HTTP APIs require accounts-v1"));
@@ -697,7 +728,7 @@ fn compile_sources(
         &component.name,
         &components,
         &rpc,
-        manifest.identity.is_some(),
+        manifest.identity.as_ref(),
         manifest.files.as_ref(),
         manifest
             .events
@@ -855,23 +886,10 @@ fn check_server(manifest: &Manifest, modules: &BTreeMap<String, Module>) -> Resu
     if let Some(config) = &manifest.files {
         config.check(manifest, &server)?;
     }
-    for function in server.functions.values() {
-        let external = function
-            .effects
-            .iter()
-            .any(|e| matches!(e, Effect::Host(s) if s.starts_with("Http<")));
-        if external
-            && (function.opens_transaction
-                || function
-                    .effects
-                    .iter()
-                    .any(|e| matches!(e, Effect::Write(_))))
-        {
-            return Err(input(
-                "external HTTP cannot share application writes or explicit transactions",
-            ));
-        }
+    if let Some(config) = &manifest.git {
+        config.check(manifest, &server)?;
     }
+    check_effect_boundaries(&server)?;
     if !wire::safe_type(&server.functions["main"].result, &server)
         && contains_secret(&server.functions["main"].result, &server, 0)
     {
@@ -898,6 +916,42 @@ fn check_server(manifest: &Manifest, modules: &BTreeMap<String, Module>) -> Resu
         }
     }
     Ok(server)
+}
+
+fn check_effect_boundaries(server: &CheckedProgram) -> Result<()> {
+    for function in server.functions.values() {
+        let external = function
+            .effects
+            .iter()
+            .any(|e| matches!(e, Effect::Host(s) if s.starts_with("Http<")));
+        if external
+            && (function.opens_transaction
+                || function
+                    .effects
+                    .iter()
+                    .any(|e| matches!(e, Effect::Write(_))))
+        {
+            return Err(input(
+                "external HTTP cannot share application writes or explicit transactions",
+            ));
+        }
+        let git_write = function
+            .effects
+            .iter()
+            .any(|effect| matches!(effect, Effect::Host(name) if name.starts_with("GitWrite<")));
+        if git_write
+            && (function.opens_transaction
+                || function
+                    .effects
+                    .iter()
+                    .any(|effect| matches!(effect, Effect::Write(_))))
+        {
+            return Err(input(
+                "Git writes cannot share application writes or explicit transactions",
+            ));
+        }
+    }
+    Ok(())
 }
 
 fn durable_bindings(
@@ -943,6 +997,13 @@ fn capability_effect(name: &str) -> Result<Effect> {
         return Ok(Effect::Host(name.into()));
     }
     if ["PostgresRead", "Jobs", "Events", "JobKey"].contains(&name) {
+        return Ok(Effect::Host(name.into()));
+    }
+    if ["GitRead<", "GitWrite<"].iter().any(|prefix| {
+        name.strip_prefix(prefix)
+            .and_then(|value| value.strip_suffix('>'))
+            .is_some_and(resolve::identifier)
+    }) {
         return Ok(Effect::Host(name.into()));
     }
     for (prefix, write) in [("DbRead<", false), ("DbWrite<", true)] {

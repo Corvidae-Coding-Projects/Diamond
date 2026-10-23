@@ -196,7 +196,7 @@ pub(in crate::project) fn dispatch(
                 &r.operations,
                 &r.scopes,
                 &r.lifetime_seconds,
-                &project.api,
+                project,
             )?;
             value = json!({"value":token.as_str(),"id":id});
         }

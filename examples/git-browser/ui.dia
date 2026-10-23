@@ -1,0 +1,61 @@
+export component GitBrowser:
+  state username: Text = ""
+  state password: Text = ""
+  state signed_in: Text = ""
+  state label: Text = "example"
+  state repository: Text = ""
+  state current: GitHead = GitHead(reference: "", object: None)
+  state credential: Text = ""
+  state output: Text = "Sign in and register a repository."
+
+  on sign_in:
+    signed_in = session.login(username, password)
+    password = ""
+    output = "Signed in."
+  on sign_out:
+    signed_in = session.logout()
+    repository = ""
+    credential = ""
+    output = "Signed out."
+  on google_login:
+    output = session.oauth_login("google", "")
+  on github_login:
+    output = session.oauth_login("github", "")
+  on register:
+    repository = rpc.register_repository(label, true)
+    output = "Repository metadata registered."
+  on initialize:
+    output = rpc.initialize_repository(repository)
+  on head:
+    current = rpc.repository_head(repository)
+    output = current.reference
+  on create_credential:
+    credential = session.create_token("Git client", ["git:repos:read", "git:repos:write"], "{\"repository\":[\"" + repository + "\"]}", 3600)
+    output = "Copy the credential now; it is shown only once."
+
+  html:
+    <main>
+      <h1>Diamond Git browser</h1>
+      <section>
+        <h2>Account</h2>
+        <label for="username">Username</label><input id="username" bind-value={username}>
+        <label for="password">Password</label><input id="password" type="password" bind-value={password}>
+        <button on-click={sign_in}>Sign in</button>
+        <button on-click={google_login}>Continue with Google</button>
+        <button on-click={github_login}>Continue with GitHub</button>
+        <button on-click={sign_out}>Sign out</button>
+        <p>{signed_in}</p>
+      </section>
+      <section>
+        <h2>Repository</h2>
+        <label for="label">Name</label><input id="label" bind-value={label}>
+        <button on-click={register}>Register</button>
+        <button on-click={initialize}>Initialize Git</button>
+        <button on-click={head}>Read HEAD</button>
+        <button on-click={create_credential}>Create one-hour Git credential</button>
+        <p>Repository ID: {repository}</p>
+        <p>Git username: diamond</p>
+        <pre>{credential}</pre>
+        <pre>{output}</pre>
+      </section>
+    </main>

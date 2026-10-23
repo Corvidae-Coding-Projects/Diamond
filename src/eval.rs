@@ -530,6 +530,79 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
         ))
     }
 
+    fn git_call(
+        &mut self,
+        method: &str,
+        arguments: &[(Option<String>, Expr)],
+        types: &[crate::syntax::TypeName],
+        locals: &BTreeMap<String, Value>,
+        location: crate::error::Location,
+    ) -> Result<Value> {
+        let values = arguments
+            .iter()
+            .map(|(_, value)| self.expr(value, locals))
+            .collect::<Result<Vec<_>>>()?;
+        let texts = values
+            .iter()
+            .take(if method == "git_create" { 2 } else { 5 })
+            .map(|value| match &value.0 {
+                ValueKind::Text(text) => Ok(text.as_str()),
+                _ => Err(Error::Denied),
+            })
+            .collect::<Result<Vec<_>>>()?;
+        let binding = *texts.first().ok_or(Error::Denied)?;
+        let write = method == "git_create";
+        self.scope.require(&crate::authority::Effect::Host(format!(
+            "Git{}<{binding}>",
+            if write { "Write" } else { "Read" }
+        )))?;
+        let operation = if write { "create" } else { texts[2] };
+        let revision = if write { "" } else { texts[3] };
+        let path = if write { "" } else { texts[4] };
+        let limit = if write {
+            1
+        } else {
+            match values.get(5).ok_or(Error::Denied)?.0 {
+                ValueKind::Int(value) => value,
+                _ => return Err(Error::Denied),
+            }
+        };
+        let json = crate::project::git::call(
+            self.postgres.as_deref_mut().ok_or(Error::Denied)?,
+            self.scope,
+            self.integrations.ok_or(Error::Denied)?,
+            crate::project::git::Query {
+                binding,
+                repository: texts[1],
+                operation,
+                revision,
+                path,
+                limit,
+                write,
+            },
+        )?;
+        let result = if write {
+            Type::Text
+        } else {
+            crate::checker::resolve_type(
+                types.first().ok_or(Error::Denied)?,
+                self.program,
+                location,
+            )?
+        };
+        let json = if write {
+            serde_json::Value::String(
+                json.get("state")
+                    .and_then(serde_json::Value::as_str)
+                    .ok_or(Error::Denied)?
+                    .into(),
+            )
+        } else {
+            json
+        };
+        Value::operation(crate::project::wire::decode(&result, &json, self.program))
+    }
+
     fn call(
         &mut self,
         callee: &Expr,
@@ -563,6 +636,9 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
                         locals,
                         callee.location,
                     );
+                }
+                if matches!(method.as_str(), "git_create" | "git_query") {
+                    return self.git_call(method, arguments, types, locals, callee.location);
                 }
                 let operation = crate::host::operation(method).ok_or(Error::Denied)?;
                 self.scope

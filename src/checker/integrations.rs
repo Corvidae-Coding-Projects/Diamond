@@ -95,6 +95,100 @@ impl Checker<'_> {
 }
 
 impl Checker<'_> {
+    pub(super) fn git_call(
+        &mut self,
+        method: &str,
+        args: &[(Option<String>, Expr)],
+        types: &[TypeName],
+        location: Location,
+    ) -> Result<Type> {
+        let Some((
+            None,
+            Expr {
+                kind: ExprKind::Text(binding),
+                ..
+            },
+        )) = args.first()
+        else {
+            return Err(Error::diagnostic(
+                "D310",
+                location,
+                "Git binding requires a static name",
+            ));
+        };
+        if !crate::project::resolve::identifier(binding)
+            || args.iter().any(|(name, _)| name.is_some())
+        {
+            return Err(Error::Denied);
+        }
+        let expected_arguments = if method == "git_create" { 2 } else { 6 };
+        let expected_types = usize::from(method == "git_query");
+        if args.len() != expected_arguments || types.len() != expected_types {
+            return Err(Error::diagnostic(
+                "D310",
+                location,
+                "invalid registered Git signature",
+            ));
+        }
+        let text_arguments = if method == "git_create" { 2 } else { 5 };
+        for (_, argument) in args.iter().take(text_arguments) {
+            if !Type::Text.accepts(&self.expr(argument)?) {
+                return Err(Error::diagnostic(
+                    "D310",
+                    location,
+                    "Git arguments require Text values",
+                ));
+            }
+        }
+        if method == "git_query" {
+            if !Type::Int.accepts(&self.expr(&args[5].1)?) {
+                return Err(Error::diagnostic(
+                    "D310",
+                    location,
+                    "Git query limit requires Int",
+                ));
+            }
+            let Some((
+                None,
+                Expr {
+                    kind: ExprKind::Text(operation),
+                    ..
+                },
+            )) = args.get(2)
+            else {
+                return Err(Error::diagnostic(
+                    "D310",
+                    location,
+                    "Git query operation requires a static name",
+                ));
+            };
+            if !["head", "tree", "blob", "history", "diff"].contains(&operation.as_str()) {
+                return Err(Error::Denied);
+            }
+        }
+        let write = method == "git_create";
+        self.effects.insert(Effect::Host(format!(
+            "Git{}<{binding}>",
+            if write { "Write" } else { "Read" }
+        )));
+        let result = if write {
+            Type::Text
+        } else {
+            let result = resolve_type(types.first().ok_or(Error::Denied)?, self.program, location)?;
+            if !crate::project::wire::safe_type(&result, self.program) {
+                return Err(Error::diagnostic(
+                    "D310",
+                    location,
+                    "Git query requires a finite wire-safe result type",
+                ));
+            }
+            result
+        };
+        Ok(Type::Result(Box::new(result)))
+    }
+}
+
+impl Checker<'_> {
     pub(super) fn durable_call(
         &mut self,
         method: &str,

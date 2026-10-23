@@ -59,7 +59,7 @@ impl PostgresStore {
             "SELECT pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended($1,0))",
             &[&format!("{}:account-capacity", self.app)],
         )?;
-        let exists=self.connection.query("SELECT username FROM diamond_identity.users WHERE app=$1 AND (username=$2 OR email=$3)",&[&self.app,&username,&address])?;
+        let exists=self.connection.query("SELECT username FROM diamond_identity.users WHERE app=$1 AND (username=$2 OR (email=$3 AND password_hash IS NOT NULL))",&[&self.app,&username,&address])?;
         // Hash known and unknown registration inputs alike before generic acceptance.
         let hash = Zeroizing::new(crate::accounts::hash_password(secret)?);
         if enrollment == Enrollment::Invite {
@@ -95,7 +95,7 @@ impl PostgresStore {
         purpose: &'static str,
     ) -> Result<Option<Delivery>> {
         let address = email(address)?;
-        let rows=self.connection.query("SELECT username,epoch,verified FROM diamond_identity.users WHERE app=$1 AND email=$2 AND NOT disabled FOR UPDATE",&[&self.app,&address])?;
+        let rows=self.connection.query("SELECT username,epoch,verified FROM diamond_identity.users WHERE app=$1 AND email=$2 AND password_hash IS NOT NULL AND NOT disabled FOR UPDATE",&[&self.app,&address])?;
         let Some(row) = rows.first() else {
             return Ok(None);
         };

@@ -1,0 +1,52 @@
+schema_version = 1
+name = "GitBrowser"
+server = "server"
+browser = "ui"
+component = "GitBrowser"
+styles = ["git.css"]
+provides = ["DbRead<Repositories>", "DbWrite<Repositories>", "GitRead<repos>", "GitWrite<repos>"]
+
+[modules.shared]
+path = "shared.dia"
+target = "shared"
+
+[modules.server]
+path = "server.dia"
+target = "server"
+imports = ["shared"]
+provides = ["DbRead<Repositories>", "DbWrite<Repositories>", "GitRead<repos>", "GitWrite<repos>"]
+
+[modules.ui]
+path = "ui.dia"
+target = "browser"
+imports = ["shared"]
+
+[rpc]
+register_repository = "server.register_repository"
+initialize_repository = "server.initialize_repository"
+repository_head = "server.repository_head"
+repository_tree = "server.repository_tree"
+repository_blob = "server.repository_blob"
+repository_history = "server.repository_history"
+repository_diff = "server.repository_diff"
+
+[storage]
+profile = "relational-v1"
+version = 1
+
+[storage.resources.Repositories]
+scope = "id"
+
+[identity]
+profile = "accounts-v1"
+enrollment = "open"
+
+[identity.oauth]
+providers = ["google", "github"]
+admission = "public"
+
+[git]
+profile = "git-v1"
+
+[git.bindings.repos]
+resource = "Repositories"

@@ -1,0 +1,43 @@
+{
+  "profile": "Diamond Git and OAuth compiler boundaries",
+  "passed": 9,
+  "total": 9,
+  "results": [
+    {
+      "name": "reference Git project accepted",
+      "pass": true
+    },
+    {
+      "name": "dynamic Git binding rejected",
+      "pass": true
+    },
+    {
+      "name": "dynamic Git operation rejected",
+      "pass": true
+    },
+    {
+      "name": "non-text Git repository rejected",
+      "pass": true
+    },
+    {
+      "name": "browser Git host access rejected",
+      "pass": true
+    },
+    {
+      "name": "undeclared Git write capability rejected",
+      "pass": true
+    },
+    {
+      "name": "Git write and database write cannot share a function",
+      "pass": true
+    },
+    {
+      "name": "restricted OAuth without an admission rule rejected",
+      "pass": true
+    },
+    {
+      "name": "uppercase OAuth policy boundary rejected",
+      "pass": true
+    }
+  ]
+}

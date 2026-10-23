@@ -726,8 +726,15 @@ impl Parser {
                     kind: ExprKind::Field(Box::new(left), name.clone()),
                     location,
                 };
-                if ["form", "http_get", "http_post", "job_submit", "event_emit"]
-                    .contains(&name.as_str())
+                if [
+                    "form",
+                    "http_get",
+                    "http_post",
+                    "job_submit",
+                    "event_emit",
+                    "git_query",
+                ]
+                .contains(&name.as_str())
                     && self.is_symbol("<")
                 {
                     self.take();

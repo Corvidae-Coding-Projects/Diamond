@@ -1,0 +1,40 @@
+export type GitHead:
+  reference: Text
+  object: Option<Text>
+
+export type GitEntry:
+  mode: Text
+  kind: Text
+  object: Text
+  size: Option<Text>
+  name: Text
+
+export type GitTree:
+  revision: Text
+  path: Text
+  entries: List<GitEntry>
+  truncated: Bool
+
+export type GitBlob:
+  revision: Text
+  path: Text
+  object: Text
+  size: Text
+  text: Text
+
+export type GitCommit:
+  object: Text
+  parents: Text
+  author_name: Text
+  author_email: Text
+  authored_at: Text
+  subject: Text
+
+export type GitHistory:
+  revision: Text
+  commits: List<GitCommit>
+
+export type GitDiff:
+  old: Text
+  new: Text
+  text: Text

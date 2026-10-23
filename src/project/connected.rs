@@ -1,5 +1,7 @@
 //! Connected loopback serving with exact-origin RPC and shared `PostgreSQL` identity.
 
+mod git;
+mod oauth;
 mod profiles;
 
 use super::{
@@ -113,6 +115,8 @@ pub(super) fn serve_runtime(
     }
     let _deployment_guard = super::deployment::guard(project, configuration, false)?;
     let objects = super::files::Store::open(project, configuration, &runtime, false)?;
+    super::git::validate(project, configuration, &runtime)?;
+    oauth::validate_runtime(project, &runtime)?;
     let authority = check_origin(origin)?;
     let mailbox = match (&project.manifest.identity, mailbox) {
         (Some(_), Some(path)) => Some(super::accounts::Mailbox::open(path)?),
@@ -219,6 +223,8 @@ async fn handler(
 ) -> Response {
     let class = if request.uri().path().starts_with("/api/") {
         "api"
+    } else if request.uri().path().starts_with("/_diamond/git/") {
+        "git"
     } else if request.uri().path().starts_with("/_diamond/rpc/") {
         "rpc"
     } else if request.uri().path().starts_with("/_diamond/files/") {
@@ -260,6 +266,12 @@ async fn handler_inner(
     };
     if server.draining.load(std::sync::atomic::Ordering::Relaxed) {
         return failure(&Error::Limit("server draining"));
+    }
+    if request.uri().path().starts_with("/_diamond/git/") {
+        return git::request(server, request, peer.ip().to_string(), permit).await;
+    }
+    if request.uri().path().starts_with("/_diamond/oauth/") {
+        return oauth::request(server, request, peer.ip().to_string(), permit).await;
     }
     if request.uri().path().starts_with("/_diamond/events/") {
         drop(permit);
@@ -521,26 +533,35 @@ pub(super) fn one_header<'a>(request: &'a Request, name: &str) -> Option<&'a str
 }
 
 fn valid_request(server: &Server, request: &Request) -> bool {
+    let git = request.uri().path().starts_with("/_diamond/git/");
+    let oauth_callback = request.method() == "GET"
+        && request.uri().path().starts_with("/_diamond/oauth/")
+        && request.uri().path().ends_with("/callback");
     one_header(request, "host") == Some(server.authority.as_str())
         && !request
             .headers()
             .keys()
             .any(|k| k == "forwarded" || k.as_str().starts_with("x-forwarded-"))
-        && request.uri().query().is_none()
+        && (request.uri().query().is_none() || git || oauth_callback)
         && request.uri().authority().is_none()
         && !request.uri().path().contains(['%', '\\'])
         && !request.uri().path().starts_with("//")
-        && !request.headers().contains_key(header::TRANSFER_ENCODING)
+        && (!request.headers().contains_key(header::TRANSFER_ENCODING)
+            || (git
+                && !request.headers().contains_key(header::CONTENT_LENGTH)
+                && one_header(request, header::TRANSFER_ENCODING.as_str()) == Some("chunked")))
         && (!request.headers().contains_key(header::UPGRADE)
             || request.uri().path().starts_with("/_diamond/events/"))
         && (!request.headers().contains_key(header::ORIGIN)
             || one_header(request, "origin") == Some(server.origin.as_str()))
-        && one_header(request, "sec-fetch-site") != Some("cross-site")
+        && (one_header(request, "sec-fetch-site") != Some("cross-site") || oauth_callback)
         && (!request.headers().contains_key(header::CONTENT_LENGTH)
             || one_header(request, "content-length")
                 .and_then(|v| v.parse::<u64>().ok())
                 .is_some_and(|n| {
-                    n <= if request.method() == "PUT"
+                    n <= if git {
+                        super::git::MAX_TRANSPORT_BYTES
+                    } else if request.method() == "PUT"
                         && request.uri().path().starts_with("/_diamond/files/")
                     {
                         super::files::MAX_BYTES
@@ -575,7 +596,7 @@ pub(super) fn cookie(request: &Request, name: &str) -> Result<Option<Zeroizing<S
 
 fn session_cookie(name: &str, token: &str, clear: bool) -> String {
     format!(
-        "{name}={token}; Path=/; Secure; HttpOnly; SameSite=Strict; Max-Age={}",
+        "{name}={token}; Path=/; Secure; HttpOnly; SameSite=Lax; Max-Age={}",
         if clear { 0 } else { 1800 }
     )
 }

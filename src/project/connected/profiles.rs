@@ -121,11 +121,7 @@ fn api_work(
         server.pool.as_ref(),
     )?;
     let grant = if op.auth == api::Auth::Token {
-        Some(store.api_grant(
-            token.ok_or(Error::Unauthenticated)?,
-            name,
-            &server.project.api,
-        )?)
+        Some(store.api_grant(token.ok_or(Error::Unauthenticated)?, name, &server.project)?)
     } else {
         None
     };

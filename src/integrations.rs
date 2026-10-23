@@ -20,8 +20,43 @@ use zeroize::Zeroizing;
 #[serde(deny_unknown_fields)]
 struct Configuration {
     objects: Option<PathBuf>,
+    oauth: Option<OAuthConfiguration>,
+    #[serde(default)]
+    git: BTreeMap<String, GitGrant>,
     #[serde(default)]
     http: BTreeMap<String, Destination>,
+}
+
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct OAuthConfiguration {
+    transaction_key_env: String,
+    google: Option<OAuthClientConfiguration>,
+    github: Option<OAuthClientConfiguration>,
+}
+
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct OAuthClientConfiguration {
+    client_id: String,
+    client_secret_env: String,
+}
+
+pub(crate) struct OAuthRuntime {
+    pub(crate) transaction_key: Zeroizing<[u8; 32]>,
+    pub(crate) google: Option<OAuthClient>,
+    pub(crate) github: Option<OAuthClient>,
+}
+
+pub(crate) struct OAuthClient {
+    pub(crate) client_id: String,
+    pub(crate) client_secret: Zeroizing<String>,
+}
+#[derive(Clone, Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub(crate) struct GitGrant {
+    pub(crate) root: PathBuf,
+    pub(crate) executable: PathBuf,
 }
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -66,6 +101,8 @@ const fn output_limit() -> usize {
 #[derive(Default)]
 pub struct RuntimeGrants {
     pub(crate) objects: Option<PathBuf>,
+    pub(crate) git: BTreeMap<String, GitGrant>,
+    pub(crate) oauth: Option<OAuthRuntime>,
     destinations: BTreeMap<String, Destination>,
 }
 impl fmt::Debug for RuntimeGrants {
@@ -93,6 +130,15 @@ impl RuntimeGrants {
         let mut config: Configuration =
             crate::project::wire::strict_from_slice(source.as_bytes()).map_err(|_| invalid())?;
         if config.http.len() > 16 {
+            return Err(invalid());
+        }
+        if config.git.len() > 16
+            || config.git.iter().any(|(name, grant)| {
+                !crate::project::resolve::identifier(name)
+                    || !grant.root.is_absolute()
+                    || !grant.executable.is_absolute()
+            })
+        {
             return Err(invalid());
         }
         for (name, dest) in &mut config.http {
@@ -162,8 +208,11 @@ impl RuntimeGrants {
         if config.objects.as_ref().is_some_and(|p| !p.is_absolute()) {
             return Err(invalid());
         }
+        let oauth = config.oauth.map(OAuthRuntime::capture).transpose()?;
         Ok(Self {
             objects: config.objects,
+            git: config.git,
+            oauth,
             destinations: config.http,
         })
     }
@@ -249,6 +298,66 @@ impl RuntimeGrants {
             value
         }
     }
+}
+
+impl OAuthRuntime {
+    fn capture(configuration: OAuthConfiguration) -> Result<Self> {
+        use sha2::Digest as _;
+        if !valid_environment_name(&configuration.transaction_key_env)
+            || configuration.google.is_none() && configuration.github.is_none()
+        {
+            return Err(invalid());
+        }
+        let key_source = Zeroizing::new(
+            std::env::var(&configuration.transaction_key_env).map_err(|_| invalid())?,
+        );
+        if !(32..=4096).contains(&key_source.len()) || key_source.chars().any(char::is_control) {
+            return Err(invalid());
+        }
+        let key: [u8; 32] = sha2::Sha256::digest(key_source.as_bytes()).into();
+        Ok(Self {
+            transaction_key: Zeroizing::new(key),
+            google: configuration.google.map(OAuthClient::capture).transpose()?,
+            github: configuration.github.map(OAuthClient::capture).transpose()?,
+        })
+    }
+
+    pub(crate) fn client(&self, provider: &str) -> Option<&OAuthClient> {
+        match provider {
+            "google" => self.google.as_ref(),
+            "github" => self.github.as_ref(),
+            _ => None,
+        }
+    }
+}
+
+impl OAuthClient {
+    fn capture(configuration: OAuthClientConfiguration) -> Result<Self> {
+        if configuration.client_id.is_empty()
+            || configuration.client_id.len() > 256
+            || configuration.client_id.chars().any(char::is_control)
+            || !valid_environment_name(&configuration.client_secret_env)
+        {
+            return Err(invalid());
+        }
+        let secret =
+            Zeroizing::new(std::env::var(&configuration.client_secret_env).map_err(|_| invalid())?);
+        if secret.is_empty() || secret.len() > 4096 || secret.chars().any(char::is_control) {
+            return Err(invalid());
+        }
+        Ok(Self {
+            client_id: configuration.client_id,
+            client_secret: secret,
+        })
+    }
+}
+
+fn valid_environment_name(value: &str) -> bool {
+    !value.is_empty()
+        && value.len() <= 128
+        && value
+            .bytes()
+            .all(|byte| byte.is_ascii_alphanumeric() || byte == b'_')
 }
 #[derive(Clone, PartialEq, Eq)]
 pub(crate) struct SecretHandle {

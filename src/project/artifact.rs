@@ -32,6 +32,8 @@ struct Contract<'a> {
     integration_operations: serde_json::Value,
     file_operations: serde_json::Value,
     private_files: Option<&'a super::files::Config>,
+    git_operations: serde_json::Value,
+    git: Option<&'a super::git::Config>,
     jobs: &'a BTreeMap<String, super::jobs::Binding>,
     events: &'a BTreeMap<String, super::events::Binding>,
     artifacts: BTreeMap<String, String>,
@@ -110,6 +112,8 @@ pub(super) fn files(project: &CheckedProject) -> Result<BTreeMap<String, String>
         integration_operations: crate::integrations::contracts(),
         file_operations: super::files::contracts(),
         private_files: project.manifest.files.as_ref(),
+        git_operations: super::git::contracts(),
+        git: project.manifest.git.as_ref(),
         jobs: &project.manifest.jobs,
         events: &project.manifest.events,
         artifacts: files

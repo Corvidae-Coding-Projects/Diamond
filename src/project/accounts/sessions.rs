@@ -157,8 +157,9 @@ impl PostgresStore {
         let rows=self.connection.query("SELECT password_hash,verified,disabled FROM diamond_identity.users WHERE app=$1 AND username=$2 FOR UPDATE",&[&self.app,&username])?;
         let hash = Zeroizing::new(
             rows.first()
-                .map(|r| stored(r.try_get::<_, String>(0)))
+                .map(|r| stored(r.try_get::<_, Option<String>>(0)))
                 .transpose()?
+                .flatten()
                 .unwrap_or_else(|| dummy.into()),
         );
         let valid = crate::accounts::verify_password(&hash, secret)?;
@@ -184,6 +185,27 @@ impl PostgresStore {
             &[&self.app, &digest(&self.app, "session", token)],
         )?;
         Ok(())
+    }
+
+    pub(in crate::project) fn oauth_session_binding(&mut self, token: &str) -> Result<String> {
+        let identity = self
+            .account_session_identity(token)?
+            .ok_or(Error::Unauthenticated)?;
+        if identity.user.is_some() {
+            return Err(Error::Denied);
+        }
+        Ok(digest(&self.app, "session", token))
+    }
+
+    pub(in crate::project) fn oauth_login_session(
+        &mut self,
+        token: &str,
+        username: &str,
+    ) -> Result<Session> {
+        self.oauth_session_binding(token)?;
+        let account = self.account(username, false)?;
+        self.delete_account_session(token)?;
+        self.create_account_session(Some(&account))
     }
     pub(in crate::project) fn account_logout(&mut self, token: &str, supplied: &str) -> Result<()> {
         self.account_principal(Some(token), supplied)?;

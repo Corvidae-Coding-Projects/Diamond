@@ -1,0 +1,450 @@
+{
+  "profile": "Diamond Git and OAuth foundation red-team campaign",
+  "versions": {
+    "diamond": "diamond 0.16.0 (W10 release-qualified web application profile)",
+    "git": "git version 2.56.0",
+    "postgres": "postgres (PostgreSQL) 18.6",
+    "python": "3.14.8"
+  },
+  "passed": 108,
+  "total": 108,
+  "metrics": {
+    "server_rss_baseline_kib": 49280,
+    "server_rss_peak_kib": 49288,
+    "server_rss_delta_kib": 8
+  },
+  "results": [
+    {
+      "name": "postgres init",
+      "pass": true
+    },
+    {
+      "name": "postgres start",
+      "pass": true
+    },
+    {
+      "name": "project schema init",
+      "pass": true
+    },
+    {
+      "name": "git store init",
+      "pass": true
+    },
+    {
+      "name": "admin provision",
+      "pass": true
+    },
+    {
+      "name": "second user provision",
+      "pass": true
+    },
+    {
+      "name": "session bootstrap",
+      "pass": true
+    },
+    {
+      "name": "password login",
+      "pass": true
+    },
+    {
+      "name": "register public repository",
+      "pass": true
+    },
+    {
+      "name": "initialize bare repository",
+      "pass": true
+    },
+    {
+      "name": "opaque repository path",
+      "pass": true
+    },
+    {
+      "name": "bare fsck empty",
+      "pass": true
+    },
+    {
+      "name": "scoped Git token create",
+      "pass": true
+    },
+    {
+      "name": "read-only Git token create",
+      "pass": true
+    },
+    {
+      "name": "anonymous stock Git clone",
+      "pass": true
+    },
+    {
+      "name": "commit first",
+      "pass": true
+    },
+    {
+      "name": "commit first object",
+      "pass": true
+    },
+    {
+      "name": "read token push denied",
+      "pass": true
+    },
+    {
+      "name": "write token push",
+      "pass": true
+    },
+    {
+      "name": "bare fsck after push",
+      "pass": true
+    },
+    {
+      "name": "create feature ref",
+      "pass": true
+    },
+    {
+      "name": "create tag ref",
+      "pass": true
+    },
+    {
+      "name": "atomic multi-ref push",
+      "pass": true
+    },
+    {
+      "name": "atomic branches and tags visible",
+      "pass": true
+    },
+    {
+      "name": "public clone populated",
+      "pass": true
+    },
+    {
+      "name": "clone content exact",
+      "pass": true
+    },
+    {
+      "name": "head typed view",
+      "pass": true
+    },
+    {
+      "name": "tree typed view",
+      "pass": true
+    },
+    {
+      "name": "blob typed view",
+      "pass": true
+    },
+    {
+      "name": "history typed view",
+      "pass": true
+    },
+    {
+      "name": "register private repository",
+      "pass": true
+    },
+    {
+      "name": "initialize private repository",
+      "pass": true
+    },
+    {
+      "name": "private repository anonymous concealment",
+      "pass": true
+    },
+    {
+      "name": "cross-repository token scope denied",
+      "pass": true
+    },
+    {
+      "name": "private scoped token create",
+      "pass": true
+    },
+    {
+      "name": "private scoped stock clone",
+      "pass": true
+    },
+    {
+      "name": "missing Git scope rejected",
+      "pass": true
+    },
+    {
+      "name": "session bootstrap",
+      "pass": true
+    },
+    {
+      "name": "second user login",
+      "pass": true
+    },
+    {
+      "name": "second user scoped credential created",
+      "pass": true
+    },
+    {
+      "name": "second user may read public repository",
+      "pass": true
+    },
+    {
+      "name": "non-owner write denied by resource policy",
+      "pass": true
+    },
+    {
+      "name": "second user private credential created",
+      "pass": true
+    },
+    {
+      "name": "non-owner private read denied by resource policy",
+      "pass": true
+    },
+    {
+      "name": "commit second",
+      "pass": true
+    },
+    {
+      "name": "push second",
+      "pass": true
+    },
+    {
+      "name": "diff typed view",
+      "pass": true
+    },
+    {
+      "name": "set hostile author separator",
+      "pass": true
+    },
+    {
+      "name": "commit delimiter probe",
+      "pass": true
+    },
+    {
+      "name": "push with push-option",
+      "pass": true
+    },
+    {
+      "name": "history preserves hostile separator",
+      "pass": true
+    },
+    {
+      "name": "restore ordinary author",
+      "pass": true
+    },
+    {
+      "name": "commit hook probe",
+      "pass": true
+    },
+    {
+      "name": "push hook probe",
+      "pass": true
+    },
+    {
+      "name": "repository hook ignored",
+      "pass": true
+    },
+    {
+      "name": "install hostile packObjectsHook",
+      "pass": true
+    },
+    {
+      "name": "hostile repository config denied",
+      "pass": true
+    },
+    {
+      "name": "hostile pack hook never executed",
+      "pass": true
+    },
+    {
+      "name": "remove hostile packObjectsHook",
+      "pass": true
+    },
+    {
+      "name": "global Git config ignored",
+      "pass": true
+    },
+    {
+      "name": "global pack hook never executed",
+      "pass": true
+    },
+    {
+      "name": "remove mandatory config",
+      "pass": true
+    },
+    {
+      "name": "idempotent Git config reconciliation",
+      "pass": true
+    },
+    {
+      "name": "clone after config reconciliation",
+      "pass": true
+    },
+    {
+      "name": "reject traversal",
+      "pass": true
+    },
+    {
+      "name": "reject encoded traversal",
+      "pass": true
+    },
+    {
+      "name": "reject service injection",
+      "pass": true
+    },
+    {
+      "name": "reject unknown binding",
+      "pass": true
+    },
+    {
+      "name": "reject cookie ambient auth",
+      "pass": true
+    },
+    {
+      "name": "reject bad protocol",
+      "pass": true
+    },
+    {
+      "name": "reject basic smuggling",
+      "pass": true
+    },
+    {
+      "name": "reject Git discovery body",
+      "pass": true
+    },
+    {
+      "name": "receive advertisement needs auth",
+      "pass": true
+    },
+    {
+      "name": "revision and path injection denied",
+      "pass": true
+    },
+    {
+      "name": "commit large",
+      "pass": true
+    },
+    {
+      "name": "commit large object",
+      "pass": true
+    },
+    {
+      "name": "push large",
+      "pass": true
+    },
+    {
+      "name": "oversized blob denied",
+      "pass": true
+    },
+    {
+      "name": "stage random pack",
+      "pass": true
+    },
+    {
+      "name": "commit random pack",
+      "pass": true
+    },
+    {
+      "name": "push random pack",
+      "pass": true
+    },
+    {
+      "name": "large streamed clone",
+      "pass": true
+    },
+    {
+      "name": "server RSS bounded during 24 MiB pack",
+      "pass": true
+    },
+    {
+      "name": "interrupted request reached Git backend",
+      "pass": true
+    },
+    {
+      "name": "interrupted request released backend",
+      "pass": true
+    },
+    {
+      "name": "repository symlink swap denied",
+      "pass": true
+    },
+    {
+      "name": "fsck after tamper replay",
+      "pass": true
+    },
+    {
+      "name": "token revoke endpoint",
+      "pass": true
+    },
+    {
+      "name": "revoked token denied",
+      "pass": true
+    },
+    {
+      "name": "session bootstrap",
+      "pass": true
+    },
+    {
+      "name": "Google OAuth start",
+      "pass": true
+    },
+    {
+      "name": "OAuth start is not cacheable",
+      "pass": true
+    },
+    {
+      "name": "OAuth PKCE and nonce",
+      "pass": true
+    },
+    {
+      "name": "OAuth state is digested and transaction secrets encrypted",
+      "pass": true
+    },
+    {
+      "name": "session bootstrap",
+      "pass": true
+    },
+    {
+      "name": "OAuth state bound to browser session",
+      "pass": true
+    },
+    {
+      "name": "mismatched session did not consume state",
+      "pass": true
+    },
+    {
+      "name": "OAuth provider mix-up denied",
+      "pass": true
+    },
+    {
+      "name": "provider mix-up did not consume state",
+      "pass": true
+    },
+    {
+      "name": "duplicate OAuth callback field denied",
+      "pass": true
+    },
+    {
+      "name": "malformed callback did not consume state",
+      "pass": true
+    },
+    {
+      "name": "OAuth cancellation consumes exact transaction",
+      "pass": true
+    },
+    {
+      "name": "OAuth transaction consumed",
+      "pass": true
+    },
+    {
+      "name": "OAuth state replay denied",
+      "pass": true
+    },
+    {
+      "name": "cross-site OAuth start denied",
+      "pass": true
+    },
+    {
+      "name": "unknown OAuth provider denied",
+      "pass": true
+    },
+    {
+      "name": "credential stored digest-only",
+      "pass": true
+    },
+    {
+      "name": "tokens absent from logs",
+      "pass": true
+    }
+  ]
+}

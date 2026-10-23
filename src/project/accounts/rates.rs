@@ -28,21 +28,23 @@ pub(in crate::project) fn charge(
         if super::stored(count[0].try_get::<_, i64>(0))? > 4090 {
             return Err(Error::Limit("identity rate"));
         }
+        let limits = match class {
+            "api" => [600, 300, 120],
+            "git" => [2_000, 1_000, 300],
+            _ => [120, 100, 12],
+        };
         for (bucket, limit) in [
-            (
-                format!("{class}:global"),
-                if class == "api" { 600 } else { 120 },
-            ),
+            (format!("{class}:global"), limits[0]),
             (
                 format!("{class}:peer:{}", super::digest(&app, "peer", peer)),
-                if class == "api" { 300 } else { 100 },
+                limits[1],
             ),
             (
                 format!(
                     "{class}:subject:{}",
                     super::digest(&app, "subject", subject)
                 ),
-                if class == "api" { 120 } else { 12 },
+                limits[2],
             ),
         ] {
             if subject.is_empty() && bucket.contains(":subject:") {

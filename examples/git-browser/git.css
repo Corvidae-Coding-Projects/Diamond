@@ -1,0 +1,7 @@
+:root { color-scheme: light dark; font-family: system-ui, sans-serif; }
+body { margin: 0; }
+main { max-width: 64rem; margin: auto; padding: 2rem; }
+section { border: 1px solid color-mix(in srgb, currentColor 25%, transparent); border-radius: .5rem; margin-block: 1rem; padding: 1rem; }
+label, input, button { display: block; margin-block: .5rem; }
+button { display: inline-block; margin-inline-end: .5rem; }
+pre { overflow: auto; white-space: pre-wrap; }

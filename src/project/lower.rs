@@ -95,6 +95,7 @@ pub(super) struct BrowserProgram {
 }
 struct Lower<'a> {
     accounts: bool,
+    oauth: bool,
     files: BTreeSet<String>,
     channels: BTreeMap<String, Type>,
     program: &'a CheckedProgram,
@@ -106,12 +107,13 @@ pub(super) fn lower(
     root: &str,
     components: &[syntax::Component],
     rpc: &BTreeMap<String, super::rpc::Operation>,
-    accounts: bool,
+    identity: Option<&super::accounts::Config>,
     files: Option<&super::files::Config>,
     channels: BTreeMap<String, Type>,
 ) -> Result<BrowserProgram> {
     let mut lower = Lower {
-        accounts,
+        accounts: identity.is_some(),
+        oauth: identity.is_some_and(|config| config.oauth.is_some()),
         channels,
         files: files
             .map(|c| c.bindings.keys().cloned().collect())
@@ -374,6 +376,7 @@ impl Lower<'_> {
             } else {
                 let params = match name.as_str() {
                     "login" => vec![Type::Text, Type::Text],
+                    "oauth_login" if self.oauth => vec![Type::Text, Type::Text],
                     "logout" | "user" => vec![],
                     _ if self.accounts => super::accounts::signature(name)
                         .ok_or_else(|| error(e.location, "unknown account operation"))?,

@@ -2,13 +2,9 @@ use super::{Restrictions, digest, stored, valid_secret};
 use crate::{
     authority::{Principal, random_hex},
     error::{Error, Result},
-    project::{
-        api::{Auth, Operation},
-        input,
-        storage::PostgresStore,
-    },
+    project::{CheckedProject, api::Auth, input, storage::PostgresStore},
 };
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeSet;
 use zeroize::Zeroizing;
 pub(in crate::project) struct Grant {
     pub principal: Principal,
@@ -22,7 +18,7 @@ impl PostgresStore {
         operations: &[String],
         scopes: &Restrictions,
         lifetime: &str,
-        api: &BTreeMap<String, Operation>,
+        project: &CheckedProject,
     ) -> Result<(Zeroizing<String>, String)> {
         let seconds = lifetime
             .parse::<i64>()
@@ -35,7 +31,7 @@ impl PostgresStore {
         {
             return Err(input("invalid credential metadata"));
         }
-        validate_grant(operations, scopes, api)?;
+        validate_grant(operations, scopes, project)?;
         let account = self.account(user, true)?;
         self.connection.query("DELETE FROM diamond_identity.credentials WHERE app=$1 AND username=$2 AND (expires<=pg_catalog.clock_timestamp() OR revoked OR epoch<>$3)",&[&self.app,&user,&account.epoch])?;
         let count = self.connection.query(
@@ -76,7 +72,27 @@ impl PostgresStore {
         &mut self,
         token: &str,
         name: &str,
-        api: &BTreeMap<String, Operation>,
+        project: &CheckedProject,
+    ) -> Result<Grant> {
+        self.credential_grant(token, name, project)
+    }
+
+    pub(in crate::project) fn git_grant(
+        &mut self,
+        token: &str,
+        binding: &str,
+        write: bool,
+        project: &CheckedProject,
+    ) -> Result<Grant> {
+        let operation = super::super::git::credential_operation(binding, write);
+        self.credential_grant(token, &operation, project)
+    }
+
+    fn credential_grant(
+        &mut self,
+        token: &str,
+        operation: &str,
+        project: &CheckedProject,
     ) -> Result<Grant> {
         if !token.strip_prefix("dia_").is_some_and(valid_secret) {
             return Err(Error::Unauthenticated);
@@ -92,8 +108,8 @@ impl PostgresStore {
         if epoch != account.epoch {
             return Err(Error::Unauthenticated);
         }
-        validate_grant(&operations, &scopes, api)?;
-        if !operations.iter().any(|op| op == name) {
+        validate_grant(&operations, &scopes, project)?;
+        if !operations.iter().any(|op| op == operation) {
             return Err(Error::Denied);
         }
         let principal = Principal::User {
@@ -113,7 +129,7 @@ impl PostgresStore {
 fn validate_grant(
     operations: &[String],
     scopes: &Restrictions,
-    api: &BTreeMap<String, Operation>,
+    project: &CheckedProject,
 ) -> Result<()> {
     let unique = operations.iter().collect::<BTreeSet<_>>();
     if operations.is_empty()
@@ -124,12 +140,15 @@ fn validate_grant(
         return Err(input("invalid credential allowlist"));
     }
     let mut needed = BTreeSet::new();
-    for op in operations {
-        let op = api.get(op).ok_or(Error::Denied)?;
-        if op.auth != Auth::Token {
-            return Err(Error::Denied);
+    for name in operations {
+        if let Some(op) = project.api.get(name) {
+            if op.auth != Auth::Token {
+                return Err(Error::Denied);
+            }
+            needed.extend(op.scope_tags.iter().cloned());
+        } else {
+            needed.insert(super::super::git::credential_scope(project, name).ok_or(Error::Denied)?);
         }
-        needed.extend(op.scope_tags.iter().cloned());
     }
     if scopes.keys().cloned().collect::<BTreeSet<_>>() != needed
         || scopes.values().any(|ids| {

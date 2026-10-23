@@ -24,6 +24,8 @@ Diamond currently supports:
   migrations, and backfills;
 - shared accounts and sessions, scoped API credentials, private uploads,
   destination-scoped outbound HTTP, durable jobs, and live events;
+- policy-bound bare Git repositories, stock Git smart HTTP, bounded repository
+  views, and Google or GitHub login;
 - multiple application servers and workers behind an HTTPS proxy, with health
   checks, draining, encrypted snapshots, and isolated restore.
 
@@ -318,6 +320,74 @@ uploads, outbound HTTP declarations, jobs, and live events. The catalog template
 shows private authoring and public publishing. Their local READMEs explain every
 source file and the full browser journey.
 
+## Build a Git-backed application
+
+Diamond uses the installed `git` executable for repository semantics. A Diamond
+program declares a binding from a Git repository to a policy-protected
+PostgreSQL resource; it never receives a shell, repository path, environment, or
+Git configuration access.
+
+```toml
+provides = ["DbRead<Repositories>", "DbWrite<Repositories>",
+            "GitRead<repos>", "GitWrite<repos>"]
+
+[git]
+profile = "git-v1"
+
+[git.bindings.repos]
+resource = "Repositories"
+```
+
+Server Diamond code can initialize a registered repository and request bounded,
+typed views:
+
+```diamond
+export fn initialize(repository: Text) -> Result<Text, DataError>:
+  host.git_create("repos", repository)
+
+export fn tree(repository: Text, revision: Text, path: Text) -> Result<GitTree, DataError>:
+  host.git_query<GitTree>("repos", repository, "tree", revision, path, 100)
+```
+
+Available read operations are `head`, `tree`, `blob`, `history`, and `diff`.
+The binding and operation are static so the checker can preserve authority.
+Repository creation is kept separate from application database writes because
+Git and PostgreSQL cannot share a transaction.
+
+Initialize the Git store after the PostgreSQL schema:
+
+```sh
+mkdir -m 700 /srv/diamond-git
+export DIAMOND_RUNTIME='{"git":{"repos":{"root":"/srv/diamond-git","executable":"/usr/bin/git"}},"http":{}}'
+diamond project-init examples/git-browser/diamond.toml --postgres-env DIAMOND_POSTGRES
+diamond project-git-init examples/git-browser/diamond.toml \
+  --postgres-env DIAMOND_POSTGRES --runtime-env DIAMOND_RUNTIME
+```
+
+Stock Git clients use the smart HTTP route
+`/_diamond/git/repos/REPOSITORY_ID.git`. Public read follows the resource
+policy. Push and private read use a `dia_...` credential scoped to the repository
+and `git:repos:read` or `git:repos:write`; the fixed Basic username is
+`diamond`.
+
+Projects can also declare Google and GitHub login:
+
+```toml
+[identity.oauth]
+providers = ["google", "github"]
+admission = "public"
+```
+
+Admission can be `public`, `restricted`, `invite`, or `closed`. Restricted
+deployments can combine `email_domains`, `google_tenants`,
+`github_organizations`, and explicit `identities`, with `require_all = true`
+when every configured condition must match. Provider client IDs and secret
+environment-variable names belong in the native runtime JSON, never in `.dia`
+source or build artifacts. The complete runnable project and runtime shape are
+in [`examples/git-browser/`](examples/git-browser/). Its bounded security and
+behavioral evidence is recorded in the
+[`Git and OAuth foundation qualification`](verification/git_foundation_results.md).
+
 Running a connected application requires a local PostgreSQL Unix-socket grant.
 The workspace also needs a private shared object directory:
 
@@ -356,6 +426,7 @@ validation, backup, restore, and process supervision.
 | `diamond db-init FILE --database PATH` | Initialize a checked SQLite schema. |
 | `diamond user-add --auth PATH --user NAME` | Add a local development account. |
 | `diamond project-init PROJECT --postgres-env NAME` | Initialize the current PostgreSQL profile. |
+| `diamond project-git-init ...` | Bind and initialize a private native Git store. |
 | `diamond project-admin-add ...` | Provision the first connected-app administrator. |
 | `diamond project-work ...` | Run one restricted durable worker. |
 | `diamond project-deploy-check ...` | Validate capabilities and deployment configuration. |
