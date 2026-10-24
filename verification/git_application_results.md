@@ -4,8 +4,9 @@ Date: 2026-10-23
 
 This evidence covers the runnable G1 and G2 Diamond Forge application in
 `examples/git-browser`. It is a bounded claim about the tested application,
-native Git/LFS adapters, and disposable environment—not a claim that G3 through
-G6 or a production deployment are complete.
+native Git/LFS adapters, and disposable environment rather than a production
+deployment claim. Later delivery, scale/recovery, and release qualification are
+recorded separately.
 
 ## Real-interface evidence
 
@@ -15,7 +16,7 @@ Run the retained campaign with:
 python3 verification/git_application_redteam.py
 ```
 
-The final replay passed **183 of 183** checks against a disposable PostgreSQL
+The final replay passed **184 of 184** checks against a disposable PostgreSQL
 cluster, private object and Git roots, identity mailbox, Diamond server, loopback
 webhook receiver, stock Git client, and raw Git LFS protocol client. It exercised
 three accounts; live organization, team, and direct grants; immediate

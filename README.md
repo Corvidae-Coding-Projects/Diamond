@@ -557,6 +557,9 @@ the lower-level transport evidence remains in the
 [`Git and OAuth foundation qualification`](verification/git_foundation_results.md),
 and the completed product pass is summarized in the
 [`G5 product completion evidence`](verification/git_product_completion_results.md).
+The six-campaign adversarial replay, concurrent memory observations, isolated
+restore, fixes, and explicit external gaps are in the
+[`G6 bounded release qualification`](verification/git_release_qualification_results.md).
 
 Running a connected application requires a local PostgreSQL Unix-socket grant.
 The workspace also needs a private shared object directory:
@@ -648,7 +651,10 @@ python3 verification/examples.py
 ```
 
 The broader retained qualification is documented in
-[`verification/web_ten_results.md`](verification/web_ten_results.md). Passing a
-suite is bounded evidence for the tested profile, not proof of total security.
+[`verification/web_ten_results.md`](verification/web_ten_results.md), with the
+Git forge release campaign in
+[`verification/git_release_qualification_results.md`](verification/git_release_qualification_results.md).
+Passing a suite is bounded evidence for the tested profile, not proof of total
+security.
 
 Diamond is published under the [MIT license](LICENSE).

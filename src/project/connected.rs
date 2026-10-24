@@ -46,6 +46,7 @@ pub(super) struct Server {
     pub(super) cookie: String,
     pub(super) secrets: Arc<Secrets>,
     pub(super) permits: Arc<Semaphore>,
+    pub(super) git_permits: Arc<Semaphore>,
     pub(super) health_permits: Arc<Semaphore>,
     pub(super) pool: Option<Arc<crate::relational::Pool>>,
     pub(super) mailbox: Option<super::accounts::Mailbox>,
@@ -171,6 +172,7 @@ pub(super) fn serve_runtime(
         ),
         secrets,
         permits: Arc::new(Semaphore::new(16)),
+        git_permits: Arc::new(Semaphore::new(8)),
         health_permits: Arc::new(Semaphore::new(2)),
         pool: project
             .server
@@ -384,7 +386,10 @@ async fn handler_inner(
         if request.uri().path().contains(".git/info/lfs/") {
             return git_lfs::request(server, request, peer.ip().to_string(), permit).await;
         }
-        return git::request(server, request, peer.ip().to_string(), permit).await;
+        let Ok(git_permit) = Arc::clone(&server.git_permits).try_acquire_owned() else {
+            return failure(&Error::Limit("Git transport capacity"));
+        };
+        return git::request(server, request, peer.ip().to_string(), permit, git_permit).await;
     }
     if request.uri().path().starts_with("/v2/")
         || request.uri().path().starts_with("/_diamond/delivery/")

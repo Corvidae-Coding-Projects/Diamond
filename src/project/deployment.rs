@@ -94,7 +94,7 @@ pub(super) async fn health(server: Arc<Server>, request: Request) -> Response {
             // Operational counters contain no users, payloads, tokens, paths or configuration.
             connected::json_response(
                 StatusCode::OK,
-                &serde_json::json!({"requests":server.requests.load(Ordering::Relaxed),"active_requests":16-server.permits.available_permits(),"active_sockets":32-server.sockets.available_permits(),"draining":server.draining.load(Ordering::Relaxed)}),
+                &serde_json::json!({"requests":server.requests.load(Ordering::Relaxed),"active_requests":16-server.permits.available_permits(),"active_git_transports":8-server.git_permits.available_permits(),"active_sockets":32-server.sockets.available_permits(),"draining":server.draining.load(Ordering::Relaxed)}),
             )
         }
         _ => connected::failure(&Error::Denied),

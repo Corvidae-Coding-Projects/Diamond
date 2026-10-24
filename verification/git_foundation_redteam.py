@@ -3,7 +3,8 @@ import base64, http.client, json, os, pathlib, re, shutil, socket, subprocess, s
 
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 BIN=ROOT/'target/debug/diamond'
-TMP=pathlib.Path(tempfile.mkdtemp(prefix='diamond-git-redteam-'))
+TMP_PARENT=ROOT/'target'/'verification-tmp'; TMP_PARENT.mkdir(parents=True,exist_ok=True)
+TMP=pathlib.Path(tempfile.mkdtemp(prefix='diamond-git-redteam-',dir=TMP_PARENT))
 PG=TMP/'pg'; SOCK=TMP/'sock'; GITROOT=TMP/'git'; OBJECTS=TMP/'objects'; DELIVERY=TMP/'delivery'; OPERATIONS=TMP/'operations'; MAIL=TMP/'mail'; LOG=TMP/'server.log'
 for p in (SOCK,GITROOT,OBJECTS,DELIVERY,OPERATIONS,MAIL): p.mkdir(mode=0o700)
 
@@ -55,16 +56,25 @@ def rss_kib(pid):
     try:
         for line in pathlib.Path(f'/proc/{pid}/status').read_text().splitlines():
             if line.startswith('VmRSS:'): return int(line.split()[1])
-    except FileNotFoundError: pass
+    except (FileNotFoundError, ProcessLookupError): pass
     return 0
 def children(pid):
     result=[]
     try:
         for task in pathlib.Path(f'/proc/{pid}/task').iterdir():
             try: result.extend((task/'children').read_text().split())
-            except FileNotFoundError: pass
-    except FileNotFoundError: pass
+            except (FileNotFoundError, ProcessLookupError): pass
+    except (FileNotFoundError, ProcessLookupError): pass
     return sorted(set(result))
+def process_tree(pid):
+    pending=[str(pid)]; observed=[]
+    while pending:
+        current=pending.pop()
+        if current in observed: continue
+        observed.append(current); pending.extend(children(current))
+    return observed
+def tree_rss_kib(pid):
+    return sum(rss_kib(child) for child in process_tree(pid))
 
 try:
     cmd_ok('postgres init',['initdb','-D',str(PG),'-A','trust','--no-locale','-E','UTF8','-U','diamond_rt','--no-sync'])
@@ -248,7 +258,7 @@ try:
 
     # Incompressible pack traffic stays out of the Diamond heap and canceled
     # clients release their Git subprocesses.
-    (clone/'random.bin').write_bytes(os.urandom(24*1024*1024)); cmd_ok('stage random pack',['git','add','random.bin'],cwd=clone); cmd_ok('commit random pack',['git','commit','-m','random-pack'],cwd=clone); cmd_ok('push random pack',['git','push',auth_url,'HEAD:main'],cwd=clone,timeout=120)
+    random_bytes=os.urandom(24*1024*1024); (clone/'random.bin').write_bytes(random_bytes); cmd_ok('stage random pack',['git','add','random.bin'],cwd=clone); cmd_ok('commit random pack',['git','commit','-m','random-pack'],cwd=clone); cmd_ok('push random pack',['git','push',auth_url,'HEAD:main'],cwd=clone,timeout=120)
     baseline=rss_kib(server.pid); big_clone=TMP/'big-clone'; proc=subprocess.Popen(['git','clone',public_url,str(big_clone)],cwd=ROOT,env=env,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     peak=baseline
     while proc.poll() is None:
@@ -258,6 +268,73 @@ try:
     metrics['server_rss_baseline_kib']=baseline
     metrics['server_rss_peak_kib']=peak
     metrics['server_rss_delta_kib']=peak-baseline
+    # G6 release pressure: independent stock Git clients request the same
+    # incompressible pack concurrently.  The web-node heap stays bounded while
+    # native Git subprocess memory is measured separately as part of the
+    # complete transport process tree.
+    concurrent_baseline=rss_kib(server.pid)
+    concurrent_tree_baseline=tree_rss_kib(server.pid)
+    concurrent=[]
+    for index in range(8):
+        destination=TMP/f'concurrent-clone-{index}'
+        concurrent.append((destination,subprocess.Popen(['git','clone',public_url,str(destination)],cwd=ROOT,env=env,stdout=subprocess.PIPE,stderr=subprocess.PIPE)))
+    concurrent_peak=concurrent_baseline
+    concurrent_tree_peak=concurrent_tree_baseline
+    max_children=0
+    while any(process.poll() is None for _,process in concurrent):
+        concurrent_peak=max(concurrent_peak,rss_kib(server.pid))
+        concurrent_tree_peak=max(concurrent_tree_peak,tree_rss_kib(server.pid))
+        max_children=max(max_children,len(process_tree(server.pid))-1)
+        time.sleep(.005)
+    failures=[]
+    for destination,process in concurrent:
+        out,err=process.communicate(timeout=10)
+        if process.returncode != 0: failures.append((process.returncode,(out+err)[-1000:].decode(errors='replace')))
+        elif (destination/'random.bin').read_bytes() != random_bytes: failures.append(('content',str(destination)))
+    check('eight concurrent stock Git clones preserve exact 24 MiB content',not failures,str(failures))
+    check('concurrent Git traffic actually overlaps native backends',max_children >= 4,f'max_children={max_children}')
+    check('web-node RSS bounded during eight concurrent large clones',concurrent_peak-concurrent_baseline < 64*1024,f'baseline={concurrent_baseline} peak={concurrent_peak}')
+    check('complete Git transport process tree stays within aggregate budget',concurrent_tree_peak-concurrent_tree_baseline < 512*1024,f'baseline={concurrent_tree_baseline} peak={concurrent_tree_peak}')
+    metrics['concurrent_clients']=len(concurrent)
+    metrics['concurrent_max_children']=max_children
+    metrics['concurrent_server_rss_baseline_kib']=concurrent_baseline
+    metrics['concurrent_server_rss_peak_kib']=concurrent_peak
+    metrics['concurrent_server_rss_delta_kib']=concurrent_peak-concurrent_baseline
+    metrics['concurrent_tree_rss_baseline_kib']=concurrent_tree_baseline
+    metrics['concurrent_tree_rss_peak_kib']=concurrent_tree_peak
+    metrics['concurrent_tree_rss_delta_kib']=concurrent_tree_peak-concurrent_tree_baseline
+    saturation_baseline=rss_kib(server.pid)
+    saturation=[]
+    for index in range(20):
+        destination=TMP/f'saturation-clone-{index}'
+        saturation.append((destination,subprocess.Popen(['git','clone',public_url,str(destination)],cwd=ROOT,env=env,stdout=subprocess.PIPE,stderr=subprocess.PIPE)))
+    saturation_server_peak=saturation_baseline
+    saturation_tree_peak=tree_rss_kib(server.pid)
+    saturation_max_children=0
+    while any(process.poll() is None for _,process in saturation):
+        saturation_server_peak=max(saturation_server_peak,rss_kib(server.pid))
+        saturation_tree_peak=max(saturation_tree_peak,tree_rss_kib(server.pid))
+        saturation_max_children=max(saturation_max_children,len(process_tree(server.pid))-1)
+        time.sleep(.005)
+    saturation_success=0; saturation_overload=0; saturation_failures=[]
+    for destination,process in saturation:
+        out,err=process.communicate(timeout=10); diagnostic=(out+err)[-2000:].decode(errors='replace')
+        if process.returncode == 0:
+            if (destination/'random.bin').read_bytes() == random_bytes: saturation_success+=1
+            else: saturation_failures.append(('content',str(destination)))
+        elif '503' in diagnostic or 'Service Unavailable' in diagnostic: saturation_overload+=1
+        else: saturation_failures.append((process.returncode,diagnostic))
+    check('saturation clients either receive exact content or explicit overload',not saturation_failures and saturation_success+saturation_overload==20,str(saturation_failures))
+    check('saturation wave completes useful Git work',saturation_success>0,f'success={saturation_success} overload={saturation_overload}')
+    check('server survives saturated Git transport',server.poll() is None,str(server.poll()))
+    check('saturated web-node RSS remains below 256 MiB',saturation_server_peak < 256*1024,f'peak={saturation_server_peak}')
+    check('saturated complete Git transport stays below 1 GiB',saturation_tree_peak < 1024*1024,f'peak={saturation_tree_peak}')
+    metrics['saturation_clients']=len(saturation)
+    metrics['saturation_success']=saturation_success
+    metrics['saturation_overload']=saturation_overload
+    metrics['saturation_max_children']=saturation_max_children
+    metrics['saturation_server_rss_peak_kib']=saturation_server_peak
+    metrics['saturation_tree_rss_peak_kib']=saturation_tree_peak
     slow=socket.create_connection(('127.0.0.1',port),timeout=5)
     slow.sendall((f'POST /_diamond/git/repos/{repo}.git/git-upload-pack HTTP/1.1\r\nHost: 127.0.0.1:{port}\r\nContent-Type: application/x-git-upload-pack-request\r\nContent-Length: 100000\r\nConnection: close\r\n\r\n0032').encode())
     observed=False

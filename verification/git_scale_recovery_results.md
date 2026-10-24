@@ -29,6 +29,8 @@ coordinated node drain. It also creates a real encrypted snapshot, rejects a wro
 key and tampered ciphertext before writes, restores PostgreSQL plus all four runtime
 root classes into isolation, verifies both Git histories and held delivery bytes,
 proves old API credentials are revoked, and clones through the restored placement.
+Operational metrics also expose the bounded active smart-Git transport count
+without identities or request content.
 
 The campaign reproduced and fixed real failures in directory modes, generated
 node identifiers, PostgreSQL interval binding, Diamond text decoding for search,
@@ -36,4 +38,4 @@ local-only Git mirror transport, mirror-only remote configuration, and synchrono
 shutdown database access from Tokio. Its conclusions are bounded to the retained
 local two-node/two-shard profile; PostgreSQL high availability, off-host retention,
 provider snapshots, cross-host network partitions, and production RTO/RPO remain
-operator and G6 qualification responsibilities.
+operator responsibilities outside the completed local G6 campaign.

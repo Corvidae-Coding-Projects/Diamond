@@ -2,11 +2,11 @@
   "profile": "diamond-forge-g4-scale-recovery",
   "checks": 108,
   "passed": 108,
-  "contract": "a338babe5e81a4e87a8bde27cab3386baf8e65a85753ed0fbefda10d00db3d93",
-  "commit": "156733b10e9a7306dc406e64f53a0de236637fef",
+  "contract": "364015e8e67c3e418b6ea5673c50a37e63f87c96ce6803fa8f6b54ad39cc72fa",
+  "commit": "efd7a8656f217dedd2d7dfdd76c8db94fb30a6db",
   "worker_tasks": [
-    "d16dff36c17bd3e301517b2c47be2af2058bad93749d316d3e25c381fd527a29",
-    "f2b349717cc1b8590c199d521c04b7e691162ea4a66f5ac97324c384744a4001"
+    "cf3910469a9258a9a766b7d44f826279bbc19da313657cf3f89e23816482570d",
+    "bf2be83616d56fe44e08fb8a1dff46114ef682489840d3c260f8aa92c1e4a896"
   ],
   "results": [
     {
@@ -58,11 +58,11 @@
       "pass": true
     },
     {
-      "name": "node 55521 is live and ready",
+      "name": "node 53143 is live and ready",
       "pass": true
     },
     {
-      "name": "node 44293 is live and ready",
+      "name": "node 39187 is live and ready",
       "pass": true
     },
     {

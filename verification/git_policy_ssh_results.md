@@ -33,7 +33,7 @@ Run the retained campaign with:
 python3 verification/git_policy_ssh_redteam.py
 ```
 
-The final replay passed **192 of 192** scenarios using Diamond 0.16.0, Git
+The final replay passed **196 of 196** scenarios using Diamond 0.16.0, Git
 2.56.0, OpenSSH 10.2p1, PostgreSQL 18.6, and Python 3.14.8. It created an
 isolated PostgreSQL cluster, Diamond web server, two Git shard roots, OpenSSH
 daemon, host and CA keys, account/deploy/certificate identities, and real
@@ -42,8 +42,8 @@ working clones, then removed the disposable state.
 The replay exercised:
 
 - stock Git clone, push, and remote archive over real OpenSSH plus smart HTTPS;
-- an 8 MiB incompressible SSH transfer and a 64 MiB live receive used during a
-  fenced shard cutover;
+- an 8 MiB incompressible SSH transfer, four concurrent byte-exact archives of
+  that object, and a 64 MiB live receive used during a fenced shard cutover;
 - protected fast-forward, force/delete rejection, atomic rejection, a 257-ref
   bound, live administrator demotion, and exact hook tamper rejection;
 - wildcard boundary behavior, signed commit success, unsigned commit rejection,
@@ -96,15 +96,17 @@ The qualified adapter provides one writer at a time per Git binding. This is a
 deliberate correctness and memory bound for the first release; separate bindings
 can proceed independently. New protected refs inspect at most 512 commits,
 secret scanning inspects at most 256 blobs, 4 MiB per blob, and 32 MiB total,
-and oversized histories fail closed.
+and oversized histories fail closed. The connected HTTP gateway separately
+admits at most eight live smart-Git transports and returns explicit overload
+when that budget is exhausted.
 
 The secret scanner recognizes the explicitly implemented high-confidence token
 and private-key forms. It is not a general secret-classification engine. Signed
 commit policy currently trusts active account Ed25519 keys and verified account
-emails. The G1 Diamond application now implements organizations, role-based
-membership, issues, and a bounded merge-request flow above this adapter. Teams,
-LFS, CI, artifacts, OCI, Pages, and the remaining Git product checkpoints are
-separate application and service layers above this completed runtime boundary.
+emails. The Diamond application implements organizations, role-based membership,
+teams, issues, a bounded merge-request flow, LFS, CI, artifacts, OCI pull, and
+Pages above this adapter. Their separate retained evidence is aggregated in
+`git_release_qualification_results.md`.
 
 The local OpenSSH test uses generated `AuthorizedKeysFile` and
 `AuthorizedPrincipalsFile` data because it does not install root-owned

@@ -1,7 +1,17 @@
 {
-  "profile": "diamond-forge-g3-g5-delivery",
-  "passed": 137,
-  "total": 137,
+  "profile": "diamond-forge-g3-g5-g6-delivery",
+  "passed": 152,
+  "total": 152,
+  "metrics": {
+    "mixed_streams": 16,
+    "mixed_stream_bytes": 268435456,
+    "mixed_web_rss_baseline_kib": 91904,
+    "mixed_web_rss_peak_kib": 100588,
+    "mixed_web_rss_delta_kib": 8684,
+    "mixed_pages_rss_baseline_kib": 42336,
+    "mixed_pages_rss_peak_kib": 50320,
+    "mixed_pages_rss_delta_kib": 7984
+  },
   "results": [
     {
       "name": "initialize PostgreSQL cluster",
@@ -172,7 +182,7 @@
       "pass": true
     },
     {
-      "name": "artifact downloads through scoped credential",
+      "name": "large artifact downloads through scoped credential",
       "pass": true
     },
     {
@@ -264,11 +274,23 @@
       "pass": true
     },
     {
-      "name": "OCI layer digest and bytes agree",
+      "name": "large OCI layer digest and bytes agree",
       "pass": true
     },
     {
       "name": "OCI tags list is repository scoped",
+      "pass": true
+    },
+    {
+      "name": "large LFS upload receives a bounded action",
+      "pass": true
+    },
+    {
+      "name": "large LFS upload is digest verified",
+      "pass": true
+    },
+    {
+      "name": "large LFS download receives a bounded action",
       "pass": true
     },
     {
@@ -277,6 +299,54 @@
     },
     {
       "name": "Pages listener sets isolation headers and no cookie",
+      "pass": true
+    },
+    {
+      "name": "sixteen mixed artifact, OCI, LFS, and Pages streams are byte exact",
+      "pass": true
+    },
+    {
+      "name": "mixed streaming keeps the web process below its aggregate memory budget",
+      "pass": true
+    },
+    {
+      "name": "mixed streaming keeps the Pages process below its aggregate memory budget",
+      "pass": true
+    },
+    {
+      "name": "both listeners survive mixed streaming",
+      "pass": true
+    },
+    {
+      "name": "create log-overflow branch",
+      "pass": true
+    },
+    {
+      "name": "stage log-overflow configuration",
+      "pass": true
+    },
+    {
+      "name": "commit log-overflow configuration",
+      "pass": true
+    },
+    {
+      "name": "push log-overflow configuration",
+      "pass": true
+    },
+    {
+      "name": "schedule log-overflow attack",
+      "pass": true
+    },
+    {
+      "name": "run log-overflow attack",
+      "pass": true
+    },
+    {
+      "name": "job output above one MiB fails closed",
+      "pass": true
+    },
+    {
+      "name": "return to main after log-overflow attack",
       "pass": true
     },
     {

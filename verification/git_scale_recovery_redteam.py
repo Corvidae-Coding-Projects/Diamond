@@ -482,7 +482,7 @@ try:
     check("readiness reflects coordinated drain", sorted(ready_statuses) == [200, 503], str(ready_statuses))
 
     status, _, metrics = request(port_one if node_statuses[0] == 200 else port_two, "GET", "/_diamond/health/metrics")
-    check("operational metrics remain bounded and identity-free", status == 200 and set(metrics) == {"requests", "active_requests", "active_sockets", "draining"}, str(metrics))
+    check("operational metrics remain bounded and identity-free", status == 200 and set(metrics) == {"requests", "active_requests", "active_git_transports", "active_sockets", "draining"}, str(metrics))
     status, _, reply = rpc(port_one if node_statuses[0] == 200 else port_two, alice, contract, "operations_audit", [])
     audit_text = json.dumps(value(reply)) if status == 200 else ""
     check("administrative mutations leave a redacted audit trail", status == 200 and "policy_set" in audit_text and token not in audit_text and passwords["alice"] not in audit_text, audit_text)

@@ -5,13 +5,13 @@ Date: 2026-10-23
 G5 is implemented in `examples/git-browser` and the bounded native adapters.
 The retained machine-readable receipts are:
 
-- `git_delivery_redteam_results.json`: 137 of 137 delivery and product checks;
+- `git_delivery_redteam_results.json`: 152 of 152 delivery, product, and mixed-stream checks;
 - `git_scale_recovery_redteam_results.json`: 108 of 108 scale, search, routing,
   and recovery checks;
 - `git_application_redteam_results.json`: 184 of 184 collaboration checks;
-- `git_policy_ssh_redteam_results.json`: 194 of 194 protected-receive and SSH
+- `git_policy_ssh_redteam_results.json`: 196 of 196 protected-receive and SSH
   checks; and
-- `git_foundation_redteam_results.json`: 111 of 111 transport and OAuth checks.
+- `git_foundation_redteam_results.json`: 120 of 120 transport and OAuth checks.
 
 The G5 replay uses real PostgreSQL, the connected Diamond HTTP server, stock
 Git smart HTTP, the native systemd sandbox, a separate Pages listener, and the
@@ -72,10 +72,12 @@ path traversal, output symlinks, stale event reuse, and post-deletion reads.
 
 ## Residual boundaries
 
-G5 is product completion, not the G6 release-adversarial claim. Full OCI
-Distribution push/resume/referrers conformance, concurrent streaming memory
-measurement, broad assistive-technology testing, external DNS ownership proof,
-automatic TLS at the public edge, and exhaustive distributed fault injection
-remain outside this checkpoint. Git, PostgreSQL, the operating system, the
-configured isolation backend, the reverse proxy/CDN, DNS, TLS, and backup-key
-custody remain explicit trusted dependencies.
+G5 is the product-completion slice. G6 subsequently added concurrent Git and
+mixed artifact/OCI/LFS/Pages memory measurements, replayed the distributed fault
+and isolated-restore path, and published
+`git_release_qualification_results.md`. Full OCI Distribution
+push/resume/referrers conformance, broad assistive-technology testing, external
+DNS ownership proof, and automatic TLS at the public edge remain outside the
+local release campaign. Git, PostgreSQL, the operating system, the configured
+isolation backend, the reverse proxy/CDN, DNS, TLS, and backup-key custody remain
+explicit trusted dependencies.

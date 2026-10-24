@@ -1,6 +1,6 @@
 # Git and OAuth foundation qualification
 
-Date: 2026-10-22
+Date: 2026-10-23
 
 This campaign qualifies the bounded Git and OAuth foundation added for Git-backed
 Diamond applications. It is evidence for the paths named below, not a claim that
@@ -26,14 +26,18 @@ The replayable drivers and sanitized results are:
 
 ## Final evidence
 
-The final live campaign passed 109 of 109 scenarios. It created public and
+The final live campaign passed 120 of 120 scenarios. It created public and
 private repositories through the actual Diamond application, used stock Git for
 clone, shallow and filtered clone, push, atomic branch/tag push, push options,
 and `fsck`, and compared Diamond's head, tree, blob, history, and diff views with
 repository state. A 24 MiB incompressible pack was pushed and cloned through the
-streaming path; final sampled server RSS rose from 75,072 KiB to 75,648 KiB.
-The meaningful result is bounded streaming rather than the exact change from one
-sample run.
+streaming path. Eight simultaneous stock-Git clones each produced byte-exact
+content while the web process grew by 9,476 KiB and the complete server/Git
+process tree peaked at 586,132 KiB. A separate 20-client saturation wave returned
+eight exact clones and twelve explicit `503` overloads; the web process peaked at
+82,656 KiB and the complete transport tree peaked at 593,420 KiB. The meaningful
+result is bounded streaming and observable overload rather than any one exact RSS
+sample.
 
 The campaign also exercised:
 
@@ -44,6 +48,9 @@ The campaign also exercised:
   Git-protocol, ambient-cookie, and discovery-body probes;
 - oversized blob previews, repository symlink replacement, interrupted request
   cleanup, and post-attack `git fsck`;
+- eight-client concurrent pack streaming, 20-client saturation, exact checkout
+  validation, native-backend overlap, explicit overload, process survival, and
+  separate web/process-tree memory accounting;
 - OAuth PKCE and nonce construction, no-store responses, digested state,
   encrypted transaction secrets, browser-session and provider binding,
   duplicate fields, cancellation, replay, cross-site start, and unknown
@@ -54,7 +61,7 @@ The campaign also exercised:
 The compiler campaign passed 14 of 14 cases. It proved that the real checker
 accepts the reference project and rejects dynamic bindings, dynamic Git
 operations, non-text repository IDs, browser-side Git authority, undeclared Git
-write, review, and administration capabilities, malformed merge objects,
+write, review, and administration capabilities, malformed integration objects,
 functions that combine Git writes with database writes, and malformed OAuth
 admission policies.
 
@@ -80,6 +87,7 @@ rule combinations.
 | Git could read `$HOME/.gitconfig` from the store root | A same-account store administrator could add process hooks despite the cleared environment | Both command paths set `GIT_CONFIG_GLOBAL=/dev/null`; a live global `packObjectsHook` is ignored |
 | The first hook-disable path was a writable empty directory | A same-account store administrator could populate that directory | `core.hooksPath` is pinned to `/dev/null` and exact repository configuration is revalidated before use |
 | The first JWT backend pulled `rsa` with RUSTSEC-2023-0071 | The advisory concerns private-key operations, which Diamond did not use, but left an unfixed advisory in the graph | JWT verification uses the AWS-LC backend; a refreshed `cargo audit` reports no vulnerabilities |
+| Smart Git shared all 16 general request permits | A 20-client incompressible-pack wave spawned enough native processes to peak within roughly 14 MiB of the 1 GiB profile boundary | A separate eight-slot Git transport semaphore is held through stream completion; excess clients receive `503`, the same wave peaks below 600 MiB, and health metrics expose active Git transports |
 
 Source review also tightened the exact repository-local Git configuration
 allowlist, rejected discovery requests with bodies, continuously reapplied
@@ -95,10 +103,10 @@ organization APIs, and the final browser redirect remain unqualified. The
 cryptographic verifier and all local transaction/state paths were exercised,
 but a deployment still needs a provider-backed acceptance run.
 
-The broader retained campaigns now cover SSH Git, protected-ref enforcement,
-the G1 issue and merge-request application, and fenced storage-shard promotion.
-LFS, global search, CI, registries, Pages, and the remaining product checkpoints
-in `.design/git-web-interface.md` are outside this foundation campaign. TLS
-termination and proxy behavior were not part of this loopback campaign. The
+The broader retained campaigns cover SSH Git, protected-ref enforcement,
+collaboration, fenced storage-shard promotion, LFS, global search, CI, OCI pull,
+Pages, encrypted backup, and isolated restore. Those layers remain outside this
+foundation campaign and are summarized in `git_release_qualification_results.md`.
+TLS termination and proxy behavior were not part of this loopback campaign. The
 fixed Git executable, operating system, PostgreSQL, TLS roots, Google, GitHub,
 and administrators of the private Git root remain trusted boundaries.

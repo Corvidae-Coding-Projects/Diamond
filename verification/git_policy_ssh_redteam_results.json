@@ -7,8 +7,8 @@
     "postgres": "postgres (PostgreSQL) 18.6",
     "python": "3.14.8"
   },
-  "passed": 194,
-  "total": 194,
+  "passed": 196,
+  "total": 196,
   "results": [
     {
       "name": "initialize PostgreSQL",
@@ -584,6 +584,14 @@
     },
     {
       "name": "streamed SSH object exact",
+      "pass": true
+    },
+    {
+      "name": "four concurrent large Git archives complete over OpenSSH",
+      "pass": true
+    },
+    {
+      "name": "concurrent OpenSSH archive bytes are exact",
       "pass": true
     },
     {

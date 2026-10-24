@@ -1,4 +1,4 @@
-# Diamond Forge G3 delivery and G5 product qualification
+# Diamond Forge G3 delivery, G5 product, and G6 streaming qualification
 
 Date: 2026-10-23
 
@@ -13,7 +13,7 @@ the real connected Diamond server, the native delivery worker, and a separate
 Pages listener. It uses stock Git over smart HTTP and the application RPCs; it
 does not replace the product interfaces with test doubles.
 
-The final replay passed all 137 checks recorded in
+The final replay passed all 152 checks recorded in
 `git_delivery_redteam_results.json`. The demonstrated vertical path is:
 
 1. push a commit containing strict `.diamond-ci.json`;
@@ -30,7 +30,9 @@ The final replay passed all 137 checks recorded in
 10. export and import branches, annotated tags, Git notes, and Unicode content
     with stock Git mirror commands; and
 11. exercise named executor profiles, artifact lifecycle operations, Pages
-    rollback, environment stop, and custom-domain routing.
+    rollback, environment stop, and custom-domain routing; and
+12. stream four 16 MiB copies of each artifact, OCI layer, LFS object, and Pages
+    object simultaneously while checking every size and SHA-256.
 
 A separate real Chrome replay passed all 3 visual checks recorded in
 `git_delivery_browser_results.json`: the reactive navigation exposed the
@@ -47,6 +49,16 @@ checks, event rebinding conflict, cancellation fencing, dependent-job
 cancellation, unknown executor rejection, configuration traversal rejection,
 output-symlink rejection, private store modes, content-addressed checksums, and
 runner workspace cleanup.
+
+The G6 mixed-stream wave transferred 268,435,456 bytes across sixteen
+simultaneous clients. Web-process RSS rose from 91,904 KiB to 100,588 KiB and the
+separate Pages process rose from 42,336 KiB to 50,320 KiB. Both listeners
+survived, every response was byte-exact, and the large LFS upload was verified
+by its declared digest before publication.
+
+A sandboxed job that emitted 1,048,577 bytes was rejected at the 1 MiB job-log
+limit. The failure was recorded without publishing outputs, and subsequent
+delivery work continued normally.
 
 Issues reproduced and repaired during G3 were:
 
@@ -78,9 +90,9 @@ The G5 expansion reproduced and repaired three product defects:
   reauthorize the repository; reads and writes now require a live authorized
   repository lookup and fail immediately after membership revocation.
 
-This remains bounded evidence, not full OCI Distribution conformance or the
-final G6 adversarial release claim. Registry push/resume/referrers, concurrent
-memory measurements, external DNS and TLS automation, and full distributed
-failure injection remain outside this checkpoint. The deployment edge, Git,
-PostgreSQL, and configured runner isolation backend remain explicit trust
-boundaries.
+This remains bounded evidence rather than full OCI Distribution conformance.
+Registry push/resume/referrers and external DNS/TLS automation were not part of
+the campaign. The deployment edge, Git, PostgreSQL, filesystem, and configured
+runner isolation backend remain explicit trust boundaries. The aggregate G6
+claim and the cross-campaign gaps are recorded in
+`git_release_qualification_results.md`.

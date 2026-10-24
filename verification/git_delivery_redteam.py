@@ -14,12 +14,17 @@ import socket
 import subprocess
 import sys
 import tempfile
+import threading
 import time
+import urllib.parse
+from concurrent.futures import ThreadPoolExecutor
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 BIN = ROOT / "target/debug/diamond"
 PROJECT = "examples/git-browser/diamond.toml"
-TMP = pathlib.Path(tempfile.mkdtemp(prefix="diamond-g3-delivery-"))
+TMP_PARENT = ROOT / "target" / "verification-tmp"
+TMP_PARENT.mkdir(parents=True, exist_ok=True)
+TMP = pathlib.Path(tempfile.mkdtemp(prefix="diamond-g3-delivery-", dir=TMP_PARENT))
 PG, SOCK, GITROOT = TMP / "pg", TMP / "sock", TMP / "git"
 OBJECTS, DELIVERY, OPERATIONS, MAIL = TMP / "objects", TMP / "delivery", TMP / "operations", TMP / "mail"
 for directory in (SOCK, GITROOT, OBJECTS, DELIVERY, OPERATIONS, MAIL):
@@ -83,6 +88,7 @@ env.update(
     GIT_CONFIG_VALUE_0="",
 )
 results = []
+metrics = {}
 server = pages = None
 server_log = pages_log = None
 
@@ -135,6 +141,43 @@ def http(port, method, path, body=None, headers=None, cookie=None):
     except Exception:
         pass
     return response.status, response_headers, payload
+
+
+def raw_http(port, method, path, body=None, headers=None):
+    connection = http_client.HTTPConnection("127.0.0.1", port, timeout=60)
+    connection.request(method, path, body=body, headers=dict(headers or {}))
+    response = connection.getresponse()
+    payload = response.read()
+    response_headers = {key.lower(): value for key, value in response.getheaders()}
+    connection.close()
+    return response.status, response_headers, payload
+
+
+def rss_kib(pid):
+    try:
+        for line in pathlib.Path(f"/proc/{pid}/status").read_text().splitlines():
+            if line.startswith("VmRSS:"):
+                return int(line.split()[1])
+    except (FileNotFoundError, ProcessLookupError):
+        pass
+    return 0
+
+
+def stream_get(target, barrier):
+    port, path, headers, expected_size, expected_digest = target
+    connection = http_client.HTTPConnection("127.0.0.1", port, timeout=60)
+    barrier.wait(timeout=10)
+    connection.request("GET", path, headers=headers)
+    response = connection.getresponse()
+    digest = hashlib.sha256()
+    size = 0
+    while chunk := response.read(65536):
+        digest.update(chunk)
+        size += len(chunk)
+        time.sleep(0.0005)
+    status = response.status
+    connection.close()
+    return status, size, digest.hexdigest(), expected_size, expected_digest
 
 
 def rpc(client, contract, name, arguments):
@@ -323,9 +366,9 @@ try:
         "jobs": [
             {
                 "name": "publish",
-                "executor": "small",
-                "script": "echo sandbox-start\ntest ! -e /etc/passwd || { echo etc-visible; exit 71; }\necho filesystem-isolated\nif /usr/bin/curl --max-time 1 http://127.0.0.1:9 >/dev/null 2>&1; then echo network-visible; exit 70; fi\necho network-isolated\nmkdir -p out site\nprintf 'artifact-g3\\n' > out/result.txt\nprintf '<!doctype html><title>Diamond G3</title><h1>Published from Diamond</h1>\\n' > site/index.html\nprintf 'oci-layer-g3\\n' > image.tar\nprintf 'cache-g3\\n' > cache.bin\necho outputs-ready",
-                "timeout_seconds": 15,
+                "executor": "standard",
+                "script": "echo sandbox-start\ntest ! -e /etc/passwd || { echo etc-visible; exit 71; }\necho filesystem-isolated\nif /usr/bin/curl --max-time 1 http://127.0.0.1:9 >/dev/null 2>&1; then echo network-visible; exit 70; fi\necho network-isolated\nmkdir -p out site\nprintf 'artifact-g3\\n' > out/result.txt\n/usr/bin/head -c 16777204 /dev/zero >> out/result.txt\nprintf '<!doctype html><title>Diamond G3</title><h1>Published from Diamond</h1>\\n' > site/index.html\n/usr/bin/head -c 16777216 /dev/zero > site/large.bin\nprintf 'oci-layer-g3\\n' > image.tar\n/usr/bin/head -c 16777203 /dev/zero >> image.tar\nprintf 'cache-g3\\n' > cache.bin\necho outputs-ready",
+                "timeout_seconds": 30,
                 "artifact": {"name": "release-bundle", "path": "out/result.txt"},
                 "cache": {"key": "main-cache", "path": "cache.bin"},
                 "pages": {"site": "docs", "path": "site"},
@@ -369,13 +412,23 @@ try:
     check("sandbox job succeeds with bounded log", status == 200 and value(reply)["cards"][0]["state"] == "succeeded", str(reply))
     status, _, reply = rpc(alice, contract, "delivery_artifacts", [repository, pipeline_id])
     artifact = value(reply)["cards"][0]
+    large_bytes = 16 * 1024 * 1024
     status, headers, body = http(
         webport,
         "GET",
         f"/_diamond/delivery/builds/{repository}/artifacts/{artifact['id']}",
         headers={"Authorization": authorization},
     )
-    check("artifact downloads through scoped credential", status == 200 and body == b"artifact-g3\n" and headers.get("docker-content-digest") == "sha256:" + hashlib.sha256(body).hexdigest(), str((status, headers, body)))
+    artifact_digest = hashlib.sha256(body).hexdigest()
+    check(
+        "large artifact downloads through scoped credential",
+        status == 200
+        and len(body) == large_bytes
+        and body[:12] == b"artifact-g3\n"
+        and body[12:] == bytes(large_bytes - 12)
+        and headers.get("docker-content-digest") == "sha256:" + artifact_digest,
+        str((status, headers, len(body))),
+    )
     etag = headers.get("etag")
     status, range_headers, range_body = http(
         webport,
@@ -385,7 +438,7 @@ try:
     )
     check(
         "artifact supports a bounded single byte range",
-        status == 206 and range_body == b"rtifa" and range_headers.get("content-range") == "bytes 1-5/12",
+        status == 206 and range_body == b"rtifa" and range_headers.get("content-range") == f"bytes 1-5/{large_bytes}",
         str((status, range_headers, range_body)),
     )
     status, suffix_headers, suffix_body = http(
@@ -396,18 +449,18 @@ try:
     )
     check(
         "artifact supports a suffix byte range",
-        status == 206 and suffix_body == b"-g3\n" and suffix_headers.get("content-range") == "bytes 8-11/12",
+        status == 206 and suffix_body == bytes(4) and suffix_headers.get("content-range") == f"bytes {large_bytes - 4}-{large_bytes - 1}/{large_bytes}",
         str((status, suffix_headers, suffix_body)),
     )
     status, open_headers, open_body = http(
         webport,
         "HEAD",
         f"/_diamond/delivery/builds/{repository}/artifacts/{artifact['id']}",
-        headers={"Authorization": authorization, "Range": "bytes=9-"},
+        headers={"Authorization": authorization, "Range": f"bytes={large_bytes - 3}-"},
     )
     check(
         "artifact HEAD applies an open range without a body",
-        status == 206 and open_body == b"" and open_headers.get("content-range") == "bytes 9-11/12" and open_headers.get("content-length") == "3",
+        status == 206 and open_body == b"" and open_headers.get("content-range") == f"bytes {large_bytes - 3}-{large_bytes - 1}/{large_bytes}" and open_headers.get("content-length") == "3",
         str((status, open_headers, open_body)),
     )
     status, _, multiple_body = http(
@@ -421,11 +474,11 @@ try:
         webport,
         "GET",
         f"/_diamond/delivery/builds/{repository}/artifacts/{artifact['id']}",
-        headers={"Authorization": authorization, "Range": "bytes=99-100"},
+        headers={"Authorization": authorization, "Range": f"bytes={large_bytes + 1}-{large_bytes + 2}"},
     )
     check(
         "artifact rejects an unsatisfiable range without streaming bytes",
-        status == 416 and invalid_body == b"" and invalid_headers.get("content-range") == "bytes */12",
+        status == 416 and invalid_body == b"" and invalid_headers.get("content-range") == f"bytes */{large_bytes}",
         str((status, invalid_headers, invalid_body)),
     )
     status, conditional_headers, conditional_body = http(
@@ -521,9 +574,53 @@ try:
     check("OCI manifest resolves by digest with bodyless HEAD", status == 200 and digest_body == b"" and digest_headers.get("docker-content-digest") == manifest_digest, str((status, digest_headers, digest_body)))
     layer = manifest["layers"][0]
     status, headers, body = http(webport, "GET", f"/v2/builds/{repository}/diamond/blobs/{layer['digest']}", headers={"Authorization": authorization})
-    check("OCI layer digest and bytes agree", status == 200 and hashlib.sha256(body).hexdigest() == layer["digest"].split(":", 1)[1] and body == b"oci-layer-g3\n", str((status, body)))
+    oci_digest = hashlib.sha256(body).hexdigest()
+    check(
+        "large OCI layer digest and bytes agree",
+        status == 200
+        and len(body) == large_bytes
+        and body[:13] == b"oci-layer-g3\n"
+        and body[13:] == bytes(large_bytes - 13)
+        and oci_digest == layer["digest"].split(":", 1)[1],
+        str((status, len(body))),
+    )
     status, _, tags = http(webport, "GET", f"/v2/builds/{repository}/diamond/tags/list", headers={"Authorization": authorization})
     check("OCI tags list is repository scoped", status == 200 and tags == {"name": "diamond", "tags": ["g3"]}, str(tags))
+
+    lfs_base = f"/_diamond/git/repos/{repository}.git/info/lfs"
+    lfs_data = b"L" * large_bytes
+    lfs_digest = hashlib.sha256(lfs_data).hexdigest()
+    lfs_headers = {
+        "Authorization": authorization,
+        "Content-Type": "application/vnd.git-lfs+json",
+        "Accept": "application/vnd.git-lfs+json",
+    }
+    lfs_batch = json.dumps(
+        {
+            "operation": "upload",
+            "transfers": ["basic"],
+            "hash_algo": "sha256",
+            "objects": [{"oid": lfs_digest, "size": large_bytes}],
+        }
+    ).encode()
+    status, _, payload = raw_http(webport, "POST", lfs_base + "/objects/batch", lfs_batch, lfs_headers)
+    check("large LFS upload receives a bounded action", status == 200, str((status, payload[-1000:])))
+    lfs_upload_path = urllib.parse.urlsplit(json.loads(payload)["objects"][0]["actions"]["upload"]["href"]).path
+    status, _, _ = raw_http(
+        webport,
+        "PUT",
+        lfs_upload_path,
+        lfs_data,
+        {"Authorization": authorization, "Content-Type": "application/octet-stream", "Content-Length": str(large_bytes)},
+    )
+    check("large LFS upload is digest verified", status == 200, str(status))
+    lfs_download_batch = json.dumps(
+        {"operation": "download", "objects": [{"oid": lfs_digest, "size": large_bytes}]}
+    ).encode()
+    status, _, payload = raw_http(webport, "POST", lfs_base + "/objects/batch", lfs_download_batch, lfs_headers)
+    check("large LFS download receives a bounded action", status == 200, str((status, payload[-1000:])))
+    lfs_download_path = urllib.parse.urlsplit(json.loads(payload)["objects"][0]["actions"]["download"]["href"]).path
+
     pages_log = open(TMP / "pages.log", "wb")
     pages = subprocess.Popen(
         [str(BIN), "project-pages-serve", PROJECT, "--listen", f"127.0.0.1:{pageport}", "--binding", "builds", "--postgres-env", "DIAMOND_POSTGRES", "--runtime-env", "DIAMOND_RUNTIME"],
@@ -536,6 +633,111 @@ try:
     check("Pages deployment is publicly served", status == 200 and b"Published from Diamond" in page_body, str((status, page_body)))
     status, headers, _ = http(pageport, "GET", "/docs/")
     check("Pages listener sets isolation headers and no cookie", status == 200 and "content-security-policy" in headers and "set-cookie" not in headers, str(headers))
+    stream_targets = []
+    zero_digest = hashlib.sha256(bytes(large_bytes)).hexdigest()
+    for _ in range(4):
+        stream_targets.extend(
+            [
+                (
+                    webport,
+                    f"/_diamond/delivery/builds/{repository}/artifacts/{artifact['id']}",
+                    {"Authorization": authorization},
+                    large_bytes,
+                    artifact_digest,
+                ),
+                (
+                    webport,
+                    f"/v2/builds/{repository}/diamond/blobs/{layer['digest']}",
+                    {"Authorization": authorization},
+                    large_bytes,
+                    oci_digest,
+                ),
+                (
+                    webport,
+                    lfs_download_path,
+                    {"Authorization": authorization},
+                    large_bytes,
+                    lfs_digest,
+                ),
+                (
+                    pageport,
+                    "/docs/large.bin",
+                    {},
+                    large_bytes,
+                    zero_digest,
+                ),
+            ]
+        )
+    barrier = threading.Barrier(len(stream_targets))
+    web_baseline = rss_kib(server.pid)
+    pages_baseline = rss_kib(pages.pid)
+    web_peak = web_baseline
+    pages_peak = pages_baseline
+    with ThreadPoolExecutor(max_workers=len(stream_targets)) as executor:
+        futures = [executor.submit(stream_get, target, barrier) for target in stream_targets]
+        while not all(future.done() for future in futures):
+            web_peak = max(web_peak, rss_kib(server.pid))
+            pages_peak = max(pages_peak, rss_kib(pages.pid))
+            time.sleep(0.002)
+        streamed = [future.result() for future in futures]
+    check(
+        "sixteen mixed artifact, OCI, LFS, and Pages streams are byte exact",
+        all(status == 200 and size == expected_size and digest == expected_digest for status, size, digest, expected_size, expected_digest in streamed),
+        str(streamed),
+    )
+    check(
+        "mixed streaming keeps the web process below its aggregate memory budget",
+        web_peak - web_baseline < 128 * 1024,
+        f"baseline={web_baseline} peak={web_peak}",
+    )
+    check(
+        "mixed streaming keeps the Pages process below its aggregate memory budget",
+        pages_peak - pages_baseline < 64 * 1024,
+        f"baseline={pages_baseline} peak={pages_peak}",
+    )
+    check("both listeners survive mixed streaming", server.poll() is None and pages.poll() is None)
+    metrics.update(
+        mixed_streams=len(stream_targets),
+        mixed_stream_bytes=sum(item[1] for item in streamed),
+        mixed_web_rss_baseline_kib=web_baseline,
+        mixed_web_rss_peak_kib=web_peak,
+        mixed_web_rss_delta_kib=web_peak - web_baseline,
+        mixed_pages_rss_baseline_kib=pages_baseline,
+        mixed_pages_rss_peak_kib=pages_peak,
+        mixed_pages_rss_delta_kib=pages_peak - pages_baseline,
+    )
+    ok("create log-overflow branch", ["git", "switch", "-c", "log-overflow"], cwd=clone)
+    log_overflow_pipeline = {
+        "version": 1,
+        "jobs": [
+            {
+                "name": "log_overflow",
+                "executor": "standard",
+                "script": "/usr/bin/head -c 1048577 /dev/zero",
+                "timeout_seconds": 15,
+            }
+        ],
+    }
+    (clone / ".diamond-ci.json").write_text(json.dumps(log_overflow_pipeline, separators=(",", ":")))
+    ok("stage log-overflow configuration", ["git", "add", ".diamond-ci.json"], cwd=clone)
+    ok("commit log-overflow configuration", ["git", "commit", "-m", "probe bounded job logs"], cwd=clone)
+    ok("push log-overflow configuration", ["git", "push", git_url, "HEAD:refs/heads/log-overflow"], cwd=clone)
+    status, _, reply = rpc(alice, contract, "schedule_pipeline", [repository, "refs/heads/log-overflow", "log-overflow-1"])
+    check("schedule log-overflow attack", status == 200, str(reply))
+    log_overflow_id = value(reply)
+    log_overflow_run = ok(
+        "run log-overflow attack",
+        [str(BIN), "project-delivery-work", PROJECT, "--postgres-env", "DIAMOND_POSTGRES", "--runtime-env", "DIAMOND_RUNTIME"],
+    )
+    status, _, reply = rpc(alice, contract, "delivery_jobs", [repository, log_overflow_id])
+    check(
+        "job output above one MiB fails closed",
+        json.loads(log_overflow_run.stdout)["completed"] == 0
+        and status == 200
+        and value(reply)["cards"][0]["state"] == "failed",
+        str(reply),
+    )
+    ok("return to main after log-overflow attack", ["git", "switch", "main"], cwd=clone)
     status, _, reply = rpc(alice, contract, "delivery_pages", [repository])
     first_deployment = value(reply)["cards"][0]["deployment"]
     check("record first immutable Pages deployment", status == 200 and len(first_deployment) == 64, str(reply))
@@ -724,9 +926,10 @@ finally:
     if PG.exists():
         subprocess.run(["pg_ctl", "-D", str(PG), "-m", "immediate", "stop"], env=env, capture_output=True)
     receipt = {
-        "profile": "diamond-forge-g3-g5-delivery",
+        "profile": "diamond-forge-g3-g5-g6-delivery",
         "passed": sum(1 for result in results if result["pass"]),
         "total": len(results),
+        "metrics": metrics,
         "results": results,
     }
     (ROOT / "verification/git_delivery_redteam_results.json").write_text(json.dumps(receipt, indent=2) + "\n")

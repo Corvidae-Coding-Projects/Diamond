@@ -6,12 +6,26 @@
     "postgres": "postgres (PostgreSQL) 18.6",
     "python": "3.14.8"
   },
-  "passed": 111,
-  "total": 111,
+  "passed": 120,
+  "total": 120,
   "metrics": {
-    "server_rss_baseline_kib": 90024,
-    "server_rss_peak_kib": 90492,
-    "server_rss_delta_kib": 468
+    "server_rss_baseline_kib": 72892,
+    "server_rss_peak_kib": 73048,
+    "server_rss_delta_kib": 156,
+    "concurrent_clients": 8,
+    "concurrent_max_children": 32,
+    "concurrent_server_rss_baseline_kib": 73048,
+    "concurrent_server_rss_peak_kib": 82524,
+    "concurrent_server_rss_delta_kib": 9476,
+    "concurrent_tree_rss_baseline_kib": 73048,
+    "concurrent_tree_rss_peak_kib": 586132,
+    "concurrent_tree_rss_delta_kib": 513084,
+    "saturation_clients": 20,
+    "saturation_success": 8,
+    "saturation_overload": 12,
+    "saturation_max_children": 32,
+    "saturation_server_rss_peak_kib": 82656,
+    "saturation_tree_rss_peak_kib": 593420
   },
   "results": [
     {
@@ -356,6 +370,42 @@
     },
     {
       "name": "server RSS bounded during 24 MiB pack",
+      "pass": true
+    },
+    {
+      "name": "eight concurrent stock Git clones preserve exact 24 MiB content",
+      "pass": true
+    },
+    {
+      "name": "concurrent Git traffic actually overlaps native backends",
+      "pass": true
+    },
+    {
+      "name": "web-node RSS bounded during eight concurrent large clones",
+      "pass": true
+    },
+    {
+      "name": "complete Git transport process tree stays within aggregate budget",
+      "pass": true
+    },
+    {
+      "name": "saturation clients either receive exact content or explicit overload",
+      "pass": true
+    },
+    {
+      "name": "saturation wave completes useful Git work",
+      "pass": true
+    },
+    {
+      "name": "server survives saturated Git transport",
+      "pass": true
+    },
+    {
+      "name": "saturated web-node RSS remains below 256 MiB",
+      "pass": true
+    },
+    {
+      "name": "saturated complete Git transport stays below 1 GiB",
       "pass": true
     },
     {

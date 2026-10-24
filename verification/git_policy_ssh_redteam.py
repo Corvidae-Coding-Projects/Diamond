@@ -927,6 +927,32 @@ try:
         timeout=120,
     )
     check("streamed SSH object exact", (streamed_clone / "random.bin").read_bytes() == random_bytes)
+    archive_environment = env.copy()
+    archive_environment.update(ssh_environment)
+    concurrent_archives = []
+    for index in range(4):
+        target = TMP / f"concurrent-archive-{index}.tar"
+        process = subprocess.Popen(
+            ["git", "archive", f"--remote={ssh_url}", f"--output={target}", "HEAD", "random.bin"],
+            cwd=ROOT,
+            env=archive_environment,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        concurrent_archives.append((target, process))
+    archive_failures = []
+    for target, process in concurrent_archives:
+        stdout, stderr = process.communicate(timeout=120)
+        if process.returncode != 0:
+            archive_failures.append((process.returncode, (stdout + stderr)[-2000:].decode(errors="replace")))
+    check("four concurrent large Git archives complete over OpenSSH", not archive_failures, str(archive_failures))
+    archive_mismatches = []
+    for target, _ in concurrent_archives:
+        with tarfile.open(target) as uploaded:
+            archived = uploaded.extractfile("random.bin")
+            if archived is None or archived.read() != random_bytes:
+                archive_mismatches.append(str(target))
+    check("concurrent OpenSSH archive bytes are exact", not archive_mismatches, str(archive_mismatches))
 
     deploy_read_command = " ".join(
         shlex.quote(value)

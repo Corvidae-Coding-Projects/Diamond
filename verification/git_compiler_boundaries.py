@@ -129,11 +129,11 @@ def main() -> None:
         results,
     )
     rejected(
-        "non-text Git merge object rejected",
+        "non-text Git integration object rejected",
         lambda project: replace(
             project / "server.dia",
-            'host.git_merge("repos", repository, source_reference, target_reference, source_object, target_object)',
-            'host.git_merge("repos", repository, source_reference, target_reference, 1, target_object)',
+            'host.git_integrate("repos", id_text(row.repository), row.source_reference, row.target_reference, row.source_object, row.target_object, merge_strategy_text(row.strategy), message, id_text(row.id))',
+            'host.git_integrate("repos", id_text(row.repository), row.source_reference, row.target_reference, 1, row.target_object, merge_strategy_text(row.strategy), message, id_text(row.id))',
         ),
         "Git arguments require Text values",
         results,

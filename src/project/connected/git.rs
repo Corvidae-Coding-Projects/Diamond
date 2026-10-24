@@ -56,8 +56,9 @@ pub(super) async fn request(
     request: Request,
     peer: String,
     permit: tokio::sync::OwnedSemaphorePermit,
+    git_permit: tokio::sync::OwnedSemaphorePermit,
 ) -> Response {
-    match request_inner(server, request, peer, permit).await {
+    match request_inner(server, request, peer, permit, git_permit).await {
         Ok(response) => response,
         Err(error) => git_failure_response(&error),
     }
@@ -79,6 +80,7 @@ async fn request_inner(
     request: Request,
     peer: String,
     permit: tokio::sync::OwnedSemaphorePermit,
+    git_permit: tokio::sync::OwnedSemaphorePermit,
 ) -> Result<Response> {
     if request.headers().contains_key(header::COOKIE)
         || one_header(&request, "git-protocol").is_some_and(|value| value != "version=2")
@@ -158,6 +160,7 @@ async fn request_inner(
             content_length,
         },
         permit,
+        git_permit,
         &server.secrets.configuration,
     )
     .await
@@ -169,6 +172,7 @@ async fn backend_response(
     request: Request,
     backend: BackendRequest,
     permit: tokio::sync::OwnedSemaphorePermit,
+    git_permit: tokio::sync::OwnedSemaphorePermit,
     configuration: &str,
 ) -> Result<Response> {
     let fences = std::mem::take(&mut transport.fences);
@@ -252,7 +256,7 @@ async fn backend_response(
             }
         };
 
-    let receiver = spawn_stream(child, stdout, input, errors, permit, fences);
+    let receiver = spawn_stream(child, stdout, input, errors, permit, git_permit, fences);
     let stream = futures_util::stream::unfold(receiver, |mut receiver| async move {
         receiver.recv().await.map(|item| (item, receiver))
     });
@@ -272,11 +276,13 @@ fn spawn_stream(
     mut input: tokio::task::JoinHandle<io::Result<()>>,
     mut errors: tokio::task::JoinHandle<io::Result<()>>,
     permit: tokio::sync::OwnedSemaphorePermit,
+    git_permit: tokio::sync::OwnedSemaphorePermit,
     fences: Vec<super::super::git::ReceiveFence>,
 ) -> mpsc::Receiver<io::Result<Bytes>> {
     let (sender, receiver) = mpsc::channel(4);
     tokio::spawn(async move {
         let _permit = permit;
+        let _git_permit = git_permit;
         let _fences = fences;
         let output_ok = tokio::time::timeout(
             TRANSPORT_DEADLINE,

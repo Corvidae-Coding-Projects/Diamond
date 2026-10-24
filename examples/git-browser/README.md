@@ -311,6 +311,13 @@ nodes and concurrent workers, uses stock Git, and attacks search revocation,
 replica roots, promotion/reconciliation races, stale generations, shared limits,
 object holds, node drain, encrypted backup tampering, and isolated restore.
 
+The completed G6 release replay runs all six Git campaigns listed in
+`verification/git_release_qualification_results.md`. That evidence adds
+eight-client exact large-pack cloning, explicit 20-client overload, synchronized
+artifact/OCI/LFS/Pages streaming, process-level memory measurements, and the
+final isolated-restore replay. It also records the provider, edge, cross-host,
+and production-recovery work that a public deployment must still qualify.
+
 SSH deployment, protected-ref semantics, shard promotion, and the complete
 runtime command reference are documented in the root `README.md`. Production
 process layout, enrollment, import/export, executor profiles, custom domains,
