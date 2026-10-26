@@ -90,8 +90,10 @@ does too.
 ## Use the application
 
 The repository route lists organizations and repositories and provides bounded
-HEAD, tree, blob, history, and diff views. Copy the displayed opaque IDs into
-the selection fields when moving between routes.
+HEAD, tree, blob, history, and diff views. Choose the current organization and
+repository by name in the persistent workspace bar; that selection follows you
+between routes. Opaque IDs remain visible only as secondary details for API and
+administrative work.
 
 The collaboration route manages repository-scoped team and direct grants, with
 immediate revocation, and creates a fork by copying the authorized bare
@@ -295,7 +297,7 @@ diamond project-git-reconcile examples/git-browser/diamond.toml \
   browser component.
 - `diamond.toml` binds modules, least-authority capabilities, PostgreSQL
   resources, APIs, files, events, identity, and Git.
-- `git.css` supplies the responsive visual layout.
+- `git-v2.css` supplies the responsive, accessible visual layout.
 
 The retained G2 attack replay is
 `python3 verification/git_application_redteam.py`. It exercises the real HTTP,

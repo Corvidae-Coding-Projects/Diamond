@@ -1,0 +1,16 @@
+export component DynamicSelect:
+  state selected: Text = ""
+  state choices: List<Text> = ["alpha", "beta", "snow 雪"]
+
+  html:
+    <main>
+      <h1>{heading()}</h1>
+      <label for="choice">Choice</label>
+      <select id="choice" bind-value={selected}>
+        <option value="">Choose a value</option>
+        <each items={choices} as="choice" key={choice}>
+          <option value={choice}>{choice}</option>
+        </each>
+      </select>
+      <p id="selection">{selected}</p>
+    </main>

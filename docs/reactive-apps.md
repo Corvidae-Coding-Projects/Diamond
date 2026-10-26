@@ -49,8 +49,11 @@ and lists rather than implicit string conversion. Text always uses escaped HTML
 or text nodes. Runtime element IDs `diamond-app` and `diamond-error` are reserved.
 
 Use `bind-value` with mutable Text state on text/password inputs, textarea, or
-select; `bind-checked` with Bool state on checkboxes. Select supports static,
-uniquely valued option children. Forms require `on-submit={handler}` and native
+select; `bind-checked` with Bool state on checkboxes. Select supports uniquely
+valued static options and dynamic options inside keyed `each` or conditional
+`when` blocks. Dynamic option values must be Int, Text, bounded Text, or nominal
+Id values; Diamond renders them as direct options so server hydration and native
+keyboard selection agree. Forms require `on-submit={handler}` and native
 required/minlength/maxlength validation. Buttons bind `on-click={handler}`.
 Provide labels and distinct IDs as in the workspace example. Native validation
 precedes dispatch. Pending/error state is available for accessible status text

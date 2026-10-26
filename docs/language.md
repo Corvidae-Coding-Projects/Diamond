@@ -97,7 +97,9 @@ public route GET "/notes/{id:NoteId}" as Details:
 `route_url(Details, id)` constructs a checked internal URL. Typed HTML accepts
 the allowlisted tags and attributes implemented by the template parser. Text
 interpolation is escaped; values are never reinterpreted as markup. Static links
-and redirects must be absolute internal paths without percent encoding.
+and redirects must be absolute internal paths without percent encoding. Static
+links may also use a simple same-page fragment such as `#main-content`;
+fragments stay in the current application route.
 
 `request.form<Record>()` decodes strict URL-encoded scalar form fields. Server
 derived IDs, CSRF names, unknown fields, duplicates, malformed encodings, and

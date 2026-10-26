@@ -468,7 +468,11 @@ impl Lower<'_> {
                         ("id",HtmlAttribute::Literal(s)) if ["diamond-app","diamond-error"].contains(&s.as_str())=>return Err(error(Location::default(),"component id is reserved by the runtime")),
                         (_,HtmlAttribute::Literal(s))=>Attribute::Text(s.clone()),
                         ("href"|"action"|"src",_)=>return Err(error(Location::default(),"URL attributes require static validated references")),
-                        (_,HtmlAttribute::Expression(e))=>Attribute::Value(self.expression(e,locals)?),
+                        (_,HtmlAttribute::Expression(e))=>{
+                            let value=self.expression(e,locals)?;
+                            if tag=="option" && name=="value" && !matches!(value.ty,Type::Int|Type::Text|Type::BoundedText(..)|Type::Id(_)) {return Err(error(e.location,"option values require Int, Text or Id"));}
+                            Attribute::Value(value)
+                        },
                     };checked.push((name.clone(),attr));
                 }
                 let file_input = tag=="input" && checked.iter().any(|(n,v)| n=="type" && matches!(v,Attribute::Text(s) if s=="file"));
@@ -482,7 +486,7 @@ impl Lower<'_> {
                 if tag=="select" {
                     if !checked.iter().any(|(_,v)|matches!(v,Attribute::Binding(_))) {return Err(error(Location::default(),"select requires bind-value"));}
                     let mut values=BTreeSet::new();
-                    for child in children {match child {HtmlNode::Text(s) if s.trim().is_empty()=>{},HtmlNode::Element{tag,attributes,..} if tag=="option"=>{let value=attributes.iter().find_map(|(n,v)|if n=="value" {if let HtmlAttribute::Literal(v)=v {Some(v)} else {None}} else {None}).ok_or_else(||error(Location::default(),"select options need static value attributes"))?;if !values.insert(value.clone()) {return Err(error(Location::default(),"duplicate select option value"));}},_=>return Err(error(Location::default(),"select supports static option children"))}}
+                    validate_select_children(children,&mut values)?;
                 }
                 if tag=="form" && !checked.iter().any(|(n,_)|n=="on-submit") {return Err(error(Location::default(),"component forms require on-submit"));}
                 Ok(Node::Element{tag:tag.clone(),attributes:checked,children:self.nodes(children,locals,events,mutable)?})
@@ -492,6 +496,57 @@ impl Lower<'_> {
 }
 fn error(location: Location, message: &str) -> Error {
     Error::diagnostic("D330", location, message)
+}
+
+fn validate_select_children(
+    nodes: &[HtmlNode],
+    static_values: &mut BTreeSet<String>,
+) -> Result<()> {
+    for node in nodes {
+        match node {
+            HtmlNode::Text(text) if text.trim().is_empty() => {}
+            HtmlNode::Element {
+                tag,
+                attributes,
+                children,
+            } if tag == "option" => {
+                let values = attributes
+                    .iter()
+                    .filter(|(name, _)| name == "value")
+                    .collect::<Vec<_>>();
+                if values.len() != 1 {
+                    return Err(error(
+                        Location::default(),
+                        "select options require exactly one value attribute",
+                    ));
+                }
+                if let HtmlAttribute::Literal(value) = &values[0].1
+                    && !static_values.insert(value.clone())
+                {
+                    return Err(error(Location::default(), "duplicate select option value"));
+                }
+                if children
+                    .iter()
+                    .any(|child| !matches!(child, HtmlNode::Text(_) | HtmlNode::Expression(_)))
+                {
+                    return Err(error(
+                        Location::default(),
+                        "option labels support text and scalar expressions only",
+                    ));
+                }
+            }
+            HtmlNode::Element { tag, children, .. } if ["each", "when"].contains(&tag.as_str()) => {
+                validate_select_children(children, static_values)?;
+            }
+            _ => {
+                return Err(error(
+                    Location::default(),
+                    "select supports option children, including options inside each or when",
+                ));
+            }
+        }
+    }
+    Ok(())
 }
 
 fn collect_routes(nodes: &[Node], routes: &mut BTreeSet<String>) {

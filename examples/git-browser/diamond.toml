@@ -3,7 +3,7 @@ name = "DiamondForge"
 server = "server"
 browser = "ui"
 component = "GitForge"
-styles = ["git.css"]
+styles = ["git-v2.css"]
 provides = ["Events", "Http<webhook>", "DbRead<Organizations>", "DbWrite<Organizations>", "DbRead<Members>", "DbWrite<Members>", "DbRead<Repositories>", "DbWrite<Repositories>", "DbRead<Issues>", "DbWrite<Issues>", "DbRead<Comments>", "DbWrite<Comments>", "DbRead<MergeRequests>", "DbWrite<MergeRequests>", "DbRead<Reviews>", "DbWrite<Reviews>", "DbRead<Teams>", "DbWrite<Teams>", "DbRead<TeamMembers>", "DbWrite<TeamMembers>", "DbRead<RepositoryGrants>", "DbWrite<RepositoryGrants>", "DbRead<Forks>", "DbWrite<Forks>", "DbRead<Milestones>", "DbWrite<Milestones>", "DbRead<Labels>", "DbWrite<Labels>", "DbRead<IssueLabels>", "DbWrite<IssueLabels>", "DbRead<IssueAssignees>", "DbWrite<IssueAssignees>", "DbRead<BoardColumns>", "DbWrite<BoardColumns>", "DbRead<BoardCards>", "DbWrite<BoardCards>", "DbRead<WikiPages>", "DbWrite<WikiPages>", "DbRead<Snippets>", "DbWrite<Snippets>", "DbRead<ReviewThreads>", "DbWrite<ReviewThreads>", "DbRead<Notifications>", "DbWrite<Notifications>", "DbRead<NotificationPreferences>", "DbWrite<NotificationPreferences>", "DbRead<Releases>", "DbWrite<Releases>", "DbRead<Webhooks>", "DbWrite<Webhooks>", "DbRead<AuditEvents>", "DbWrite<AuditEvents>", "GitRead<repos>", "GitWrite<repos>", "GitReview<repos>", "GitAdmin<repos>", "DeliveryRead<builds>", "DeliveryWrite<builds>", "OpsRead<control>", "OpsAdmin<control>"]
 
 [modules.shared]
@@ -82,6 +82,7 @@ reopen_issue = "server.reopen_issue"
 create_board_column = "server.create_board_column"
 add_board_card = "server.add_board_card"
 move_board_card = "server.move_board_card"
+move_issue_board_card = "server.move_issue_board_card"
 create_wiki_page = "server.create_wiki_page"
 update_wiki_page = "server.update_wiki_page"
 create_snippet = "server.create_snippet"

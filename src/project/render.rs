@@ -227,27 +227,86 @@ impl Render<'_, '_> {
             })
             .ok_or(Error::Denied)?;
         let value = locals.get(state).ok_or(Error::Denied)?.display_text()?;
-        let mut nodes = children.to_vec();
+        let mut values = BTreeSet::new();
         let mut found = false;
-        for node in &mut nodes {
-            if let Node::Element {
-                tag, attributes, ..
-            } = node
-                && tag == "option"
-            {
-                let selected = attributes
-                    .iter()
-                    .any(|(n, v)| n == "value" && matches!(v,Attribute::Text(s) if s==&value));
-                attributes.push(("selected".into(), Attribute::Text(selected.to_string())));
-                found |= selected;
-            }
-        }
+        self.select_nodes(children, locals, &value, &mut values, &mut found, out)?;
         if !found {
             return Err(Error::Input(
                 "initial select state must match a declared option".into(),
             ));
         }
-        self.nodes(&nodes, locals, out)
+        Ok(())
+    }
+    fn select_nodes(
+        &mut self,
+        nodes: &[Node],
+        locals: &BTreeMap<String, Value>,
+        selected_value: &str,
+        values: &mut BTreeSet<String>,
+        found: &mut bool,
+        out: &mut String,
+    ) -> Result<()> {
+        for node in nodes {
+            self.count += 1;
+            if self.count > 8192 {
+                return Err(Error::Limit("render node capacity"));
+            }
+            match node {
+                Node::Text(text) if text.trim().is_empty() => out.push_str(&escaped(text)),
+                Node::When(condition, children) => {
+                    if self.value(condition, locals)?.boolean()? {
+                        self.select_nodes(children, locals, selected_value, values, found, out)?;
+                    }
+                }
+                Node::Each {
+                    items,
+                    binding,
+                    key,
+                    children,
+                } => {
+                    let ValueKind::List(entries) = self.value(items, locals)?.0 else {
+                        return Err(Error::Denied);
+                    };
+                    let mut keys = BTreeSet::new();
+                    for entry in entries {
+                        let mut nested = locals.clone();
+                        nested.insert(binding.clone(), entry);
+                        if !keys.insert(self.value(key, &nested)?.display_text()?) {
+                            return Err(Error::Input("duplicate key".into()));
+                        }
+                        self.select_nodes(children, &nested, selected_value, values, found, out)?;
+                    }
+                }
+                Node::Element {
+                    tag,
+                    attributes,
+                    children,
+                } if tag == "option" => {
+                    let option_value = attributes
+                        .iter()
+                        .find_map(|(name, attribute)| (name == "value").then_some(attribute))
+                        .ok_or(Error::Denied)?;
+                    let option_value = match option_value {
+                        Attribute::Text(value) => value.clone(),
+                        Attribute::Value(expression) => {
+                            self.value(expression, locals)?.display_text()?
+                        }
+                        _ => return Err(Error::Denied),
+                    };
+                    if !values.insert(option_value.clone()) {
+                        return Err(Error::Input("duplicate select option value".into()));
+                    }
+                    let selected = option_value == selected_value;
+                    *found |= selected;
+                    let mut rendered_attributes = attributes.clone();
+                    rendered_attributes
+                        .push(("selected".into(), Attribute::Text(selected.to_string())));
+                    self.element(tag, &rendered_attributes, children, locals, out)?;
+                }
+                _ => return Err(Error::Denied),
+            }
+        }
+        Ok(())
     }
 }
 

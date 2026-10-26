@@ -298,6 +298,19 @@ impl Template<'_> {
 }
 
 pub(crate) fn validate_internal_url(value: &str, location: Location) -> Result<()> {
+    if let Some(fragment) = value.strip_prefix('#')
+        && !fragment.is_empty()
+        && fragment.len() <= 128
+        && fragment
+            .chars()
+            .next()
+            .is_some_and(|c| c.is_ascii_alphabetic())
+        && fragment
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || matches!(c, '-' | '_'))
+    {
+        return Ok(());
+    }
     if !value.starts_with('/')
         || value.starts_with("//")
         || value
@@ -307,7 +320,7 @@ pub(crate) fn validate_internal_url(value: &str, location: Location) -> Result<(
         return Err(Error::diagnostic(
             "D020",
             location,
-            "only absolute internal URL paths are supported",
+            "only absolute internal URL paths or simple same-page fragments are supported",
         ));
     }
     // Encoded delimiters are excluded until a full URL canonicalization contract exists.
@@ -330,4 +343,22 @@ pub(crate) fn escape(value: &str) -> String {
         }
     }
     result
+}
+
+#[cfg(test)]
+mod tests {
+    use super::validate_internal_url;
+    use crate::error::Location;
+
+    #[test]
+    fn same_page_fragments_are_simple_and_bounded() {
+        assert!(validate_internal_url("#page-content", Location::default()).is_ok());
+        assert!(validate_internal_url("#main_content2", Location::default()).is_ok());
+        for invalid in ["#", "#1content", "#page/content", "#page%20content", "#雪"] {
+            assert!(validate_internal_url(invalid, Location::default()).is_err());
+        }
+        assert!(
+            validate_internal_url(&format!("#a{}", "b".repeat(128)), Location::default()).is_err()
+        );
+    }
 }

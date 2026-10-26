@@ -790,13 +790,19 @@ export fn register_repository(label: Text<length: 1..80>, public: Bool) -> Resul
   Ok(id_text(row.id))
 
 fn next_repository_cursor(rows: List<Repository>) -> Result<Text, DataError>:
-  match list_get(rows, len(rows) - 1):
-    Some(row) => repositories.cursor(row: row, order: "name")
-    None => Ok("")
+  match len(rows) > 20:
+    true =>
+      match list_get(rows, 19):
+        Some(row) => repositories.cursor(row: row, order: "name")
+        None => Ok("")
+    false => Ok("")
 
 export fn repository_page(organization: Text, after: Text) -> Result<RepositoryPage, DataError>:
-  let rows = repositories.page(organization: OrganizationId(organization), order: "name", after: after, limit: 20)?
-  let cards = for row in rows:
+  let rows = repositories.page(organization: OrganizationId(organization), order: "name", after: after, limit: 21)?
+  let visible = match len(rows) > 20:
+    true => list_slice(rows, 0, 20)
+    false => rows
+  let cards = for row in visible:
     RepositoryCard(id: id_text(row.id), organization: id_text(row.organization), name: row.name, description: row.description, visibility: visibility_text(row.public))
   let cursor = next_repository_cursor(rows)?
   let total = repositories.count(organization: OrganizationId(organization))?
@@ -828,13 +834,19 @@ export fn create_issue(repository: Text, title: Text<length: 1..160>, body: Text
   Ok(id_text(row.id))
 
 fn next_issue_cursor(rows: List<Issue>) -> Result<Text, DataError>:
-  match list_get(rows, len(rows) - 1):
-    Some(row) => issues.cursor(row: row, order: "rank")
-    None => Ok("")
+  match len(rows) > 20:
+    true =>
+      match list_get(rows, 19):
+        Some(row) => issues.cursor(row: row, order: "rank")
+        None => Ok("")
+    false => Ok("")
 
 export fn issue_page(organization: Text, repository: Text, after: Text) -> Result<IssuePage, DataError>:
-  let rows = issues.page(organization: OrganizationId(organization), repository: RepositoryId(repository), order: "rank", after: after, limit: 20)?
-  let cards = for row in rows:
+  let rows = issues.page(organization: OrganizationId(organization), repository: RepositoryId(repository), order: "rank", after: after, limit: 21)?
+  let visible = match len(rows) > 20:
+    true => list_slice(rows, 0, 20)
+    false => rows
+  let cards = for row in visible:
     IssueCard(id: id_text(row.id), title: row.title, state: issue_state_text(row.state), author: id_text(row.author))
   let cursor = next_issue_cursor(rows)?
   let total = issues.count(organization: OrganizationId(organization), repository: RepositoryId(repository))?
@@ -878,16 +890,22 @@ export fn create_merge_request(repository: Text, title: Text<length: 1..160>, bo
   Ok(id_text(row.id))
 
 fn next_merge_cursor(rows: List<MergeRequest>) -> Result<Text, DataError>:
-  match list_get(rows, len(rows) - 1):
-    Some(row) => mergerequests.cursor(row: row, order: "rank")
-    None => Ok("")
+  match len(rows) > 20:
+    true =>
+      match list_get(rows, 19):
+        Some(row) => mergerequests.cursor(row: row, order: "rank")
+        None => Ok("")
+    false => Ok("")
 
 fn merge_card(row: MergeRequest) -> MergeRequestCard:
   MergeRequestCard(id: id_text(row.id), title: row.title, state: merge_state_text(row.state), source_reference: row.source_reference, target_reference: row.target_reference, source_object: row.source_object, target_object: row.target_object, approvals: row.approvals, author: id_text(row.author), strategy: merge_strategy_text(row.strategy))
 
 export fn merge_request_page(organization: Text, repository: Text, after: Text) -> Result<MergeRequestPage, DataError>:
-  let rows = mergerequests.page(organization: OrganizationId(organization), repository: RepositoryId(repository), order: "rank", after: after, limit: 20)?
-  let cards = for row in rows:
+  let rows = mergerequests.page(organization: OrganizationId(organization), repository: RepositoryId(repository), order: "rank", after: after, limit: 21)?
+  let visible = match len(rows) > 20:
+    true => list_slice(rows, 0, 20)
+    false => rows
+  let cards = for row in visible:
     merge_card(row)
   let cursor = next_merge_cursor(rows)?
   let total = mergerequests.count(organization: OrganizationId(organization), repository: RepositoryId(repository))?
@@ -1078,6 +1096,18 @@ export fn move_board_card(card: Text, column: Text) -> Result<Text, DataError>:
   let position = boardcards.count(organization: before.organization, repository: before.repository, column: destination.id)? + 1
   let row = boardcards.update(before.id, MoveBoardCard(column: destination.id, position: position))?
   Ok(id_text(row.id))
+
+export fn move_issue_board_card(issue: Text, column: Text) -> Result<Text, DataError>:
+  let parent = issues.get(IssueId(issue))?
+  let destination = boardcolumns.get(BoardColumnId(column))?
+  let valid = require_same_organization(parent.organization, destination.organization)?
+  let matches = boardcards.select(organization: parent.organization, repository: parent.repository, issue: parent.id, limit: 1)?
+  match list_get(matches, 0):
+    Some(before) =>
+      let position = boardcards.count(organization: before.organization, repository: before.repository, column: destination.id)? + 1
+      let row = boardcards.update(before.id, MoveBoardCard(column: destination.id, position: position))?
+      Ok(id_text(row.id))
+    None => Err("Add the selected issue to the board before moving it.")
 
 export fn create_wiki_page(repository: Text, slug: Text<length: 1..120>, title: Text<length: 1..160>, body: Text<length: 0..16000>) -> Result<Text, DataError>:
   let parent = repositories.get(RepositoryId(repository))?
