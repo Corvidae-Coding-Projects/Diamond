@@ -12,6 +12,7 @@ target/debug/diamond run examples/functions/text.dia
 target/debug/diamond run examples/functions/lists.dia
 target/debug/diamond run examples/functions/decimals.dia
 target/debug/diamond run examples/functions/time.dia
+target/debug/diamond run examples/functions/markdown.dia
 ```
 
 Every file is deliberately small enough to copy and alter. Run `diamond check`
@@ -45,11 +46,19 @@ starts a server.
 | `duration_millis` | `Duration -> Int` | [`time.dia`](time.dia) |
 | `timestamp_add` | `Timestamp, Duration -> Timestamp` | [`time.dia`](time.dia) |
 | `timestamp_diff` | `Timestamp, Timestamp -> Duration` | [`time.dia`](time.dia) |
+| `markdown` | `Text -> Html` | [`markdown.dia`](markdown.dia) |
 
 Decimal values have six fractional digits. Multiplication and division accept
 `"half_even"` or `"half_away"`. Text/list slices use zero-based start and count,
 reject invalid bounds, and never silently clamp. Text indexes and `len(Text)`
 count Unicode scalar values.
+
+`markdown(text)` is the only general conversion from untrusted rich text to
+typed `Html`. It accepts at most 256 KiB, caps rendered output at 1 MiB, removes
+raw HTML and embedded images, and rewrites links using active or unknown schemes
+to an inert fragment. Ordinary text interpolated into an `html:` template is
+escaped automatically, so forgetting `markdown` produces visible plain text,
+not executable markup.
 
 ## Constructors and general helpers
 
@@ -134,8 +143,8 @@ described in the [relational guide](../../docs/relational-apps.md).
 explicit native grants. It contains:
 
 - `host.postgres_version()` and `host.postgres_echo(text)`;
-- `host.secret(destination)`, `host.http_get<T>(...)`, and
-  `host.http_post<Body, Reply>(...)`;
+- declaratively authenticated `host.http_get<T>(...)` and
+  `host.http_post<Body, Reply>(...)`, with no source-visible credential;
 - `host.job_submit<T>(...)`, `host.job_status(...)`, `host.job_cancel(...)`, and
   worker-only `host.job_key()`;
 - `host.event_emit<T>(...)`;
@@ -158,6 +167,12 @@ Running those operations requires PostgreSQL, an accounts profile, shared object
 storage, and an explicit destination grant. Use the complete
 [`live-workspace`](../live-workspace/) and [`catalog`](../catalog/) journeys for a
 working environment rather than putting credentials into these source examples.
+
+File upload returns `Blob<"binding">`, an opaque browser-managed reference rather
+than an attachment-ID string. Store it as `Option<Blob<"binding">>` and match
+before status, download, or deletion. It cannot be displayed, compared, forged,
+persisted, or sent through a generic RPC, and using it always rechecks current
+server-side policy.
 
 ## Policy and component callables
 

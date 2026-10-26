@@ -23,7 +23,14 @@ Diamond currently supports:
 - PostgreSQL records, relationships, policies, indexed queries, pagination,
   migrations, and backfills;
 - shared accounts and sessions, scoped API credentials, private uploads,
-  destination-scoped outbound HTTP, durable jobs, and live events;
+  destination-scoped outbound HTTP, durable jobs, live events, and declarative
+  policy-aware plain-text mail;
+- typed durable workflows with timers, parent concurrency, cancelation, and
+  transactional compensation;
+- declarative adapter-owned HTTP and OAuth secrets with automatic injection,
+  startup validation, rotation, redaction, and artifact inventory;
+- checked single-plan graph queries with exact field selection, cursor pagination,
+  policy-aware SQL, and compiler/runtime resource budgets;
 - policy-bound bare Git repositories, stock Git smart HTTP, bounded repository
   views, and Google or GitHub login;
 - repository-defined CI with fenced PostgreSQL scheduling, explicitly isolated
@@ -41,6 +48,16 @@ The best places to see the whole system are:
   JSON APIs, live updates, and deduplicated external notification;
 - [`examples/functions/`](examples/functions/) — every built-in function and
   callable runtime surface, organized as small examples.
+
+The security-owned application primitives have focused guides for
+[files and integrations](docs/files-and-integrations.md),
+[jobs and live applications](docs/jobs-and-live-apps.md), and
+[declarative mail](docs/declarative-mail.md), and
+[typed durable workflows](docs/workflows.md), and
+[declarative secrets](docs/secrets.md), and
+[checked graph queries](docs/queries.md). The bounded adversarial evidence and
+remaining trust boundaries are in the
+[L8 qualification ledger](verification/secure_language_l8_coverage.md).
 
 ## Install Diamond
 
@@ -304,7 +321,9 @@ never silently replaces an existing artifact.
 
 Components also support `derived`, `<when>`, keyed `<each>`, `<route>`, `<use>`,
 forms, `bind-value`, `bind-checked`, generated `rpc` calls, file controls, and
-typed `<watch>` subscriptions. See the
+typed `<watch stream={stream("channel", parent)}>` subscriptions. Stream
+descriptors are opaque and channel-specific; Diamond owns authorization rechecks,
+backpressure, reconnection limits, and cleanup. See the
 [`reactive application guide`](docs/reactive-apps.md).
 
 ## Scaffold a complete application

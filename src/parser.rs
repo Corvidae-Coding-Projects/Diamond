@@ -395,6 +395,10 @@ impl Parser {
         self.take();
         let result = if name == "Secret" {
             TypeName::Secret(self.text()?)
+        } else if name == "Blob" {
+            TypeName::Blob(self.text()?)
+        } else if name == "Stream" {
+            TypeName::Stream(self.text()?)
         } else if name == "Id" {
             TypeName::Id(self.text()?)
         } else if name == "Text" && self.is_name("length") {
@@ -732,6 +736,8 @@ impl Parser {
                     "http_post",
                     "job_submit",
                     "event_emit",
+                    "workflow_submit",
+                    "workflow_state",
                     "git_query",
                     "delivery_query",
                     "ops_query",

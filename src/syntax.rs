@@ -44,7 +44,9 @@ pub(crate) enum TypeName {
     Named(String),
     Generic(String, Vec<Self>),
     Id(String),
+    Blob(String),
     Secret(String),
+    Stream(String),
     BoundedText(usize, usize),
 }
 

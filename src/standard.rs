@@ -27,12 +27,14 @@ pub(crate) const NAMES: &[&str] = &[
     "int_text",
     "join_text",
     "id_text",
+    "markdown",
+    "stream",
 ];
 pub(crate) fn is_builtin(name: &str) -> bool {
     NAMES.contains(&name)
 }
 pub(crate) fn signature(name: &str, args: &[Type]) -> Option<Type> {
-    use Type::{Bool, Decimal, Duration, Int, List, Option as Optional, Text, Timestamp};
+    use Type::{Bool, Decimal, Duration, Html, Int, List, Option as Optional, Text, Timestamp};
     let fixed = match name {
         "decimal_units" => (vec![Int], Decimal),
         "decimal_text" => (vec![Decimal], Text),
@@ -51,6 +53,7 @@ pub(crate) fn signature(name: &str, args: &[Type]) -> Option<Type> {
         "int_text" => (vec![Int], Text),
         "join_text" => (vec![List(Box::new(Text)), Text], Text),
         "id_text" if matches!(args, [Type::Id(_)]) => return Some(Text),
+        "markdown" => (vec![Text], Html),
         "list_append" => {
             let [List(inner), value] = args else {
                 return None;
@@ -180,6 +183,17 @@ pub(crate) fn evaluate(name: &str, args: &[Value]) -> Result<Value> {
                 return Err(invalid());
             };
             ValueKind::Text(v.clone())
+        }
+        "markdown" => ValueKind::Html(crate::rich_text::render(text(a()?)?)?),
+        "stream" => {
+            let channel = text(a()?)?;
+            let parent = text(b()?)?;
+            if !crate::project::resolve::identifier(channel)
+                || !(parent.is_empty() || crate::auth::valid_id(parent))
+            {
+                return Err(invalid());
+            }
+            ValueKind::Stream(channel.into(), parent.into())
         }
         "text_slice" | "text_contains" | "text_trim" | "text_replace" | "join_text" => {
             text_operation(name, args)?

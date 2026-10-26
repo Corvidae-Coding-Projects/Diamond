@@ -64,6 +64,6 @@ export component Catalog:
         <label for="key">Publication deduplication key</label><input id="key" bind-value={key}>
         <button on-click={publish} aria-controls="job-status">Publish and notify</button><button on-click={check} aria-controls="job-status">Check notification job</button><p id="job-status" role="status" aria-live="polite">{job}</p>
       </section>
-      <when test={identity != ""}><watch channel="article_changes" parent={selected} into="live" cursor="cursor"></watch></when>
+      <when test={identity != ""}><watch stream={stream("article_changes", selected)} into="live" cursor="cursor"></watch></when>
       <p role="status" aria-live="polite">{live}</p>
     </main>

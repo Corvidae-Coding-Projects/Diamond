@@ -51,4 +51,4 @@ export fn job_status(id: Text) -> Result<Text, DataError>:
   host.job_status("notify", id)
 export fn notify(parent: Text, payload: Text) -> Result<Text, DataError>:
   let row = articles.get(ArticleId(parent))?
-  host.http_post<Text, Text>("inventory", "/v1/dedup/" + host.job_key(), host.secret("inventory"), payload)
+  host.http_post<Text, Text>("inventory", "/v1/dedup/" + host.job_key(), payload)

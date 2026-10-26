@@ -175,9 +175,9 @@ impl Reach<'_> {
             match n {
                 Node::Value(e) => self.expression(e),
                 Node::Watch {
-                    parent, payload, ..
+                    stream, payload, ..
                 } => {
-                    self.expression(parent);
+                    self.expression(stream);
                     self.ty(payload);
                 }
                 Node::When(e, children) => {

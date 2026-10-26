@@ -1,0 +1,158 @@
+{
+  "binary_sha256": "cc3141ed10bab741d85fa9c014467e4cb00063a8573114dfdca5db20db4d2e82",
+  "cleanup_errors": [],
+  "fatal": null,
+  "http_requests": 17,
+  "observations": [
+    {
+      "expected": "explicit initialization binds one private mode-0700 adapter root",
+      "name": "explicit-private-store-initialization",
+      "observed": {
+        "exit": 0,
+        "mode": "0o700"
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "runtime owns headers and address resolution; hostile body remains literal plain text",
+      "name": "manifest-template-and-plain-text-delivery",
+      "observed": {
+        "files": 1,
+        "message": {
+          "from": "noreply@example.invalid",
+          "id": "296a4862fc58fcfccc88ba372476fc50cebbd15d7eb0ecd3682065d3c991965c",
+          "profile": "diamond-mail-v1",
+          "recipient": "bob@qualification.invalid",
+          "subject": "Document notification",
+          "template": "notice",
+          "text": "Literal <script>alert('mail')</script>\nBcc: attacker@example.invalid\tend"
+        },
+        "mode": "0o600",
+        "row": {
+          "attempts": 1,
+          "id": "296a4862fc58fcfccc88ba372476fc50cebbd15d7eb0ecd3682065d3c991965c",
+          "outcome": "delivered",
+          "state": "delivered"
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "same immutable submission reuses its ID; changed content cannot reuse the key",
+      "name": "stable-deduplication-is-content-bound",
+      "observed": {
+        "changed_status": 409,
+        "files": 1,
+        "same_id": true
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "current recipient preference is serialized with delivery and creates no message",
+      "name": "recipient-suppression-prevents-output",
+      "observed": {
+        "files": 1,
+        "row": {
+          "attempts": 1,
+          "id": "c76e49a23a725d17e027b5d6d5cdb162ef1e815190f9dcc473a03c6d431d07d8",
+          "outcome": "recipient_suppressed",
+          "state": "suppressed"
+        },
+        "rpc": 200
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "synthetic administrator disables recipient before worker claim",
+      "name": "administrator-disabled-recipient",
+      "observed": {
+        "status": 200
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "disabled or unverified recipient fails closed at delivery with no output",
+      "name": "delivery-reauthorizes-current-account",
+      "observed": {
+        "files": 1,
+        "row": {
+          "attempts": 1,
+          "id": "a62f73a5a7283b415e9aeb8f88e70f792a3274f091029380dba77ddb76ba58aa",
+          "outcome": "denied_or_exhausted",
+          "state": "dead"
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "synthetic recipient restored for subsequent independent checks",
+      "name": "administrator-reenabled-recipient",
+      "observed": {
+        "status": 200
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "cancelled outbox entry cannot be claimed and creates no output",
+      "name": "cancel-before-claim-is-durable",
+      "observed": {
+        "files": 1,
+        "row": {
+          "attempts": 0,
+          "id": "8f622e6852e092b11dbd6db877d300b1bda7b229a9c3ad6359be602ddf426af6",
+          "outcome": "cancelled",
+          "state": "cancelled"
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "worker refuses an uninitialized or identity-mismatched replacement root",
+      "name": "adapter-root-replacement-fails-closed",
+      "observed": {
+        "exit": 1,
+        "new_root_entries": 0
+      },
+      "status": "PASS"
+    }
+  ],
+  "scope": "Disposable loopback HTTP, owned PostgreSQL, worker, and private directory adapter; no SMTP or Internet delivery.",
+  "shutdowns": [
+    {
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false,
+      "worker": "mail-one"
+    },
+    {
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false,
+      "worker": "mail-suppressed"
+    },
+    {
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false,
+      "worker": "mail-disabled"
+    },
+    {
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false,
+      "worker": "mail-cancelled"
+    },
+    {
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "node": "A",
+      "panic": false
+    }
+  ],
+  "status": "PASS"
+}

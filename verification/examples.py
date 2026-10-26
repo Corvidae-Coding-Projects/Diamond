@@ -55,10 +55,13 @@ def assert_catalog_coverage() -> dict[str, list[str]]:
             ".page(", ".cursor(", ".count(", ".sum(", ".join(",
         ],
         "host": [
-            "host.postgres_version(", "host.postgres_echo(", "host.secret(",
+            "host.postgres_version(", "host.postgres_echo(",
             "host.http_get<", "host.http_post<", "host.job_submit<",
             "host.job_status(", "host.job_cancel(", "host.job_key(",
-            "host.event_emit<",
+            "host.event_emit<", "host.mail_submit(", "host.mail_status(",
+            "host.mail_cancel(", "host.mail_suppress(",
+            "host.workflow_submit<", "host.workflow_status(",
+            "host.workflow_state<", "host.workflow_cancel(",
         ],
         "session": [
             "session.login(", "session.user(", "session.logout(",

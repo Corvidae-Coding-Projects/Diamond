@@ -22,6 +22,7 @@ axum = { version = "0.8.9", default-features = false, features = ["http1", "toki
 getrandom = "0.4.3"
 hickory-resolver = { version = "=0.26.3", default-features = false, features = ["system-config", "tokio"] }
 libc = "0.2.191"
+pulldown-cmark = { version = "0.13.0", default-features = false, features = ["html"] }
 reqwest = { version = "=0.12.28", default-features = false, features = ["rustls-tls-native-roots", "stream"] }
 futures-util = "0.3.34"
 tokio-util = { version = "0.7.20", features = ["io"] }

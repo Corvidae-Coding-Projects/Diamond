@@ -127,11 +127,9 @@ export fn joined_projects(workspace: Text) -> Result<Text, DataError>:
   Ok(join_text(lines, "\n"))
 
 export fn external_get(path: Text) -> Result<Text, DataError>:
-  let credential = host.secret("inventory")
-  host.http_get<Text>("inventory", path, credential)
+  host.http_get<Text>("inventory", path)
 export fn external_post(path: Text, body: Text) -> Result<Text, DataError>:
-  let credential = host.secret("inventory")
-  host.http_post<Text, Text>("inventory", path, credential, body)
+  host.http_post<Text, Text>("inventory", path, body)
 
 type CommentId = Id<"comment">
 type Comment:

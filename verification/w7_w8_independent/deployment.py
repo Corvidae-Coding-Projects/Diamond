@@ -134,7 +134,7 @@ auth = "token"
             receipt.record("live-readiness-redacted-metrics-" + node,
                 all(item["status"] == 200 for item in decoded.values()) and
                 decoded["ready"]["body"].get("contract") == contract["rpc_id"] and
-                set(decoded["metrics"]["body"]) == {"requests", "active_requests", "active_sockets", "draining"},
+                set(decoded["metrics"]["body"]) == {"requests", "active_requests", "active_sockets", "active_git_transports", "draining"},
                 decoded, "both actual nodes report authoritative readiness and only aggregate redacted counters")
         page = source.request("A", "/")[2].decode()
         assets = sorted(set(re.findall(r'(?:src|href)="(/assets/[^" ]+)"', page)))

@@ -8,12 +8,13 @@ from service import Service,Client,ENV_NAME
 from receiver import Receiver
 PASSWORD='Synthetic W7 W8 browser password 88!'
 def main():
-    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--app',choices=['live-workspace','catalog'],required=True);options=parser.parse_args()
-    root=Path(tempfile.mkdtemp(prefix='diamond-w7-w8-browser-'));s=None;receiver=None
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--app',choices=['live-workspace','catalog'],required=True);parser.add_argument('--browser-host',choices=['127.0.0.1','localhost'],default='127.0.0.1');options=parser.parse_args()
+    workspace=ROOT/'.diamond';workspace.mkdir(mode=0o700,exist_ok=True)
+    root=Path(tempfile.mkdtemp(prefix='diamond-w7-w8-browser-',dir=workspace));s=None;receiver=None
     path=ROOT/f'verification/{options.app}_browser_results.json';report={'app':options.app,'observations':[],'binary_sha256':hashlib.sha256((ROOT/'target/debug/diamond').read_bytes()).hexdigest()}
     try:
         binary=root/'diamond';shutil.copy2(ROOT/'target/debug/diamond',binary);project=root/'project';shutil.copytree(ROOT/'examples'/options.app,project)
-        s=Service(root,binary,project/'diamond.toml');s.ports['A']=39171;s.origin='http://127.0.0.1:39171';s.authority='127.0.0.1:39171'
+        s=Service(root,binary,project/'diamond.toml');s.ports['A']=39171;s.origin='http://'+options.browser_host+':39171';s.authority=options.browser_host+':39171'
         receiver=Receiver();s.runtime['http']={'inventory':{'origin':receiver.origin,'network':'loopback','paths':['/v1/'],'methods':['GET','POST']}}
         if options.app=='catalog':s.runtime.pop('objects')
         s.postgres();s.cli('project-init',s.project,'--postgres-env',ENV_NAME)

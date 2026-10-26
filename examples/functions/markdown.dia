@@ -1,0 +1,9 @@
+# Untrusted rich text becomes typed Html only through the bounded renderer.
+
+fn main() -> Html:
+  let untrusted = "# Diamond\n\n**Safe** rich text. <script>alert(1)</script> [blocked](javascript:alert(2))"
+  html:
+    <main>
+      <h1>Rendered Markdown</h1>
+      {markdown(untrusted)}
+    </main>

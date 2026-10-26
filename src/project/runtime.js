@@ -7,7 +7,7 @@ function __int(v){if(v< -9223372036854775808n||v>9223372036854775807n)throw Erro
 function __text(v){if(typeof v!=='string'||/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/u.test(v)||new TextEncoder().encode(v).length>1048576)throw Error('text budget or Unicode');return v;}
 function __valueWeight(v,d=0){if(d>32)throw Error('value depth');let n=128;const bytes=s=>new TextEncoder().encode(s).length;
  if(typeof v==='string')n+=bytes(__text(v));else if(Array.isArray(v)){if(v.length>1000)throw Error('list length');for(const x of v)n+=__valueWeight(x,d+1);}
- else if(v&&typeof v==='object'){switch(v.$){case'id':n+=bytes(v.name)+bytes(v.value);break;case'record':n+=bytes(v.name);for(const[k,x]of Object.entries(v.fields))n+=128+bytes(k)+__valueWeight(x,d+1);break;case'variant':n+=bytes(v.name)+bytes(v.tag);for(const x of v.fields)n+=__valueWeight(x,d+1);break;case'Ok':case'Some':case'Err':n+=__valueWeight(v.value,d+1);break;case'DataError':n+=bytes(v.value);break;}}
+ else if(v&&typeof v==='object'){switch(v.$){case'id':n+=bytes(v.name)+bytes(v.value);break;case'blob':n+=bytes(v.binding)+bytes(v.id);break;case'stream':n+=bytes(v.channel)+bytes(v.parent);break;case'record':n+=bytes(v.name);for(const[k,x]of Object.entries(v.fields))n+=128+bytes(k)+__valueWeight(x,d+1);break;case'variant':n+=bytes(v.name)+bytes(v.tag);for(const x of v.fields)n+=__valueWeight(x,d+1);break;case'Ok':case'Some':case'Err':n+=__valueWeight(v.value,d+1);break;case'DataError':n+=bytes(v.value);break;}}
  if(n>4194304)throw Error('managed value size');return n;}
 function __check(v){__weight+=__valueWeight(v);if(__weight>67108864)throw Error('managed value work');return v;}
 function __reset(){__fuel=100000;__weight=0;}
@@ -34,8 +34,9 @@ function __builtin(name,a){switch(name){
  case'text_replace':if(a[1]==='')return __text(a[0]===''?a[2]:a[2]+Array.from(a[0]).join(a[2])+a[2]);return __text(a[0].split(a[1]).join(a[2]));
  case'list_append':if(a[0].length>=1000)throw Error('list length');return[...a[0],a[1]];case'list_reverse':return a[0].slice().reverse();
  case'list_slice':{const[s,e]=__range(a[1],a[2],a[0].length);return a[0].slice(s,e);}case'list_get':return a[1]<0n||a[1]>=BigInt(a[0].length)?{$:'None'}:__tag('Some',a[0][Number(a[1])]);
+ case'stream':if(!/^[A-Za-z_][A-Za-z0-9_]*$/.test(a[0])||!/^$|^[A-Za-z0-9_-]{1,128}$/.test(a[1]))throw Error('stream descriptor');return{$:'stream',channel:a[0],parent:a[1]};
  default:throw Error('unknown utility');}}
-const __builtins=new Set(['len','error_message','int_text','id_text','join_text','decimal_units','decimal_text','decimal_add','decimal_subtract','decimal_multiply','decimal_divide','timestamp','duration','time_millis','duration_millis','timestamp_add','timestamp_diff','text_slice','text_contains','text_trim','text_replace','list_append','list_reverse','list_slice','list_get']);
+const __builtins=new Set(['len','error_message','int_text','id_text','join_text','decimal_units','decimal_text','decimal_add','decimal_subtract','decimal_multiply','decimal_divide','timestamp','duration','time_millis','duration_millis','timestamp_add','timestamp_diff','text_slice','text_contains','text_trim','text_replace','list_append','list_reverse','list_slice','list_get','stream']);
 function __variant(name){for(const[n,e]of Object.entries(__program.enums))if(__own(e,name))return[n,e[name]];return null;}
 function __call(name,args,names){if(__builtins.has(name))return __builtin(name,args);
  if(name==='Err')return __tag('Err',typeof args[0]==='string'?{$:'DataError',value:args[0],code:'ApplicationFailure'}:args[0]);if(['Ok','Some'].includes(name))return __tag(name,args[0]);if(name==='None')return {$:'None'};
@@ -67,6 +68,8 @@ function __validate(v,t,d=0){if(d>32)throw Error('type depth');const name=typeof
  switch(name){case'Int':if(typeof v!=='bigint')throw Error('Int type');__int(v);break;case'Bool':if(typeof v!=='boolean')throw Error('Bool type');break;case'Text':__text(v);break;case'BoundedText':__text(v);if(Array.from(v).length<a[0]||Array.from(v).length>a[1])throw Error('Text bounds');break;
  case'Decimal':case'Timestamp':case'Duration':if(!v||v.$!==name)throw Error('numeric type');__int(v.value);break;
  case'Id':if(!v||v.$!=='id'||v.name!==a||typeof v.value!=='string'||!/^[-_A-Za-z0-9]{1,128}$/.test(v.value))throw Error('nominal Id');break;
+ case'Blob':if(!v||v.$!=='blob'||v.binding!==a||typeof v.id!=='string'||!/^[0-9a-f]{64}$/.test(v.id))throw Error('opaque Blob');break;
+ case'Stream':if(!v||v.$!=='stream'||v.channel!==a||typeof v.parent!=='string'||!/^$|^[A-Za-z0-9_-]{1,128}$/.test(v.parent))throw Error('opaque Stream');break;
  case'Unit':if(v.$!=='Unit')throw Error('Unit type');break;
  case'List':if(!Array.isArray(v)||v.length>1000)throw Error('List type');v.forEach(x=>__validate(x,a,d+1));break;
  case'Option':if(!v||!['Some','None'].includes(v.$))throw Error('Option type');if(v.$==='Some')__validate(v.value,a,d+1);break;
@@ -107,23 +110,24 @@ async function __remote(name,args,types,result,ctx){let response,identity=false;
  if(ctx.epoch!==__authEpoch)throw Error('identity changed');if(name==='session/oauth_login'){const target=new URL(value.authorization_url),expected=args[0]==='google'?['https://accounts.google.com','/o/oauth2/v2/auth']:['https://github.com','/login/oauth/authorize'];if(target.origin!==expected[0]||target.pathname!==expected[1]||target.username||target.password||target.hash)throw Error('invalid OAuth destination');location.assign(target.href);return '';}if(value.csrf)__csrf=value.csrf;if(['logout','reset','change_password','logout_all','disable'].some(n=>name==='session/'+n))__csrf='';return __unwire(value.value,result);
  }catch(error){const failure=error.diamondRemote?error:Error('Request interrupted; a mutation may have committed. Refresh before retrying.');if(!error.diamondRemote){failure.diamondRemote=true;failure.uncertain=true;}if(ctx.epoch===__authEpoch&&(identity&&failure.uncertain||failure.lostIdentity))__forgetIdentity(failure);throw failure;}finally{if(identity)__authBusy=false;}}
 async function __files(operation,args,ctx){
- const[binding,id,selector]=args;if(!/^[A-Za-z_][A-Za-z0-9_]*$/.test(binding))throw Error('file binding');
+ const[binding,subject,selector]=args;if(!/^[A-Za-z_][A-Za-z0-9_]*$/.test(binding))throw Error('file binding');
  const base='/_diamond/files/'+binding;
  const active=()=>{if(ctx.epoch!==__authEpoch||ctx.controller.signal.aborted)throw Error('stale upload');};
  const call=async(path,method,body,upload)=>{active();const response=await fetch(path,{method,credentials:'same-origin',cache:'no-store',signal:ctx.controller.signal,headers:{...(method==='GET'?{}:{'Content-Type':body instanceof File?'application/octet-stream':'application/json','X-Diamond-CSRF':__csrf}),...(upload?{'X-Diamond-Upload':upload}:{})},...(method==='GET'?{}:{body:body instanceof File?body:JSON.stringify(body)})});const value=await response.json();if(!response.ok){const error=Error('File request rejected. Refresh before retrying.');error.diamondRemote=true;error.uncertain=response.status>=500;error.lostIdentity=response.status===401;throw error;}active();return value;};
  if(operation==='upload'){
   const input=document.getElementById(selector);if(!(input instanceof HTMLInputElement)||input.type!=='file'||input.files.length!==1)throw Error('Select one file first.');
   const file=input.files[0];if(file.size>8388608)throw Error('File exceeds 8 MiB.');
-  const reserved=await call(base+'/begin','POST',{parent:id,filename:file.name,length:String(file.size),media_type:file.type});
+  const reserved=await call(base+'/begin','POST',{parent:subject,filename:file.name,length:String(file.size),media_type:file.type});
   if(!/^[0-9a-f]{64}$/.test(reserved.id)||!/^[0-9a-f]{64}$/.test(reserved.upload))throw Error('upload reservation');
   await call(base+'/'+reserved.id,'PUT',file,reserved.upload);
   const ready=await call(base+'/'+reserved.id+'/finish','POST',{},reserved.upload);
-  if(ready.state!=='ready'||ready.id!==reserved.id)throw Error('upload publication');input.value='';return ready.id;
+  if(ready.state!=='ready'||ready.id!==reserved.id)throw Error('upload publication');input.value='';return{$:'blob',binding,id:ready.id};
  }
+ const reference=subject;__validate(reference,{Blob:binding});const id=reference.id;
  if(!/^[0-9a-f]{64}$/.test(id))throw Error('attachment id');
  if(operation==='status')return JSON.stringify(await call(base+'/'+id+'/status','GET'));
- if(operation==='delete'){await call(base+'/'+id+'/delete','POST',{});return '';}
- if(operation==='download'){active();const link=document.createElement('a');link.href=base+'/'+id;link.download='attachment.bin';link.click();return id;}
+ if(operation==='delete'){await call(base+'/'+id+'/delete','POST',{});return{$:'None'};}
+ if(operation==='download'){active();const link=document.createElement('a');link.href=base+'/'+id;link.download='attachment.bin';link.click();return reference;}
  throw Error('file operation');
 }
 function __clearSelectedFiles(){for(const input of document.querySelectorAll('input[type=file]'))input.value='';}
@@ -140,7 +144,7 @@ function __tree(){const seen=new Map(),updates=new Map(),watches=new Map();let c
   else if(n.When){if(__eval(n.When[0].ast,env))out.push(...nodes(n.When[1],env,id,f));}
   else if(n.Route){if(location.pathname===n.Route[0])out.push(...nodes(n.Route[1],env,id,f));}
   else if(n.Each){const e=n.Each,values=__eval(e.items.ast,env),keys=new Set();if(values.length>1000)throw Error('list length');for(const v of values){const nested=Object.assign(__dict(),env,{[e.binding]:v}),key=encodeURIComponent(__key(__eval(e.key.ast,nested)));if(keys.has(key))throw Error('duplicate key');keys.add(key);out.push({tag:'diamond-fragment',attrs:{},children:nodes(e.children,nested,id+'/'+key,f),key:id+'/'+key});}}
-  else if(n.Watch){const w=n.Watch;watches.set(id,{...w,parent:__eval(w.parent.ast,env),frame:f});}
+  else if(n.Watch){const w=n.Watch,stream=__eval(w.stream.ast,env);__validate(stream,w.stream.ty);watches.set(id,{...w,channel:stream.channel,parent:stream.parent,frame:f});}
   else if(n.Use){const props=__dict();for(const[property,expression]of n.Use.properties)props[property]=__eval(expression.ast,env);out.push(frame(n.Use.component,props,id));}
   else if(n.Element){const e=n.Element,attrs=__dict(),events=__dict();let binding=null,checked=null;for(const[n,a]of e.attributes){if(a.Event)events[n]=a.Event;else if(a.Binding){binding=a.Binding;attrs.value=env[binding];}else if(a.Checked){checked=a.Checked;attrs.checked=env[checked];}else attrs[n]=__own(a,'Text')?a.Text:__string(__eval(a.Value.ast,env));}if(['diamond-app','diamond-error'].includes(attrs.id))throw Error('reserved component id');let childNodes=nodes(e.children,env,id,f);if(e.tag==='select'){childNodes=childNodes.map(v=>v.tag==='option'?{...v,attrs:{...v.attrs,selected:v.attrs.value===attrs.value}}:v);}out.push({tag:e.tag,attrs,events,binding,checked,frame:f,children:e.tag==='textarea'?(attrs.value===''?[]:[{text:attrs.value,key:id+'/value'}]):childNodes,key:id});}
  }return __compact(out);}
@@ -210,7 +214,7 @@ function __closeWatches(){for(const w of __watches.values()){w.closed=true;clear
 function __syncWatches(desired){
  for(const[id,w]of __watches){const d=desired.get(id);if(!d||d.frame!==w.frame||d.parent!==w.parent||d.channel!==w.channel||w.epoch!==__authEpoch||__authBusy){w.closed=true;clearTimeout(w.timer);w.socket?.close();__watches.delete(id);}}
  if(__authBusy||!__alive)return;
- for(const[id,d]of desired){if(!/^[A-Za-z0-9_-]{1,128}$/.test(d.parent))continue;let w=__watches.get(id);if(!w){w={...d,epoch:__authEpoch,closed:false,tries:0,pending:null,timer:null,socket:null};__watches.set(id,w);__openWatch(id,w);}if(w.pending&&!w.frame.pending)__applyWatch(w);}
+ for(const[id,d]of desired){if(d.parent==='')continue;if(!/^[A-Za-z0-9_-]{1,128}$/.test(d.parent))throw Error('opaque Stream');let w=__watches.get(id);if(!w){w={...d,epoch:__authEpoch,closed:false,tries:0,pending:null,timer:null,socket:null};__watches.set(id,w);__openWatch(id,w);}if(w.pending&&!w.frame.pending)__applyWatch(w);}
 }
 function __applyWatch(w){if(w.closed||!w.frame.active||w.epoch!==__authEpoch||w.frame.pending||!w.pending)return;const message=w.pending;w.pending=null;try{const value=__unwire(message.value,w.payload),previous=w.frame.state;w.frame.state=Object.assign(__dict(),previous,{[w.into]:value,[w.cursor]:message.cursor});try{__render();}catch(error){w.frame.state=previous;throw error;}}catch(error){w.closed=true;w.socket?.close();__fail(w.frame,error);}}
 function __openWatch(id,w){if(w.closed||!w.frame.active||w.epoch!==__authEpoch)return;let cursor=w.frame.state[w.cursor];if(!/^(0|[1-9][0-9]{0,18})$/.test(cursor)){w.closed=true;__fail(w.frame,Error('Invalid live event cursor.'));return;}

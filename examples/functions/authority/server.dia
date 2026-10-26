@@ -11,6 +11,12 @@ type Document:
 type NewDocument:
   title: Text<length: 1..120>
 
+enum DocumentFlow:
+  Queued
+  Waiting
+  Completed(message: Text)
+  Cancelled
+
 resource Documents: Document
 
 policy Documents:
@@ -30,16 +36,18 @@ export fn create_document(title: Text<length: 1..120>) -> Result<Text, DataError
   let row = documents.create(NewDocument(title: title))?
   Ok(id_text(row.id))
 
+export fn document_graph(after: Text, limit: Int) -> Result<List<Document>, DataError>:
+  documents.page(order: "id", descending: false, after: after, limit: limit)
+
 export fn postgres_info() -> Text:
   let version = host.postgres_version()
   host.postgres_echo("PostgreSQL " + version)
 
 export fn external_get(path: Text) -> Result<Text, DataError>:
-  let credential = host.secret("inventory")
-  host.http_get<Text>("inventory", path, credential)
+  host.http_get<Text>("inventory", path)
 
 export fn external_post(path: Text, body: Text) -> Result<Text, DataError>:
-  host.http_post<Text, Text>("inventory", path, host.secret("inventory"), body)
+  host.http_post<Text, Text>("inventory", path, body)
 
 export fn start_job(parent: Text, payload: Text, key: Text) -> Result<Text, DataError>:
   host.job_submit<Text>("process", parent, payload, key)
@@ -53,5 +61,41 @@ export fn cancel_job(id: Text) -> Result<Text, DataError>:
 export fn publish_event(parent: Text, payload: Text) -> Result<Text, DataError>:
   host.event_emit<Text>("document_changes", parent, payload)
 
+export fn notify_document(parent: Text, recipient: Text, body: Text, key: Text) -> Result<Text, DataError>:
+  host.mail_submit("document_mail", parent, recipient, "notice", body, key)
+
+export fn mail_status(id: Text) -> Result<Text, DataError>:
+  host.mail_status("document_mail", id)
+
+export fn cancel_mail(id: Text) -> Result<Text, DataError>:
+  host.mail_cancel("document_mail", id)
+
+export fn set_mail_suppression(suppressed: Bool) -> Result<Text, DataError>:
+  host.mail_suppress("document_mail", suppressed)
+
+export fn start_document_flow(parent: Text, input: Text, key: Text) -> Result<Text, DataError>:
+  host.workflow_submit<Text>("document_flow", parent, input, key)
+
+export fn document_flow_status(id: Text) -> Result<Text, DataError>:
+  host.workflow_status("document_flow", id)
+
+export fn document_flow_state(id: Text) -> Result<DocumentFlow, DataError>:
+  host.workflow_state<DocumentFlow>("document_flow", id)
+
+export fn cancel_document_flow(id: Text) -> Result<Text, DataError>:
+  host.workflow_cancel("document_flow", id)
+
+export fn advance_document_flow(parent: Text, input: Text, state: DocumentFlow) -> Result<DocumentFlow, DataError>:
+  let document = documents.get(DocumentId(parent))?
+  match state:
+    Queued => Ok(Waiting)
+    Waiting => Ok(Completed(input))
+    Completed(message) => Ok(Completed(message))
+    Cancelled => Ok(Cancelled)
+
+export fn compensate_document_flow(parent: Text, input: Text, state: DocumentFlow) -> Result<Text, DataError>:
+  let document = documents.get(DocumentId(parent))?
+  Ok("compensated")
+
 export fn process(parent: Text, payload: Text) -> Result<Text, DataError>:
-  host.http_post<Text, Text>("inventory", "/v1/dedup/" + host.job_key(), host.secret("inventory"), parent + ": " + payload)
+  host.http_post<Text, Text>("inventory", "/v1/dedup/" + host.job_key(), parent + ": " + payload)

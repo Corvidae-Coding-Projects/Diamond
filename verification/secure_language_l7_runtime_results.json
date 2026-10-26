@@ -1,0 +1,113 @@
+{
+  "binary_sha256": "e6838961e499c1c2d5ba0fd956b0c5401464fb87ecf200401542dbdd7edb4318",
+  "cleanup_errors": [],
+  "fatal": null,
+  "observations": [
+    {
+      "expected": "contract exposes the exact selected fields and every enforced budget",
+      "name": "artifact-publishes-query-budget",
+      "observed": {
+        "query": {
+          "cursor_argument": "after",
+          "limit_argument": "limit",
+          "max_cost": 40,
+          "max_depth": 1,
+          "max_nodes": 40,
+          "max_queries": 1,
+          "max_response_bytes": 32768,
+          "max_rows": 10,
+          "resources": [
+            "Documents"
+          ],
+          "selection": [
+            "id",
+            "owner",
+            "title"
+          ],
+          "timeout_ms": 5000
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "single checked query returns no more than the requested rows and exactly its declared fields",
+      "name": "row-selection-and-request-limit",
+      "observed": {
+        "rows": [
+          {
+            "id": {
+              "tag": "document",
+              "value": "239968d92e9a91ba367f4eec52f3bc07d23cf5224934b1f991093f705bf1626f"
+            },
+            "owner": {
+              "tag": "user",
+              "value": "alice"
+            },
+            "title": "Alice two"
+          },
+          {
+            "id": {
+              "tag": "document",
+              "value": "c3cba5f86c5c8c6c862cb662de4a682bbf8aab599a1a350e5fb3d56f0b285a83"
+            },
+            "owner": {
+              "tag": "user",
+              "value": "alice"
+            },
+            "title": "Alice one"
+          }
+        ]
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "the same query document executes under the current principal's resource read policy",
+      "name": "policy-is-pushed-into-base-resource",
+      "observed": {
+        "rows": [
+          {
+            "id": {
+              "tag": "document",
+              "value": "96c2f2afa3f9f62fe65cca3a570693d28e6291632fbf7b45835d02ed665e7329"
+            },
+            "owner": {
+              "tag": "user",
+              "value": "bob"
+            },
+            "title": "Bob only"
+          }
+        ]
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "requests outside the declared row/cursor bounds or canonical Int codec never execute the plan",
+      "name": "runtime-cursor-row-and-codec-bounds",
+      "observed": {
+        "codec_status": 400,
+        "cursor_status": 400,
+        "row_status": 400
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "query document retains the same authenticated RPC boundary",
+      "name": "query-does-not-bypass-rpc-authentication",
+      "observed": {
+        "status": 403
+      },
+      "status": "PASS"
+    }
+  ],
+  "scope": "Disposable loopback HTTP, owned PostgreSQL, and real authenticated RPC; no Internet destination.",
+  "shutdowns": [
+    {
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "node": "A",
+      "panic": false
+    }
+  ],
+  "status": "PASS"
+}

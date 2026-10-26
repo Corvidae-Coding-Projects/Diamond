@@ -398,6 +398,24 @@ enrollment = "open"
 providers = ["google", "github"]
 admission = "public"
 
+[secrets.webhook_bearer]
+adapter = "http"
+binding = "webhook"
+kind = "bearer"
+audience = "webhook"
+
+[secrets.google_oauth_client]
+adapter = "oauth"
+binding = "google"
+kind = "oauth_client"
+audience = "google"
+
+[secrets.github_oauth_client]
+adapter = "oauth"
+binding = "github"
+kind = "oauth_client"
+audience = "github"
+
 [http_api]
 version = 1
 

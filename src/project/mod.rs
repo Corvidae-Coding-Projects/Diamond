@@ -14,13 +14,17 @@ pub(crate) mod git;
 mod identity;
 mod jobs;
 mod lower;
+pub(crate) mod mail;
 pub(crate) mod operations;
+mod queries;
 mod render;
 pub(crate) mod resolve;
 mod rpc;
+mod secrets;
 mod server;
 pub(crate) mod storage;
 pub(crate) mod wire;
+mod workflows;
 
 use crate::authority::{Effect, Effects, Principal, Scope};
 use crate::error::{Error, Result};
@@ -94,6 +98,14 @@ struct Manifest {
     jobs: BTreeMap<String, jobs::Binding>,
     #[serde(default)]
     events: BTreeMap<String, events::Binding>,
+    #[serde(default)]
+    mail: Option<mail::Config>,
+    #[serde(default)]
+    workflows: BTreeMap<String, workflows::Binding>,
+    #[serde(default)]
+    secrets: BTreeMap<String, secrets::SecretUse>,
+    #[serde(default)]
+    queries: BTreeMap<String, queries::Config>,
 }
 
 #[derive(Clone, Debug)]
@@ -124,6 +136,8 @@ pub struct CheckedProject {
     rpc: BTreeMap<String, rpc::Operation>,
     api: BTreeMap<String, api::Operation>,
     jobs: BTreeMap<String, rpc::Operation>,
+    workflows: BTreeMap<String, workflows::Operations>,
+    queries: BTreeMap<String, queries::Plan>,
 }
 
 /// Read and check a bounded project without opening a database or listener.
@@ -548,6 +562,20 @@ impl CheckedProject {
         files::maintain(self, configuration, grants, initialize)
     }
 
+    /// Bind every declared mail outbox to a private runtime delivery directory.
+    ///
+    /// # Errors
+    /// Rejects absent bindings, unsafe roots, reused store identities, or
+    /// incompatible database metadata.
+    pub fn initialize_mail(
+        &self,
+        configuration: &str,
+        grants: &crate::RuntimeGrants,
+    ) -> Result<String> {
+        synchronous_context()?;
+        mail::initialize(self, configuration, grants)
+    }
+
     /// Bind every declared Git repository store to this application.
     ///
     /// The private roots and fixed Git executables come from native runtime grants;
@@ -871,7 +899,9 @@ fn compile_sources(
         }
     }
     let api = api::operations(&manifest, &modules, &server)?;
+    let queries = queries::checked(&manifest, &modules, &server, &rpc)?;
     let jobs = jobs::checked(&manifest, &modules, &server)?;
+    let workflows = workflows::checked(&manifest, &modules, &server)?;
     events::checked(&manifest, &modules, &server)?;
     let browser_names = resolve::reachable(&manifest.browser, &manifest.modules);
     let browser_source = combined(&modules, &browser_names);
@@ -918,6 +948,8 @@ fn compile_sources(
         rpc,
         api,
         jobs,
+        workflows,
+        queries,
     })
 }
 
@@ -1009,11 +1041,8 @@ fn check_server(manifest: &Manifest, modules: &BTreeMap<String, Module>) -> Resu
         .get("main")
         .ok_or_else(|| input("missing server main"))?;
     source.declarations.push(entry_wrapper(&source, entry)?);
-    let grants = manifest
-        .provides
-        .iter()
-        .map(|name| capability_effect(name))
-        .collect::<Result<Effects>>()?;
+    secrets::check(manifest)?;
+    let grants = project_grants(manifest)?;
     let mut storage = manifest.storage.clone();
     if let Some(storage) = &mut storage {
         for join in storage.joins.values_mut() {
@@ -1063,10 +1092,11 @@ fn check_server(manifest: &Manifest, modules: &BTreeMap<String, Module>) -> Resu
     if let Some(config) = &manifest.operations {
         config.check(manifest, &server)?;
     }
+    if let Some(config) = &manifest.mail {
+        config.check(manifest, &server)?;
+    }
     check_effect_boundaries(&server)?;
-    if !wire::safe_type(&server.functions["main"].result, &server)
-        && contains_secret(&server.functions["main"].result, &server, 0)
-    {
+    if crate::security::type_security(&server.functions["main"].result, &server).contains_secret {
         return Err(input("opaque secrets cannot escape the server entry"));
     }
     for name in &names {
@@ -1159,6 +1189,60 @@ fn durable_bindings(
             .unwrap_or_else(|| t.into());
         durable.insert(format!("events/{name}"), (b.resource.clone(), ty));
     }
+    if let Some(config) = &manifest.mail {
+        for (name, binding) in &config.bindings {
+            durable.insert(
+                format!("mail/{name}"),
+                (binding.resource.clone(), "Text".into()),
+            );
+            for template in binding.templates.keys() {
+                durable.insert(
+                    format!("mail/{name}/{template}"),
+                    (binding.resource.clone(), "Text".into()),
+                );
+            }
+        }
+    }
+    for (name, binding) in &manifest.workflows {
+        let (module, function) = binding
+            .function
+            .split_once('.')
+            .ok_or_else(|| input("workflow function requires module.function"))?;
+        let function = modules
+            .get(module)
+            .and_then(|module| module.symbols.get(function))
+            .ok_or_else(|| input("unknown workflow handler"))?;
+        durable.insert(
+            format!("workflows/{name}"),
+            (binding.resource.clone(), function.clone()),
+        );
+        let (state_module, state_name) = binding.state.split_once('.').map_or(
+            (manifest.server.as_str(), binding.state.as_str()),
+            |parts| parts,
+        );
+        let state = modules
+            .get(state_module)
+            .and_then(|module| {
+                module.symbols.get(state_name).cloned().or_else(|| {
+                    module
+                        .parsed
+                        .program
+                        .declarations
+                        .iter()
+                        .find_map(|declaration| match declaration {
+                            Declaration::Enum(enumeration) if enumeration.name == state_name => {
+                                Some(enumeration.name.clone())
+                            }
+                            _ => None,
+                        })
+                })
+            })
+            .ok_or_else(|| input("workflow state must name a declared enum"))?;
+        durable.insert(
+            format!("workflow-states/{name}"),
+            (binding.resource.clone(), state),
+        );
+    }
     Ok(durable)
 }
 
@@ -1170,7 +1254,7 @@ fn capability_effect(name: &str) -> Result<Effect> {
     {
         return Ok(Effect::Host(name.into()));
     }
-    if ["PostgresRead", "Jobs", "Events", "JobKey"].contains(&name) {
+    if ["PostgresRead", "Jobs", "Events", "JobKey", "Workflows"].contains(&name) {
         return Ok(Effect::Host(name.into()));
     }
     if [
@@ -1182,6 +1266,7 @@ fn capability_effect(name: &str) -> Result<Effect> {
         "DeliveryWrite<",
         "OpsRead<",
         "OpsAdmin<",
+        "Mail<",
     ]
     .iter()
     .any(|prefix| {
@@ -1203,6 +1288,22 @@ fn capability_effect(name: &str) -> Result<Effect> {
         }
     }
     Err(input("unknown application capability"))
+}
+
+fn project_grants(manifest: &Manifest) -> Result<Effects> {
+    let mut grants = manifest
+        .provides
+        .iter()
+        .map(|name| capability_effect(name))
+        .collect::<Result<Effects>>()?;
+    grants.extend(
+        manifest
+            .secrets
+            .values()
+            .filter(|secret| secret.adapter == "http")
+            .map(|secret| Effect::Host(format!("SecretHttp<{}>", secret.binding))),
+    );
+    Ok(grants)
 }
 
 fn entry_wrapper(source: &Program, entry: &str) -> Result<Declaration> {
@@ -1271,30 +1372,4 @@ fn source_error(path: &str, error: Error) -> Error {
 }
 fn input(message: &str) -> Error {
     Error::Input(message.into())
-}
-
-fn contains_secret(ty: &crate::value::Type, p: &CheckedProgram, depth: usize) -> bool {
-    use crate::value::Type;
-    if depth > 32 {
-        return true;
-    }
-    match ty {
-        Type::Secret(_) => true,
-        Type::List(t) | Type::Option(t) | Type::Result(t) | Type::Success(t) => {
-            contains_secret(t, p, depth + 1)
-        }
-        Type::AppResult(t, e) => {
-            contains_secret(t, p, depth + 1) || contains_secret(e, p, depth + 1)
-        }
-        Type::Record(n) => p.records[n]
-            .fields
-            .values()
-            .any(|f| contains_secret(&f.ty, p, depth + 1)),
-        Type::Enum(n) => p.enums[n]
-            .variants
-            .values()
-            .flatten()
-            .any(|(_, t)| contains_secret(t, p, depth + 1)),
-        _ => false,
-    }
 }

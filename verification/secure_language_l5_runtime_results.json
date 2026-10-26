@@ -1,0 +1,150 @@
+{
+  "binary_sha256": "3f0f93994fa01e8084e521651ee33598abe8d3fa7f4798aefd58075518b03bee",
+  "cleanup_errors": [],
+  "fatal": null,
+  "observations": [
+    {
+      "expected": "same owner/input/scope returns stable ID and changed reuse conflicts",
+      "name": "content-bound-idempotent-submission",
+      "observed": {
+        "changed_status": 409,
+        "same_id": true
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "one typed transition waits on database time and the next exposes a typed terminal state",
+      "name": "typed-state-timer-and-terminal-output",
+      "observed": {
+        "completed": {
+          "attempts": 0,
+          "due": true,
+          "id": "881bc976d7bb87177ebd13e896659f76b9a18f958f0112f3324d927de60e3822",
+          "outcome": "terminal:Completed",
+          "state_value": "{\"fields\":[\"typed output\"],\"tag\":\"Completed\"}",
+          "status": "completed",
+          "transitions": 2
+        },
+        "status": {
+          "attempts": 0,
+          "outcome": "terminal:Completed",
+          "status": "completed",
+          "transitions": 2
+        },
+        "typed": [
+          200,
+          {
+            "value": {
+              "fields": [
+                "typed output"
+              ],
+              "tag": "Completed"
+            }
+          }
+        ],
+        "waiting": {
+          "attempts": 0,
+          "due": false,
+          "id": "881bc976d7bb87177ebd13e896659f76b9a18f958f0112f3324d927de60e3822",
+          "outcome": "advanced",
+          "state_value": "{\"fields\":[],\"tag\":\"Waiting\"}",
+          "status": "waiting",
+          "transitions": 1
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "progress does not make an identical original submission conflict",
+      "name": "idempotency-survives-state-advance",
+      "observed": {
+        "same_id": true
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "cancel request is fenced and reaches cancelled only after compensation commits",
+      "name": "fenced-cancel-and-compensation",
+      "observed": {
+        "cancel_status": 200,
+        "execution": {
+          "attempts": 1,
+          "due": true,
+          "id": "315a376886199931e7100cc003a0e1afb5cfabd868d8ae785cbeb72bf0f57551",
+          "outcome": "cancelled",
+          "state_value": "{\"fields\":[],\"tag\":\"Queued\"}",
+          "status": "cancelled",
+          "transitions": 0
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "advisory serialization admits exactly one active execution per binding and parent",
+      "name": "parent-concurrency-is-atomic",
+      "observed": {
+        "statuses": [
+          200,
+          409
+        ]
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "disabled owner cannot execute captured work or mutate its parent",
+      "name": "each-transition-reacquires-current-authority",
+      "observed": {
+        "disable_status": 200,
+        "execution": {
+          "attempts": 1,
+          "due": false,
+          "id": "16aee125dedbe215a920adcc7e0708480177eceaab97710a337ce9c6a5839611",
+          "outcome": "denied_or_exhausted",
+          "state_value": "{\"fields\":[],\"tag\":\"Queued\"}",
+          "status": "dead",
+          "transitions": 0
+        }
+      },
+      "status": "PASS"
+    }
+  ],
+  "scope": "Disposable loopback HTTP, owned PostgreSQL, real server and worker; no Internet effects.",
+  "shutdowns": [
+    {
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false,
+      "worker": "workflow-complete"
+    },
+    {
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false,
+      "worker": "workflow-cancel"
+    },
+    {
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false,
+      "worker": "workflow-race-cleanup"
+    },
+    {
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false,
+      "worker": "workflow-disabled"
+    },
+    {
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "node": "A",
+      "panic": false
+    }
+  ],
+  "status": "PASS"
+}

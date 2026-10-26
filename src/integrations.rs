@@ -28,6 +28,8 @@ struct Configuration {
     #[serde(default)]
     operations: BTreeMap<String, OperationsGrant>,
     #[serde(default)]
+    mail: BTreeMap<String, MailGrant>,
+    #[serde(default)]
     http: BTreeMap<String, Destination>,
 }
 
@@ -73,6 +75,12 @@ pub(crate) struct DeliveryGrant {
 #[serde(deny_unknown_fields)]
 pub(crate) struct OperationsGrant {
     pub(crate) root: PathBuf,
+}
+#[derive(Clone, Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub(crate) struct MailGrant {
+    pub(crate) root: PathBuf,
+    pub(crate) from: String,
 }
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -120,6 +128,7 @@ pub struct RuntimeGrants {
     pub(crate) git: BTreeMap<String, GitGrant>,
     pub(crate) delivery: BTreeMap<String, DeliveryGrant>,
     pub(crate) operations: BTreeMap<String, OperationsGrant>,
+    pub(crate) mail: BTreeMap<String, MailGrant>,
     pub(crate) oauth: Option<OAuthRuntime>,
     destinations: BTreeMap<String, Destination>,
 }
@@ -224,6 +233,7 @@ impl RuntimeGrants {
             git: config.git,
             delivery: config.delivery,
             operations: config.operations,
+            mail: config.mail,
             oauth,
             destinations: config.http,
         })
@@ -234,6 +244,17 @@ impl RuntimeGrants {
         } else {
             Err(Error::Denied)
         }
+    }
+    pub(crate) fn has_http_credential(&self, name: &str) -> bool {
+        self.destinations
+            .get(name)
+            .is_some_and(|destination| destination.credential.is_some())
+    }
+    pub(crate) fn has_oauth_client(&self, provider: &str) -> bool {
+        self.oauth
+            .as_ref()
+            .and_then(|oauth| oauth.client(provider))
+            .is_some()
     }
     pub(crate) fn secret(&self, name: &str) -> Result<Value> {
         let d = self.destinations.get(name).ok_or(Error::Denied)?;
@@ -330,7 +351,20 @@ fn validate_native_grants(config: &Configuration) -> Result<()> {
         || config.operations.iter().any(|(name, grant)| {
             !crate::project::resolve::identifier(name) || !grant.root.is_absolute()
         });
-    if invalid_git || invalid_delivery || invalid_operations {
+    let invalid_mail = config.mail.len() > 16
+        || config.mail.iter().any(|(name, grant)| {
+            !crate::project::resolve::identifier(name)
+                || !grant.root.is_absolute()
+                || crate::project::mail::address(&grant.from).is_err()
+        })
+        || config
+            .mail
+            .values()
+            .map(|grant| &grant.root)
+            .collect::<BTreeSet<_>>()
+            .len()
+            != config.mail.len();
+    if invalid_git || invalid_delivery || invalid_operations || invalid_mail {
         Err(invalid())
     } else {
         Ok(())

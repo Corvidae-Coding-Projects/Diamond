@@ -114,6 +114,14 @@ fn api_work(
         wire::strict_from_slice(body).map_err(|_| input("invalid API envelope"))?;
     let op = &server.project.api[name];
     let args = decode(&op.rpc, &envelope.arguments, &server.project)?;
+    let query = server
+        .project
+        .queries
+        .iter()
+        .find_map(|(query_name, plan)| {
+            (server.project.rpc[query_name].function == op.rpc.function).then_some(plan)
+        });
+    let requested = query.map(|plan| plan.check_arguments(&args)).transpose()?;
     let mut store = PostgresStore::open_with(
         &server.project,
         &server.secrets.configuration,
@@ -142,7 +150,11 @@ fn api_work(
         &scope,
         &mut store,
         &server.runtime,
+        query.map(super::super::queries::Plan::max_queries),
     )?;
+    if let (Some(plan), Some(requested)) = (query, requested) {
+        plan.check_result(&value, requested)?;
+    }
     Ok(json!({"api_version":1,"value":value}))
 }
 pub(super) fn account_work(
@@ -239,11 +251,15 @@ pub(super) fn invoke(
     scope: &Scope<'_>,
     store: &mut PostgresStore,
     runtime: &crate::RuntimeGrants,
+    query_limit: Option<usize>,
 ) -> Result<Json> {
-    let result = crate::eval::Interpreter::new(&project.server, scope, None, None)
+    let mut interpreter = crate::eval::Interpreter::new(&project.server, scope, None, None)
         .with_postgres(store)
-        .with_integrations(runtime)
-        .function(&op.function, args);
+        .with_integrations(runtime);
+    if let Some(limit) = query_limit {
+        interpreter = interpreter.with_query_limit(limit);
+    }
+    let result = interpreter.function(&op.function, args);
     if matches!(op.result, crate::value::Type::AppResult(..)) {
         let result = result.and_then(|v| match v.0 {
             crate::value::ValueKind::AppErr(e) => Err(Error::Application(*e)),

@@ -122,6 +122,7 @@ pub(super) fn serve_runtime(
     super::git::validate(project, configuration, &runtime)?;
     super::delivery::validate(project, configuration, &runtime)?;
     super::operations::validate(project, configuration, &runtime)?;
+    super::secrets::validate_runtime(project, &runtime)?;
     oauth::validate_runtime(project, &runtime)?;
     let authority = check_origin(origin)?;
     let mailbox = match (&project.manifest.identity, mailbox) {
@@ -627,6 +628,10 @@ fn work(
         return Err(Error::Denied);
     }
     let op = &server.project.rpc[name];
+    let query = server.project.queries.get(name);
+    let requested = query
+        .map(|plan| plan.check_arguments(decoded.as_deref().ok_or(Error::Denied)?))
+        .transpose()?;
     let grants = &server.project.server.functions[&op.function].effects;
     let scope = Scope::new(&principal, grants);
     let value = profiles::invoke(
@@ -636,7 +641,11 @@ fn work(
         &scope,
         &mut store,
         &server.runtime,
+        query.map(super::queries::Plan::max_queries),
     )?;
+    if let (Some(plan), Some(requested)) = (query, requested) {
+        plan.check_result(&value, requested)?;
+    }
     Ok((json!({"value":value}), None))
 }
 

@@ -1,0 +1,90 @@
+{
+  "status": "PASS",
+  "binary_sha256": "91c6ad57530343be10bec2e8c01ff20fa36395e9a305c39cd93dcc34694f0e72",
+  "results": [
+    {
+      "name": "valid-real-job-and-event-calls",
+      "status": "PASS",
+      "expected": "accept valid declared handlers and generic calls",
+      "exit": 0,
+      "stdout": "project IndependentJobsLiveRecovery: 2 modules; server server; browser ui / App; capabilities {\"DbRead<Globals>\", \"DbRead<Issues>\", \"DbRead<Projects>\", \"DbWrite<Issues>\", \"Events\", \"Http<inventory>\", \"JobKey\", \"Jobs\"}",
+      "stderr": ""
+    },
+    {
+      "name": "unknown-static-job-binding",
+      "status": "PASS",
+      "expected": "reject checked boundary violation",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: server.dia: D310 at 155:3: unknown durable binding"
+    },
+    {
+      "name": "wrong-job-payload-type",
+      "status": "PASS",
+      "expected": "reject checked boundary violation",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: server.dia: D310 at 155:3: payload type differs from declared binding"
+    },
+    {
+      "name": "unknown-static-event-binding",
+      "status": "PASS",
+      "expected": "reject checked boundary violation",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: server.dia: D310 at 173:15: unknown durable binding"
+    },
+    {
+      "name": "wrong-event-payload-type",
+      "status": "PASS",
+      "expected": "reject checked boundary violation",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: server.dia: D310 at 173:15: payload type differs from declared binding"
+    },
+    {
+      "name": "external-cannot-claim-transactional-delivery",
+      "status": "PASS",
+      "expected": "reject checked boundary violation",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: external job handlers require delivery=deduplicated and a receiver-side stable job key"
+    },
+    {
+      "name": "handler-cannot-enqueue-recursively",
+      "status": "PASS",
+      "expected": "reject checked boundary violation",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: handler effects exceed its explicit grants; recursive job submission is prohibited"
+    },
+    {
+      "name": "handler-missing-parent-write-authority",
+      "status": "PASS",
+      "expected": "reject checked boundary violation",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: handler effects exceed its explicit grants; recursive job submission is prohibited"
+    },
+    {
+      "name": "zero-attempt-bound",
+      "status": "PASS",
+      "expected": "reject checked boundary violation",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: job handler requires (parent: Text, payload: wire-safe type) -> Result<Text, DataError>, a known parent resource and 1..8 attempts"
+    },
+    {
+      "name": "unbounded-attempt-count",
+      "status": "PASS",
+      "expected": "reject checked boundary violation",
+      "exit": 1,
+      "stdout": "",
+      "stderr": "error: invalid input: job handler requires (parent: Text, payload: wire-safe type) -> Result<Text, DataError>, a known parent resource and 1..8 attempts"
+    }
+  ],
+  "source_sha256": {
+    "checker.py": "fa2af8f0cabf2096639defa2f5a172e18f2d452b88cbed98262def0c4fbcaeea",
+    "fixture.py": "07c8b348a9ac45afddd358d2faf6d27733f34aa760374384d412909f2b1f75de"
+  }
+}

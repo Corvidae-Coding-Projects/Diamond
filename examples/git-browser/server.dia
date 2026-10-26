@@ -1187,7 +1187,7 @@ export fn deliver_webhook(webhook: Text, event_id: Text<length: 1..128>, payload
   let hook = webhooks.get(WebhookId(webhook))?
   match hook.active:
     false => Err("Webhook is disabled.")
-    true => host.http_post<Text, Text>("webhook", hook.path, host.secret("webhook"), event_id + ":" + payload)
+    true => host.http_post<Text, Text>("webhook", hook.path, event_id + ":" + payload)
 
 export fn collaboration_dashboard(organization: Text, repository: Text) -> Result<CollaborationDashboard, DataError>:
   let team_rows = teams.select(organization: OrganizationId(organization), limit: 100)?

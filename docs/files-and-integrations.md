@@ -97,19 +97,26 @@ The browser API is restricted to event expressions:
 
 ```diamond
 on upload:
-  attachment = files.upload("issue_files", selected_issue, "chosen_file")
-  status = files.status("issue_files", attachment)
+  attachment = Some(files.upload("issue_files", selected_issue, "chosen_file"))
 on download:
-  attachment = files.download("issue_files", attachment)
+  attachment = match attachment:
+    Some(file) => Some(files.download("issue_files", file))
+    None => None
 on remove:
-  attachment = files.delete("issue_files", attachment)
+  attachment = match attachment:
+    Some(file) => files.delete("issue_files", file)
+    None => None
 ```
 
 Use `<input id="chosen_file" type="file">` without text bindings, `value`, or
-multiple selection. Bindings and input IDs are static literals; parent/attachment
-IDs are ordinary Text validated by the server. A successful upload returns the
-attachment ID after publication. Status returns metadata as JSON Text; deletion
-returns empty Text. Download invokes the browser's native attachment download.
+multiple selection. Bindings and input IDs are static literals; parent IDs are
+ordinary Text validated by the server. Component state stores the result as
+`Option<Blob<"issue_files">>`. A successful upload returns that nominal, opaque
+value only after publication. It has no source constructor, display, comparison,
+persistence, or generic RPC representation. Status returns metadata as JSON Text;
+deletion returns `None`; download returns the same opaque value while invoking the
+browser's native attachment download. Every native use rechecks the current
+principal and parent policy, so a Blob carries identity, not authority.
 The runtime retains the selected native File and upload ticket internally; neither
 is a Diamond value. Identity changes clear file selections. Stale event generations
 cannot apply an old response to current component state. No automatic upload replay
@@ -127,7 +134,7 @@ The native protocol is available to cookie-authenticated clients:
 | `POST /ID/delete` | `{}` and parent update permission | deleted |
 
 Mutations require exact Origin, CSRF, and the account cookie; JSON controls require
-`application/json`. File routes reject bearer credentials. IDs are generated
+`application/json`. File routes reject bearer credentials. Internal IDs are generated
 64-character lowercase hex; tickets are separate random values, stored as hashes,
 bound to app/binding/parent/principal/expiry, and never placed in URLs. `length`
 is a canonical nonnegative integer **string**. Zero-byte uploads are supported.
@@ -161,19 +168,19 @@ statically registered server operations exist:
 
 ```diamond
 export fn inventory(path: Text) -> Result<Text, DataError>:
-  let credential = host.secret("inventory")
-  host.http_get<Text>("inventory", path, credential)
+  host.http_get<Text>("inventory", path)
 
 export fn notify(path: Text, body: Text) -> Result<Text, DataError>:
-  host.http_post<Text, Text>("inventory", path, host.secret("inventory"), body)
+  host.http_post<Text, Text>("inventory", path, body)
 ```
 
-`Secret<"inventory">` is an opaque nominal handle, not credential bytes. The checker
-rejects comparison, display, persistence, wire bodies/replies, and entry/RPC escape,
-including nested values. Browser code cannot acquire it. A handle is bound to its
-native grant instance and destination. JSON request/reply types must be finite and
-wire-safe, using the existing [Diamond wire codecs](accounts-and-apis.md). This is
-JSON HTTP, not an arbitrary binary/socket/native-loading API.
+Declare the binding once in `[secrets]`; the compiler requires it and the native
+adapter injects its credential. Application source never acquires a credential or
+opaque handle. The retained low-level `Secret<"inventory">` compatibility type is
+still non-comparable, non-displayable, non-persistent, non-wire-safe, and unavailable
+to browser code, but new applications do not need it. JSON request/reply types must
+be finite and wire-safe, using the existing [Diamond wire codecs](accounts-and-apis.md).
+This is JSON HTTP, not an arbitrary binary/socket/native-loading API.
 
 Normal destinations require HTTPS with certificate and hostname verification.
 `network:"public"` rejects local/private/reserved address classes. A separate

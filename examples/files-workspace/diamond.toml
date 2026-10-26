@@ -95,6 +95,12 @@ auth = "token"
 function = "server.delete_issue"
 auth = "token"
 
+[secrets.inventory_bearer]
+adapter = "http"
+binding = "inventory"
+kind = "bearer"
+audience = "inventory"
+
 [files]
 profile = "shared-fs-v1"
 [files.bindings.issue_files]

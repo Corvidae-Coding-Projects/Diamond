@@ -1,0 +1,171 @@
+{
+  "artifact_hashes": {
+    "assets/0f48209fe6b52a96156fc6969e4f0b6ce4cd98fdd32cde52b800a90c70a825cf.js.map": "0f48209fe6b52a96156fc6969e4f0b6ce4cd98fdd32cde52b800a90c70a825cf",
+    "assets/4a3736593df5e408ff8f40b2e009ae8e2492e556d83d31c6c5e5edd82fab0922.js": "4a3736593df5e408ff8f40b2e009ae8e2492e556d83d31c6c5e5edd82fab0922",
+    "assets/5e04328fd18532a49f8d03a757e515db51af816715d74dc2dd55d4b375b16fbe.css": "5e04328fd18532a49f8d03a757e515db51af816715d74dc2dd55d4b375b16fbe",
+    "contract.json": "a72bf59144de7b94a7c2472771f08efe191f626b0bf55a00c7ae0cc89341d4ef",
+    "index.html": "ee6357737b18444bf882c89927149ce44219a6df2e18ea99cd1164f37a5ce548",
+    "server.json": "488d3c6f4c0ba32479f0953d20b090a0e9985619818b64e7ce4405ad5bb96ff0"
+  },
+  "binary_sha256": "91c6ad57530343be10bec2e8c01ff20fa36395e9a305c39cd93dcc34694f0e72",
+  "cleanup_errors": [],
+  "fatal": null,
+  "observations": [
+    {
+      "expected": "one deterministic build publishes every new security primitive",
+      "name": "final-build-has-complete-security-contract",
+      "observed": {
+        "artifact_files": 6,
+        "contract_sha256": "a72bf59144de7b94a7c2472771f08efe191f626b0bf55a00c7ae0cc89341d4ef"
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "a changed generated artifact cannot be loaded as a checked application",
+      "name": "artifact-tamper-fails-closed",
+      "observed": {
+        "exit": 1
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "the public API shares the RPC query budget and canonical argument decoder",
+      "name": "query-plan-cannot-be-bypassed-through-public-api",
+      "observed": {
+        "excessive_status": 400,
+        "malformed_status": 400,
+        "valid": [
+          200,
+          {
+            "api_version": 1,
+            "value": []
+          }
+        ]
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "a crashed claim is reclaimed under a new fence and reaches its typed terminal state",
+      "name": "expired-workflow-lease-is-fenced-and-recovered",
+      "observed": {
+        "recovered": {
+          "attempts": 0,
+          "fence": 3,
+          "id": "a3292cd9759992f1d293a6878b18c7451b4c88ecad7ad9e09eb3c3fb183da7f6",
+          "outcome": "terminal:Completed",
+          "status": "completed",
+          "transitions": 2
+        },
+        "stale": {
+          "attempts": 0,
+          "fence": 1,
+          "id": "a3292cd9759992f1d293a6878b18c7451b4c88ecad7ad9e09eb3c3fb183da7f6",
+          "outcome": "",
+          "status": "running",
+          "transitions": 0
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "an expired mail claim is fenced, reauthorized, and emitted to one private file",
+      "name": "expired-mail-lease-reconciles-idempotently",
+      "observed": {
+        "mode": "0o600",
+        "recovered": {
+          "attempts": 1,
+          "fence": 2,
+          "id": "765f8393205a10c64b2e7f7001158f8ea2e6c2a679bfe67e05805152e6efb28c",
+          "outcome": "delivered",
+          "state": "delivered"
+        },
+        "stale": {
+          "attempts": 0,
+          "fence": 1,
+          "id": "765f8393205a10c64b2e7f7001158f8ea2e6c2a679bfe67e05805152e6efb28c",
+          "outcome": "",
+          "state": "running"
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "byte-mismatched delivery identity retries within its bound, dies, and preserves the file",
+      "name": "mail-collision-never-overwrites-existing-output",
+      "observed": {
+        "existing_sha256": "83af739956a51764ad834ae00b32b89e19da7e498459c222a212d11d7a1c5fe6",
+        "row": {
+          "attempts": 3,
+          "fence": 3,
+          "id": "7204a3424d146f451e88660121d8d2c9faa92eab99711486eb78856d86e144a3",
+          "outcome": "denied_or_exhausted",
+          "state": "dead"
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "strict typed state decoding rejects poisoned storage without a transition",
+      "name": "malformed-durable-state-fails-before-handler",
+      "observed": {
+        "row": {
+          "attempts": 3,
+          "fence": 3,
+          "id": "38dd18f56dce7f6dc4e68e2aaf8690e98116707de79c7315f7156e582c6ef244",
+          "outcome": "denied_or_exhausted",
+          "status": "dead",
+          "transitions": 0
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "failure and shutdown logs contain neither the injected secret nor test password",
+      "name": "qualification-logs-redact-deployment-secrets",
+      "observed": {
+        "password_present": false,
+        "secret_present": false
+      },
+      "status": "PASS"
+    }
+  ],
+  "scope": "Disposable loopback HTTP, owned PostgreSQL, real server/worker processes, private directory mail adapter, and checked build loader; no Internet effects.",
+  "shutdowns": [
+    {
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false,
+      "worker": "expired-workflow"
+    },
+    {
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false,
+      "worker": "expired-mail"
+    },
+    {
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false,
+      "worker": "poisoned-mail"
+    },
+    {
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false,
+      "worker": "malformed-workflow"
+    },
+    {
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "node": "A",
+      "panic": false
+    }
+  ],
+  "status": "PASS"
+}

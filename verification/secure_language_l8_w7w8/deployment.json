@@ -1,0 +1,784 @@
+{
+  "status": "PASS",
+  "binary_sha256": "91c6ad57530343be10bec2e8c01ff20fa36395e9a305c39cd93dcc34694f0e72",
+  "error": null,
+  "results": [
+    {
+      "name": "deployment-capabilities-without-launch",
+      "status": "PASS",
+      "observed": {
+        "authority": "app.example.invalid",
+        "backup": "quiesced encrypted snapshots; isolated restore; jobs, workflows, and mail paused",
+        "capabilities": [
+          "DbRead<Globals>",
+          "DbRead<Issues>",
+          "DbRead<Projects>",
+          "DbWrite<Issues>",
+          "Events",
+          "Http<inventory>",
+          "JobKey",
+          "Jobs"
+        ],
+        "contract": "7cd72baca74917c6b86e9dbca37e0559b53e1aa7301d5c28a8f4fa7114dea96c",
+        "migration": "stop all instances; current version only",
+        "origin": "https://app.example.invalid",
+        "proxy": "loopback only; preserve Host; strip Forwarded and X-Forwarded-*; TLS at edge",
+        "servers": 2,
+        "valid": true,
+        "workers": 2
+      },
+      "expected": "validator accepts complete explicit authority and creates no listener/worker"
+    },
+    {
+      "name": "unsafe-origin-http://app.example.invalid",
+      "status": "PASS",
+      "observed": {
+        "exit": 1,
+        "stderr": "error: invalid input: W2 requires an exact http://localhost:PORT loopback development origin"
+      },
+      "expected": "unsafe/noncanonical deployment origin is rejected"
+    },
+    {
+      "name": "unsafe-origin-https://app.example.invalid/path",
+      "status": "PASS",
+      "observed": {
+        "exit": 1,
+        "stderr": "error: invalid input: deployment requires an exact HTTPS origin without credentials, path, query or fragment"
+      },
+      "expected": "unsafe/noncanonical deployment origin is rejected"
+    },
+    {
+      "name": "unsafe-origin-https://user:pass@app.example.invalid",
+      "status": "PASS",
+      "observed": {
+        "exit": 1,
+        "stderr": "error: invalid input: deployment requires an exact HTTPS origin without credentials, path, query or fragment"
+      },
+      "expected": "unsafe/noncanonical deployment origin is rejected"
+    },
+    {
+      "name": "unsafe-origin-https://app.example.invalid?query=1",
+      "status": "PASS",
+      "observed": {
+        "exit": 1,
+        "stderr": "error: invalid input: deployment requires an exact HTTPS origin without credentials, path, query or fragment"
+      },
+      "expected": "unsafe/noncanonical deployment origin is rejected"
+    },
+    {
+      "name": "missing-declared-native-grant",
+      "status": "PASS",
+      "observed": {
+        "exit": 1,
+        "stderr": "error: access denied or resource not found"
+      },
+      "expected": "declared outbound capability without native grant fails validation"
+    },
+    {
+      "name": "mismatched-contract-validation-and-startup-refuse",
+      "status": "PASS",
+      "observed": {
+        "validation_exit": 1,
+        "validation_stderr": "error: invalid input: incompatible jobs/events schema or contract; stop instances and initialize the current profile",
+        "startup_exit": 1,
+        "startup_stderr": "error: serve connected project: invalid input: incompatible jobs/events schema or contract; stop instances and initialize the current profile"
+      },
+      "expected": "changed durable handler declaration cannot validate or start against another current registry schema"
+    },
+    {
+      "name": "live-readiness-redacted-metrics-A",
+      "status": "PASS",
+      "observed": {
+        "live": {
+          "status": 200,
+          "body": {
+            "live": true
+          }
+        },
+        "ready": {
+          "status": 200,
+          "body": {
+            "contract": "7cd72baca74917c6b86e9dbca37e0559b53e1aa7301d5c28a8f4fa7114dea96c",
+            "ready": true
+          }
+        },
+        "metrics": {
+          "status": 200,
+          "body": {
+            "active_git_transports": 0,
+            "active_requests": 0,
+            "active_sockets": 0,
+            "draining": false,
+            "requests": 6
+          }
+        }
+      },
+      "expected": "both actual nodes report authoritative readiness and only aggregate redacted counters"
+    },
+    {
+      "name": "live-readiness-redacted-metrics-B",
+      "status": "PASS",
+      "observed": {
+        "live": {
+          "status": 200,
+          "body": {
+            "live": true
+          }
+        },
+        "ready": {
+          "status": 200,
+          "body": {
+            "contract": "7cd72baca74917c6b86e9dbca37e0559b53e1aa7301d5c28a8f4fa7114dea96c",
+            "ready": true
+          }
+        },
+        "metrics": {
+          "status": 200,
+          "body": {
+            "active_git_transports": 0,
+            "active_requests": 0,
+            "active_sockets": 0,
+            "draining": false,
+            "requests": 4
+          }
+        }
+      },
+      "expected": "both actual nodes report authoritative readiness and only aggregate redacted counters"
+    },
+    {
+      "name": "shared-hashed-assets",
+      "status": "PASS",
+      "observed": [
+        {
+          "path": "/assets/5e04328fd18532a49f8d03a757e515db51af816715d74dc2dd55d4b375b16fbe.css",
+          "A": 200,
+          "B": 200,
+          "same": true,
+          "sha256": "5e04328fd18532a49f8d03a757e515db51af816715d74dc2dd55d4b375b16fbe"
+        },
+        {
+          "path": "/assets/7951d3f4d9b4a8e5fd23bcc10aa2ade51c4dc55df1833f12cb4397df1bcf7f12.js",
+          "A": 200,
+          "B": 200,
+          "same": true,
+          "sha256": "7951d3f4d9b4a8e5fd23bcc10aa2ade51c4dc55df1833f12cb4397df1bcf7f12"
+        }
+      ],
+      "expected": "both nodes serve the same build's content-addressed browser assets"
+    },
+    {
+      "name": "drain-with-live-socket-and-surviving-node",
+      "status": "PASS",
+      "observed": {
+        "surviving_rpc": [
+          200,
+          {
+            "value": {
+              "id": {
+                "tag": "issue",
+                "value": "fac280971928856f9d18e3e9bda7d5b364a1bec6ef6840f6ff26e1bb1e5c98fe"
+              },
+              "project": {
+                "tag": "project",
+                "value": "210f269b1b9f82ef1a01b4f568bf530bd9504235825f44ac54253d67dd5848a9"
+              },
+              "rank": "11",
+              "title": "red exact \u96ea",
+              "workspace": {
+                "tag": "workspace",
+                "value": "4e2d7c125c1399cd1436002baf5a5bc4ab981a4eeb6d567c809af3727d6c6566"
+              }
+            }
+          }
+        ],
+        "socket": {
+          "kind": "close",
+          "code": null,
+          "reason": ""
+        },
+        "shutdown": {
+          "node": "A",
+          "exit": 0,
+          "expected_exit": 0,
+          "forced_kill": false,
+          "panic": false
+        }
+      },
+      "expected": "SIGINT drains owned connection and exits cleanly while other server continues authenticated reads"
+    },
+    {
+      "name": "replace-server-and-worker-with-current-artifact",
+      "status": "PASS",
+      "observed": {
+        "workers_alive": 2,
+        "job": "03dd11ab00a516f10f7206ee7c239dd914900fc24c6cf0edb62956f058827d7e",
+        "receiver": {
+          "attempts": [
+            {
+              "path": "/v1/dedup/7c9643b87a4742f9209c66ce77f94fb922e25043d0ebb3476be71e43b4f70abc",
+              "key": "7c9643b87a4742f9209c66ce77f94fb922e25043d0ebb3476be71e43b4f70abc",
+              "body_sha256": "981af00f10b51a8c127dd05e8462161f1c46953d2b6244e23287a4cc70adcdc6",
+              "bytes": 27
+            },
+            {
+              "path": "/v1/dedup/03dd11ab00a516f10f7206ee7c239dd914900fc24c6cf0edb62956f058827d7e",
+              "key": "03dd11ab00a516f10f7206ee7c239dd914900fc24c6cf0edb62956f058827d7e",
+              "body_sha256": "50d4ec9f5be6fc2cf13f749df0472ffa9636e24533a35f15418f4793481648b5",
+              "bytes": 25
+            }
+          ],
+          "effect_keys": [
+            "03dd11ab00a516f10f7206ee7c239dd914900fc24c6cf0edb62956f058827d7e",
+            "7c9643b87a4742f9209c66ce77f94fb922e25043d0ebb3476be71e43b4f70abc"
+          ],
+          "effects": 2,
+          "counts": {
+            "/v1/dedup/7c9643b87a4742f9209c66ce77f94fb922e25043d0ebb3476be71e43b4f70abc": 1,
+            "/v1/dedup/03dd11ab00a516f10f7206ee7c239dd914900fc24c6cf0edb62956f058827d7e": 1
+          }
+        }
+      },
+      "expected": "current-version node replacement and surviving worker preserve shared correctness"
+    },
+    {
+      "name": "backup-refuses-active-instances",
+      "status": "PASS",
+      "observed": {
+        "exit": 1,
+        "stderr": "error: invalid input: application is running or undergoing maintenance; stop all servers and workers first"
+      },
+      "expected": "exclusive snapshot guard refuses running application without creating output"
+    },
+    {
+      "name": "quiesced-encrypted-private-snapshot",
+      "status": "PASS",
+      "observed": {
+        "result": {
+          "consistency": "quiesced",
+          "credentials_recovery": "sessions,API credentials,challenges revoked",
+          "database_files": 1,
+          "elapsed_ms": 716,
+          "jobs_recovery": "paused until explicit resume or cancel",
+          "runtime_entries": 2,
+          "runtime_roots": 1,
+          "snapshot": "encrypted"
+        },
+        "files": [
+          "database.dump.gpg",
+          "manifest.json.gpg",
+          "runtime.data.gpg"
+        ],
+        "expected_inventory": {
+          "issues": [
+            {
+              "id": "0c149bc050b789bb46723c754181a0806121ffb5675addc3c2973eff81477ee8",
+              "project": "74aa22234c4159921407dc1e3792ad1f37e88b1a12a5145fd1892fce63718df2",
+              "rank": 12,
+              "title": "7265642068696464656e20706172656e74",
+              "workspace": "4e2d7c125c1399cd1436002baf5a5bc4ab981a4eeb6d567c809af3727d6c6566"
+            },
+            {
+              "id": "626e0d66279298345ee133c8ad90491502daef8e9b97b4a79762b91ebca128b9",
+              "project": "4a3738bd87ad75014c41d4918411e465fdf17ff7ba29d15ae125fcf7ee9a3b05",
+              "rank": 21,
+              "title": "626c7565206578616374204e554c00",
+              "workspace": "c9dd96cff718f220097383798d475b88a2ce9810b65c305a3c4abed94412cdf5"
+            },
+            {
+              "id": "7b281f5b10bb52cd59ac2bb0d29416400ecae4eb5ff7dc1650ceee515c963bce",
+              "project": "29a50831eefc3d2bbaab27905756992399c93c70f45d6ee8161d2fe9a7483b6d",
+              "rank": 31,
+              "title": "70726976617465206578616374",
+              "workspace": "053bff1922de1aac0c819e29c62d7ed9eba9c10d71d14facf5843f48bc89cd37"
+            },
+            {
+              "id": "fac280971928856f9d18e3e9bda7d5b364a1bec6ef6840f6ff26e1bb1e5c98fe",
+              "project": "210f269b1b9f82ef1a01b4f568bf530bd9504235825f44ac54253d67dd5848a9",
+              "rank": 11,
+              "title": "72656420657861637420e99baa",
+              "workspace": "4e2d7c125c1399cd1436002baf5a5bc4ab981a4eeb6d567c809af3727d6c6566"
+            }
+          ],
+          "users": [
+            {
+              "username": "alice",
+              "email": "alice@qualification.invalid",
+              "verified": true,
+              "disabled": false,
+              "administrator": true
+            }
+          ],
+          "files": [
+            {
+              "id": "adc6bd681a5a9586224ddbf8275f97e025aad1a629152c805e653001896ec85b",
+              "parent": "fac280971928856f9d18e3e9bda7d5b364a1bec6ef6840f6ff26e1bb1e5c98fe",
+              "owner": "alice",
+              "state": "ready",
+              "length": 131111,
+              "sha256": "1da8016f9ba4ccf8c39281686b2708171679d8e63cfced49443aedaf3d0747af"
+            }
+          ],
+          "jobs": [
+            {
+              "id": "03dd11ab00a516f10f7206ee7c239dd914900fc24c6cf0edb62956f058827d7e",
+              "binding": "notify",
+              "parent": "fac280971928856f9d18e3e9bda7d5b364a1bec6ef6840f6ff26e1bb1e5c98fe",
+              "owner": "alice",
+              "payload": "\"surviving worker effect\"",
+              "state": "done",
+              "attempts": 1
+            },
+            {
+              "id": "32fb7b49b615d30b489b9522e4ceee9cafc3a0222f2911434aa9dda274724cba",
+              "binding": "notify",
+              "parent": "fac280971928856f9d18e3e9bda7d5b364a1bec6ef6840f6ff26e1bb1e5c98fe",
+              "owner": "alice",
+              "payload": "\"pending durable recovery effect\"",
+              "state": "pending",
+              "attempts": 0
+            },
+            {
+              "id": "7c9643b87a4742f9209c66ce77f94fb922e25043d0ebb3476be71e43b4f70abc",
+              "binding": "notify",
+              "parent": "fac280971928856f9d18e3e9bda7d5b364a1bec6ef6840f6ff26e1bb1e5c98fe",
+              "owner": "alice",
+              "payload": "\"pre-backup completed work\"",
+              "state": "done",
+              "attempts": 1
+            }
+          ],
+          "objects": {
+            ".diamond-shared-store": {
+              "bytes": 64,
+              "sha256": "2015cef94f62f387c1c11b0f19cdb3d89b7bbd46a6925ee91a88213b2956e6c4"
+            },
+            "45792abffaa8e959578cd42f7939aefd9c13102740aa75a54889ae56b705aee7-adc6bd681a5a9586224ddbf8275f97e025aad1a629152c805e653001896ec85b.blob": {
+              "bytes": 131111,
+              "sha256": "1da8016f9ba4ccf8c39281686b2708171679d8e63cfced49443aedaf3d0747af"
+            }
+          }
+        }
+      },
+      "expected": "quiesced snapshot consists of private encrypted artifacts with plaintext work removed"
+    },
+    {
+      "name": "wrong-backup-key-preserves-empty-target",
+      "status": "PASS",
+      "observed": {
+        "exit": 1,
+        "stderr": "error: invalid input: backup command failed; details suppressed to protect secrets",
+        "target_empty": true
+      },
+      "expected": "wrong decryption authority fails before creating database/object state"
+    },
+    {
+      "name": "tampered-backup-preserves-empty-target",
+      "status": "PASS",
+      "observed": {
+        "exit": 1,
+        "stderr": "error: invalid input: backup command failed; details suppressed to protect secrets",
+        "target_empty": true
+      },
+      "expected": "modified encrypted data is rejected before database restore or object publication"
+    },
+    {
+      "name": "isolated-restore-manifest-bytes-and-recovery-policy",
+      "status": "PASS",
+      "observed": {
+        "expected": {
+          "issues": [
+            {
+              "id": "0c149bc050b789bb46723c754181a0806121ffb5675addc3c2973eff81477ee8",
+              "project": "74aa22234c4159921407dc1e3792ad1f37e88b1a12a5145fd1892fce63718df2",
+              "rank": 12,
+              "title": "7265642068696464656e20706172656e74",
+              "workspace": "4e2d7c125c1399cd1436002baf5a5bc4ab981a4eeb6d567c809af3727d6c6566"
+            },
+            {
+              "id": "626e0d66279298345ee133c8ad90491502daef8e9b97b4a79762b91ebca128b9",
+              "project": "4a3738bd87ad75014c41d4918411e465fdf17ff7ba29d15ae125fcf7ee9a3b05",
+              "rank": 21,
+              "title": "626c7565206578616374204e554c00",
+              "workspace": "c9dd96cff718f220097383798d475b88a2ce9810b65c305a3c4abed94412cdf5"
+            },
+            {
+              "id": "7b281f5b10bb52cd59ac2bb0d29416400ecae4eb5ff7dc1650ceee515c963bce",
+              "project": "29a50831eefc3d2bbaab27905756992399c93c70f45d6ee8161d2fe9a7483b6d",
+              "rank": 31,
+              "title": "70726976617465206578616374",
+              "workspace": "053bff1922de1aac0c819e29c62d7ed9eba9c10d71d14facf5843f48bc89cd37"
+            },
+            {
+              "id": "fac280971928856f9d18e3e9bda7d5b364a1bec6ef6840f6ff26e1bb1e5c98fe",
+              "project": "210f269b1b9f82ef1a01b4f568bf530bd9504235825f44ac54253d67dd5848a9",
+              "rank": 11,
+              "title": "72656420657861637420e99baa",
+              "workspace": "4e2d7c125c1399cd1436002baf5a5bc4ab981a4eeb6d567c809af3727d6c6566"
+            }
+          ],
+          "users": [
+            {
+              "username": "alice",
+              "email": "alice@qualification.invalid",
+              "verified": true,
+              "disabled": false,
+              "administrator": true
+            }
+          ],
+          "files": [
+            {
+              "id": "adc6bd681a5a9586224ddbf8275f97e025aad1a629152c805e653001896ec85b",
+              "parent": "fac280971928856f9d18e3e9bda7d5b364a1bec6ef6840f6ff26e1bb1e5c98fe",
+              "owner": "alice",
+              "state": "ready",
+              "length": 131111,
+              "sha256": "1da8016f9ba4ccf8c39281686b2708171679d8e63cfced49443aedaf3d0747af"
+            }
+          ],
+          "jobs": [
+            {
+              "id": "03dd11ab00a516f10f7206ee7c239dd914900fc24c6cf0edb62956f058827d7e",
+              "binding": "notify",
+              "parent": "fac280971928856f9d18e3e9bda7d5b364a1bec6ef6840f6ff26e1bb1e5c98fe",
+              "owner": "alice",
+              "payload": "\"surviving worker effect\"",
+              "state": "done",
+              "attempts": 1
+            },
+            {
+              "id": "32fb7b49b615d30b489b9522e4ceee9cafc3a0222f2911434aa9dda274724cba",
+              "binding": "notify",
+              "parent": "fac280971928856f9d18e3e9bda7d5b364a1bec6ef6840f6ff26e1bb1e5c98fe",
+              "owner": "alice",
+              "payload": "\"pending durable recovery effect\"",
+              "state": "pending",
+              "attempts": 0
+            },
+            {
+              "id": "7c9643b87a4742f9209c66ce77f94fb922e25043d0ebb3476be71e43b4f70abc",
+              "binding": "notify",
+              "parent": "fac280971928856f9d18e3e9bda7d5b364a1bec6ef6840f6ff26e1bb1e5c98fe",
+              "owner": "alice",
+              "payload": "\"pre-backup completed work\"",
+              "state": "done",
+              "attempts": 1
+            }
+          ],
+          "objects": {
+            ".diamond-shared-store": {
+              "bytes": 64,
+              "sha256": "2015cef94f62f387c1c11b0f19cdb3d89b7bbd46a6925ee91a88213b2956e6c4"
+            },
+            "45792abffaa8e959578cd42f7939aefd9c13102740aa75a54889ae56b705aee7-adc6bd681a5a9586224ddbf8275f97e025aad1a629152c805e653001896ec85b.blob": {
+              "bytes": 131111,
+              "sha256": "1da8016f9ba4ccf8c39281686b2708171679d8e63cfced49443aedaf3d0747af"
+            }
+          }
+        },
+        "actual": {
+          "issues": [
+            {
+              "id": "0c149bc050b789bb46723c754181a0806121ffb5675addc3c2973eff81477ee8",
+              "project": "74aa22234c4159921407dc1e3792ad1f37e88b1a12a5145fd1892fce63718df2",
+              "rank": 12,
+              "title": "7265642068696464656e20706172656e74",
+              "workspace": "4e2d7c125c1399cd1436002baf5a5bc4ab981a4eeb6d567c809af3727d6c6566"
+            },
+            {
+              "id": "626e0d66279298345ee133c8ad90491502daef8e9b97b4a79762b91ebca128b9",
+              "project": "4a3738bd87ad75014c41d4918411e465fdf17ff7ba29d15ae125fcf7ee9a3b05",
+              "rank": 21,
+              "title": "626c7565206578616374204e554c00",
+              "workspace": "c9dd96cff718f220097383798d475b88a2ce9810b65c305a3c4abed94412cdf5"
+            },
+            {
+              "id": "7b281f5b10bb52cd59ac2bb0d29416400ecae4eb5ff7dc1650ceee515c963bce",
+              "project": "29a50831eefc3d2bbaab27905756992399c93c70f45d6ee8161d2fe9a7483b6d",
+              "rank": 31,
+              "title": "70726976617465206578616374",
+              "workspace": "053bff1922de1aac0c819e29c62d7ed9eba9c10d71d14facf5843f48bc89cd37"
+            },
+            {
+              "id": "fac280971928856f9d18e3e9bda7d5b364a1bec6ef6840f6ff26e1bb1e5c98fe",
+              "project": "210f269b1b9f82ef1a01b4f568bf530bd9504235825f44ac54253d67dd5848a9",
+              "rank": 11,
+              "title": "72656420657861637420e99baa",
+              "workspace": "4e2d7c125c1399cd1436002baf5a5bc4ab981a4eeb6d567c809af3727d6c6566"
+            }
+          ],
+          "users": [
+            {
+              "username": "alice",
+              "email": "alice@qualification.invalid",
+              "verified": true,
+              "disabled": false,
+              "administrator": true
+            }
+          ],
+          "files": [
+            {
+              "id": "adc6bd681a5a9586224ddbf8275f97e025aad1a629152c805e653001896ec85b",
+              "parent": "fac280971928856f9d18e3e9bda7d5b364a1bec6ef6840f6ff26e1bb1e5c98fe",
+              "owner": "alice",
+              "state": "ready",
+              "length": 131111,
+              "sha256": "1da8016f9ba4ccf8c39281686b2708171679d8e63cfced49443aedaf3d0747af"
+            }
+          ],
+          "jobs": [
+            {
+              "id": "03dd11ab00a516f10f7206ee7c239dd914900fc24c6cf0edb62956f058827d7e",
+              "binding": "notify",
+              "parent": "fac280971928856f9d18e3e9bda7d5b364a1bec6ef6840f6ff26e1bb1e5c98fe",
+              "owner": "alice",
+              "payload": "\"surviving worker effect\"",
+              "state": "done",
+              "attempts": 1
+            },
+            {
+              "id": "32fb7b49b615d30b489b9522e4ceee9cafc3a0222f2911434aa9dda274724cba",
+              "binding": "notify",
+              "parent": "fac280971928856f9d18e3e9bda7d5b364a1bec6ef6840f6ff26e1bb1e5c98fe",
+              "owner": "alice",
+              "payload": "\"pending durable recovery effect\"",
+              "state": "pending",
+              "attempts": 0
+            },
+            {
+              "id": "7c9643b87a4742f9209c66ce77f94fb922e25043d0ebb3476be71e43b4f70abc",
+              "binding": "notify",
+              "parent": "fac280971928856f9d18e3e9bda7d5b364a1bec6ef6840f6ff26e1bb1e5c98fe",
+              "owner": "alice",
+              "payload": "\"pre-backup completed work\"",
+              "state": "done",
+              "attempts": 1
+            }
+          ],
+          "objects": {
+            ".diamond-shared-store": {
+              "bytes": 64,
+              "sha256": "2015cef94f62f387c1c11b0f19cdb3d89b7bbd46a6925ee91a88213b2956e6c4"
+            },
+            "45792abffaa8e959578cd42f7939aefd9c13102740aa75a54889ae56b705aee7-adc6bd681a5a9586224ddbf8275f97e025aad1a629152c805e653001896ec85b.blob": {
+              "bytes": 131111,
+              "sha256": "1da8016f9ba4ccf8c39281686b2708171679d8e63cfced49443aedaf3d0747af"
+            }
+          }
+        },
+        "paused": "t",
+        "credential_counts": [
+          {
+            "sessions": 0,
+            "credentials": 0,
+            "challenges": 0
+          }
+        ],
+        "restore": {
+          "credentials_revoked": true,
+          "data_loss_window": "changes since quiesced snapshot",
+          "database_files_verified": 1,
+          "elapsed_ms": 326,
+          "jobs_paused": true,
+          "restored": true,
+          "runtime_entries_verified": 2,
+          "runtime_roots_verified": 1,
+          "snapshot_unix_seconds": 1792980591
+        },
+        "source_changed_after_snapshot": true,
+        "restore_seconds": 0.36008139498881064,
+        "snapshot_duration_seconds": 0.7238047122955322,
+        "snapshot_to_restore_seconds": 1.8786020278930664
+      },
+      "expected": "different empty DB/object roots restore exact snapshot inventory; later source edit is absent; sessions/tokens/challenges revoked and jobs paused"
+    },
+    {
+      "name": "restored-real-account-file-and-revoked-credentials",
+      "status": "PASS",
+      "observed": {
+        "old_session": 401,
+        "old_api": 401,
+        "file_status": 200,
+        "bytes": 131111,
+        "sha256": "1da8016f9ba4ccf8c39281686b2708171679d8e63cfced49443aedaf3d0747af"
+      },
+      "expected": "password-backed account can sign in anew; old session/API deny; other node downloads independently verified exact attachment bytes"
+    },
+    {
+      "name": "restore-never-implicitly-replays-pending-work",
+      "status": "PASS",
+      "observed": {
+        "state": "pending",
+        "new_receiver_attempts": 0
+      },
+      "expected": "even a started worker cannot claim restored work before explicit recovery policy"
+    },
+    {
+      "name": "recovery-refuses-active-instances",
+      "status": "PASS",
+      "observed": {
+        "exit": 1,
+        "stderr": "error: invalid input: application is running or undergoing maintenance; stop all servers and workers first"
+      },
+      "expected": "maintenance/recovery cannot race running application instances or implicitly unpause jobs"
+    },
+    {
+      "name": "restore-refuses-nonempty-destination",
+      "status": "PASS",
+      "observed": {
+        "exit": 1,
+        "stderr": "error: invalid input: restore requires empty runtime filesystem roots"
+      },
+      "expected": "restoring over existing application data is rejected without altering durable inventory"
+    },
+    {
+      "name": "explicit-resume-releases-restored-durable-work",
+      "status": "PASS",
+      "observed": {
+        "exit": 0,
+        "receiver": {
+          "attempts": [
+            {
+              "path": "/v1/dedup/7c9643b87a4742f9209c66ce77f94fb922e25043d0ebb3476be71e43b4f70abc",
+              "key": "7c9643b87a4742f9209c66ce77f94fb922e25043d0ebb3476be71e43b4f70abc",
+              "body_sha256": "981af00f10b51a8c127dd05e8462161f1c46953d2b6244e23287a4cc70adcdc6",
+              "bytes": 27
+            },
+            {
+              "path": "/v1/dedup/03dd11ab00a516f10f7206ee7c239dd914900fc24c6cf0edb62956f058827d7e",
+              "key": "03dd11ab00a516f10f7206ee7c239dd914900fc24c6cf0edb62956f058827d7e",
+              "body_sha256": "50d4ec9f5be6fc2cf13f749df0472ffa9636e24533a35f15418f4793481648b5",
+              "bytes": 25
+            },
+            {
+              "path": "/v1/dedup/32fb7b49b615d30b489b9522e4ceee9cafc3a0222f2911434aa9dda274724cba",
+              "key": "32fb7b49b615d30b489b9522e4ceee9cafc3a0222f2911434aa9dda274724cba",
+              "body_sha256": "b7b937f385b1fc73f8dbc4bcc7691657fa166b5791cb2a84dd6ae5b51e5a8341",
+              "bytes": 33
+            }
+          ],
+          "effect_keys": [
+            "03dd11ab00a516f10f7206ee7c239dd914900fc24c6cf0edb62956f058827d7e",
+            "32fb7b49b615d30b489b9522e4ceee9cafc3a0222f2911434aa9dda274724cba",
+            "7c9643b87a4742f9209c66ce77f94fb922e25043d0ebb3476be71e43b4f70abc"
+          ],
+          "effects": 3,
+          "counts": {
+            "/v1/dedup/7c9643b87a4742f9209c66ce77f94fb922e25043d0ebb3476be71e43b4f70abc": 1,
+            "/v1/dedup/03dd11ab00a516f10f7206ee7c239dd914900fc24c6cf0edb62956f058827d7e": 1,
+            "/v1/dedup/32fb7b49b615d30b489b9522e4ceee9cafc3a0222f2911434aa9dda274724cba": 1
+          }
+        }
+      },
+      "expected": "operator-selected at-least-once resume runs restored pending job through actual external receiver"
+    }
+  ],
+  "shutdowns": [
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "worker": "one",
+      "exit": -9,
+      "expected_exit": -9,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "worker": "two",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "worker": "replacement",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "worker": "paused",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "worker": "resumed-one",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "worker": "resumed-two",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "http_requests": 28,
+  "elapsed_seconds": 8.69981250501587,
+  "temporary_root": "/home/doll/diamond/.diamond/diamond-w8-independent-o6myu2sz",
+  "source_sha256": {
+    "checker.py": "fa2af8f0cabf2096639defa2f5a172e18f2d452b88cbed98262def0c4fbcaeea",
+    "deployment.py": "9fc8bdbe356515fa3d8b1759cdb208c8be82f56abb4f841d88d8a25d324111a0",
+    "events_limits.py": "3385e9b65314fff58893e805289f00653845e5d741356c95ad75417bb240eb1d",
+    "fixture.py": "07c8b348a9ac45afddd358d2faf6d27733f34aa760374384d412909f2b1f75de",
+    "job_versions.py": "899210db36cedb2e763abfa9a058a27f6df7b02f8f3bdcd29e343c0410f864d6",
+    "jobs_events.py": "2e4d738cdd6d82fd68d2a1a59d725515809498d521da919c2f2f80ef4c02f83f",
+    "readiness_objects.py": "c8dfd26af795ef30c33ca245d23f12fc71aa56d5c5c9deac437d6feb8f18247d",
+    "receiver.py": "0d0a9419b417f0c71eb935a514a2df46d148baa60c568643502d622ec7baa343",
+    "run.py": "582852702ff1cb6e08dd99372b36cf3e85e95cdbb478cab66ae9be895f128051",
+    "service.py": "a8a98ff8a5e08ef621c00d57718c2e2d7935ed5fed687c37ee614cce034e5e83",
+    "tls_proxy.py": "46e1b876e09394426722c679d3f794e5c7cf7e22ec8d2452421c7660fee2c6e2",
+    "wire.py": "7aacbb911dc8817ec4de67b889a2f3014002548de218cd7ffc3b1e247f82c91b"
+  },
+  "coverage_gaps": [
+    "Local Linux/Unix-socket PostgreSQL and shared filesystem only; no provisioned TLS edge or host deployment.",
+    "No old/new schema coexistence; only same current-artifact process replacement.",
+    "Reference tracker/catalog browser journeys and clean installation are verified separately."
+  ]
+}

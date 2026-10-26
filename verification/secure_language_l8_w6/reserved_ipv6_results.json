@@ -1,0 +1,59 @@
+{
+  "status": "PASS",
+  "binary_sha256": "91c6ad57530343be10bec2e8c01ff20fa36395e9a305c39cd93dcc34694f0e72",
+  "error": null,
+  "results": [
+    {
+      "name": "public-reserved-ipv6-3ffe::1",
+      "status": "PASS",
+      "observed": {
+        "literal_origin": "https://[3ffe::1]",
+        "rpc": [
+          403,
+          {
+            "error": "denied"
+          }
+        ],
+        "elapsed_seconds": 0.008252898027421907,
+        "network": "public"
+      },
+      "expected": "reserved/deprecated3ffe::/16 and documentation3fff::/20 must be rejected by policy before a network attempt"
+    },
+    {
+      "name": "public-reserved-ipv6-3fff::1",
+      "status": "PASS",
+      "observed": {
+        "literal_origin": "https://[3fff::1]",
+        "rpc": [
+          403,
+          {
+            "error": "denied"
+          }
+        ],
+        "elapsed_seconds": 0.020030209998367354,
+        "network": "public"
+      },
+      "expected": "reserved/deprecated3ffe::/16 and documentation3fff::/20 must be rejected by policy before a network attempt"
+    }
+  ],
+  "shutdowns": [
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "http_requests": 6,
+  "temporary_root": "/home/doll/diamond/.diamond/diamond-w6-independent-reserved-ipv6-cbyo1ysg",
+  "runner_sha256": "085114077bd1870a4078198b4b4da9636aaa0e5123a42fb043c7dbd2d64677e1"
+}

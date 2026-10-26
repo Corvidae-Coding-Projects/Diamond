@@ -13,7 +13,7 @@ export component AuthorityExamples:
   state identity: Text = ""
   state title: Text = "Example document"
   state document: Text = ""
-  state attachment: Text = ""
+  state attachment: Option<Blob<"document_files">> = None
   state output: Text = "Choose an operation."
   state live: Text = ""
   state cursor: Text = ""
@@ -68,17 +68,27 @@ export component AuthorityExamples:
     output = session.revoke_token(credential_id)
 
   on upload:
-    attachment = files.upload("document_files", document, "file_input")
-    output = files.status("document_files", attachment)
+    attachment = Some(files.upload("document_files", document, "file_input"))
+    output = "Upload complete."
 
   on create_document:
     document = rpc.create_document(title)
 
   on download:
-    attachment = files.download("document_files", attachment)
+    attachment = match attachment:
+      Some(file) => Some(files.download("document_files", file))
+      None => None
+
+  on file_status:
+    output = match attachment:
+      Some(file) => files.status("document_files", file)
+      None => "No file selected."
 
   on delete_file:
-    output = files.delete("document_files", attachment)
+    attachment = match attachment:
+      Some(file) => files.delete("document_files", file)
+      None => None
+    output = "File deleted."
 
   on start:
     output = rpc.start_job(document, "example payload", "example-key")
@@ -115,9 +125,9 @@ export component AuthorityExamples:
       <button on-click={create_document}>Create document</button>
       <label for="document">Document ID</label><input id="document" bind-value={document}>
       <label for="file_input">File</label><input id="file_input" type="file">
-      <button on-click={upload}>Upload</button><button on-click={download}>Download</button><button on-click={delete_file}>Delete file</button>
+      <button on-click={upload}>Upload</button><button on-click={file_status}>File status</button><button on-click={download}>Download</button><button on-click={delete_file}>Delete file</button>
       <button on-click={start}>Start job</button><button on-click={status}>Job status</button><button on-click={cancel}>Cancel job</button>
       <p>{identity}</p><pre>{output}</pre>
-      <watch channel="document_changes" parent={document} into="live" cursor="cursor"></watch>
+      <watch stream={stream("document_changes", document)} into="live" cursor="cursor"></watch>
       <p>{live}</p>
     </main>

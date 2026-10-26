@@ -2,43 +2,40 @@
   "app": "live-workspace",
   "observations": [
     {
-      "jobs": [
-        {
-          "id": "e5e69fdcb679c721ff2559fe735cd4cd2cf5a76085db939a0fbb25136bc2b7f1",
-          "binding": "summarize",
-          "parent": "95025a319ac21a7f1df24f28d032124ad3f85c2fbe14576b8cb02f4319986ea6",
-          "owner": "alice",
-          "state": "done",
-          "attempts": 1,
-          "fence": 1,
-          "outcome": "completed"
-        }
-      ],
-      "receiver": {
-        "attempts": [],
-        "effect_keys": [],
-        "effects": 0,
-        "counts": {}
-      }
+      "restarted": "A",
+      "seconds": 0.282
     },
     {
       "status": "PASS",
-      "flow": "Chrome final pinned binary: sign in, queue background edit, automatic typed WebSocket update, done status, comment creation/live update, hostile text literal, sign out clears live/job/comment state",
-      "issue": "95025a319ac21a7f1df24f28d032124ad3f85c2fbe14576b8cb02f4319986ea6",
-      "background_text": "Pinned build background edit \u96ea <script>literal</script>",
-      "comment_text": "Pinned build comment \u96ea <img src=x onerror=alert(1)>",
-      "injected_images": 0,
-      "sign_out_cleared_private_fields": true
+      "flow": "L8 final typed Stream browser replay",
+      "binary_sha256": "91c6ad57530343be10bec2e8c01ff20fa36395e9a305c39cd93dcc34694f0e72",
+      "observed": {
+        "typed_stream_cross_node_event": true,
+        "hostile_markup_literal": true,
+        "injected_script_nodes": 0,
+        "script_global_unchanged": true,
+        "node_A_restart_seconds": 0.282,
+        "cursor_replay_after_restart": true,
+        "selected_parent_preserved": true
+      },
+      "boundary": "Chrome against a disposable two-node PostgreSQL fixture; server B emitted committed events while browser watched and reconnected to node A."
     }
   ],
-  "binary_sha256": "3d58bff2d28ce47bad5196cc22f3b9bbcd6acae39ee6680bd7195dfc9328a32d",
-  "workspace": "a2420b52eebb9089ad57e7195ee780cb1665757229fe84ad028203c44e62c64c",
-  "project": "47cfcda34cac11f73973fe632a827b1073f6e875caab66b569e471f35d4c8031",
-  "issue": "95025a319ac21a7f1df24f28d032124ad3f85c2fbe14576b8cb02f4319986ea6",
-  "root": "/tmp/diamond-w7-w8-browser-md3h46mp",
+  "binary_sha256": "91c6ad57530343be10bec2e8c01ff20fa36395e9a305c39cd93dcc34694f0e72",
+  "workspace": "270dbadafbac167478bbb3e43a7aee90df2787722d5ff03f30c1145f60c5cb2a",
+  "project": "7d63f202c4ec04a1ddbd6071645ec02f86fa88a3a1b1238c4a36ecb2d912fc53",
+  "issue": "62a0a2b3e01c1c49bee48ab09e860a493b0d1eef82d972bb3af37789a475ea92",
+  "root": "/home/doll/diamond/.diamond/diamond-w7-w8-browser-gfu8ycs9",
   "origin": "http://127.0.0.1:39171",
-  "node_B_port": 45227,
+  "node_B_port": 59641,
   "shutdowns": [
+    {
+      "node": "A",
+      "exit": -9,
+      "expected_exit": -9,
+      "forced_kill": false,
+      "panic": false
+    },
     {
       "worker": "one",
       "exit": 0,
@@ -54,14 +51,14 @@
       "panic": false
     },
     {
-      "node": "A",
+      "node": "B",
       "exit": 0,
       "expected_exit": 0,
       "forced_kill": false,
       "panic": false
     },
     {
-      "node": "B",
+      "node": "A",
       "exit": 0,
       "expected_exit": 0,
       "forced_kill": false,
@@ -75,5 +72,6 @@
     "effects": 0,
     "counts": {}
   },
-  "temporary_root_removed": true
+  "temporary_root_removed": true,
+  "status": "PASS"
 }

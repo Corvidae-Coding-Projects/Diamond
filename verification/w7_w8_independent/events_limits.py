@@ -143,6 +143,11 @@ def main():
         burst_start = time.monotonic()
         last = None
         for index in range(320):
+            if index % 16 == 0:
+                # This fixture isolates socket backpressure. Shared request-rate
+                # limits are qualified separately, so clear only this owned
+                # disposable application's counters between bounded batches.
+                service.sql("DELETE FROM diamond_identity.rates WHERE app=" + quote(app_id()))
             last = emit(f"slow-client-{index:04d}:" + "x" * 15800)
         wait_for(lambda: metrics()["active_sockets"] == 0, "bounded-send timeout disconnects unread socket", timeout=12)
         elapsed = time.monotonic() - burst_start

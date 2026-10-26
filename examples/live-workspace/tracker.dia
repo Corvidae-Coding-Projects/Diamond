@@ -6,7 +6,7 @@ export component Tracker:
   state live_cursor: Text = "0"
   state comment: Text = ""
   state comment_result: Text = ""
-  state attachment: Text = ""
+  state attachment: Option<Blob<"issue_files">> = None
   state attachment_status: Text = ""
   state external_path: Text = "/v1/ok"
   state username: Text = ""
@@ -44,12 +44,16 @@ export component Tracker:
     comment_result = rpc.list_comments(workspace)
 
   on upload_file:
-    attachment = files.upload("issue_files", selected, "issue_attachment")
-    attachment_status = files.status("issue_files", attachment)
+    attachment = Some(files.upload("issue_files", selected, "issue_attachment"))
+    attachment_status = "Upload complete."
   on download_file:
-    attachment = files.download("issue_files", attachment)
+    attachment = match attachment:
+      Some(file) => Some(files.download("issue_files", file))
+      None => None
   on delete_file:
-    attachment = files.delete("issue_files", attachment)
+    attachment = match attachment:
+      Some(file) => files.delete("issue_files", file)
+      None => None
     attachment_status = "Deleted."
   on call_external:
     attachment_status = rpc.external_get(external_path)
@@ -62,7 +66,7 @@ export component Tracker:
     comment = ""
     comment_result = ""
     signed_in = session.login(username, password)
-    attachment = ""
+    attachment = None
     attachment_status = ""
     password = ""
     current_password = ""
@@ -89,7 +93,7 @@ export component Tracker:
     comment = ""
     comment_result = ""
     signed_in = session.logout()
-    attachment = ""
+    attachment = None
     attachment_status = ""
     password = ""
     current_password = ""
@@ -277,7 +281,7 @@ export component Tracker:
   html:
     <main>
       <header class="masthead"><img src="asset:logo" alt="" width="40" height="40"><div><p class="eyebrow">DIAMOND · JOBS AND LIVE APPLICATIONS</p><h1>Live workspace</h1></div></header>
-      <watch channel="issue_changes" parent={selected} into="live" cursor="live_cursor"></watch>
+      <watch stream={stream("issue_changes", selected)} into="live" cursor="live_cursor"></watch>
       <section class="panel" aria-labelledby="activity-heading">
         <h2 id="activity-heading">Live activity and background work</h2>
         <p id="live-status" role="status" aria-live="polite">{live}</p>
@@ -291,7 +295,6 @@ export component Tracker:
         <p>Choose an issue, then select a file up to 8 MiB.</p>
         <label for="issue_attachment">Attachment</label><input id="issue_attachment" type="file">
         <button on-click={upload_file} aria-controls="attachment_status">Upload attachment</button>
-        <label for="attachment">Attachment ID</label><input id="attachment" bind-value={attachment}>
         <button on-click={download_file} aria-controls="attachment_status">Download attachment</button><button on-click={delete_file} aria-controls="attachment_status">Delete attachment</button>
         <label for="external_path">Integration path</label><input id="external_path" bind-value={external_path}>
         <button on-click={call_external} aria-controls="attachment_status">Call inventory</button>

@@ -24,6 +24,17 @@ class Service(previous.Service):
         self.workers = {}
         self.worker_logs = {}
 
+    def process_env(self, configuration=None):
+        # Public reference applications declare automatic bearer injection. Each
+        # disposable fixture supplies a synthetic deployment credential without
+        # putting a secret handle back into application source.
+        credential = "DIAMOND_W7_W8_SYNTHETIC_INVENTORY"
+        for name, grant in self.runtime.get("http", {}).items():
+            if name == "inventory" and "credential_env" not in grant:
+                grant["credential_env"] = credential
+        self.environment.setdefault(credential, "synthetic-w7-w8-inventory-bearer")
+        return super().process_env(configuration)
+
     def start_worker(self, name):
         if name in self.workers:
             raise AssertionError("owned worker already running")

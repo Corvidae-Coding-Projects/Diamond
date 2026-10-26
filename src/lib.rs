@@ -21,6 +21,8 @@ mod parser;
 mod policy;
 mod project;
 mod relational;
+mod rich_text;
+mod security;
 mod standard;
 mod syntax;
 mod template;

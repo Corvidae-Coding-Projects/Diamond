@@ -32,7 +32,7 @@ export component GitForge:
   state issues: IssuePage = IssuePage(cards: [], after: "", total: 0)
   state issue_comments: List<CommentCard> = []
   state comment_body: Text = ""
-  state attachment: Text = ""
+  state attachment: Option<Blob<"issue_attachments">> = None
   state attachment_status: Text = ""
   state merge_title: Text = ""
   state merge_body: Text = ""
@@ -87,7 +87,7 @@ export component GitForge:
   state release_name: Text = "v0.1.0"
   state release_notes: Text = "Release notes"
   state release_draft: Bool = false
-  state release_asset: Text = ""
+  state release_asset: Option<Blob<"release_assets">> = None
   state release_asset_status: Text = ""
   state pipeline: Text = ""
   state pipeline_event: Text = "manual-1"
@@ -204,12 +204,16 @@ export component GitForge:
   on load_comments:
     issue_comments = rpc.issue_comments(organization, repository, issue)
   on upload_attachment:
-    attachment = files.upload("issue_attachments", issue, "issue_attachment")
-    attachment_status = files.status("issue_attachments", attachment)
+    attachment = Some(files.upload("issue_attachments", issue, "issue_attachment"))
+    attachment_status = "Upload complete."
   on download_attachment:
-    attachment = files.download("issue_attachments", attachment)
+    attachment = match attachment:
+      Some(file) => Some(files.download("issue_attachments", file))
+      None => None
   on delete_attachment:
-    attachment = files.delete("issue_attachments", attachment)
+    attachment = match attachment:
+      Some(file) => files.delete("issue_attachments", file)
+      None => None
     attachment_status = "Attachment deleted."
   on create_merge_request:
     merge_request = rpc.create_merge_request(repository, merge_title, merge_body, source_reference, target_reference)
@@ -377,12 +381,16 @@ export component GitForge:
     output = rpc.cancel_pipeline(repository, pipeline)
     pipelines = rpc.delivery_pipelines(repository)
   on upload_release_asset:
-    release_asset = files.upload("release_assets", release, "release_asset_file")
-    release_asset_status = files.status("release_assets", release_asset)
+    release_asset = Some(files.upload("release_assets", release, "release_asset_file"))
+    release_asset_status = "Upload complete."
   on download_release_asset:
-    release_asset = files.download("release_assets", release_asset)
+    release_asset = match release_asset:
+      Some(file) => Some(files.download("release_assets", file))
+      None => None
   on delete_release_asset:
-    release_asset = files.delete("release_assets", release_asset)
+    release_asset = match release_asset:
+      Some(file) => files.delete("release_assets", file)
+      None => None
     release_asset_status = "Release asset deleted."
   on create_webhook:
     webhook = rpc.create_webhook(repository, webhook_path)
@@ -395,7 +403,7 @@ export component GitForge:
       <a class="skip-link" href="/#account-heading">Skip to account and workspace</a>
       <header class="masthead"><div><p class="eyebrow">DIAMOND FORGE</p><h1>Git collaboration without a heavyweight application stack</h1><p>Organizations, repositories, issues, reviews, and Git stay under one checked policy model.</p></div></header>
       <nav aria-label="Primary"><a href="/">Repositories</a><a href="/collaboration">Collaboration</a><a href="/issues">Issues &amp; boards</a><a href="/merge-requests">Merge requests</a><a href="/delivery">CI &amp; delivery</a><a href="/operations">Scale &amp; recovery</a><a href="/knowledge">Wiki &amp; snippets</a><a href="/releases">Releases</a><a href="/activity">Activity</a><a href="/settings">Settings</a></nav>
-      <watch channel="repository_activity" parent={repository} into="activity" cursor="activity_cursor"></watch>
+      <watch stream={stream("repository_activity", repository)} into="activity" cursor="activity_cursor"></watch>
       <when test={pending}><p class="notice" role="status">Working…</p></when>
       <when test={error != ""}><p class="error" role="alert">{error}</p></when>
       <p class="notice" role="status" aria-live="polite">{output}</p>
@@ -448,7 +456,7 @@ export component GitForge:
           <p>{issue_total}</p><ul class="cards"><each items={issues.cards} as="issue_card" key={issue_card.id}><li><span class="badge">{issue_card.state}</span><strong>{issue_card.title}</strong><p>by {issue_card.author}</p><code>{issue_card.id}</code></li></each></ul>
           <article class="detail"><h3>{issue_detail.title}</h3><p>{issue_detail.body}</p><p>{issue_detail.state} · {issue_detail.author}</p></article>
           <h3>Discussion</h3><label for="comment-body">Comment</label><textarea id="comment-body" maxlength="16000" bind-value={comment_body}></textarea><div class="actions"><button on-click={add_comment}>Add comment</button><button on-click={load_comments}>Refresh comments</button></div><ol class="comments"><each items={issue_comments} as="comment" key={comment.id}><li><p>{comment.body}</p><p class="byline">{comment.author}</p></li></each></ol>
-          <h3>Attachments</h3><label for="issue_attachment">Choose a file up to 8 MiB</label><input id="issue_attachment" type="file"><button on-click={upload_attachment}>Upload</button><label for="attachment-id">Attachment ID</label><input id="attachment-id" bind-value={attachment}><div class="actions"><button on-click={download_attachment}>Download</button><button class="danger" on-click={delete_attachment}>Delete</button></div><p>{attachment_status}</p>
+          <h3>Attachments</h3><label for="issue_attachment">Choose a file up to 8 MiB</label><input id="issue_attachment" type="file"><button on-click={upload_attachment}>Upload</button><div class="actions"><button on-click={download_attachment}>Download</button><button class="danger" on-click={delete_attachment}>Delete</button></div><p>{attachment_status}</p>
           <h3>Labels, milestones, and assignees</h3><div class="grid"><div><label for="milestone-title">Milestone</label><input id="milestone-title" maxlength="120" bind-value={milestone_title}></div><div><label for="milestone-due">Due</label><input id="milestone-due" maxlength="40" bind-value={milestone_due}></div><div><label for="label-name">Label</label><input id="label-name" maxlength="60" bind-value={label_name}></div><div><label for="label-color">Six-digit hex label color</label><input id="label-color" maxlength="6" bind-value={label_color}></div><div><label for="assignee">Assignee user ID</label><input id="assignee" bind-value={assignee}></div></div>
           <div class="actions"><button on-click={create_milestone}>Create milestone</button><button on-click={create_label}>Create label</button><button on-click={label_issue}>Label selected issue</button><button on-click={assign_issue}>Assign selected issue</button><button on-click={reopen_issue}>Reopen issue</button></div>
           <ul class="cards"><each items={dashboard.milestones} as="milestone_card" key={milestone_card.id}><li><strong>{milestone_card.title}</strong><p>{milestone_card.due}</p><code>{milestone_card.id}</code></li></each></ul>
@@ -496,7 +504,7 @@ export component GitForge:
         <section class="panel" aria-labelledby="releases-heading"><h2 id="releases-heading">Releases and Git LFS</h2><p>Release tags must resolve to a commit. Large working-tree objects use the standard Git LFS URL exposed beside clone and push.</p>
           <div class="grid"><div><label for="release-tag">Tag or ref</label><input id="release-tag" maxlength="120" bind-value={release_tag}></div><div><label for="release-name">Name</label><input id="release-name" maxlength="160" bind-value={release_name}></div><div><label for="release-id">Release ID</label><input id="release-id" bind-value={release}></div></div><label for="release-notes">Notes</label><textarea id="release-notes" maxlength="16000" bind-value={release_notes}></textarea><label class="check"><input id="release-draft" type="checkbox" bind-checked={release_draft}> Draft release</label><div class="actions"><button on-click={create_release}>Create release</button><button on-click={refresh_collaboration}>Refresh releases</button></div>
           <ul class="cards"><each items={dashboard.releases} as="release_card" key={release_card.id}><li><span class="badge">{release_card.tag}</span><strong>{release_card.name}</strong><p>{release_card.notes}</p><code>{release_card.id}</code></li></each></ul>
-          <h3>Release asset</h3><label for="release_asset_file">Choose an asset up to 8 MiB</label><input id="release_asset_file" type="file"><div class="actions"><button on-click={upload_release_asset}>Upload</button><button on-click={download_release_asset}>Download</button><button class="danger" on-click={delete_release_asset}>Delete</button></div><label for="release-asset-id">Asset ID</label><input id="release-asset-id" bind-value={release_asset}><p>{release_asset_status}</p>
+          <h3>Release asset</h3><label for="release_asset_file">Choose an asset up to 8 MiB</label><input id="release_asset_file" type="file"><div class="actions"><button on-click={upload_release_asset}>Upload</button><button on-click={download_release_asset}>Download</button><button class="danger" on-click={delete_release_asset}>Delete</button></div><p>{release_asset_status}</p>
           <h3>Git LFS client configuration</h3><pre>git lfs install; git lfs track "*.bin"; git add .gitattributes your-file.bin; git commit; git push</pre>
         </section>
       </route>

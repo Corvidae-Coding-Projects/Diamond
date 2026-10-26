@@ -147,6 +147,7 @@ fn is_project_command(command: &str) -> bool {
         "project-init",
         "project-files-init",
         "project-files-clean",
+        "project-mail-init",
         "project-git-init",
         "project-git-promote",
         "project-git-reconcile",
@@ -262,6 +263,7 @@ fn parse_project_value_option<'a>(
             "serve"
             | "project-files-init"
             | "project-files-clean"
+            | "project-mail-init"
             | "project-git-init"
             | "project-git-promote"
             | "project-git-reconcile"
@@ -315,6 +317,7 @@ fn parse_project_value_option<'a>(
             | "project-init"
             | "project-files-init"
             | "project-files-clean"
+            | "project-mail-init"
             | "project-git-init"
             | "project-git-promote"
             | "project-git-reconcile"
@@ -366,13 +369,7 @@ fn project_command(command: &str, arguments: &[String]) -> Result<()> {
     let options = project_options(command, &arguments[1..])?;
     let project = load_checked_project(path)?;
     let configuration = project_configuration(&options)?;
-    if project_git_command(command, &project, path, &options, configuration.as_deref())? {
-        return Ok(());
-    }
-    if project_delivery_command(command, &project, &options, configuration.as_deref())? {
-        return Ok(());
-    }
-    if project_operations_command(command, &project, &options, configuration.as_deref())? {
+    if project_special_command(command, &project, path, &options, configuration.as_deref())? {
         return Ok(());
     }
     match command {
@@ -466,6 +463,51 @@ fn load_checked_project(path: &Path) -> Result<diamond::CheckedProject> {
         diamond::compile_project(path)
     }
     .map_err(|error| anyhow::Error::msg(safe_text(&error.to_string())))
+}
+
+fn project_special_command(
+    command: &str,
+    project: &diamond::CheckedProject,
+    path: &Path,
+    options: &ProjectOptions<'_>,
+    configuration: Option<&String>,
+) -> Result<bool> {
+    Ok(
+        project_git_command(command, project, path, options, configuration)?
+            || project_delivery_command(command, project, options, configuration)?
+            || project_operations_command(command, project, options, configuration)?
+            || project_mail_command(command, project, options, configuration)?,
+    )
+}
+
+fn project_mail_command(
+    command: &str,
+    project: &diamond::CheckedProject,
+    options: &ProjectOptions<'_>,
+    configuration: Option<&String>,
+) -> Result<bool> {
+    if command != "project-mail-init" {
+        return Ok(false);
+    }
+    let source = Zeroizing::new(
+        std::env::var(
+            options
+                .runtime_env
+                .context("mail initialization requires --runtime-env VARIABLE")?,
+        )
+        .map_err(|_| anyhow::Error::msg("runtime configuration is missing or invalid UTF-8"))?,
+    );
+    let grants = diamond::RuntimeGrants::from_json(&source)?;
+    println!(
+        "{}",
+        project.initialize_mail(
+            configuration
+                .map(String::as_str)
+                .context("mail initialization requires --postgres-env VARIABLE")?,
+            &grants,
+        )?
+    );
+    Ok(true)
 }
 
 fn project_delivery_command(
@@ -1184,6 +1226,9 @@ fn help() {
     );
     println!(
         "\nDelivery commands:\n  diamond project-delivery-init PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-delivery-work PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-pages-serve PROJECT --listen 127.0.0.1:PORT --binding NAME --postgres-env VARIABLE --runtime-env VARIABLE"
+    );
+    println!(
+        "\nMail commands:\n  diamond project-mail-init PROJECT --postgres-env VARIABLE --runtime-env VARIABLE"
     );
     println!(
         "\nOperations commands:\n  diamond project-ops-init PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-ops-work PROJECT --postgres-env VARIABLE --runtime-env VARIABLE"

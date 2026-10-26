@@ -134,9 +134,11 @@ impl CheckedProject {
             }
         }
         let _objects = super::files::Store::open(self, configuration, runtime, false)?;
+        super::mail::validate(self, configuration, runtime)?;
+        super::secrets::validate_runtime(self, runtime)?;
         let mut db = PostgresStore::open_control(self, configuration, None)?;
         db.finish_request(Ok(()))?;
-        Ok(serde_json::json!({"valid":true,"origin":public_origin,"authority":authority,"contract":super::artifact::contract_id(self)?,"capabilities":self.manifest.provides,"servers":2,"workers":if self.jobs.is_empty(){0}else{2},"proxy":"loopback only; preserve Host; strip Forwarded and X-Forwarded-*; TLS at edge","migration":"stop all instances; current version only","backup":"quiesced encrypted snapshots; isolated restore; jobs paused"}).to_string())
+        Ok(serde_json::json!({"valid":true,"origin":public_origin,"authority":authority,"contract":super::artifact::contract_id(self)?,"capabilities":self.manifest.provides,"servers":2,"workers":if self.jobs.is_empty()&&self.manifest.mail.is_none()&&self.workflows.is_empty(){0}else{2},"proxy":"loopback only; preserve Host; strip Forwarded and X-Forwarded-*; TLS at edge","migration":"stop all instances; current version only","backup":"quiesced encrypted snapshots; isolated restore; jobs, workflows, and mail paused"}).to_string())
     }
     /// Select explicit job recovery after an isolated restore. `resume` permits at-least-once redelivery.
     ///
@@ -155,15 +157,39 @@ impl CheckedProject {
         }
         let _guard = guard(self, configuration, true)?;
         let mut db = PostgresStore::open_control(self, configuration, None)?;
-        if policy == "cancel" {
-            db.connection.query("UPDATE diamond_w7.jobs SET state='cancelled',fence=fence+1,outcome='restore_cancelled' WHERE app=$1 AND state IN ('pending','running')", &[&db.app])?;
-        } else {
-            db.connection.query("UPDATE diamond_w7.jobs SET state='pending',fence=fence+1,lease=NULL,due=clock_timestamp() WHERE app=$1 AND state='running'", &[&db.app])?;
+        if !self.manifest.jobs.is_empty() || !self.manifest.events.is_empty() {
+            if policy == "cancel" {
+                db.connection.query("UPDATE diamond_w7.jobs SET state='cancelled',fence=fence+1,outcome='restore_cancelled' WHERE app=$1 AND state IN ('pending','running')", &[&db.app])?;
+            } else {
+                db.connection.query("UPDATE diamond_w7.jobs SET state='pending',fence=fence+1,lease=NULL,due=clock_timestamp() WHERE app=$1 AND state='running'", &[&db.app])?;
+            }
+            db.connection.query(
+                "UPDATE diamond_w7.apps SET paused=false WHERE app=$1",
+                &[&db.app],
+            )?;
         }
-        db.connection.query(
-            "UPDATE diamond_w7.apps SET paused=false WHERE app=$1",
-            &[&db.app],
-        )?;
+        if self.manifest.mail.is_some() {
+            if policy == "cancel" {
+                db.connection.query("UPDATE diamond_mail.outbox SET state='cancelled',fence=fence+1,outcome='restore_cancelled' WHERE app=$1 AND state IN ('pending','running')", &[&db.app])?;
+            } else {
+                db.connection.query("UPDATE diamond_mail.outbox SET state='pending',fence=fence+1,lease=NULL,due=clock_timestamp() WHERE app=$1 AND state='running'", &[&db.app])?;
+            }
+            db.connection.query(
+                "UPDATE diamond_mail.apps SET paused=false WHERE app=$1",
+                &[&db.app],
+            )?;
+        }
+        if !self.manifest.workflows.is_empty() {
+            if policy == "cancel" {
+                db.connection.query("UPDATE diamond_workflows.executions SET status='cancelled',fence=fence+1,lease=NULL,outcome='restore_cancelled' WHERE app=$1 AND status IN ('pending','waiting','running','cancel_requested','cancelling')", &[&db.app])?;
+            } else {
+                db.connection.query("UPDATE diamond_workflows.executions SET status=CASE WHEN status='cancelling' THEN 'cancel_requested' ELSE 'pending' END,fence=fence+1,lease=NULL,due=clock_timestamp() WHERE app=$1 AND status IN ('running','cancelling')", &[&db.app])?;
+            }
+            db.connection.query(
+                "UPDATE diamond_workflows.apps SET paused=false WHERE app=$1",
+                &[&db.app],
+            )?;
+        }
         db.finish_request(Ok(()))
     }
 }

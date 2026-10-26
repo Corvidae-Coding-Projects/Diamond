@@ -118,7 +118,7 @@ fn resolve_durable(
     durable: &BTreeMap<String, (String, String)>,
 ) -> Result<()> {
     for (binding, (resource, name)) in durable {
-        let ty = if binding.starts_with("jobs/") {
+        let ty = if binding.starts_with("jobs/") || binding.starts_with("workflows/") {
             program
                 .functions
                 .get(name)
@@ -178,6 +178,8 @@ fn declare_types(
                     "Option",
                     "Result",
                     "List",
+                    "Blob",
+                    "Stream",
                 ]
                 .contains(&name.as_str()))
         {
@@ -240,36 +242,18 @@ fn resolve(
         ));
     }
     Ok(match ty {
-        TypeName::Named(name) => match name.as_str() {
-            "Int" => Type::Int,
-            "Decimal" => Type::Decimal,
-            "Timestamp" => Type::Timestamp,
-            "Duration" => Type::Duration,
-            "Bool" => Type::Bool,
-            "Text" => Type::Text,
-            "Unit" => Type::Unit,
-            "Html" => Type::Html,
-            "Url" => Type::Url,
-            "Response" => Type::Response,
-            "DataError" => Type::DataError,
-            _ if records.contains_key(name) => Type::Record(name.clone()),
-            _ if enums.contains_key(name) => Type::Enum(name.clone()),
-            _ => {
-                return resolve(
-                    aliases.get(name).ok_or_else(|| {
-                        Error::diagnostic("D103", location, format!("unknown type {name}"))
-                    })?,
-                    aliases,
-                    records,
-                    enums,
-                    depth + 1,
-                    location,
-                );
-            }
-        },
+        TypeName::Named(name) => {
+            return resolve_named(name, aliases, records, enums, depth, location);
+        }
         TypeName::Id(tag) if !tag.is_empty() => Type::Id(tag.clone()),
         TypeName::Secret(tag) if crate::project::resolve::identifier(tag) => {
             Type::Secret(tag.clone())
+        }
+        TypeName::Blob(binding) if crate::project::resolve::identifier(binding) => {
+            Type::Blob(binding.clone())
+        }
+        TypeName::Stream(channel) if crate::project::resolve::identifier(channel) => {
+            Type::Stream(channel.clone())
         }
         TypeName::BoundedText(a, b) => Type::BoundedText(*a, *b),
         TypeName::Generic(name, arguments) if name == "Option" && arguments.len() == 1 => {
@@ -329,6 +313,43 @@ fn resolve(
         }
         _ => {
             return Err(Error::unsupported(location, format!("type {ty:?}")));
+        }
+    })
+}
+
+fn resolve_named(
+    name: &str,
+    aliases: &BTreeMap<String, TypeName>,
+    records: &BTreeMap<String, hir::Record>,
+    enums: &BTreeMap<String, hir::Enum>,
+    depth: usize,
+    location: Location,
+) -> Result<Type> {
+    Ok(match name {
+        "Int" => Type::Int,
+        "Decimal" => Type::Decimal,
+        "Timestamp" => Type::Timestamp,
+        "Duration" => Type::Duration,
+        "Bool" => Type::Bool,
+        "Text" => Type::Text,
+        "Unit" => Type::Unit,
+        "Html" => Type::Html,
+        "Url" => Type::Url,
+        "Response" => Type::Response,
+        "DataError" => Type::DataError,
+        _ if records.contains_key(name) => Type::Record(name.into()),
+        _ if enums.contains_key(name) => Type::Enum(name.into()),
+        _ => {
+            return resolve(
+                aliases.get(name).ok_or_else(|| {
+                    Error::diagnostic("D103", location, format!("unknown type {name}"))
+                })?,
+                aliases,
+                records,
+                enums,
+                depth + 1,
+                location,
+            );
         }
     })
 }
@@ -1435,10 +1456,20 @@ impl<'a> Checker<'a> {
             "job_cancel",
             "event_emit",
             "job_key",
+            "workflow_submit",
+            "workflow_status",
+            "workflow_state",
+            "workflow_cancel",
         ]
         .contains(&method)
         {
+            if method.starts_with("workflow_") {
+                return self.workflow_call(method, args, types, location);
+            }
             return self.durable_call(method, args, types, location);
+        }
+        if ["mail_submit", "mail_status", "mail_cancel", "mail_suppress"].contains(&method) {
+            return self.mail_call(method, args, types, location);
         }
         let operation = crate::host::operation(method).ok_or_else(|| {
             Error::diagnostic("D310", location, "unknown registered host operation")
@@ -1520,23 +1551,11 @@ impl<'a> Checker<'a> {
         if !types.is_empty() {
             return Err(Error::unsupported(location, "generic function calls"));
         }
+        if name == "stream" {
+            return self.stream_call(args, location);
+        }
         if crate::standard::is_builtin(name) {
-            let types = args
-                .iter()
-                .map(|(named, expr)| {
-                    if named.is_some() {
-                        return Err(Error::diagnostic(
-                            "D117",
-                            location,
-                            "utilities take positional arguments",
-                        ));
-                    }
-                    self.expr(expr)
-                })
-                .collect::<Result<Vec<_>>>()?;
-            return crate::standard::signature(name, &types).ok_or_else(|| {
-                Error::diagnostic("D117", location, "utility argument types do not match")
-            });
+            return self.standard_call(name, args, location);
         }
         if self.program.host_operations
             && let Some(ty) = self.project_intrinsic(name, args, location)?
@@ -1617,6 +1636,58 @@ impl<'a> Checker<'a> {
         self.opens_transaction |= function.opens_transaction;
         self.calls.insert(name.into());
         Ok(function.result.clone())
+    }
+
+    fn stream_call(&mut self, args: &[(Option<String>, Expr)], location: Location) -> Result<Type> {
+        let [(_, channel), (_, parent)] = args else {
+            return Err(Error::diagnostic(
+                "D117",
+                location,
+                "stream requires a static channel and parent Text",
+            ));
+        };
+        let ExprKind::Text(channel) = &channel.kind else {
+            return Err(Error::diagnostic(
+                "D117",
+                location,
+                "stream channel must be a static name",
+            ));
+        };
+        if args.iter().any(|(name, _)| name.is_some())
+            || !crate::project::resolve::identifier(channel)
+            || !Type::Text.accepts(&self.expr(parent)?)
+        {
+            return Err(Error::diagnostic(
+                "D117",
+                location,
+                "stream requires a static channel and parent Text",
+            ));
+        }
+        Ok(Type::Stream(channel.clone()))
+    }
+
+    fn standard_call(
+        &mut self,
+        name: &str,
+        args: &[(Option<String>, Expr)],
+        location: Location,
+    ) -> Result<Type> {
+        let types = args
+            .iter()
+            .map(|(named, expr)| {
+                if named.is_some() {
+                    return Err(Error::diagnostic(
+                        "D117",
+                        location,
+                        "utilities take positional arguments",
+                    ));
+                }
+                self.expr(expr)
+            })
+            .collect::<Result<Vec<_>>>()?;
+        crate::standard::signature(name, &types).ok_or_else(|| {
+            Error::diagnostic("D117", location, "utility argument types do not match")
+        })
     }
 
     fn check_form(&self, name: &str, location: Location) -> Result<()> {

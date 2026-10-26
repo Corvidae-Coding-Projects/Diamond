@@ -3,12 +3,12 @@ name = "AuthorityFunctionExamples"
 server = "server"
 browser = "ui"
 component = "AuthorityExamples"
-provides = ["PostgresRead", "Jobs", "JobKey", "Events", "Http<inventory>", "DbRead<Documents>", "DbWrite<Documents>"]
+provides = ["PostgresRead", "Jobs", "JobKey", "Events", "Workflows", "Http<inventory>", "Mail<document_mail>", "DbRead<Documents>", "DbWrite<Documents>"]
 
 [modules.server]
 path = "server.dia"
 target = "server"
-provides = ["PostgresRead", "Jobs", "JobKey", "Events", "Http<inventory>", "DbRead<Documents>", "DbWrite<Documents>"]
+provides = ["PostgresRead", "Jobs", "JobKey", "Events", "Workflows", "Http<inventory>", "Mail<document_mail>", "DbRead<Documents>", "DbWrite<Documents>"]
 
 [modules.ui]
 path = "ui.dia"
@@ -22,6 +22,15 @@ start_job = "server.start_job"
 job_status = "server.job_status"
 cancel_job = "server.cancel_job"
 publish_event = "server.publish_event"
+notify_document = "server.notify_document"
+mail_status = "server.mail_status"
+cancel_mail = "server.cancel_mail"
+set_mail_suppression = "server.set_mail_suppression"
+start_document_flow = "server.start_document_flow"
+document_flow_status = "server.document_flow_status"
+document_flow_state = "server.document_flow_state"
+cancel_document_flow = "server.cancel_document_flow"
+document_graph = "server.document_graph"
 
 [http_api]
 version = 1
@@ -59,3 +68,46 @@ delivery = "deduplicated"
 [events.document_changes]
 resource = "Documents"
 payload = "Text"
+
+[mail]
+profile = "mail-v1"
+
+[mail.bindings.document_mail]
+resource = "Documents"
+max_attempts = 3
+
+[mail.bindings.document_mail.templates.notice]
+subject = "Document notification"
+
+[secrets.inventory_bearer]
+adapter = "http"
+binding = "inventory"
+kind = "bearer"
+audience = "inventory"
+
+[queries.document_graph]
+resources = ["Documents"]
+selection = ["id", "owner", "title"]
+cursor_argument = "after"
+limit_argument = "limit"
+max_depth = 1
+max_nodes = 40
+max_rows = 10
+max_cost = 40
+max_queries = 1
+timeout_ms = 5000
+max_response_bytes = 32768
+
+[workflows.document_flow]
+function = "server.advance_document_flow"
+resource = "Documents"
+state = "DocumentFlow"
+initial = "Queued"
+terminal = ["Completed", "Cancelled"]
+timers = { Waiting = 1 }
+compensation = "server.compensate_document_flow"
+grants = ["DbRead<Documents>", "DbWrite<Documents>"]
+max_attempts = 3
+max_transitions = 8
+retry = "transactional"
+concurrency = "parent"

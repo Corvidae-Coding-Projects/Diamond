@@ -74,12 +74,12 @@ impl Checker<'_> {
             "http_get" => 1,
             _ => 2,
         };
-        let count = match method {
-            "secret" => 1,
-            "http_get" => 3,
-            _ => 4,
+        let valid_count = match method {
+            "secret" => args.len() == 1,
+            "http_get" => matches!(args.len(), 2 | 3),
+            _ => matches!(args.len(), 3 | 4),
         };
-        if types.len() != expected_types || args.len() != count {
+        if types.len() != expected_types || !valid_count {
             return Err(Error::diagnostic(
                 "D310",
                 location,
@@ -87,7 +87,22 @@ impl Checker<'_> {
             ));
         }
         if method != "secret" {
-            if !Type::Text.accepts(&self.expr(&args[1].1)?) || self.expr(&args[2].1)? != secret {
+            let explicit_secret = args.len() == if method == "http_get" { 3 } else { 4 };
+            if !explicit_secret
+                && !self
+                    .program
+                    .grants
+                    .contains(&Effect::Host(format!("SecretHttp<{name}>")))
+            {
+                return Err(Error::diagnostic(
+                    "D310",
+                    location,
+                    "automatic HTTP authentication requires a declarative secret binding",
+                ));
+            }
+            if !Type::Text.accepts(&self.expr(&args[1].1)?)
+                || explicit_secret && self.expr(&args[2].1)? != secret
+            {
                 return Err(Error::diagnostic(
                     "D310",
                     location,
@@ -106,7 +121,8 @@ impl Checker<'_> {
             }
             if method == "http_post" {
                 let expected = resolve_type(&types[0], self.program, location)?;
-                if !expected.accepts(&self.expr(&args[3].1)?) {
+                let body = if explicit_secret { 3 } else { 2 };
+                if !expected.accepts(&self.expr(&args[body].1)?) {
                     return Err(Error::diagnostic(
                         "D310",
                         location,
@@ -481,6 +497,170 @@ impl Checker<'_> {
 }
 
 impl Checker<'_> {
+    pub(super) fn workflow_call(
+        &mut self,
+        method: &str,
+        args: &[(Option<String>, Expr)],
+        types: &[TypeName],
+        location: Location,
+    ) -> Result<Type> {
+        let (count, generic) = match method {
+            "workflow_submit" => (4, true),
+            "workflow_state" => (2, true),
+            "workflow_status" | "workflow_cancel" => (2, false),
+            _ => return Err(Error::Denied),
+        };
+        if args.len() != count
+            || types.len() != usize::from(generic)
+            || args.iter().any(|(name, _)| name.is_some())
+        {
+            return Err(Error::diagnostic(
+                "D310",
+                location,
+                "invalid workflow operation signature",
+            ));
+        }
+        let Some(Expr {
+            kind: ExprKind::Text(binding),
+            ..
+        }) = args.first().map(|(_, expression)| expression)
+        else {
+            return Err(Error::diagnostic(
+                "D310",
+                location,
+                "workflow binding requires a static identifier",
+            ));
+        };
+        let (resource, input) = self
+            .program
+            .durable
+            .get(&format!("workflows/{binding}"))
+            .cloned()
+            .ok_or_else(|| Error::diagnostic("D310", location, "unknown workflow binding"))?;
+        let state = self
+            .program
+            .durable
+            .get(&format!("workflow-states/{binding}"))
+            .map(|(_, state)| state.clone())
+            .ok_or_else(|| Error::diagnostic("D310", location, "unknown workflow state"))?;
+        for (index, (_, argument)) in args.iter().enumerate() {
+            let expected = if method == "workflow_submit" && index == 2 {
+                input.clone()
+            } else {
+                Type::Text
+            };
+            if !expected.accepts(&self.expr(argument)?) {
+                return Err(Error::diagnostic(
+                    "D310",
+                    location,
+                    "workflow arguments differ from the declared binding",
+                ));
+            }
+        }
+        if generic {
+            let declared = resolve_type(&types[0], self.program, location)?;
+            let expected = if method == "workflow_submit" {
+                input
+            } else {
+                state.clone()
+            };
+            if declared != expected || !crate::project::wire::safe_type(&declared, self.program) {
+                return Err(Error::diagnostic(
+                    "D310",
+                    location,
+                    "workflow generic type differs from the declared binding",
+                ));
+            }
+        }
+        self.effects.insert(Effect::Read(resource.clone()));
+        if method != "workflow_status" && method != "workflow_state" {
+            self.effects.insert(Effect::Write(resource));
+        }
+        self.effects.insert(Effect::Host("Workflows".into()));
+        Ok(Type::Result(Box::new(if method == "workflow_state" {
+            state
+        } else {
+            Type::Text
+        })))
+    }
+
+    pub(super) fn mail_call(
+        &mut self,
+        method: &str,
+        args: &[(Option<String>, Expr)],
+        types: &[TypeName],
+        location: Location,
+    ) -> Result<Type> {
+        let count = match method {
+            "mail_submit" => 6,
+            _ => 2,
+        };
+        if !types.is_empty() || args.len() != count || args.iter().any(|(name, _)| name.is_some()) {
+            return Err(Error::diagnostic(
+                "D310",
+                location,
+                "invalid mail operation signature",
+            ));
+        }
+        let Some(Expr {
+            kind: ExprKind::Text(binding),
+            ..
+        }) = args.first().map(|(_, expression)| expression)
+        else {
+            return Err(Error::diagnostic(
+                "D310",
+                location,
+                "mail binding requires a static name",
+            ));
+        };
+        let Some((resource, _)) = self.program.durable.get(&format!("mail/{binding}")) else {
+            return Err(Error::diagnostic("D310", location, "unknown mail binding"));
+        };
+        if method == "mail_submit" {
+            let Some(Expr {
+                kind: ExprKind::Text(template),
+                ..
+            }) = args.get(3).map(|(_, expression)| expression)
+            else {
+                return Err(Error::diagnostic(
+                    "D310",
+                    location,
+                    "mail template requires a static name",
+                ));
+            };
+            if !self
+                .program
+                .durable
+                .contains_key(&format!("mail/{binding}/{template}"))
+            {
+                return Err(Error::diagnostic("D310", location, "unknown mail template"));
+            }
+        }
+        for (index, (_, argument)) in args.iter().enumerate() {
+            let expected = if method == "mail_suppress" && index == 1 {
+                Type::Bool
+            } else {
+                Type::Text
+            };
+            if !expected.accepts(&self.expr(argument)?) {
+                return Err(Error::diagnostic(
+                    "D310",
+                    location,
+                    "mail arguments do not match the declared operation",
+                ));
+            }
+        }
+        if method != "mail_suppress" {
+            self.effects.insert(Effect::Read(resource.clone()));
+            if method != "mail_status" {
+                self.effects.insert(Effect::Write(resource.clone()));
+            }
+        }
+        self.effects
+            .insert(Effect::Host(format!("Mail<{binding}>")));
+        Ok(Type::Result(Box::new(Type::Text)))
+    }
+
     pub(super) fn durable_call(
         &mut self,
         method: &str,

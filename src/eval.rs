@@ -10,6 +10,31 @@ use crate::syntax::{
 use crate::value::{Failure, Type, VALUE_NODE_WEIGHT, Value, ValueBudget, ValueKind};
 use std::collections::BTreeMap;
 
+fn mail_method(method: &str) -> bool {
+    ["mail_submit", "mail_status", "mail_cancel", "mail_suppress"].contains(&method)
+}
+
+fn durable_method(method: &str) -> bool {
+    [
+        "job_submit",
+        "job_status",
+        "job_cancel",
+        "event_emit",
+        "job_key",
+    ]
+    .contains(&method)
+}
+
+fn workflow_method(method: &str) -> bool {
+    [
+        "workflow_submit",
+        "workflow_status",
+        "workflow_state",
+        "workflow_cancel",
+    ]
+    .contains(&method)
+}
+
 fn pattern_matches(pattern: &Pattern, value: &Value) -> bool {
     match (pattern, &value.0) {
         (Pattern::Binding(_), _) => true,
@@ -95,6 +120,7 @@ pub(crate) struct Interpreter<'a, 'scope> {
     fuel: usize,
     call_depth: usize,
     values: ValueBudget,
+    query_reads: Option<usize>,
 }
 
 impl<'a, 'scope> Interpreter<'a, 'scope> {
@@ -116,6 +142,7 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
             fuel: 100_000,
             call_depth: 0,
             values: ValueBudget::new(),
+            query_reads: None,
         }
     }
 
@@ -139,6 +166,11 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
         store: &'a mut crate::project::storage::PostgresStore,
     ) -> Self {
         self.postgres = Some(store);
+        self
+    }
+
+    pub(crate) fn with_query_limit(mut self, limit: usize) -> Self {
+        self.query_reads = Some(limit);
         self
     }
 
@@ -485,6 +517,54 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
         Value::operation(result)
     }
 
+    fn mail_call(
+        &mut self,
+        method: &str,
+        arguments: &[(Option<String>, Expr)],
+        locals: &BTreeMap<String, Value>,
+    ) -> Result<Value> {
+        let values = arguments
+            .iter()
+            .map(|(_, value)| self.expr(value, locals))
+            .collect::<Result<Vec<_>>>()?;
+        let result = self
+            .postgres
+            .as_deref_mut()
+            .ok_or(Error::Denied)?
+            .mail_call(self.scope, method, &values);
+        if let Err(error) = &result {
+            self.postgres
+                .as_deref_mut()
+                .ok_or(Error::Denied)?
+                .mark_failed(error);
+        }
+        Value::operation(result)
+    }
+
+    fn workflow_call(
+        &mut self,
+        method: &str,
+        arguments: &[(Option<String>, Expr)],
+        locals: &BTreeMap<String, Value>,
+    ) -> Result<Value> {
+        let values = arguments
+            .iter()
+            .map(|(_, value)| self.expr(value, locals))
+            .collect::<Result<Vec<_>>>()?;
+        let result = self
+            .postgres
+            .as_deref_mut()
+            .ok_or(Error::Denied)?
+            .workflow_call(self.scope, method, &values);
+        if let Err(error) = &result {
+            self.postgres
+                .as_deref_mut()
+                .ok_or(Error::Denied)?
+                .mark_failed(error);
+        }
+        Value::operation(result)
+    }
+
     fn integration_call(
         &mut self,
         method: &str,
@@ -509,8 +589,21 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
         let Some(Value(ValueKind::Text(path))) = values.get(1) else {
             return Err(Error::Denied);
         };
-        let Some(Value(ValueKind::Secret(handle))) = values.get(2) else {
-            return Err(Error::Denied);
+        let explicit = values
+            .get(2)
+            .is_some_and(|value| matches!(value.0, ValueKind::Secret(_)));
+        let automatic;
+        let handle = if explicit {
+            let Some(Value(ValueKind::Secret(handle))) = values.get(2) else {
+                return Err(Error::Denied);
+            };
+            handle
+        } else {
+            automatic = grants.secret(name)?;
+            let Value(ValueKind::Secret(handle)) = &automatic else {
+                return Err(Error::Denied);
+            };
+            handle
         };
         let result = crate::checker::resolve_type(
             types.last().ok_or(Error::Denied)?,
@@ -523,7 +616,11 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
                 name,
                 path,
                 handle,
-                body: values.get(3),
+                body: if method == "http_post" {
+                    values.get(if explicit { 3 } else { 2 })
+                } else {
+                    None
+                },
             },
             &result,
             self.program,
@@ -1083,16 +1180,14 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
             && let ExprKind::Name(name) = &base.kind
         {
             if name == "host" && !locals.contains_key(name) {
-                if [
-                    "job_submit",
-                    "job_status",
-                    "job_cancel",
-                    "event_emit",
-                    "job_key",
-                ]
-                .contains(&method.as_str())
-                {
+                if durable_method(method) {
                     return self.durable_call(method, arguments, locals);
+                }
+                if mail_method(method) {
+                    return self.mail_call(method, arguments, locals);
+                }
+                if workflow_method(method) {
+                    return self.workflow_call(method, arguments, locals);
                 }
                 if matches!(method.as_str(), "secret" | "http_get" | "http_post") {
                     return self.integration_call(
@@ -1183,6 +1278,11 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
         arguments: &[(Option<String>, Expr)],
         locals: &BTreeMap<String, Value>,
     ) -> Result<Value> {
+        if let Some(remaining) = &mut self.query_reads {
+            *remaining = remaining
+                .checked_sub(1)
+                .ok_or(Error::Limit("query database operations"))?;
+        }
         let program = self.program;
         let (resource, _) = program
             .resources

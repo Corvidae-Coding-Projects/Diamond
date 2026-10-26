@@ -2,6 +2,7 @@
 """Exercise Git/OAuth authority boundaries through the real Diamond checker."""
 
 import json
+import hashlib
 import pathlib
 import shutil
 import subprocess
@@ -190,6 +191,8 @@ def main() -> None:
     )
 
     receipt = {
+        "status": "PASS" if all(result["pass"] for result in results) else "FAIL",
+        "binary_sha256": hashlib.sha256(BINARY.read_bytes()).hexdigest(),
         "profile": "Diamond Git and OAuth compiler boundaries",
         "passed": sum(1 for result in results if result["pass"]),
         "total": len(results),

@@ -6,38 +6,7 @@ use serde_json::{Value as Json, json};
 use std::collections::BTreeMap;
 
 pub(crate) fn safe_type(ty: &Type, p: &CheckedProgram) -> bool {
-    safe(ty, p, 0)
-}
-fn safe(ty: &Type, p: &CheckedProgram, depth: usize) -> bool {
-    if depth > 32 {
-        return false;
-    }
-    match ty {
-        Type::Int
-        | Type::Decimal
-        | Type::Timestamp
-        | Type::Duration
-        | Type::Bool
-        | Type::Text
-        | Type::BoundedText(..)
-        | Type::Unit
-        | Type::Id(_)
-        | Type::Never => true,
-        Type::List(t) | Type::Option(t) | Type::Result(t) | Type::Success(t) => {
-            safe(t, p, depth + 1)
-        }
-        Type::AppResult(t, e) => safe(t, p, depth + 1) && safe(e, p, depth + 1),
-        Type::Record(n) => p
-            .records
-            .get(n)
-            .is_some_and(|r| r.fields.values().all(|f| safe(&f.ty, p, depth + 1))),
-        Type::Enum(n) => p.enums.get(n).is_some_and(|e| {
-            e.variants
-                .values()
-                .all(|fs| fs.iter().all(|(_, t)| safe(t, p, depth + 1)))
-        }),
-        _ => false,
-    }
+    crate::security::type_security(ty, p).client_wire_safe
 }
 pub(crate) fn encode(value: &Value) -> Result<Json> {
     value.weight()?;

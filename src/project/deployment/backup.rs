@@ -268,6 +268,9 @@ fn runtime_roots(runtime: &crate::RuntimeGrants) -> Result<BTreeMap<String, Path
     for (binding, grant) in &runtime.operations {
         roots.insert(format!("operations:{binding}"), grant.root.clone());
     }
+    for (binding, grant) in &runtime.mail {
+        roots.insert(format!("mail:{binding}"), grant.root.clone());
+    }
     if roots.is_empty() {
         return Err(input(
             "backup requires at least one runtime filesystem root",
@@ -563,19 +566,85 @@ fn validate_adapters(
     }
     super::super::git::validate(project, configuration, runtime)?;
     super::super::delivery::validate(project, configuration, runtime)?;
-    super::super::operations::validate(project, configuration, runtime)
+    super::super::operations::validate(project, configuration, runtime)?;
+    super::super::mail::validate(project, configuration, runtime)?;
+    super::super::secrets::validate_runtime(project, runtime)
 }
 
-fn set_jobs_paused(project: &CheckedProject, configuration: &str, paused: bool) -> Result<()> {
-    if project.manifest.jobs.is_empty() && project.manifest.events.is_empty() {
+#[derive(Clone, Copy, Default)]
+struct PauseState {
+    jobs: Option<bool>,
+    mail: Option<bool>,
+    workflows: Option<bool>,
+}
+
+fn set_durable_paused(
+    project: &CheckedProject,
+    configuration: &str,
+    state: PauseState,
+) -> Result<()> {
+    if project.manifest.jobs.is_empty()
+        && project.manifest.events.is_empty()
+        && project.manifest.mail.is_none()
+        && project.manifest.workflows.is_empty()
+    {
         return Ok(());
     }
     let mut database = PostgresStore::open_control(project, configuration, None)?;
-    database.connection.query(
-        "UPDATE diamond_w7.apps SET paused=$2 WHERE app=$1",
-        &[&database.app, &paused],
-    )?;
+    if let Some(paused) = state.jobs {
+        database.connection.query(
+            "UPDATE diamond_w7.apps SET paused=$2 WHERE app=$1",
+            &[&database.app, &paused],
+        )?;
+    }
+    if let Some(paused) = state.mail {
+        database.connection.query(
+            "UPDATE diamond_mail.apps SET paused=$2 WHERE app=$1",
+            &[&database.app, &paused],
+        )?;
+    }
+    if let Some(paused) = state.workflows {
+        database.connection.query(
+            "UPDATE diamond_workflows.apps SET paused=$2 WHERE app=$1",
+            &[&database.app, &paused],
+        )?;
+    }
     database.finish_request(Ok(()))
+}
+
+fn pause_state(project: &CheckedProject, database: &mut PostgresStore) -> Result<PauseState> {
+    let mut state = PauseState::default();
+    if !project.manifest.jobs.is_empty() || !project.manifest.events.is_empty() {
+        state.jobs = Some(
+            database.connection.query(
+                "SELECT paused FROM diamond_w7.apps WHERE app=$1",
+                &[&database.app],
+            )?[0]
+                .try_get(0)
+                .map_err(|_| Error::Denied)?,
+        );
+    }
+    if project.manifest.mail.is_some() {
+        state.mail = Some(
+            database.connection.query(
+                "SELECT paused FROM diamond_mail.apps WHERE app=$1",
+                &[&database.app],
+            )?[0]
+                .try_get(0)
+                .map_err(|_| Error::Denied)?,
+        );
+    }
+    if !project.manifest.workflows.is_empty() {
+        state.workflows = Some(
+            database.connection.query(
+                "SELECT paused FROM diamond_workflows.apps WHERE app=$1",
+                &[&database.app],
+            )?[0]
+                .try_get(0)
+                .map_err(|_| Error::Denied)?,
+        );
+    }
+    Ok(state)
 }
 
 fn restore_database(configuration: &str, dump: &Path) -> Result<()> {
@@ -611,6 +680,18 @@ fn revoke_restored_authority(project: &CheckedProject, configuration: &str) -> R
     if !project.manifest.jobs.is_empty() || !project.manifest.events.is_empty() {
         database.connection.query(
             "UPDATE diamond_w7.apps SET paused=true WHERE app=$1",
+            &[&database.app],
+        )?;
+    }
+    if project.manifest.mail.is_some() {
+        database.connection.query(
+            "UPDATE diamond_mail.apps SET paused=true WHERE app=$1",
+            &[&database.app],
+        )?;
+    }
+    if !project.manifest.workflows.is_empty() {
+        database.connection.query(
+            "UPDATE diamond_workflows.apps SET paused=true WHERE app=$1",
             &[&database.app],
         )?;
     }
@@ -654,16 +735,7 @@ impl CheckedProject {
                 "snapshot profile requires one application per database",
             ));
         }
-        let was_paused = if self.manifest.jobs.is_empty() && self.manifest.events.is_empty() {
-            false
-        } else {
-            database.connection.query(
-                "SELECT paused FROM diamond_w7.apps WHERE app=$1",
-                &[&database.app],
-            )?[0]
-                .try_get(0)
-                .map_err(|_| Error::Denied)?
-        };
+        let was_paused = pause_state(self, &mut database)?;
         database.finish_request(Ok(()))?;
         private_new(destination)?;
         let temporary = destination.join("plaintext-work");
@@ -674,9 +746,17 @@ impl CheckedProject {
         command
             .args(["--format=custom", "--no-owner", "--no-acl", "--file"])
             .arg(&dump);
-        set_jobs_paused(self, configuration, true)?;
+        set_durable_paused(
+            self,
+            configuration,
+            PauseState {
+                jobs: was_paused.jobs.map(|_| true),
+                mail: was_paused.mail.map(|_| true),
+                workflows: was_paused.workflows.map(|_| true),
+            },
+        )?;
         let dump_result = run(command, None);
-        let resume_result = set_jobs_paused(self, configuration, was_paused);
+        let resume_result = set_durable_paused(self, configuration, was_paused);
         dump_result?;
         resume_result?;
         let database_entry = digest(&dump, MAX_DATABASE_BYTES)?;

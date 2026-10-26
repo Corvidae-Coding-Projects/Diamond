@@ -121,9 +121,17 @@ state selected: Text = ""
 state live: Text = ""
 state cursor: Text = "0"
 # Inside html:
-<watch channel="issue_changes" parent={selected} into="live" cursor="cursor"></watch>
+<watch stream={stream("issue_changes", selected)} into="live" cursor="cursor"></watch>
 <p aria-live="polite">{live}</p>
 ```
+
+`stream` requires a static declared channel and produces an opaque
+`Stream<"issue_changes">`; ordinary `Text` cannot be substituted, displayed,
+persisted, compared, or sent through RPC. The descriptor carries no authority.
+An empty parent is an inactive descriptor and opens no socket, so initial empty
+selection state is safe without a conditional. Any other malformed parent fails.
+The runtime rechecks the current session and parent policy when it opens and while
+it holds the socket.
 
 The watch owns one bounded latest-value subscription. It updates typed state and
 cursor together, holds at most one latest message while a component event is
@@ -137,6 +145,12 @@ resync subscription shows a visible error and does not silently grant access.
 Applications also clear private form/results on local identity change; both examples
 demonstrate this. Initialize/reset the cursor deliberately when changing the
 selected resource.
+
+Diamond does not expose network byte streams as managed values. Uploads, downloads,
+HTTP responses, Git traffic, and delivery artifacts remain inside bounded native
+adapters with fixed ceilings and cancellation. Application code receives an opaque
+`Blob<"binding">` or a checked decoded value, so it cannot accidentally turn an
+unbounded body into `Text` or retain request authority in a stream object.
 
 The server polls durable state every 500 ms, revalidating session expiry and current
 parent permissions. A batch is no older than three seconds when a delivery starts;

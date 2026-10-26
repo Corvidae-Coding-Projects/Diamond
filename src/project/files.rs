@@ -297,8 +297,8 @@ pub(super) fn contracts() -> serde_json::Value {
     serde_json::json!({
         "target":"server; generated browser client streams native Files",
         "native_grant":"shared-fs-v1 private shared directory bound to PostgreSQL identity",
-        "arguments":{"begin":"{parent: Text, filename: Text, length: canonical integer Text, media_type: Text}","put":"exact Content-Length octet stream; opaque upload ticket", "finish":"opaque upload ticket", "status":"attachment ID", "download":"attachment ID", "delete":"attachment ID"},
-        "result":"generated ID/state/metadata or bounded attachment stream",
+        "arguments":{"begin":"{parent: Text, filename: Text, length: canonical integer Text, media_type: Text}","put":"exact Content-Length octet stream; opaque upload ticket", "finish":"opaque upload ticket", "status":"Blob<binding>", "download":"Blob<binding>", "delete":"Blob<binding>"},
+        "result":"browser-only opaque Blob<binding>, state/metadata, or bounded attachment stream",
         "effects":"current parent read policy; mutations also require parent update policy and declared DbRead/DbWrite budgets",
         "maximum_stream_bytes":8_388_608,"stream_deadline_ms":30_000,"ticket_lifetime_seconds":900,
         "control_body_bytes":16_384,"control_body_deadline_ms":3000,

@@ -1,0 +1,75 @@
+{
+  "binary_sha256": "91c6ad57530343be10bec2e8c01ff20fa36395e9a305c39cd93dcc34694f0e72",
+  "cleanup_errors": [],
+  "fatal": null,
+  "observations": [
+    {
+      "expected": "artifact inventories kind/audience while source and artifacts contain no handle, environment name, or value",
+      "name": "build-inventory-excludes-deployment-secret",
+      "observed": {
+        "environment_name_absent": true,
+        "inventory": true,
+        "source_handle_absent": true,
+        "value_absent": true
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "native adapter injects the bound credential for both calls without a source-visible value",
+      "name": "adapter-injects-declared-bearer",
+      "observed": {
+        "requests": [
+          {
+            "authorized": true,
+            "body": "",
+            "method": "GET",
+            "path": "/v1/read"
+          },
+          {
+            "authorized": true,
+            "body": "\"bounded body\"",
+            "method": "POST",
+            "path": "/v1/write"
+          }
+        ]
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "a new runtime captures and uses the rotated secret without application-code changes",
+      "name": "restart-captures-rotated-generation",
+      "observed": {
+        "requests": 3,
+        "rotated_authorized": true
+      },
+      "status": "PASS"
+    },
+    {
+      "expected": "worker startup denies missing deployment authority without disclosing value or environment name",
+      "name": "missing-declared-secret-fails-closed-and-redacted",
+      "observed": {
+        "exit": 1,
+        "redacted": true
+      },
+      "status": "PASS"
+    }
+  ],
+  "scope": "Disposable loopback receiver, owned PostgreSQL, and real server/worker startup; no Internet destination.",
+  "shutdowns": [
+    {
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "node": "A",
+      "panic": false
+    },
+    {
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "node": "A",
+      "panic": false
+    }
+  ],
+  "status": "PASS"
+}

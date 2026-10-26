@@ -37,6 +37,11 @@ auth = "public"
 [http_api.operations.read_article]
 function = "server.read_article"
 auth = "public"
+[secrets.inventory_bearer]
+adapter = "http"
+binding = "inventory"
+kind = "bearer"
+audience = "inventory"
 [jobs.notify]
 function = "server.notify"
 resource = "Articles"

@@ -3289,7 +3289,13 @@ pub(super) fn repair_after_restore(
     configuration: &str,
     grants: &crate::RuntimeGrants,
 ) -> Result<()> {
-    let git = project.manifest.git.as_ref().ok_or(Error::Denied)?;
+    let Some(git) = &project.manifest.git else {
+        return if grants.git.is_empty() {
+            Ok(())
+        } else {
+            Err(Error::Denied)
+        };
+    };
     let mut database = PostgresStore::open_control(project, configuration, None)?;
     for binding in git.bindings.keys() {
         let primary = Store::open(&mut database, grants, binding, false)?;

@@ -58,8 +58,7 @@ pub(super) enum Node {
     },
     Route(String, Vec<Self>),
     Watch {
-        channel: String,
-        parent: Expression,
+        stream: Expression,
         into: String,
         cursor: String,
         payload: Type,
@@ -208,8 +207,7 @@ pub(super) fn lower(
 impl Lower<'_> {
     fn expression(&self, value: &Expr, locals: &BTreeMap<String, Type>) -> Result<Expression> {
         let ty = expression_type(self.program, locals.clone(), value)?;
-        if !super::wire::safe_type(&ty, self.program) && ty != Type::DataError && ty != Type::Never
-        {
+        if !crate::security::type_security(&ty, self.program).browser_managed {
             return Err(error(
                 value.location,
                 "browser expression is not a managed browser value",
@@ -336,43 +334,8 @@ impl Lower<'_> {
                     format!("rpc/{name}"),
                 )
             } else if namespace == "files" {
-                let Some((
-                    None,
-                    Expr {
-                        kind: ExprKind::Text(binding),
-                        ..
-                    },
-                )) = arguments.first()
-                else {
-                    return Err(error(
-                        e.location,
-                        "file binding must be a static declared name",
-                    ));
-                };
-                if !self.files.contains(binding)
-                    || !["upload", "status", "delete", "download"].contains(&name.as_str())
-                {
-                    return Err(error(e.location, "unknown file binding or operation"));
-                }
-                if name == "upload"
-                    && !matches!(
-                        arguments.get(2),
-                        Some((
-                            None,
-                            Expr {
-                                kind: ExprKind::Text(_),
-                                ..
-                            }
-                        ))
-                    )
-                {
-                    return Err(error(e.location, "file input id must be static"));
-                }
-                (
-                    vec![Type::Text; if name == "upload" { 3 } else { 2 }],
-                    Type::Text,
-                    format!("files/{name}"),
-                )
+                let (parameters, result) = self.file_signature(name, arguments, e.location)?;
+                (parameters, result, format!("files/{name}"))
             } else {
                 let params = match name.as_str() {
                     "login" => vec![Type::Text, Type::Text],
@@ -418,6 +381,53 @@ impl Lower<'_> {
             Ok(EventValue::Pure(self.expression(e, locals)?))
         }
     }
+    fn file_signature(
+        &self,
+        name: &str,
+        arguments: &[(Option<String>, Expr)],
+        location: Location,
+    ) -> Result<(Vec<Type>, Type)> {
+        let Some((
+            None,
+            Expr {
+                kind: ExprKind::Text(binding),
+                ..
+            },
+        )) = arguments.first()
+        else {
+            return Err(error(
+                location,
+                "file binding must be a static declared name",
+            ));
+        };
+        if !self.files.contains(binding)
+            || !["upload", "status", "delete", "download"].contains(&name)
+        {
+            return Err(error(location, "unknown file binding or operation"));
+        }
+        if name == "upload"
+            && !matches!(
+                arguments.get(2),
+                Some((
+                    None,
+                    Expr {
+                        kind: ExprKind::Text(_),
+                        ..
+                    }
+                ))
+            )
+        {
+            return Err(error(location, "file input id must be static"));
+        }
+        let blob = Type::Blob(binding.clone());
+        Ok(match name {
+            "upload" => (vec![Type::Text, Type::Text, Type::Text], blob),
+            "status" => (vec![Type::Text, blob], Type::Text),
+            "download" => (vec![Type::Text, blob.clone()], blob),
+            "delete" => (vec![Type::Text, blob.clone()], Type::Option(Box::new(blob))),
+            _ => return Err(error(location, "unknown file operation")),
+        })
+    }
     fn nodes(
         &mut self,
         nodes: &[HtmlNode],
@@ -434,12 +444,12 @@ impl Lower<'_> {
                 let expr=|n:&str|match attrs.get(n) {Some(HtmlAttribute::Expression(e))=>Ok((*e).clone()),_=>Err(error(Location::default(),"directive requires an expression"))};
                 match tag.as_str() {
                     "watch"=>{
-                        if attrs.len()!=4 || !children.iter().all(|n|matches!(n,HtmlNode::Text(t) if t.trim().is_empty())) {return Err(error(Location::default(),"watch requires channel, parent, into, cursor and no content"));}
-                        let channel=literal("channel")?;let into=literal("into")?;let cursor=literal("cursor")?;
-                        let payload=self.channels.get(&channel).ok_or_else(||error(Location::default(),"unknown event channel"))?.clone();
-                        let parent=self.expression(&expr("parent")?,locals)?;
-                        if parent.ty!=Type::Text || !mutable.contains_key(&into) || locals.get(&into)!=Some(&payload) || !mutable.contains_key(&cursor) || locals.get(&cursor)!=Some(&Type::Text) || into==cursor {return Err(error(Location::default(),"watch targets must be distinct mutable payload and Text cursor states; parent must be Text"));}
-                        return Ok(Node::Watch{channel,parent,into,cursor,payload});
+                        if attrs.len()!=3 || !children.iter().all(|n|matches!(n,HtmlNode::Text(t) if t.trim().is_empty())) {return Err(error(Location::default(),"watch requires stream, into, cursor and no content"));}
+                        let into=literal("into")?;let cursor=literal("cursor")?;let stream=self.expression(&expr("stream")?,locals)?;
+                        let Type::Stream(channel)=&stream.ty else {return Err(error(stream.ast.location,"watch requires a typed Stream"));};
+                        let payload=self.channels.get(channel).ok_or_else(||error(Location::default(),"unknown event channel"))?.clone();
+                        if !mutable.contains_key(&into) || locals.get(&into)!=Some(&payload) || !mutable.contains_key(&cursor) || locals.get(&cursor)!=Some(&Type::Text) || into==cursor {return Err(error(Location::default(),"watch targets must be distinct mutable payload and Text cursor states"));}
+                        return Ok(Node::Watch{stream,into,cursor,payload});
                     },
                     "when"=>{if attrs.len()!=1 {return Err(error(Location::default(),"when requires only test"));}let v=self.expression(&expr("test")?,locals)?;if v.ty!=Type::Bool {return Err(error(v.ast.location,"when test must be Bool"));}return Ok(Node::When(v,self.nodes(children,locals,events,mutable)?));},
                     "each"=>{if attrs.len()!=3 {return Err(error(Location::default(),"each requires items, as and key"));}let items=self.expression(&expr("items")?,locals)?;let Type::List(inner)=&items.ty else {return Err(error(items.ast.location,"each requires a List"));};let binding=literal("as")?;if !super::resolve::identifier(&binding) || locals.contains_key(&binding) {return Err(error(items.ast.location,"each binding must be a fresh local name"));}let mut nested=locals.clone();nested.insert(binding.clone(),(**inner).clone());let key=self.expression(&expr("key")?,&nested)?;if !matches!(key.ty,Type::Int|Type::Text|Type::BoundedText(..)|Type::Id(_)) {return Err(error(key.ast.location,"key requires Int, Text or Id"));}return Ok(Node::Each{items,binding,key,children:self.nodes(children,&nested,events,mutable)?});},

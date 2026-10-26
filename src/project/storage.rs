@@ -36,9 +36,14 @@ pub(crate) struct PostgresStore {
     pub(super) git: Option<super::git::Config>,
     pub(super) delivery: Option<super::delivery::Config>,
     pub(super) operations: Option<super::operations::Config>,
+    pub(super) mail: Option<super::mail::Config>,
+    pub(super) workflows: std::collections::BTreeMap<String, super::workflows::Binding>,
     pub(super) event_types: std::collections::BTreeMap<String, Type>,
     pub(super) job_version: String,
     pub(super) job_operations: std::collections::BTreeMap<String, super::rpc::Operation>,
+    pub(super) workflow_version: String,
+    pub(super) workflow_operations:
+        std::collections::BTreeMap<String, super::workflows::Operations>,
     active: bool,
     nested: bool,
     failure: TransactionFailure,
@@ -88,6 +93,8 @@ impl PostgresStore {
             git: project.manifest.git.clone(),
             delivery: project.manifest.delivery.clone(),
             operations: project.manifest.operations.clone(),
+            mail: project.manifest.mail.clone(),
+            workflows: project.manifest.workflows.clone(),
             event_types: project
                 .manifest
                 .events
@@ -106,6 +113,8 @@ impl PostgresStore {
                 .collect::<Result<_>>()?,
             job_operations: project.jobs.clone(),
             job_version: super::jobs::version(project)?,
+            workflow_operations: project.workflows.clone(),
+            workflow_version: super::workflows::version(project)?,
             active: false,
             nested: false,
             failure: TransactionFailure::Clean,
@@ -166,6 +175,12 @@ impl PostgresStore {
             }
             if let Some(config) = &project.manifest.operations {
                 super::operations::schema(&mut store, config, initialize)?;
+            }
+            if let Some(config) = &project.manifest.mail {
+                super::mail::schema(&mut store, config, initialize)?;
+            }
+            if !project.manifest.workflows.is_empty() {
+                super::workflows::schema(&mut store, project, initialize)?;
             }
             if !store.jobs.is_empty() || !store.events.is_empty() {
                 super::jobs::schema(&mut store, project, initialize)?;

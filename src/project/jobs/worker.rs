@@ -4,7 +4,6 @@ use super::{
     input, wire,
 };
 use crate::authority::{Principal, Restrictions};
-use std::{sync::Arc, time::Duration};
 use zeroize::Zeroizing;
 
 #[derive(Debug)]
@@ -110,7 +109,7 @@ fn execute(
     });
     db.finish_request(result)
 }
-fn step(
+pub(in crate::project) fn step(
     project: &CheckedProject,
     configuration: &str,
     runtime: &crate::RuntimeGrants,
@@ -156,8 +155,8 @@ impl CheckedProject {
     pub fn work_jobs(&self, configuration: &str, runtime: crate::RuntimeGrants) -> Result<()> {
         super::super::synchronous_context()?;
         let _deployment_guard = super::super::deployment::guard(self, configuration, false)?;
-        if self.jobs.is_empty() {
-            return Err(input("worker requires declared jobs"));
+        if self.jobs.is_empty() && self.manifest.mail.is_none() && self.workflows.is_empty() {
+            return Err(input("worker requires declared jobs, workflows, or mail"));
         }
         for b in self.manifest.jobs.values() {
             for grant in &b.grants {
@@ -171,24 +170,14 @@ impl CheckedProject {
         }
         let mut db = PostgresStore::open_control(self, configuration, None)?;
         db.finish_request(Ok(()))?;
-        let rt = tokio::runtime::Builder::new_multi_thread()
-            .worker_threads(1)
-            .max_blocking_threads(1)
-            .enable_all()
-            .build()?;
-        let project = Arc::new(self.clone());
-        let configuration = Arc::new(Zeroizing::new(configuration.to_owned()));
-        let runtime = Arc::new(runtime);
-        rt.block_on(async {
-            let stop=tokio::signal::ctrl_c();tokio::pin!(stop);
-            loop {
-                let p=Arc::clone(&project);let c=Arc::clone(&configuration);let r=Arc::clone(&runtime);
-                let work=tokio::task::spawn_blocking(move||step(&p,&c,&r));
-                tokio::pin!(work);
-                tokio::select! { result=&mut work=>{result.map_err(|_|Error::Denied)??;}, _=&mut stop=>{work.await.map_err(|_|Error::Denied)??;break;} }
-                tokio::select! { ()=tokio::time::sleep(Duration::from_millis(250))=>{}, _=&mut stop=>break }
-            }
-            Ok(())
-        })
+        if self.manifest.mail.is_some() {
+            super::super::mail::validate(self, configuration, &runtime)?;
+        }
+        super::super::secrets::validate_runtime(self, &runtime)?;
+        super::super::mail::work(
+            self.clone(),
+            Zeroizing::new(configuration.to_owned()),
+            runtime,
+        )
     }
 }

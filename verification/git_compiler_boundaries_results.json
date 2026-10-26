@@ -1,4 +1,6 @@
 {
+  "status": "PASS",
+  "binary_sha256": "91c6ad57530343be10bec2e8c01ff20fa36395e9a305c39cd93dcc34694f0e72",
   "profile": "Diamond Git and OAuth compiler boundaries",
   "passed": 14,
   "total": 14,

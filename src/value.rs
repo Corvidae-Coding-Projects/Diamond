@@ -19,7 +19,9 @@ pub(crate) enum Type {
     Url,
     Response,
     Id(String),
+    Blob(String),
     Secret(String),
+    Stream(String),
     Record(String),
     Enum(String),
     List(Box<Self>),
@@ -68,6 +70,8 @@ impl fmt::Display for Type {
             Self::Url => f.write_str("Url"),
             Self::Response => f.write_str("Response"),
             Self::Secret(tag) => write!(f, "Secret<{tag:?}>"),
+            Self::Blob(binding) => write!(f, "Blob<{binding:?}>"),
+            Self::Stream(channel) => write!(f, "Stream<{channel:?}>"),
             Self::Id(tag) => write!(f, "Id<{tag:?}>"),
             Self::Record(name) | Self::Enum(name) => f.write_str(name),
             Self::List(ty) => write!(f, "List<{ty}>"),
@@ -102,6 +106,7 @@ pub(crate) enum ValueKind {
     Url(String),
     Response(u16, String),
     Id(String, String),
+    Stream(String, String),
     Secret(crate::integrations::SecretHandle),
     Record(String, BTreeMap<String, Value>),
     Variant(String, String, Vec<Value>),
@@ -233,7 +238,9 @@ fn value_weight(value: &Value, depth: usize, total: &mut usize) -> Result<()> {
         | ValueKind::Html(text)
         | ValueKind::Url(text)
         | ValueKind::Response(_, text) => *total = total.saturating_add(text.len()),
-        ValueKind::Id(tag, id) => *total = total.saturating_add(tag.len() + id.len()),
+        ValueKind::Id(tag, id) | ValueKind::Stream(tag, id) => {
+            *total = total.saturating_add(tag.len() + id.len());
+        }
         ValueKind::Record(tag, fields) => {
             *total = total.saturating_add(tag.len());
             for (name, field) in fields {
@@ -350,6 +357,9 @@ impl Value {
                 (*minimum..=*maximum).contains(&value.chars().count())
             }
             (ValueKind::Secret(handle), Type::Secret(expected)) => handle.name == *expected,
+            (ValueKind::Stream(channel, parent), Type::Stream(expected)) => {
+                channel == expected && (parent.is_empty() || crate::auth::valid_id(parent))
+            }
             (ValueKind::Id(tag, value), Type::Id(expected)) => {
                 tag == expected && crate::auth::valid_id(value)
             }
