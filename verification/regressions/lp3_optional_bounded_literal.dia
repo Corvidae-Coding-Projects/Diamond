@@ -1,0 +1,10 @@
+# LP3 first rejected a literal Some payload despite the declared bound fitting.
+# The checked record constructor must validate the complete literal value.
+type Draft:
+  value: Option<Text<length: 1..4>>
+
+fn main() -> Text:
+  let draft = Draft(value: Some("雪😀"))
+  match draft.value:
+    Some(value) => value
+    None => "absent"

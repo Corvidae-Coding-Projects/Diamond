@@ -1,5 +1,11 @@
 # W2 connected applications
 
+**Historical W2 snapshot.** The scalar-only RPC subset and future-checkpoint
+statements below describe the original connected-app milestone. Current compound
+values, relational storage, adapter boundaries, versions, and limits are defined
+by the [canonical contract](language-specification.md) and
+[profile matrix](language-profiles.md). Retained W2 receipts remain historical.
+
 Diamond 0.8.0 adds explicit generated RPC, shared PostgreSQL accounts/sessions,
 protected CRUD and a minimal workspace tracker authored in Diamond. This is the
 local two-server slice of the expansion plan. Full frontend semantics, relational

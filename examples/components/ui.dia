@@ -1,0 +1,46 @@
+export component Fields(name: Text):
+  output saved(value: Details)
+  state title: Text = "Draft " + name
+  state enabled: Bool = false
+  state count: Text = "1"
+  state mode: Text = "Open"
+  state note: Text = ""
+  state owner: Text = "sample"
+  state optional: Text = ""
+  state message: Text = "Ready"
+  on save(value: Details):
+    message = "Saved " + value.title
+    emit saved(value)
+  html:
+    <section aria-label={"Editor " + name}>
+      <h2>{name}</h2>
+      <form schema="Details" as="value" on-submit={save(value)}>
+        <field name="title" label="Title" description="Use 1 to 20 characters." bind-value={title}></field>
+        <field name="enabled" label="Enabled" bind-checked={enabled}></field>
+        <field name="count" label="Count" bind-value={count}></field>
+        <field name="mode" label="Mode" bind-value={mode}></field>
+        <field name="note" label="Note" bind-value={note} multiline="true"></field>
+        <field name="owner" label="Owner" bind-value={owner}></field>
+        <field name="optional" label="Optional flag" bind-value={optional}></field>
+        <submit label="Save details"></submit>
+      </form>
+      <status value={message}></status>
+    </section>
+
+export component App:
+  state names: List<Text> = ["one", "雪😀!'"]
+  state completions: Int = 0
+  state message: Text = "No completion"
+  on reverse:
+    names = list_reverse(names)
+  on saved(value: Details):
+    completions = completions + 1
+    message = "Parent received " + value.title
+  html:
+    <main>
+      <h1>Reusable native controls</h1>
+      <button type="button" on-click={reverse}>Reverse editors</button>
+      <p>Completions {completions}</p>
+      <status value={message}></status>
+      <each items={names} as="name" key={name}><use component="Fields" name={name} on-saved={saved}></use></each>
+    </main>

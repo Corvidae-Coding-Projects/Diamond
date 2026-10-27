@@ -1,0 +1,432 @@
+{
+  "schema": 1,
+  "finished_utc": "2026-10-27T23:20:54.551783+00:00",
+  "binary_sha256": "83e45f43101ff35bf40df458d4841750f2ed293166c0d17475ccdfc83429a4e7",
+  "host_binary_sha256": "28a8f27b6db02a04301ffa458f03df38e6c37fad16aaa6b6929adcd448a51e30",
+  "install_root_file_count": 3,
+  "cases": [
+    {
+      "name": "cargo_install",
+      "observed": {
+        "exit": 0,
+        "seconds": 29.699001,
+        "stdout": "",
+        "stderr": "  Installing diamond-lang v0.20.0 (/home/doll/diamond)\n    Updating crates.io index\n   Compiling libc v0.2.191\n   Compiling proc-macro2 v1.0.107\n   Compiling unicode-ident v1.0.27\n   Compiling quote v1.0.47\n   Compiling cfg-if v1.0.5\n   Compiling typenum v1.20.1\n   Compiling bytes v1.12.1\n   Compiling shlex v2.0.1\n   Compiling find-msvc-tools v0.1.14\n   Compiling version_check v0.9.5\n   Compiling pin-project-lite v0.2.17\n   Compiling smallvec v1.16.3\n   Compiling serde_core v1.0.229\n   Compiling stable_deref_trait v1.2.1\n   Compiling futures-core v0.3.34\n   Compiling portable-atomic v1.15.0\n   Compiling subtle v2.6.1\n   Compiling itoa v1.0.18\n   Compiling serde v1.0.229\n   Compiling futures-sink v0.3.34\n   Compiling critical-section v1.2.0\n   Compiling percent-encoding v2.3.2\n   Compiling writeable v0.6.4\n   Compiling litemap v0.8.3\n   Compiling rand_core v0.10.1\n   Compiling utf8_iter v1.0.4\n   Compiling futures-task v0.3.34\n   Compiling slab v0.4.12\n   Compiling icu_properties_data v2.3.0\n   Compiling getrandom v0.4.3\n   Compiling icu_normalizer_data v2.3.0\n   Compiling pkg-config v0.3.34\n   Compiling httparse v1.10.1\n   Compiling cpufeatures v0.3.1\n   Compiling thiserror v2.0.21\n   Compiling cpufeatures v0.2.17\n   Compiling zerocopy v0.8.63\n   Compiling tinyvec v1.13.3\n   Compiling getrandom v0.3.4\n   Compiling cmov v0.5.4\n   Compiling chacha20 v0.10.2\n   Compiling form_urlencoded v1.2.2\n   Compiling futures-channel v0.3.34\n   Compiling memchr v2.8.3\n   Compiling generic-array v0.14.7\n   Compiling tower-service v0.3.3\n   Compiling const-oid v0.10.2\n   Compiling autocfg v1.5.1\n   Compiling parking_lot_core v0.9.12\n   Compiling fs_extra v1.3.0\n   Compiling crossbeam-utils v0.8.23\n   Compiling data-encoding v2.11.1\n   Compiling base64 v0.22.1\n   Compiling ctutils v0.4.3\n   Compiling untrusted v0.9.0\n   Compiling try-lock v0.2.5\n   Compiling dunce v1.0.5\n   Compiling want v0.3.2\n   Compiling sync_wrapper v1.0.2\n   Compiling rustls v0.23.46\n   Compiling log v0.4.34\n   Compiling scopeguard v1.2.0\n   Compiling httpdate v1.0.3\n   Compiling tower-layer v0.3.3\n   Compiling atomic-waker v1.1.2\n   Compiling lock_api v0.4.14\n   Compiling unicode-properties v0.1.4\n   Compiling bitflags v2.13.2\n   Compiling unicode-bidi v0.3.18\n   Compiling http v1.5.0\n   Compiling num-traits v0.2.19\n   Compiling unicode-normalization v0.1.26\n   Compiling zmij v1.0.23\n   Compiling crossbeam-epoch v0.9.21\n   Compiling base64 v0.23.1\n   Compiling either v1.19.0\n   Compiling vcpkg v0.2.15\n   Compiling hybrid-array v0.4.15\n   Compiling serde_json v1.0.154\n   Compiling fallible-iterator v0.2.0\n   Compiling once_cell v1.21.4\n   Compiling foldhash v0.2.0\n   Compiling syn v3.0.9\n   Compiling syn v2.0.119\n   Compiling byteorder v1.5.0\n   Compiling aws-lc-rs v1.18.2\n   Compiling openssl-probe v0.2.1\n   Compiling tracing-core v0.1.36\n   Compiling stringprep v0.1.5\n   Compiling jobserver v0.1.35\n   Compiling siphasher v1.0.4\n   Compiling hashbrown v0.17.1\n   Compiling getrandom v0.2.17\n   Compiling errno v0.3.14\n   Compiling socket2 v0.6.5\n   Compiling mio v1.2.4\n   Compiling rand_core v0.6.4\n   Compiling cc v1.8.0\n   Compiling signal-hook-registry v1.4.8\n   Compiling block-buffer v0.10.4\n   Compiling http-body v1.1.0\n   Compiling crypto-common v0.1.7\n   Compiling crypto-common v0.2.2\n   Compiling block-buffer v0.12.1\n   Compiling rand v0.10.3\n   Compiling digest v0.10.7\n   Compiling http-body-util v0.1.5\n   Compiling inout v0.1.4\n   Compiling tracing v0.1.44\n   Compiling rand_core v0.9.5\n   Compiling universal-hash v0.5.1\n   Compiling parking_lot v0.12.5\n   Compiling sha1 v0.10.7\n   Compiling uuid v1.28.0\n   Compiling phf_shared v0.13.1\n   Compiling crossbeam-channel v0.5.17\n   Compiling opaque-debug v0.3.1\n   Compiling untrusted v0.7.1\n   Compiling ryu v1.0.23\n   Compiling equivalent v1.0.3\n   Compiling anyhow v1.0.104\n   Compiling winnow v1.0.4\n   Compiling mime v0.3.17\n   Compiling base64ct v1.8.3\n   Compiling pulldown-cmark v0.13.5\n   Compiling tagptr v0.2.0\n   Compiling futures-io v0.3.34\n   Compiling axum-core v0.5.6\n   Compiling digest v0.11.3\n   Compiling phf v0.13.1\n   Compiling hashlink v0.12.2\n   Compiling password-hash v0.5.0\n   Compiling toml_datetime v1.1.2+spec-1.1.0\n   Compiling serde_spanned v1.1.2\n   Compiling sha2 v0.11.1\n   Compiling md-5 v0.11.0\n   Compiling hmac v0.13.0\n   Compiling cmake v0.1.58\n   Compiling toml_parser v1.1.5+spec-1.1.0\n   Compiling moka v0.12.16\n   Compiling poly1305 v0.8.0\n   Compiling blake2 v0.10.6\n   Compiling aead v0.5.2\n   Compiling rtoolbox v0.0.6\n   Compiling whoami v2.1.3\n   Compiling unicase v2.10.0\n   Compiling resolv-conf v0.7.6\n   Compiling fallible-iterator v0.3.0\n   Compiling toml_writer v1.1.3+spec-1.1.0\n   Compiling matchit v0.8.4\n   Compiling signature v2.2.0\n   Compiling pulldown-cmark-escape v0.11.0\n   Compiling fallible-streaming-iterator v0.1.9\n   Compiling argon2 v0.5.3\n   Compiling rpassword v7.5.4\n   Compiling toml v1.1.8+spec-1.1.0\n   Compiling ring v0.17.14\n   Compiling aws-lc-sys v0.46.0\n   Compiling libsqlite3-sys v0.38.2\n   Compiling postgres-protocol v0.6.12\n   Compiling postgres-types v0.2.14\n   Compiling ppv-lite86 v0.2.21\n   Compiling synstructure v0.14.0\n   Compiling rusqlite v0.40.2\n   Compiling zeroize_derive v1.5.0\n   Compiling rand_chacha v0.9.0\n   Compiling zerovec-derive v0.11.6\n   Compiling displaydoc v0.2.7\n   Compiling tokio-macros v2.7.2\n   Compiling serde_derive v1.0.229\n   Compiling zerofrom-derive v0.1.8\n   Compiling yoke-derive v0.8.4\n   Compiling futures-macro v0.3.34\n   Compiling thiserror-impl v2.0.21\n   Compiling rand v0.9.5\n   Compiling async-trait v0.1.92\n   Compiling zeroize v1.9.1\n   Compiling rustls-pki-types v1.15.1\n   Compiling cipher v0.4.4\n   Compiling tokio v1.54.1\n   Compiling chacha20 v0.9.1\n   Compiling futures-util v0.3.34\n   Compiling rustls-native-certs v0.8.5\n   Compiling zerofrom v0.1.8\n   Compiling chacha20poly1305 v0.10.1\n   Compiling yoke v0.8.3\n   Compiling zerovec v0.11.8\n   Compiling zerotrie v0.2.5\n   Compiling tungstenite v0.29.0\n   Compiling rustls-webpki v0.103.16\n   Compiling tinystr v0.8.4\n   Compiling potential_utf v0.1.6\n   Compiling icu_collections v2.3.0\n   Compiling icu_locale_core v2.3.0\n   Compiling icu_provider v2.3.1\n   Compiling ipnet v2.12.2\n   Compiling icu_properties v2.3.0\n   Compiling icu_normalizer v2.3.0\n   Compiling prefix-trie v0.8.4\n   Compiling serde_urlencoded v0.7.1\n   Compiling idna_adapter v1.2.2\n   Compiling idna v1.1.0\n   Compiling url v2.5.8\n   Compiling hyper v1.12.0\n   Compiling tower v0.5.3\n   Compiling tokio-util v0.7.20\n   Compiling tokio-tungstenite v0.29.0\n   Compiling tokio-rustls v0.26.6\n   Compiling hickory-proto v0.26.3\n   Compiling tower-http v0.6.11\n   Compiling tokio-postgres v0.7.18\n   Compiling hyper-util v0.1.21\n   Compiling hickory-net v0.26.3\n   Compiling hyper-rustls v0.27.10\n   Compiling axum v0.8.9\n   Compiling hickory-resolver v0.26.3\n   Compiling reqwest v0.12.28\n   Compiling jsonwebtoken v10.4.0\n   Compiling diamond-lang v0.20.0 (/home/doll/diamond)\n    Finished `release` profile [optimized] target(s) in 29.67s\n  Installing /tmp/diamond-cp6-install-3ky875t5/install/bin/diamond\n   Installed package `diamond-lang v0.20.0 (/home/doll/diamond)` (executable `diamond`)\nwarning: be sure to add `/tmp/diamond-cp6-install-3ky875t5/install/bin` to your PATH to be able to run the installed binaries\n",
+        "files": [
+          ".crates.toml",
+          ".crates2.json",
+          "bin/diamond"
+        ]
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "installed_version",
+      "observed": {
+        "arguments": [
+          "--version"
+        ],
+        "cwd": "/tmp/diamond-cp6-install-3ky875t5",
+        "exit": 0,
+        "seconds": 0.000995,
+        "stdout": "diamond 0.20.0 (LP8 qualified language profile)\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "installed_help",
+      "observed": {
+        "arguments": [
+          "--help"
+        ],
+        "cwd": "/tmp/diamond-cp6-install-3ky875t5",
+        "exit": 0,
+        "seconds": 0.001038,
+        "stdout": "Diamond 0.20.0 — production-readiness language profile\n\n  diamond new NEW_DIRECTORY [--template workspace|catalog]\n  diamond fmt [--check] FILE...\n  diamond lsp\n  diamond project-work PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-deploy-check PROJECT --postgres-env VARIABLE --runtime-env VARIABLE --origin https://app.example --identity-mailbox PRIVATE_DIRECTORY\n  diamond project-backup PROJECT --postgres-env VARIABLE --runtime-env VARIABLE --out NEW_DIRECTORY --backup-key-env VARIABLE\n  diamond project-restore PROJECT --postgres-env VARIABLE --runtime-env VARIABLE --from BACKUP_DIRECTORY --backup-key-env VARIABLE\n  diamond project-recover PROJECT --postgres-env VARIABLE --policy resume|cancel\n  diamond check FILE_OR_PROJECT\n  diamond build PROJECT --out NEW_DIRECTORY\n  diamond serve PROJECT_OR_BUILD [--listen 127.0.0.1:PORT] [--postgres-env VARIABLE --origin http://localhost:PORT] [--identity-mailbox PRIVATE_DIRECTORY] [--runtime-env VARIABLE]\n  diamond run PROJECT_OR_BUILD [--postgres-env VARIABLE]\n  diamond project-init PROJECT --postgres-env VARIABLE\n  diamond project-files-init PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-files-clean PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-git-init PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-git-reconcile PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-git-promote PROJECT --postgres-env VARIABLE --runtime-env VARIABLE --binding NAME --expected-generation N\n  diamond project-git-authorized-key PROJECT --postgres-env VARIABLE --fingerprint SHA256:VALUE --ssh-launcher ABSOLUTE_EXECUTABLE\n  diamond project-git-authorized-principals PROJECT --postgres-env VARIABLE --ssh-launcher ABSOLUTE_EXECUTABLE\n  diamond project-git-ssh PROJECT --postgres-env VARIABLE --runtime-env VARIABLE --key-id VALUE\n  diamond project-user-add PROJECT --postgres-env VARIABLE --user USERNAME [--password-stdin]\n  diamond project-admin-add PROJECT --postgres-env VARIABLE --user USERNAME --email ADDRESS [--password-stdin]\n  diamond project-status PROJECT --postgres-env VARIABLE\n  diamond project-migrate PROJECT --postgres-env VARIABLE\n  diamond project-backfill PROJECT --postgres-env VARIABLE [--batch 100]\n  diamond project-audit PROJECT --postgres-env VARIABLE\n  diamond run FILE [--database PATH] [--auth PATH] [--listen 127.0.0.1:PORT] [--max-requests N]\n  diamond db-init FILE --database PATH\n  diamond user-add --auth PATH --user USERNAME [--password-stdin]\n  diamond explain CODE\n\nOpen http://localhost:PORT for browser secure-cookie support.\nSee README.md for installation, examples, supported language, limits, and qualification evidence.\n\nDelivery commands:\n  diamond project-delivery-init PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-delivery-work PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-pages-serve PROJECT --listen 127.0.0.1:PORT --binding NAME --postgres-env VARIABLE --runtime-env VARIABLE\n\nMail commands:\n  diamond project-mail-init PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n\nOperations commands:\n  diamond project-ops-init PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-ops-work PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "installed_new_workspace",
+      "observed": {
+        "command": {
+          "arguments": [
+            "new",
+            "/tmp/diamond-cp6-install-3ky875t5/installed-workspace",
+            "--template",
+            "workspace"
+          ],
+          "cwd": "/tmp/diamond-cp6-install-3ky875t5",
+          "exit": 0,
+          "seconds": 0.005156,
+          "stdout": "project LiveWorkspace: 4 modules; server server; browser ui / Tracker; capabilities {\"DbRead<Comments>\", \"DbRead<Issues>\", \"DbRead<Members>\", \"DbRead<Projects>\", \"DbRead<Workspaces>\", \"DbWrite<Comments>\", \"DbWrite<Issues>\", \"DbWrite<Members>\", \"DbWrite<Projects>\", \"DbWrite<Workspaces>\", \"Events\", \"Http<inventory>\", \"Jobs\"}\n",
+          "stderr": ""
+        },
+        "reference_sha256": {
+          "README.md": "f66131992b33a47ee4d9abb0a4b95352ab57824e0d0d5891dda63ff90fbf492c",
+          "cards.dia": "57bfd0a925e9c571791b67f5fa707ac26daaa7866bfb8fb8741f9acc178c557f",
+          "diamond.svg": "5f295145c59d12fda9e777d4d864349e38b7c7dc03ce00cca00fc45033b3f534",
+          "diamond.toml": "70252ea82d82b4c395383c22d382ee358c445ed2e9d6e2cb8d20cc0c36e9d60a",
+          "server.dia": "3f25374daeda630ff5c3e2493ad995c9c0121eb41f5659c1e857d15dc77c6c58",
+          "shared.dia": "2c59ce2da5cadd98c061bc986c551b60323d3cff05fd04c26264da3a402c264d",
+          "tracker.css": "94d2cb454d47237b5134eda6ff96f9ec295fd64aa1616394b2dab3103a447140",
+          "tracker.dia": "7504c647ef192cdd070529f9ade605b7f766d32620c8e310afe4c3794df4da6b"
+        },
+        "scaffold_sha256": {
+          "README.md": "f66131992b33a47ee4d9abb0a4b95352ab57824e0d0d5891dda63ff90fbf492c",
+          "cards.dia": "57bfd0a925e9c571791b67f5fa707ac26daaa7866bfb8fb8741f9acc178c557f",
+          "diamond.svg": "5f295145c59d12fda9e777d4d864349e38b7c7dc03ce00cca00fc45033b3f534",
+          "diamond.toml": "70252ea82d82b4c395383c22d382ee358c445ed2e9d6e2cb8d20cc0c36e9d60a",
+          "server.dia": "3f25374daeda630ff5c3e2493ad995c9c0121eb41f5659c1e857d15dc77c6c58",
+          "shared.dia": "2c59ce2da5cadd98c061bc986c551b60323d3cff05fd04c26264da3a402c264d",
+          "tracker.css": "94d2cb454d47237b5134eda6ff96f9ec295fd64aa1616394b2dab3103a447140",
+          "tracker.dia": "7504c647ef192cdd070529f9ade605b7f766d32620c8e310afe4c3794df4da6b"
+        }
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "installed_build_workspace",
+      "observed": {
+        "arguments": [
+          "build",
+          "/tmp/diamond-cp6-install-3ky875t5/installed-workspace/diamond.toml",
+          "--out",
+          "/tmp/diamond-cp6-install-3ky875t5/workspace-build"
+        ],
+        "cwd": "/tmp/diamond-cp6-install-3ky875t5",
+        "exit": 0,
+        "seconds": 0.006564,
+        "stdout": "built project at /tmp/diamond-cp6-install-3ky875t5/workspace-build\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "installed_new_catalog",
+      "observed": {
+        "command": {
+          "arguments": [
+            "new",
+            "/tmp/diamond-cp6-install-3ky875t5/installed-catalog",
+            "--template",
+            "catalog"
+          ],
+          "cwd": "/tmp/diamond-cp6-install-3ky875t5",
+          "exit": 0,
+          "seconds": 0.001809,
+          "stdout": "project PublishingCatalog: 2 modules; server server; browser ui / Catalog; capabilities {\"DbRead<Articles>\", \"DbWrite<Articles>\", \"Events\", \"Http<inventory>\", \"JobKey\", \"Jobs\"}\n",
+          "stderr": ""
+        },
+        "reference_sha256": {
+          "README.md": "454d5f1af4ee289d0cec52494ca26fcd72b9087b33ef8c5301dfc28470a7d293",
+          "catalog.css": "3152f8f9e161d04850b1e9ba800168751a33b62c926b8d20bc493cf5b180c21c",
+          "diamond.toml": "e89d1e9c94fd2f2c1fbffa0c941a6ff6649645320b3f9cfcec0a7d85685103c7",
+          "server.dia": "eff4f6feade960676cedb585730c0e0d793ad5b2d5f0c625a453bce464bcc3e2",
+          "ui.dia": "48366d5de79ef10aede7c1cd8c748c2eb2f2b21b38c59a43334e1296c32b26be"
+        },
+        "scaffold_sha256": {
+          "README.md": "454d5f1af4ee289d0cec52494ca26fcd72b9087b33ef8c5301dfc28470a7d293",
+          "catalog.css": "3152f8f9e161d04850b1e9ba800168751a33b62c926b8d20bc493cf5b180c21c",
+          "diamond.toml": "e89d1e9c94fd2f2c1fbffa0c941a6ff6649645320b3f9cfcec0a7d85685103c7",
+          "server.dia": "eff4f6feade960676cedb585730c0e0d793ad5b2d5f0c625a453bce464bcc3e2",
+          "ui.dia": "48366d5de79ef10aede7c1cd8c748c2eb2f2b21b38c59a43334e1296c32b26be"
+        }
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "installed_build_catalog",
+      "observed": {
+        "arguments": [
+          "build",
+          "/tmp/diamond-cp6-install-3ky875t5/installed-catalog/diamond.toml",
+          "--out",
+          "/tmp/diamond-cp6-install-3ky875t5/catalog-build"
+        ],
+        "cwd": "/tmp/diamond-cp6-install-3ky875t5",
+        "exit": 0,
+        "seconds": 0.002175,
+        "stdout": "built project at /tmp/diamond-cp6-install-3ky875t5/catalog-build\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "installed_run_outside_tree",
+      "observed": {
+        "arguments": [
+          "run",
+          "hello.dia"
+        ],
+        "cwd": "/tmp/diamond-cp6-install-3ky875t5",
+        "exit": 0,
+        "seconds": 0.000931,
+        "stdout": "Hello, Diamond!\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "installed_check_hello",
+      "observed": {
+        "arguments": [
+          "check",
+          "/home/doll/diamond/examples/hello.dia"
+        ],
+        "cwd": "/tmp/diamond-cp6-install-3ky875t5",
+        "exit": 0,
+        "seconds": 0.000889,
+        "stdout": "checked /home/doll/diamond/examples/hello.dia: 2 functions, 0 records, 0 resources, 0 routes, 0 policies\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "installed_check_language",
+      "observed": {
+        "arguments": [
+          "check",
+          "/home/doll/diamond/examples/language.dia"
+        ],
+        "cwd": "/tmp/diamond-cp6-install-3ky875t5",
+        "exit": 0,
+        "seconds": 0.000991,
+        "stdout": "checked /home/doll/diamond/examples/language.dia: 3 functions, 0 records, 0 resources, 0 routes, 0 policies\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "installed_check_message_board",
+      "observed": {
+        "arguments": [
+          "check",
+          "/home/doll/diamond/examples/message_board.dia"
+        ],
+        "cwd": "/tmp/diamond-cp6-install-3ky875t5",
+        "exit": 0,
+        "seconds": 0.001274,
+        "stdout": "checked /home/doll/diamond/examples/message_board.dia: 4 functions, 3 records, 1 resources, 9 routes, 1 policies\n  app MessageBoard\n  private GET / {Read(\"Posts\")}\n  public GET /posts {Read(\"Posts\")}\n  public GET /posts/{id:PostId} {Read(\"Posts\")}\n  private POST /posts {Read(\"Posts\"), Write(\"Posts\")}\n  private GET /posts/{id:PostId}/edit {Read(\"Posts\")}\n  private POST /posts/{id:PostId}/edit {Read(\"Posts\"), Write(\"Posts\")}\n  private POST /posts/{id:PostId}/publication {Read(\"Posts\"), Write(\"Posts\")}\n  private POST /posts/{id:PostId}/delete {Write(\"Posts\")}\n  private DELETE /posts/{id:PostId} {Write(\"Posts\")}\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "installed_check_storage",
+      "observed": {
+        "arguments": [
+          "check",
+          "/home/doll/diamond/examples/storage.dia"
+        ],
+        "cwd": "/tmp/diamond-cp6-install-3ky875t5",
+        "exit": 0,
+        "seconds": 0.000933,
+        "stdout": "checked /home/doll/diamond/examples/storage.dia: 1 functions, 2 records, 1 resources, 0 routes, 1 policies\n  app Storage\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "installed_check_web",
+      "observed": {
+        "arguments": [
+          "check",
+          "/home/doll/diamond/examples/web.dia"
+        ],
+        "cwd": "/tmp/diamond-cp6-install-3ky875t5",
+        "exit": 0,
+        "seconds": 0.000739,
+        "stdout": "checked /home/doll/diamond/examples/web.dia: 0 functions, 1 records, 0 resources, 5 routes, 0 policies\n  app Preview\n  public GET / {}\n  public GET /notes/{id:NoteId} {}\n  public GET /numbers/{number:Int} {}\n  public POST /echo {}\n  private GET /account {}\n",
+        "stderr": ""
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "check_side_effects",
+      "observed": {
+        "command": {
+          "arguments": [
+            "check",
+            "program.dia"
+          ],
+          "cwd": "/tmp/diamond-cp6-install-3ky875t5/check-side-effects",
+          "exit": 0,
+          "seconds": 0.000654,
+          "stdout": "checked program.dia: 1 functions, 0 records, 0 resources, 0 routes, 0 policies\n",
+          "stderr": ""
+        },
+        "before": [
+          "program.dia"
+        ],
+        "after": [
+          "program.dia"
+        ]
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "database_initialization",
+      "observed": {
+        "command": {
+          "arguments": [
+            "db-init",
+            "/home/doll/diamond/examples/storage.dia",
+            "--database",
+            "/tmp/diamond-cp6-install-3ky875t5/storage.sqlite"
+          ],
+          "cwd": "/tmp/diamond-cp6-install-3ky875t5",
+          "exit": 0,
+          "seconds": 0.001272,
+          "stdout": "initialized checked schema\n",
+          "stderr": ""
+        },
+        "tables": [
+          "Notes"
+        ]
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "non_loopback_refusal",
+      "observed": {
+        "arguments": [
+          "run",
+          "/home/doll/diamond/examples/web.dia",
+          "--listen",
+          "0.0.0.0:0",
+          "--max-requests",
+          "1"
+        ],
+        "cwd": "/tmp/diamond-cp6-install-3ky875t5",
+        "exit": 1,
+        "seconds": 0.001092,
+        "stdout": "",
+        "stderr": "error: serve checked program: D900 unsupported at 0:0: non-loopback or production serving; TLS, deployment validation, and concurrent serving are not implemented\n"
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "missing_database_grant",
+      "observed": {
+        "command": {
+          "arguments": [
+            "run",
+            "/home/doll/diamond/examples/message_board.dia",
+            "--listen",
+            "127.0.0.1:0",
+            "--max-requests",
+            "1"
+          ],
+          "cwd": "/tmp/diamond-cp6-install-3ky875t5",
+          "exit": 1,
+          "seconds": 0.001281,
+          "stdout": "",
+          "stderr": "error: serve checked program: invalid input: database-backed routes require an explicit --database PATH host grant\n"
+        },
+        "database_exists": false
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "conflicting_database_paths",
+      "observed": {
+        "user_add": {
+          "arguments": [
+            "user-add",
+            "--auth",
+            "/tmp/diamond-cp6-install-3ky875t5/accounts.sqlite",
+            "--user",
+            "alice",
+            "--password-stdin"
+          ],
+          "cwd": "/tmp/diamond-cp6-install-3ky875t5",
+          "exit": 0,
+          "seconds": 0.024071,
+          "stdout": "local account created\n",
+          "stderr": ""
+        },
+        "run": {
+          "arguments": [
+            "run",
+            "/home/doll/diamond/examples/message_board.dia",
+            "--database",
+            "/tmp/diamond-cp6-install-3ky875t5/accounts.sqlite",
+            "--auth",
+            "/tmp/diamond-cp6-install-3ky875t5/accounts.sqlite",
+            "--listen",
+            "127.0.0.1:0",
+            "--max-requests",
+            "1"
+          ],
+          "cwd": "/tmp/diamond-cp6-install-3ky875t5",
+          "exit": 1,
+          "seconds": 0.001371,
+          "stdout": "",
+          "stderr": "error: serve checked program: invalid input: account and application databases must be separate files\n"
+        }
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "occupied_port",
+      "observed": {
+        "command": {
+          "arguments": [
+            "run",
+            "/home/doll/diamond/examples/web.dia",
+            "--listen",
+            "127.0.0.1:59317",
+            "--max-requests",
+            "1"
+          ],
+          "cwd": "/tmp/diamond-cp6-install-3ky875t5/occupied",
+          "exit": 1,
+          "seconds": 0.00109,
+          "stdout": "",
+          "stderr": "error: serve checked program: I/O operation failed: Address already in use (os error 98): Address already in use (os error 98)\n"
+        },
+        "files": []
+      },
+      "accepted": true,
+      "failures": []
+    },
+    {
+      "name": "loopback_readiness",
+      "observed": {
+        "startup_line": "Diamond single-file development server: http://localhost:38073 (http://127.0.0.1:38073)\n",
+        "seconds_to_line": 0.002345,
+        "exit": 0,
+        "stdout": "",
+        "stderr": "",
+        "response_sha256": "3e68f15996283651ffbc1153dcef51840f0001ec6f9af6a1b354d22fddf4a946",
+        "response_prefix": "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: 194\r\nConnection: close\r\nCache-Control: no-store\r\nX-Content-Type-Options: nosniff\r\nRefer"
+      },
+      "accepted": true,
+      "failures": []
+    }
+  ],
+  "case_count": 20,
+  "failures": [],
+  "result": "PASS"
+}

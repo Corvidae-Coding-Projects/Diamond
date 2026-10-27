@@ -1,0 +1,152 @@
+{
+  "status": "PASS",
+  "binary_sha256": "28a8f27b6db02a04301ffa458f03df38e6c37fad16aaa6b6929adcd448a51e30",
+  "driver_sha256": "1340f8b1239ee5436915dd1651dc0de07d5dd124f9bc76c82d857d663038c766",
+  "scenarios_sha256": "bdca29ecbf35250ce16df94b1854525937510638dfd4c50b8bf92d4fc0260763",
+  "observations": [
+    {
+      "name": "F2-check-detects-change-without-write",
+      "pass": true,
+      "stderr": "error: 1 Diamond source file(s) would be reformatted"
+    },
+    {
+      "name": "F1-format-valid-preserves-content-and-checks",
+      "pass": true,
+      "formatter_stderr": "",
+      "checker_stderr": "",
+      "output_sha256": "83b892f5b092737f7b0264b35ac96cdaaac764963d295cd793aab3fe2f985d66"
+    },
+    {
+      "name": "F1-format-idempotent",
+      "pass": true,
+      "stderr": ""
+    },
+    {
+      "name": "F2-malformed-unchanged",
+      "pass": true,
+      "stderr": "error[D010]: expected an expression, found Newline\n --> /home/doll/diamond/.diamond/lp7-s222rraq/malformed.dia:2:7\n  |\n2 |   (1 +\n  |       ^\n help: Correct the token or structure at the reported source span."
+    },
+    {
+      "name": "D1-single-file-code-location-caret-remedy",
+      "pass": true,
+      "stderr": "error[D110]: expected Int, found Text\n --> /home/doll/diamond/.diamond/lp7-s222rraq/unicode-diagnostic.dia:3:3\n  |\n3 |   private_value\n  |   ^\n help: Use an expression supported by the declared type and current scope."
+    },
+    {
+      "name": "D1-project-module-path-code-caret-remedy",
+      "pass": true,
+      "stderr": "error[D110]: expected Int, found Text\n --> /home/doll/diamond/.diamond/lp7-s222rraq/project/shared.dia:2:3\n  |\n2 |   \"wrong\"\n  |   ^\n help: Use an expression supported by the declared type and current scope."
+    },
+    {
+      "name": "E1-initialize-bounded-compiler-capabilities",
+      "pass": true,
+      "capabilities": {
+        "completionProvider": {
+          "triggerCharacters": [
+            "."
+          ]
+        },
+        "definitionProvider": true,
+        "hoverProvider": true,
+        "positionEncoding": "utf-32",
+        "referencesProvider": true,
+        "textDocumentSync": {
+          "change": 1,
+          "openClose": true
+        }
+      }
+    },
+    {
+      "name": "E1-current-document-hover-definition-references-completion",
+      "pass": true,
+      "hover": {
+        "contents": {
+          "kind": "markdown",
+          "value": "```diamond\nfn greet(person: Person) -> Text\n```"
+        },
+        "data": {
+          "uri": "file:///home/doll/diamond/.diamond/lp7-s222rraq/editor.dia",
+          "version": 1
+        },
+        "range": {
+          "end": {
+            "character": 8,
+            "line": 2
+          },
+          "start": {
+            "character": 3,
+            "line": 2
+          }
+        }
+      },
+      "definition": {
+        "range": {
+          "end": {
+            "character": 8,
+            "line": 2
+          },
+          "start": {
+            "character": 3,
+            "line": 2
+          }
+        },
+        "uri": "file:///home/doll/diamond/.diamond/lp7-s222rraq/editor.dia"
+      },
+      "reference_count": 2,
+      "completion_labels": [
+        "name"
+      ]
+    },
+    {
+      "name": "E1-E2-versioned-diagnostic-cancel-close",
+      "pass": true,
+      "changed": {
+        "diagnostics": [
+          {
+            "code": "D110",
+            "message": "expected Int, found Text",
+            "range": {
+              "end": {
+                "character": 3,
+                "line": 1
+              },
+              "start": {
+                "character": 2,
+                "line": 1
+              }
+            },
+            "severity": 1,
+            "source": "diamond"
+          }
+        ],
+        "uri": "file:///home/doll/diamond/.diamond/lp7-s222rraq/editor.dia",
+        "version": 2
+      },
+      "closed": {
+        "diagnostics": [],
+        "uri": "file:///home/doll/diamond/.diamond/lp7-s222rraq/editor.dia"
+      }
+    },
+    {
+      "name": "E2-clean-shutdown",
+      "pass": true,
+      "exit": 0
+    },
+    {
+      "name": "E2-oversized-message-bounded",
+      "pass": true,
+      "exit": 1,
+      "stderr": "error: run Diamond language server: resource limit exceeded: LSP message bytes"
+    },
+    {
+      "name": "B1-handler-and-component-source-map-private-source-absent",
+      "pass": true,
+      "build_stderr": ""
+    },
+    {
+      "name": "C1-current-examples-check",
+      "pass": true,
+      "commands": 18,
+      "failures": []
+    }
+  ]
+}

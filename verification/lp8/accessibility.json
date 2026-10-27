@@ -1,0 +1,21 @@
+{
+  "status": "PASS_WITH_GAP",
+  "date": "2026-10-27",
+  "binary_sha256": "28a8f27b6db02a04301ffa458f03df38e6c37fad16aaa6b6929adcd448a51e30",
+  "passed": [
+    "Chrome accessibility tree exposed the generated headings, buttons, labels, native select, status, and alert text in the real LP7/LP8 journeys.",
+    "Chromium 156, Firefox 142, and WebKit 26 each resolved the generated Title input by accessible label.",
+    "All three engines exposed the description and error IDs through aria-describedby, set aria-invalid after rejection, and exposed at least three role=status regions.",
+    "Keyboard-only Tab and Enter activated the first primary action in both the contract and reusable-component fixtures.",
+    "Both fixtures reflowed at a 360 by 640 viewport without horizontal document overflow in all three engines."
+  ],
+  "blocked": [
+    {
+      "combination": "Orca speech/braille output on the host desktop",
+      "reason": "Orca is installed, but aborts in this non-desktop automation context and no assistive-technology application surface is available. No spoken-order or braille-output pass is claimed."
+    }
+  ],
+  "engine_evidence": "verification/lp8/browser-engines.json",
+  "static_evidence": "verification/lp8/accessibility-static.json",
+  "boundary": "Generated accessibility semantics and keyboard behavior passed; this is not WCAG conformance or an actual screen-reader compatibility matrix."
+}

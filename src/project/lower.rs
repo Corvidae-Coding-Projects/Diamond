@@ -1,6 +1,9 @@
 //! Checked browser IR, with the same expression tree used by reference evaluation.
 
 mod asynchronous;
+pub(in crate::project) mod controls;
+mod forms;
+mod interactions;
 mod reach;
 use crate::checker::expression_type;
 use crate::error::{Error, Location, Result};
@@ -29,6 +32,25 @@ pub(super) enum EventValue {
         result: Type,
     },
 }
+
+#[derive(Clone, Debug, Serialize)]
+pub(super) struct Event {
+    pub parameters: Vec<(String, Type)>,
+    pub body: Vec<EventStep>,
+    pub location: Location,
+}
+
+#[derive(Clone, Debug, Serialize)]
+pub(super) enum EventStep {
+    Assign(String, EventValue),
+    Emit(String, Vec<Expression>),
+}
+
+#[derive(Clone, Debug, Serialize)]
+pub(super) struct Handler {
+    pub name: String,
+    pub arguments: Vec<Expression>,
+}
 #[derive(Clone, Debug, Serialize)]
 pub(super) struct Function {
     pub parameters: Vec<(String, Type)>,
@@ -38,6 +60,9 @@ pub(super) struct Function {
 }
 #[derive(Clone, Debug, Serialize)]
 pub(super) enum Node {
+    Field(controls::Control),
+    Submit(Expression),
+    Status(Expression),
     Text(String),
     Value(Expression),
     Element {
@@ -55,8 +80,14 @@ pub(super) enum Node {
     Use {
         component: String,
         properties: Vec<(String, Expression)>,
+        outputs: BTreeMap<String, String>,
     },
     Route(String, Vec<Self>),
+    NamedRoute {
+        route: String,
+        binding: String,
+        children: Vec<Self>,
+    },
     Watch {
         stream: Expression,
         into: String,
@@ -68,20 +99,26 @@ pub(super) enum Node {
 pub(super) enum Attribute {
     Text(String),
     Value(Expression),
-    Event(String),
+    Event(Handler),
+    Route(Expression),
+    Form { schema: String, binding: String },
+    Field(String),
     Binding(String),
     Checked(String),
 }
 #[derive(Clone, Debug, Serialize)]
 pub(super) struct Component {
+    pub location: Location,
     pub properties: Vec<(String, Type)>,
     pub state: Vec<(String, Expression)>,
     pub derived: Vec<(String, Expression)>,
-    pub events: BTreeMap<String, Vec<(String, EventValue)>>,
+    pub events: BTreeMap<String, Event>,
+    pub outputs: BTreeMap<String, Vec<(String, Type)>>,
     pub template: Vec<Node>,
 }
 #[derive(Clone, Debug, Serialize)]
 pub(super) struct BrowserProgram {
+    pub actions: BTreeMap<String, Recovery>,
     pub component: String,
     pub components: BTreeMap<String, Component>,
     pub functions: BTreeMap<String, Function>,
@@ -91,6 +128,12 @@ pub(super) struct BrowserProgram {
     pub wire_names: BTreeMap<String, String>,
     pub aliases: BTreeMap<String, Type>,
     pub routes: BTreeSet<String>,
+    pub schemas: super::schemas::Schemas,
+}
+#[derive(Clone, Debug, Serialize)]
+pub(super) struct Recovery {
+    pub result: Type,
+    pub label: String,
 }
 struct Lower<'a> {
     accounts: bool,
@@ -100,16 +143,33 @@ struct Lower<'a> {
     program: &'a CheckedProgram,
     signatures: BTreeMap<String, Vec<(String, Type)>>,
     routes: BTreeSet<String>,
+    schemas: &'a super::schemas::Schemas,
+    output_signatures: BTreeMap<String, BTreeMap<String, Vec<(String, Type)>>>,
 }
+#[derive(Debug)]
+pub(super) struct Interfaces<'a> {
+    pub actions: &'a BTreeMap<String, super::actions::Binding>,
+    pub rpc: &'a BTreeMap<String, super::rpc::Operation>,
+    pub identity: Option<&'a super::accounts::Config>,
+    pub files: Option<&'a super::files::Config>,
+    pub channels: BTreeMap<String, Type>,
+    pub schemas: &'a super::schemas::Schemas,
+}
+
 pub(super) fn lower(
     program: &CheckedProgram,
     root: &str,
     components: &[syntax::Component],
-    rpc: &BTreeMap<String, super::rpc::Operation>,
-    identity: Option<&super::accounts::Config>,
-    files: Option<&super::files::Config>,
-    channels: BTreeMap<String, Type>,
+    interfaces: Interfaces<'_>,
 ) -> Result<BrowserProgram> {
+    let Interfaces {
+        actions,
+        rpc,
+        identity,
+        files,
+        channels,
+        schemas,
+    } = interfaces;
     let mut lower = Lower {
         accounts: identity.is_some(),
         oauth: identity.is_some_and(|config| config.oauth.is_some()),
@@ -120,28 +180,26 @@ pub(super) fn lower(
         program,
         signatures: BTreeMap::new(),
         routes: BTreeSet::from(["/".into()]),
+        schemas,
+        output_signatures: interactions::output_signatures(program, components)?,
     };
     lower.signatures = property_signatures(program, components)?;
-    if !lower.signatures.get(root).is_some_and(Vec::is_empty) {
-        return Err(error(
-            Location::default(),
-            "root component must exist and take no properties",
-        ));
-    }
+    lower.check_root(root)?;
     let mut checked = BTreeMap::new();
     for c in components {
         checked.insert(c.name.clone(), lower.component(c, rpc)?);
     }
-    let mut used_components = BTreeSet::new();
-    visit(root, &checked, &mut BTreeSet::new(), &mut used_components)?;
-    checked.retain(|n, _| used_components.contains(n));
+    interactions::root_identity(root, &checked)?;
+    retain_components(root, &mut checked)?;
     lower.routes = BTreeSet::from(["/".into()]);
     for component in checked.values() {
         collect_routes(&component.template, &mut lower.routes);
     }
+    schemas.check_literals(&lower.routes)?;
     let used = reach::used(program, &checked);
     let functions = reachable_functions(program, &used.functions)?;
     Ok(BrowserProgram {
+        actions: recovery_actions(&used.actions, actions, rpc),
         component: root.into(),
         components: checked,
         functions,
@@ -202,9 +260,59 @@ pub(super) fn lower(
             .map(|(n, t)| (n.clone(), t.clone()))
             .collect(),
         routes: lower.routes,
+        schemas: schemas.clone(),
     })
 }
+
+fn recovery_actions(
+    names: &BTreeSet<String>,
+    actions: &BTreeMap<String, super::actions::Binding>,
+    rpc: &BTreeMap<String, super::rpc::Operation>,
+) -> BTreeMap<String, Recovery> {
+    names
+        .iter()
+        .filter_map(|name| {
+            actions
+                .get(name)
+                .filter(|binding| binding.durable())
+                .map(|binding| {
+                    (
+                        name.clone(),
+                        Recovery {
+                            result: rpc[name].client_result.clone(),
+                            label: binding
+                                .label
+                                .clone()
+                                .unwrap_or_else(|| name.replace('_', " ")),
+                        },
+                    )
+                })
+        })
+        .collect()
+}
+fn retain_components(root: &str, components: &mut BTreeMap<String, Component>) -> Result<()> {
+    let mut used = BTreeSet::new();
+    visit(root, components, &mut BTreeSet::new(), &mut used)?;
+    components.retain(|name, _| used.contains(name));
+    Ok(())
+}
+
 impl Lower<'_> {
+    fn check_root(&self, root: &str) -> Result<()> {
+        if !self.signatures.get(root).is_some_and(Vec::is_empty) {
+            return Err(error(
+                Location::default(),
+                "root component must exist and take no properties",
+            ));
+        }
+        if !self.output_signatures[root].is_empty() {
+            return Err(error(
+                Location::default(),
+                "root component cannot declare unbound outputs",
+            ));
+        }
+        Ok(())
+    }
     fn expression(&self, value: &Expr, locals: &BTreeMap<String, Type>) -> Result<Expression> {
         let ty = expression_type(self.program, locals.clone(), value)?;
         if !crate::security::type_security(&ty, self.program).browser_managed {
@@ -228,6 +336,12 @@ impl Lower<'_> {
         let mut state = Vec::new();
         for (n, t, e) in &c.states {
             let ty = crate::checker::resolve_type(t, self.program, e.location)?;
+            if !crate::security::type_security(&ty, self.program).browser_managed {
+                return Err(error(
+                    e.location,
+                    "declared state type is not a finite managed browser value",
+                ));
+            }
             let value = self.expression(e, &locals)?;
             if !ty.accepts(&value.ty) {
                 return Err(error(e.location, "state initializer type mismatch"));
@@ -249,6 +363,12 @@ impl Lower<'_> {
         let mut derived = Vec::new();
         for (n, t, e) in &c.derived {
             let ty = crate::checker::resolve_type(t, self.program, e.location)?;
+            if !crate::security::type_security(&ty, self.program).browser_managed {
+                return Err(error(
+                    e.location,
+                    "declared derived type is not a finite managed browser value",
+                ));
+            }
             let value = self.expression(e, &locals)?;
             if !ty.accepts(&value.ty) {
                 return Err(error(e.location, "derived value type mismatch"));
@@ -256,48 +376,20 @@ impl Lower<'_> {
             locals.insert(n.clone(), ty.clone());
             derived.push((n.clone(), Expression { ty, ast: value.ast }));
         }
-        let mut events = BTreeMap::new();
-        for (name, assignments) in &c.events {
-            let mut output = Vec::new();
-            for (target, value) in assignments {
-                let expected = state
-                    .iter()
-                    .find(|(n, _)| n == target)
-                    .map(|(_, v)| &v.ty)
-                    .ok_or_else(|| {
-                        error(
-                            value.location,
-                            "event assignment targets mutable state only",
-                        )
-                    })?;
-                let event = self.event(value, &locals, rpc)?;
-                let actual = match &event {
-                    EventValue::Pure(e) | EventValue::Async { expression: e, .. } => &e.ty,
-                    EventValue::Remote { result, .. } => result,
-                };
-                if !expected.accepts(actual) {
-                    return Err(error(value.location, "event assignment changes state type"));
-                }
-                if name == "unmount" && !matches!(event, EventValue::Pure(_)) {
-                    return Err(error(
-                        value.location,
-                        "unmount cleanup cannot dispatch server mutations",
-                    ));
-                }
-                output.push((target.clone(), event));
-            }
-            events.insert(name.clone(), output);
-        }
+        let events = self.events(c, &state, &locals, rpc)?;
         let mutable = state
             .iter()
             .map(|(n, e)| (n.clone(), e.ty.clone()))
             .collect();
         let template = self.nodes(&c.template, &locals, &events, &mutable)?;
+        controls::bound(&template)?;
         Ok(Component {
+            location: c.location,
             properties,
             state,
             derived,
             events,
+            outputs: self.output_signatures[&c.name].clone(),
             template,
         })
     }
@@ -322,17 +414,20 @@ impl Lower<'_> {
         } = &e.kind
             && let ExprKind::Field(base, name) = &callee.kind
             && let ExprKind::Name(namespace) = &base.kind
-            && ["rpc", "session", "files"].contains(&namespace.as_str())
+            && ["rpc", "action", "session", "files"].contains(&namespace.as_str())
         {
-            let (parameters, result, operation) = if namespace == "rpc" {
+            let (parameters, result, operation) = if namespace == "rpc" || namespace == "action" {
                 let op = rpc
                     .get(name)
                     .ok_or_else(|| error(e.location, "RPC is not declared in the manifest"))?;
-                (
-                    op.arguments.clone(),
-                    op.result.clone(),
-                    format!("rpc/{name}"),
-                )
+                if op.action != (namespace == "action") {
+                    return Err(error(
+                        e.location,
+                        "actions cannot use ordinary RPC dispatch",
+                    ));
+                }
+                let result = op.client_result.clone();
+                (op.arguments.clone(), result, format!("{namespace}/{name}"))
             } else if namespace == "files" {
                 let (parameters, result) = self.file_signature(name, arguments, e.location)?;
                 (parameters, result, format!("files/{name}"))
@@ -432,7 +527,7 @@ impl Lower<'_> {
         &mut self,
         nodes: &[HtmlNode],
         locals: &BTreeMap<String, Type>,
-        events: &BTreeMap<String, Vec<(String, EventValue)>>,
+        events: &BTreeMap<String, Event>,
         mutable: &BTreeMap<String, Type>,
     ) -> Result<Vec<Node>> {
         nodes.iter().map(|node|match node {
@@ -440,9 +535,22 @@ impl Lower<'_> {
             HtmlNode::Expression(e)=>{let v=self.expression(e,locals)?;if !matches!(v.ty,Type::Int|Type::Bool|Type::Text|Type::BoundedText(..)|Type::Id(_)) {return Err(error(e.location,"render compound values through explicit fields, match, each or formatting utilities"));}Ok(Node::Value(v))},
             HtmlNode::Element{tag,attributes,children}=>{
                 let attrs:BTreeMap<_,_>=attributes.iter().map(|(n,v)|(n.as_str(),v)).collect();
+                if tag != "form" && attrs.contains_key("schema") {return Err(error(Location::default(),"schema belongs to a typed form"));}
                 let literal=|n:&str|match attrs.get(n) {Some(HtmlAttribute::Literal(s))=>Ok(s.clone()),_=>Err(error(Location::default(),"directive requires a static name/path"))};
                 let expr=|n:&str|match attrs.get(n) {Some(HtmlAttribute::Expression(e))=>Ok((*e).clone()),_=>Err(error(Location::default(),"directive requires an expression"))};
                 match tag.as_str() {
+                    "field"=>{
+                        if !children.iter().all(|n|matches!(n,HtmlNode::Text(s) if s.trim().is_empty())) {return Err(error(Location::default(),"field has no author-supplied children"));}
+                        return Ok(Node::Field(self.control(&attrs,locals,mutable)?));
+                    },
+                    "submit"=>{
+                        if attrs.len()!=1 || !children.iter().all(|n|matches!(n,HtmlNode::Text(s) if s.trim().is_empty())) {return Err(error(Location::default(),"submit requires only a nonempty label"));}
+                        return Ok(Node::Submit(self.accessible_text(attrs.get("label").copied(),locals,true)?));
+                    },
+                    "status"=>{
+                        if attrs.len()!=1 || !children.iter().all(|n|matches!(n,HtmlNode::Text(s) if s.trim().is_empty())) {return Err(error(Location::default(),"status requires only a Text value"));}
+                        return Ok(Node::Status(self.accessible_text(attrs.get("value").copied(),locals,false)?));
+                    },
                     "watch"=>{
                         if attrs.len()!=3 || !children.iter().all(|n|matches!(n,HtmlNode::Text(t) if t.trim().is_empty())) {return Err(error(Location::default(),"watch requires stream, into, cursor and no content"));}
                         let into=literal("into")?;let cursor=literal("cursor")?;let stream=self.expression(&expr("stream")?,locals)?;
@@ -453,21 +561,47 @@ impl Lower<'_> {
                     },
                     "when"=>{if attrs.len()!=1 {return Err(error(Location::default(),"when requires only test"));}let v=self.expression(&expr("test")?,locals)?;if v.ty!=Type::Bool {return Err(error(v.ast.location,"when test must be Bool"));}return Ok(Node::When(v,self.nodes(children,locals,events,mutable)?));},
                     "each"=>{if attrs.len()!=3 {return Err(error(Location::default(),"each requires items, as and key"));}let items=self.expression(&expr("items")?,locals)?;let Type::List(inner)=&items.ty else {return Err(error(items.ast.location,"each requires a List"));};let binding=literal("as")?;if !super::resolve::identifier(&binding) || locals.contains_key(&binding) {return Err(error(items.ast.location,"each binding must be a fresh local name"));}let mut nested=locals.clone();nested.insert(binding.clone(),(**inner).clone());let key=self.expression(&expr("key")?,&nested)?;if !matches!(key.ty,Type::Int|Type::Text|Type::BoundedText(..)|Type::Id(_)) {return Err(error(key.ast.location,"key requires Int, Text or Id"));}return Ok(Node::Each{items,binding,key,children:self.nodes(children,&nested,events,mutable)?});},
-                    "route"=>{if attrs.len()!=1 {return Err(error(Location::default(),"route requires only path"));}let path=literal("path")?;crate::template::validate_internal_url(&path,Location::default())?;if path.contains(['?','#']) || path.starts_with("/_diamond") || path.starts_with("/assets/") {return Err(error(Location::default(),"route path is reserved or not canonical"));}self.routes.insert(path.clone());return Ok(Node::Route(path,self.nodes(children,locals,events,mutable)?));},
-                    "use"=>{if !children.iter().all(|n|matches!(n,HtmlNode::Text(s) if s.trim().is_empty())) {return Err(error(Location::default(),"use takes properties only"));}let component=literal("component")?;let signature=self.signatures.get(&component).ok_or_else(||error(Location::default(),"unknown or invisible component"))?;if attrs.len()!=signature.len()+1 {return Err(error(Location::default(),"component properties must match its declared signature"));}let properties=signature.iter().map(|(n,ty)|{let e=self.expression(&expr(n)?,locals)?;if !ty.accepts(&e.ty) {return Err(error(e.ast.location,"component property type mismatch"));}Ok((n.clone(),e))}).collect::<Result<_>>()?;return Ok(Node::Use{component,properties});},
+                    "route"=>{
+                        if attrs.contains_key("name") {
+                            if attrs.len()!=2 { return Err(error(Location::default(),"named route outlet requires name and as")); }
+                            let route=literal("name")?;let binding=literal("as")?;
+                            if !self.schemas.routes.contains_key(&route) || !super::resolve::identifier(&binding) || locals.contains_key(&binding) { return Err(error(Location::default(),"named route requires a visible schema and fresh binding")); }
+                            let mut nested=locals.clone();nested.insert(binding.clone(),Type::Record(route.clone()));
+                            return Ok(Node::NamedRoute{route,binding,children:self.nodes(children,&nested,events,mutable)?});
+                        }
+                        if attrs.len()!=1 {return Err(error(Location::default(),"route requires only path"));}let path=literal("path")?;crate::template::validate_internal_url(&path,Location::default())?;if path.contains(['?','#']) || path.starts_with("/_diamond") || path.starts_with("/assets/") {return Err(error(Location::default(),"route path is reserved or not canonical"));}self.routes.insert(path.clone());return Ok(Node::Route(path,self.nodes(children,locals,events,mutable)?));
+                    },
+                    "use"=>{if !children.iter().all(|n|matches!(n,HtmlNode::Text(s) if s.trim().is_empty())) {return Err(error(Location::default(),"use takes properties and output bindings only"));}return self.component_use(&literal("component")?,&attrs,locals,events);},
                     "html"|"head"|"body"|"title"=>return Err(error(Location::default(),"components render inside the document body")),_=>{}
                 }
                 let mut checked=Vec::new();
+                if tag=="img" && !attrs.contains_key("alt") {return Err(error(Location::default(),"images require an author-supplied alt description; empty alt explicitly marks decoration"));}
+                let mut handler_locals=locals.clone();
+                let form = if tag=="form" && attrs.contains_key("schema") {
+                    let schema=literal("schema")?;let binding=literal("as")?;
+                    if !self.schemas.forms.contains_key(&schema) || !super::resolve::identifier(&binding) || locals.contains_key(&binding) {return Err(error(Location::default(),"schema form requires a visible schema and fresh binding"));}
+                    handler_locals.insert(binding.clone(),Type::Record(schema.clone()));
+                    checked.push(("schema".into(),Attribute::Form{schema: schema.clone(),binding}));
+                    if attrs.contains_key("method") || attrs.contains_key("action") {return Err(error(Location::default(),"schema form transport is owned by the runtime"));}
+                    checked.push(("method".into(),Attribute::Text("post".into())));
+                    Some(schema)
+                } else {None};
                 for (name,value) in attributes {
+                    if form.is_some() && ["schema","as"].contains(&name.as_str()) {continue;}
                     let attr=match (name.as_str(),value) {
-                        ("on-click"|"on-submit",HtmlAttribute::Expression(Expr{kind:ExprKind::Name(event),..})) if events.contains_key(event) && ((name=="on-click" && tag=="button") || (name=="on-submit" && tag=="form"))=>Attribute::Event(event.clone()),
+                        ("on-click"|"on-submit",HtmlAttribute::Expression(expression)) if ((name=="on-click" && tag=="button") || (name=="on-submit" && tag=="form"))=>Attribute::Event(self.handler(expression,&handler_locals,events)?),
                         ("on-click"|"on-submit",_)=>return Err(error(Location::default(),"event requires a declared handler on a button/form")),
                         ("bind-value",HtmlAttribute::Expression(Expr{kind:ExprKind::Name(n),..})) if ["input","textarea","select"].contains(&tag.as_str()) && mutable.get(n)==Some(&Type::Text)=>Attribute::Binding(n.clone()),
                         ("bind-checked",HtmlAttribute::Expression(Expr{kind:ExprKind::Name(n),..})) if tag=="input" && mutable.get(n)==Some(&Type::Bool)=>Attribute::Checked(n.clone()),
                         ("bind-value"|"bind-checked",_)=>return Err(error(Location::default(),"binding requires compatible mutable state")),
                         ("id",HtmlAttribute::Literal(s)) if ["diamond-app","diamond-error"].contains(&s.as_str())=>return Err(error(Location::default(),"component id is reserved by the runtime")),
                         (_,HtmlAttribute::Literal(s))=>Attribute::Text(s.clone()),
-                        ("href"|"action"|"src",_)=>return Err(error(Location::default(),"URL attributes require static validated references")),
+                        ("href",HtmlAttribute::Expression(e))=>{
+                            let value=self.expression(e,locals)?;
+                            if !matches!(&value.ty,Type::Record(name) if self.schemas.routes.contains_key(name)) {return Err(error(e.location,"dynamic href requires a declared typed route value"));}
+                            Attribute::Route(value)
+                        },
+                        ("action"|"src",_)=>return Err(error(Location::default(),"URL attributes require static validated references")),
                         (_,HtmlAttribute::Expression(e))=>{
                             let value=self.expression(e,locals)?;
                             if tag=="option" && name=="value" && !matches!(value.ty,Type::Int|Type::Text|Type::BoundedText(..)|Type::Id(_)) {return Err(error(e.location,"option values require Int, Text or Id"));}
@@ -489,7 +623,9 @@ impl Lower<'_> {
                     validate_select_children(children,&mut values)?;
                 }
                 if tag=="form" && !checked.iter().any(|(n,_)|n=="on-submit") {return Err(error(Location::default(),"component forms require on-submit"));}
-                Ok(Node::Element{tag:tag.clone(),attributes:checked,children:self.nodes(children,locals,events,mutable)?})
+                let mut children=self.nodes(children,locals,events,mutable)?;
+                if let Some(schema)=form { forms::controls(&mut children,&self.schemas.forms[&schema])?; }
+                Ok(Node::Element{tag:tag.clone(),attributes:checked,children})
             }
         }).collect()
     }
@@ -557,6 +693,7 @@ fn collect_routes(nodes: &[Node], routes: &mut BTreeSet<String>) {
                 collect_routes(children, routes);
             }
             Node::When(_, children)
+            | Node::NamedRoute { children, .. }
             | Node::Each { children, .. }
             | Node::Element { children, .. } => collect_routes(children, routes),
             _ => {}
@@ -595,7 +732,8 @@ fn dependencies(nodes: &[Node], names: &mut BTreeSet<String>) {
             Node::Element { children, .. }
             | Node::When(_, children)
             | Node::Each { children, .. }
-            | Node::Route(_, children) => dependencies(children, names),
+            | Node::Route(_, children)
+            | Node::NamedRoute { children, .. } => dependencies(children, names),
             _ => {}
         }
     }
@@ -611,10 +749,14 @@ fn property_signatures(
             .properties
             .iter()
             .map(|(n, t)| {
-                Ok((
-                    n.clone(),
-                    crate::checker::resolve_type(t, program, c.location)?,
-                ))
+                let ty = crate::checker::resolve_type(t, program, c.location)?;
+                if !crate::security::type_security(&ty, program).browser_managed {
+                    return Err(error(
+                        c.location,
+                        "component properties require finite managed browser types",
+                    ));
+                }
+                Ok((n.clone(), ty))
             })
             .collect::<Result<Vec<_>>>()?;
         signatures.insert(c.name.clone(), props);

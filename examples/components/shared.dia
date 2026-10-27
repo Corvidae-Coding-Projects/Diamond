@@ -1,0 +1,5 @@
+export type IssueId = Id<"issue">
+export enum Mode:
+  Open
+  Closed
+export form Details(title: Text<length: 1..20>, enabled: Bool, count: Int, mode: Mode, note: Option<Text<length: 0..20>>, owner: IssueId, optional: Option<Bool>)

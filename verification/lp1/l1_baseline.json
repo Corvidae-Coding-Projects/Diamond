@@ -1,0 +1,132 @@
+{
+  "status": "PASS",
+  "binary_sha256": "9be3c601b87ddc61272d67a14a880614d0841d4933252d74cb3dad4f74116b29",
+  "observations": [
+    {
+      "name": "formatting",
+      "exit": 0,
+      "pass": true,
+      "stdout_sha256": "f3ec6f2401ef3f03a0e8e8ba74a9ae55f591d9fff0a533674f878dec5f58992d",
+      "diagnostic": ""
+    },
+    {
+      "name": "raw-script",
+      "exit": 0,
+      "pass": true,
+      "stdout_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "diagnostic": ""
+    },
+    {
+      "name": "raw-event",
+      "exit": 0,
+      "pass": true,
+      "stdout_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "diagnostic": ""
+    },
+    {
+      "name": "markdown-image",
+      "exit": 0,
+      "pass": true,
+      "stdout_sha256": "1f4bac9f87b66e1a33bc211761b863aae114cae773c53ebb2842e56b3861a9e1",
+      "diagnostic": ""
+    },
+    {
+      "name": "javascript-link",
+      "exit": 0,
+      "pass": true,
+      "stdout_sha256": "e99c5049515bf28f9df00f4cf9bdfd4e7be4e23007ae441db5d2f915fa28b004",
+      "diagnostic": ""
+    },
+    {
+      "name": "mixed-case-link",
+      "exit": 0,
+      "pass": true,
+      "stdout_sha256": "e99c5049515bf28f9df00f4cf9bdfd4e7be4e23007ae441db5d2f915fa28b004",
+      "diagnostic": ""
+    },
+    {
+      "name": "data-link",
+      "exit": 0,
+      "pass": true,
+      "stdout_sha256": "e99c5049515bf28f9df00f4cf9bdfd4e7be4e23007ae441db5d2f915fa28b004",
+      "diagnostic": ""
+    },
+    {
+      "name": "network-path",
+      "exit": 0,
+      "pass": true,
+      "stdout_sha256": "e99c5049515bf28f9df00f4cf9bdfd4e7be4e23007ae441db5d2f915fa28b004",
+      "diagnostic": ""
+    },
+    {
+      "name": "https-link",
+      "exit": 0,
+      "pass": true,
+      "stdout_sha256": "e23a39fd65c5362d8d362f999a5a19308cec2a583cb839142d0e40d97bf80c56",
+      "diagnostic": ""
+    },
+    {
+      "name": "root-link",
+      "exit": 0,
+      "pass": true,
+      "stdout_sha256": "4da4d0dc4ae8a7f96d2e04870fffc291024c8eca5f08dbb9429279ba21a395cc",
+      "diagnostic": ""
+    },
+    {
+      "name": "relative-link",
+      "exit": 0,
+      "pass": true,
+      "stdout_sha256": "c7a1e12a02cb5d24d994162899fa1981ec77d0f276a33fa9b4e0d29142ea4a08",
+      "diagnostic": ""
+    },
+    {
+      "name": "fragment-link",
+      "exit": 0,
+      "pass": true,
+      "stdout_sha256": "52965a062334351d079453e5b72ed7638a24b24cb3194855ea15bb297dd4f4a7",
+      "diagnostic": ""
+    },
+    {
+      "name": "input-ceiling",
+      "exit": 1,
+      "pass": true,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "diagnostic": "error: execute main: resource limit exceeded: Markdown input"
+    },
+    {
+      "name": "output-ceiling",
+      "exit": 1,
+      "pass": true,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "diagnostic": "error: execute main: resource limit exceeded: rendered Markdown"
+    },
+    {
+      "name": "text-cannot-construct-html",
+      "exit": 1,
+      "pass": true,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "diagnostic": "error[D110]: expected Html, found Text\n --> /tmp/diamond-l1-29m2rgnl/wrong-type.dia:1:1\n  |\n1 | fn main() -> Html:\n  | ^"
+    },
+    {
+      "name": "secret-record-entry",
+      "exit": 1,
+      "pass": true,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "diagnostic": "error: invalid input: opaque secrets cannot escape the server entry"
+    },
+    {
+      "name": "secret-enum-entry",
+      "exit": 1,
+      "pass": true,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "diagnostic": "error: invalid input: opaque secrets cannot escape the server entry"
+    },
+    {
+      "name": "secret-record-rpc",
+      "exit": 1,
+      "pass": true,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "diagnostic": "error: invalid input: RPC signatures require finite managed wire-safe types"
+    }
+  ]
+}

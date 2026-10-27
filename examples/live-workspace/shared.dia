@@ -12,3 +12,26 @@ export type IssuePage:
   cards: List<IssueCard>
   after: Text
   total: Int
+
+export type WorkspaceEditorData:
+  id: CardId
+  title: Text<length: 1..120>
+  details: Text<length: 0..4000>
+
+export form WorkspaceEdit(title: Text<length: 1..120>, details: Text<length: 0..4000>)
+export enum WorkspaceEditError:
+  SaveFailed
+
+export fn workspace_edit_message(value: Action<WorkspaceEditorData, WorkspaceEditError>) -> Text:
+  match value:
+    ActionIdle => "Ready to edit."
+    ActionSubmitting => "Saving issue…"
+    ActionSucceeded(issue) => "Saved issue: " + issue.title
+    ActionRejected(problem) => "Save rejected. No changes were applied."
+    ActionInvalid => "Check the issue fields."
+    ActionDenied => "Your access to this issue changed."
+    ActionAborted => "Save aborted. Refresh before retrying."
+    ActionExpired => "Recovery expired. Check the record before submitting again."
+    ActionConflict => "The request or application changed. Check the record before submitting again."
+    ActionCorrupt => "Recovery unavailable. Check the record before submitting again."
+    ActionUnknown => "Completion unknown. Refresh before retrying."

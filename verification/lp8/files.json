@@ -1,0 +1,1014 @@
+{
+  "status": "PASS",
+  "binary_sha256": "28a8f27b6db02a04301ffa458f03df38e6c37fad16aaa6b6929adcd448a51e30",
+  "error": null,
+  "results": [
+    {
+      "name": "ticket-private-hash-and-db-expiry-exact-0.bin",
+      "status": "PASS",
+      "observed": {
+        "separate_from_id": true,
+        "stored_sha256_only": true,
+        "db_seconds_left": 899.991367
+      },
+      "expected": "separate upload authority is hash-only and expires on PostgreSQL time near15minutes"
+    },
+    {
+      "name": "reservation-before-bytes-exact-0.bin",
+      "status": "PASS",
+      "observed": {
+        "rows": [
+          {
+            "id": "635045efc4df8f5eb10b583c8876a21ce11d6a3ee0776bf47851bbe63a251a21",
+            "binding": "issue_files",
+            "parent": "issue-red-one",
+            "owner": "alice",
+            "name": "exact-0.bin",
+            "media": "application/octet-stream",
+            "length": 0,
+            "state": "reserved",
+            "sha256": "",
+            "live": true
+          }
+        ],
+        "physical_objects": 0
+      },
+      "expected": "committed principal/parent/length metadata exists before bytes"
+    },
+    {
+      "name": "pending-invisible-0",
+      "status": "PASS",
+      "observed": {
+        "status": 403,
+        "body_bytes": 18
+      },
+      "expected": "no pending object download"
+    },
+    {
+      "name": "reservation-principal-binding-0",
+      "status": "PASS",
+      "observed": {
+        "status": 403
+      },
+      "expected": "another Editor cannot use uploader reservation/token"
+    },
+    {
+      "name": "cross-node-transfer-0",
+      "status": "PASS",
+      "observed": {
+        "status": 200,
+        "body": "{\"id\":\"635045efc4df8f5eb10b583c8876a21ce11d6a3ee0776bf47851bbe63a251a21\",\"state\":\"staged\"}"
+      },
+      "expected": "exact raw PUT succeeds on B"
+    },
+    {
+      "name": "staged-invisible-0",
+      "status": "PASS",
+      "observed": {
+        "status": 403
+      },
+      "expected": "staged data remains unreadable before publication"
+    },
+    {
+      "name": "concurrent-single-publication-0",
+      "status": "PASS",
+      "observed": {
+        "outcomes": [
+          [
+            200,
+            {
+              "id": "635045efc4df8f5eb10b583c8876a21ce11d6a3ee0776bf47851bbe63a251a21",
+              "state": "ready"
+            }
+          ],
+          [
+            200,
+            {
+              "id": "635045efc4df8f5eb10b583c8876a21ce11d6a3ee0776bf47851bbe63a251a21",
+              "state": "ready"
+            }
+          ]
+        ],
+        "rows": [
+          {
+            "id": "635045efc4df8f5eb10b583c8876a21ce11d6a3ee0776bf47851bbe63a251a21",
+            "binding": "issue_files",
+            "parent": "issue-red-one",
+            "owner": "alice",
+            "name": "exact-0.bin",
+            "media": "application/octet-stream",
+            "length": 0,
+            "state": "ready",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "live": true
+          }
+        ],
+        "physical_names": [
+          "575d24456d7d9d26683fcc5f490c51ec3ddac145e5852d53ffb1220de4453a6f-635045efc4df8f5eb10b583c8876a21ce11d6a3ee0776bf47851bbe63a251a21.blob"
+        ]
+      },
+      "expected": "concurrent finalization publishes once; completed or distinctly aborted contenders permit explicit ready retry"
+    },
+    {
+      "name": "explicit-finish-retry-0",
+      "status": "PASS",
+      "observed": [
+        200,
+        {
+          "id": "635045efc4df8f5eb10b583c8876a21ce11d6a3ee0776bf47851bbe63a251a21",
+          "state": "ready"
+        }
+      ],
+      "expected": "explicit finish retry observes existing ready object"
+    },
+    {
+      "name": "reader-cross-node-exact-download-0",
+      "status": "PASS",
+      "observed": {
+        "status": 200,
+        "length": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "headers": {
+          "content-type": "application/octet-stream",
+          "content-length": "0",
+          "content-disposition": "attachment; filename=attachment.bin",
+          "x-content-type-options": "nosniff",
+          "cache-control": "no-store",
+          "content-security-policy": "default-src 'none'; sandbox",
+          "date": "Tue, 27 Oct 2026 23:14:41 GMT"
+        }
+      },
+      "expected": "current Reader policy permits exact bytes with safe attachment headers"
+    },
+    {
+      "name": "unrelated-principal-denied-0",
+      "status": "PASS",
+      "observed": {
+        "status": 403
+      },
+      "expected": "no parent membership, no object access"
+    },
+    {
+      "name": "published-delete-0",
+      "status": "PASS",
+      "observed": [
+        200,
+        {
+          "id": "635045efc4df8f5eb10b583c8876a21ce11d6a3ee0776bf47851bbe63a251a21",
+          "state": "deleted"
+        }
+      ],
+      "expected": "authorized delete removes public readability"
+    },
+    {
+      "name": "ticket-private-hash-and-db-expiry-exact-1.bin",
+      "status": "PASS",
+      "observed": {
+        "separate_from_id": true,
+        "stored_sha256_only": true,
+        "db_seconds_left": 899.991832
+      },
+      "expected": "separate upload authority is hash-only and expires on PostgreSQL time near15minutes"
+    },
+    {
+      "name": "reservation-before-bytes-exact-1.bin",
+      "status": "PASS",
+      "observed": {
+        "rows": [
+          {
+            "id": "1ff79f550a579165097d21788b73bafe8edded1e75650d8117d32331bfdefedb",
+            "binding": "issue_files",
+            "parent": "issue-red-one",
+            "owner": "alice",
+            "name": "exact-1.bin",
+            "media": "application/octet-stream",
+            "length": 1034,
+            "state": "reserved",
+            "sha256": "",
+            "live": true
+          }
+        ],
+        "physical_objects": 0
+      },
+      "expected": "committed principal/parent/length metadata exists before bytes"
+    },
+    {
+      "name": "pending-invisible-1",
+      "status": "PASS",
+      "observed": {
+        "status": 403,
+        "body_bytes": 18
+      },
+      "expected": "no pending object download"
+    },
+    {
+      "name": "reservation-principal-binding-1",
+      "status": "PASS",
+      "observed": {
+        "status": 403
+      },
+      "expected": "another Editor cannot use uploader reservation/token"
+    },
+    {
+      "name": "cross-node-transfer-1",
+      "status": "PASS",
+      "observed": {
+        "status": 200,
+        "body": "{\"id\":\"1ff79f550a579165097d21788b73bafe8edded1e75650d8117d32331bfdefedb\",\"state\":\"staged\"}"
+      },
+      "expected": "exact raw PUT succeeds on B"
+    },
+    {
+      "name": "staged-invisible-1",
+      "status": "PASS",
+      "observed": {
+        "status": 403
+      },
+      "expected": "staged data remains unreadable before publication"
+    },
+    {
+      "name": "concurrent-single-publication-1",
+      "status": "PASS",
+      "observed": {
+        "outcomes": [
+          [
+            200,
+            {
+              "id": "1ff79f550a579165097d21788b73bafe8edded1e75650d8117d32331bfdefedb",
+              "state": "ready"
+            }
+          ],
+          [
+            200,
+            {
+              "id": "1ff79f550a579165097d21788b73bafe8edded1e75650d8117d32331bfdefedb",
+              "state": "ready"
+            }
+          ]
+        ],
+        "rows": [
+          {
+            "id": "1ff79f550a579165097d21788b73bafe8edded1e75650d8117d32331bfdefedb",
+            "binding": "issue_files",
+            "parent": "issue-red-one",
+            "owner": "alice",
+            "name": "exact-1.bin",
+            "media": "application/octet-stream",
+            "length": 1034,
+            "state": "ready",
+            "sha256": "fe384d3fcc430a2fc3cf5a9ecc85e4ea078eb2aac892ca66fbe4eb9cf84c447e",
+            "live": true
+          }
+        ],
+        "physical_names": [
+          "575d24456d7d9d26683fcc5f490c51ec3ddac145e5852d53ffb1220de4453a6f-1ff79f550a579165097d21788b73bafe8edded1e75650d8117d32331bfdefedb.blob"
+        ]
+      },
+      "expected": "concurrent finalization publishes once; completed or distinctly aborted contenders permit explicit ready retry"
+    },
+    {
+      "name": "explicit-finish-retry-1",
+      "status": "PASS",
+      "observed": [
+        200,
+        {
+          "id": "1ff79f550a579165097d21788b73bafe8edded1e75650d8117d32331bfdefedb",
+          "state": "ready"
+        }
+      ],
+      "expected": "explicit finish retry observes existing ready object"
+    },
+    {
+      "name": "reader-cross-node-exact-download-1",
+      "status": "PASS",
+      "observed": {
+        "status": 200,
+        "length": 1034,
+        "sha256": "fe384d3fcc430a2fc3cf5a9ecc85e4ea078eb2aac892ca66fbe4eb9cf84c447e",
+        "headers": {
+          "content-type": "application/octet-stream",
+          "content-length": "1034",
+          "content-disposition": "attachment; filename=attachment.bin",
+          "x-content-type-options": "nosniff",
+          "cache-control": "no-store",
+          "content-security-policy": "default-src 'none'; sandbox",
+          "date": "Tue, 27 Oct 2026 23:14:41 GMT"
+        }
+      },
+      "expected": "current Reader policy permits exact bytes with safe attachment headers"
+    },
+    {
+      "name": "unrelated-principal-denied-1",
+      "status": "PASS",
+      "observed": {
+        "status": 403
+      },
+      "expected": "no parent membership, no object access"
+    },
+    {
+      "name": "same-length-corruption-fails-closed-1",
+      "status": "PASS",
+      "observed": {
+        "status": 403,
+        "body_bytes": 18
+      },
+      "expected": "same-size corruption does not stream bytes"
+    },
+    {
+      "name": "published-delete-1",
+      "status": "PASS",
+      "observed": [
+        200,
+        {
+          "id": "1ff79f550a579165097d21788b73bafe8edded1e75650d8117d32331bfdefedb",
+          "state": "deleted"
+        }
+      ],
+      "expected": "authorized delete removes public readability"
+    },
+    {
+      "name": "ticket-private-hash-and-db-expiry-exact-2.bin",
+      "status": "PASS",
+      "observed": {
+        "separate_from_id": true,
+        "stored_sha256_only": true,
+        "db_seconds_left": 899.991359
+      },
+      "expected": "separate upload authority is hash-only and expires on PostgreSQL time near15minutes"
+    },
+    {
+      "name": "reservation-before-bytes-exact-2.bin",
+      "status": "PASS",
+      "observed": {
+        "rows": [
+          {
+            "id": "bcfae4ae00b61f19db5f6b60c09f85889e11224cfed90a32e6e0fbd4798f4be8",
+            "binding": "issue_files",
+            "parent": "issue-red-one",
+            "owner": "alice",
+            "name": "exact-2.bin",
+            "media": "application/octet-stream",
+            "length": 8388608,
+            "state": "reserved",
+            "sha256": "",
+            "live": true
+          }
+        ],
+        "physical_objects": 0
+      },
+      "expected": "committed principal/parent/length metadata exists before bytes"
+    },
+    {
+      "name": "pending-invisible-2",
+      "status": "PASS",
+      "observed": {
+        "status": 403,
+        "body_bytes": 18
+      },
+      "expected": "no pending object download"
+    },
+    {
+      "name": "cross-node-transfer-2",
+      "status": "PASS",
+      "observed": {
+        "status": 200,
+        "body": "{\"id\":\"bcfae4ae00b61f19db5f6b60c09f85889e11224cfed90a32e6e0fbd4798f4be8\",\"state\":\"staged\"}"
+      },
+      "expected": "exact raw PUT succeeds on B"
+    },
+    {
+      "name": "staged-invisible-2",
+      "status": "PASS",
+      "observed": {
+        "status": 403
+      },
+      "expected": "staged data remains unreadable before publication"
+    },
+    {
+      "name": "concurrent-single-publication-2",
+      "status": "PASS",
+      "observed": {
+        "outcomes": [
+          [
+            200,
+            {
+              "id": "bcfae4ae00b61f19db5f6b60c09f85889e11224cfed90a32e6e0fbd4798f4be8",
+              "state": "ready"
+            }
+          ],
+          [
+            200,
+            {
+              "id": "bcfae4ae00b61f19db5f6b60c09f85889e11224cfed90a32e6e0fbd4798f4be8",
+              "state": "ready"
+            }
+          ]
+        ],
+        "rows": [
+          {
+            "id": "bcfae4ae00b61f19db5f6b60c09f85889e11224cfed90a32e6e0fbd4798f4be8",
+            "binding": "issue_files",
+            "parent": "issue-red-one",
+            "owner": "alice",
+            "name": "exact-2.bin",
+            "media": "application/octet-stream",
+            "length": 8388608,
+            "state": "ready",
+            "sha256": "7d212b9c884f5c77896de960ae17cc341cda43b14d6a971f34ca29ebd4badf7f",
+            "live": true
+          }
+        ],
+        "physical_names": [
+          "575d24456d7d9d26683fcc5f490c51ec3ddac145e5852d53ffb1220de4453a6f-bcfae4ae00b61f19db5f6b60c09f85889e11224cfed90a32e6e0fbd4798f4be8.blob"
+        ]
+      },
+      "expected": "concurrent finalization publishes once; completed or distinctly aborted contenders permit explicit ready retry"
+    },
+    {
+      "name": "explicit-finish-retry-2",
+      "status": "PASS",
+      "observed": [
+        200,
+        {
+          "id": "bcfae4ae00b61f19db5f6b60c09f85889e11224cfed90a32e6e0fbd4798f4be8",
+          "state": "ready"
+        }
+      ],
+      "expected": "explicit finish retry observes existing ready object"
+    },
+    {
+      "name": "reader-cross-node-exact-download-2",
+      "status": "PASS",
+      "observed": {
+        "status": 200,
+        "length": 8388608,
+        "sha256": "7d212b9c884f5c77896de960ae17cc341cda43b14d6a971f34ca29ebd4badf7f",
+        "headers": {
+          "content-type": "application/octet-stream",
+          "content-length": "8388608",
+          "content-disposition": "attachment; filename=attachment.bin",
+          "x-content-type-options": "nosniff",
+          "cache-control": "no-store",
+          "content-security-policy": "default-src 'none'; sandbox",
+          "date": "Tue, 27 Oct 2026 23:14:41 GMT"
+        }
+      },
+      "expected": "current Reader policy permits exact bytes with safe attachment headers"
+    },
+    {
+      "name": "unrelated-principal-denied-2",
+      "status": "PASS",
+      "observed": {
+        "status": 403
+      },
+      "expected": "no parent membership, no object access"
+    },
+    {
+      "name": "same-length-corruption-fails-closed-2",
+      "status": "PASS",
+      "observed": {
+        "status": 403,
+        "body_bytes": 18
+      },
+      "expected": "same-size corruption does not stream bytes"
+    },
+    {
+      "name": "published-delete-2",
+      "status": "PASS",
+      "observed": [
+        200,
+        {
+          "id": "bcfae4ae00b61f19db5f6b60c09f85889e11224cfed90a32e6e0fbd4798f4be8",
+          "state": "deleted"
+        }
+      ],
+      "expected": "authorized delete removes public readability"
+    },
+    {
+      "name": "ticket-private-hash-and-db-expiry-unfinished-0",
+      "status": "PASS",
+      "observed": {
+        "separate_from_id": true,
+        "stored_sha256_only": true,
+        "db_seconds_left": 899.991158
+      },
+      "expected": "separate upload authority is hash-only and expires on PostgreSQL time near15minutes"
+    },
+    {
+      "name": "reservation-before-bytes-unfinished-0",
+      "status": "PASS",
+      "observed": {
+        "rows": [
+          {
+            "id": "9dbf9843256cc19843bc7d79201aadc5286b6916a21b78f2933e0dea4e3ab43c",
+            "binding": "issue_files",
+            "parent": "issue-red-one",
+            "owner": "alice",
+            "name": "unfinished-0",
+            "media": "application/octet-stream",
+            "length": 1,
+            "state": "reserved",
+            "sha256": "",
+            "live": true
+          }
+        ],
+        "physical_objects": 0
+      },
+      "expected": "committed principal/parent/length metadata exists before bytes"
+    },
+    {
+      "name": "ticket-private-hash-and-db-expiry-unfinished-1",
+      "status": "PASS",
+      "observed": {
+        "separate_from_id": true,
+        "stored_sha256_only": true,
+        "db_seconds_left": 899.9917
+      },
+      "expected": "separate upload authority is hash-only and expires on PostgreSQL time near15minutes"
+    },
+    {
+      "name": "reservation-before-bytes-unfinished-1",
+      "status": "PASS",
+      "observed": {
+        "rows": [
+          {
+            "id": "f08456501d6e8b12aba22f3f06b66798a63c119414bb40887982305a7778ed3a",
+            "binding": "issue_files",
+            "parent": "issue-red-one",
+            "owner": "alice",
+            "name": "unfinished-1",
+            "media": "application/octet-stream",
+            "length": 1,
+            "state": "reserved",
+            "sha256": "",
+            "live": true
+          }
+        ],
+        "physical_objects": 0
+      },
+      "expected": "committed principal/parent/length metadata exists before bytes"
+    },
+    {
+      "name": "ticket-private-hash-and-db-expiry-unfinished-2",
+      "status": "PASS",
+      "observed": {
+        "separate_from_id": true,
+        "stored_sha256_only": true,
+        "db_seconds_left": 899.991294
+      },
+      "expected": "separate upload authority is hash-only and expires on PostgreSQL time near15minutes"
+    },
+    {
+      "name": "reservation-before-bytes-unfinished-2",
+      "status": "PASS",
+      "observed": {
+        "rows": [
+          {
+            "id": "f543226529154a593094c3ab606af306a0d7d5423adadc192163ff812d577a90",
+            "binding": "issue_files",
+            "parent": "issue-red-one",
+            "owner": "alice",
+            "name": "unfinished-2",
+            "media": "application/octet-stream",
+            "length": 1,
+            "state": "reserved",
+            "sha256": "",
+            "live": true
+          }
+        ],
+        "physical_objects": 0
+      },
+      "expected": "committed principal/parent/length metadata exists before bytes"
+    },
+    {
+      "name": "ticket-private-hash-and-db-expiry-unfinished-3",
+      "status": "PASS",
+      "observed": {
+        "separate_from_id": true,
+        "stored_sha256_only": true,
+        "db_seconds_left": 899.992229
+      },
+      "expected": "separate upload authority is hash-only and expires on PostgreSQL time near15minutes"
+    },
+    {
+      "name": "reservation-before-bytes-unfinished-3",
+      "status": "PASS",
+      "observed": {
+        "rows": [
+          {
+            "id": "6db78b06ed861763fa036f4d373421a6364874a9282c40122d5239a5010af8dc",
+            "binding": "issue_files",
+            "parent": "issue-red-one",
+            "owner": "alice",
+            "name": "unfinished-3",
+            "media": "application/octet-stream",
+            "length": 1,
+            "state": "reserved",
+            "sha256": "",
+            "live": true
+          }
+        ],
+        "physical_objects": 0
+      },
+      "expected": "committed principal/parent/length metadata exists before bytes"
+    },
+    {
+      "name": "four-unfinished-reservations",
+      "status": "PASS",
+      "observed": {
+        "fifth": [
+          503,
+          {
+            "error": "unavailable"
+          }
+        ],
+        "rows_before": 4,
+        "rows_after": 4
+      },
+      "expected": "fifth unfinished reservation rejects without allocation"
+    },
+    {
+      "name": "reader-and-oversize-no-write",
+      "status": "PASS",
+      "observed": {
+        "reader": [
+          403,
+          {
+            "error": "denied"
+          }
+        ],
+        "oversize": [
+          400,
+          {
+            "error": "invalid_input"
+          }
+        ]
+      },
+      "expected": "no update authority or length above8MiB creates no reservation"
+    },
+    {
+      "name": "ticket-private-hash-and-db-expiry-wrong-length",
+      "status": "PASS",
+      "observed": {
+        "separate_from_id": true,
+        "stored_sha256_only": true,
+        "db_seconds_left": 899.992384
+      },
+      "expected": "separate upload authority is hash-only and expires on PostgreSQL time near15minutes"
+    },
+    {
+      "name": "reservation-before-bytes-wrong-length",
+      "status": "PASS",
+      "observed": {
+        "rows": [
+          {
+            "id": "b274d9fa103db4929814a47cbbd8cd42b959b41569368c4a2bfb6786fb5376fe",
+            "binding": "issue_files",
+            "parent": "issue-red-one",
+            "owner": "alice",
+            "name": "wrong-length",
+            "media": "application/octet-stream",
+            "length": 1,
+            "state": "reserved",
+            "sha256": "",
+            "live": true
+          }
+        ],
+        "physical_objects": 0
+      },
+      "expected": "committed principal/parent/length metadata exists before bytes"
+    },
+    {
+      "name": "actual-length-mismatch",
+      "status": "PASS",
+      "observed": {
+        "status": 400,
+        "rows": [
+          {
+            "id": "b274d9fa103db4929814a47cbbd8cd42b959b41569368c4a2bfb6786fb5376fe",
+            "binding": "issue_files",
+            "parent": "issue-red-one",
+            "owner": "alice",
+            "name": "wrong-length",
+            "media": "application/octet-stream",
+            "length": 1,
+            "state": "reserved",
+            "sha256": "",
+            "live": true
+          }
+        ]
+      },
+      "expected": "declared/actual length mismatch never publishes"
+    },
+    {
+      "name": "ticket-private-hash-and-db-expiry-interrupted",
+      "status": "PASS",
+      "observed": {
+        "separate_from_id": true,
+        "stored_sha256_only": true,
+        "db_seconds_left": 899.992058
+      },
+      "expected": "separate upload authority is hash-only and expires on PostgreSQL time near15minutes"
+    },
+    {
+      "name": "reservation-before-bytes-interrupted",
+      "status": "PASS",
+      "observed": {
+        "rows": [
+          {
+            "id": "00ce5213e43e80aa51149d471c7c2c79306f217640f2f65da69f482dadc9a1c6",
+            "binding": "issue_files",
+            "parent": "issue-red-one",
+            "owner": "alice",
+            "name": "interrupted",
+            "media": "application/octet-stream",
+            "length": 8388608,
+            "state": "reserved",
+            "sha256": "",
+            "live": true
+          }
+        ],
+        "physical_objects": 0
+      },
+      "expected": "committed principal/parent/length metadata exists before bytes"
+    },
+    {
+      "name": "streaming-disconnect-and-unrelated-health",
+      "status": "PASS",
+      "observed": {
+        "partial_bytes_before_completion": 131072,
+        "healthy_rpc_status": 200,
+        "rows": [
+          {
+            "id": "00ce5213e43e80aa51149d471c7c2c79306f217640f2f65da69f482dadc9a1c6",
+            "binding": "issue_files",
+            "parent": "issue-red-one",
+            "owner": "alice",
+            "name": "interrupted",
+            "media": "application/octet-stream",
+            "length": 8388608,
+            "state": "receiving",
+            "sha256": "",
+            "live": true
+          }
+        ]
+      },
+      "expected": "bounded partial transfer writes incrementally, stays private and releases work after disconnect"
+    },
+    {
+      "name": "expired-interrupted-cleanup",
+      "status": "PASS",
+      "observed": {
+        "rows": [],
+        "files": []
+      },
+      "expected": "bounded explicit cleanup removes expired/failed metadata and bytes"
+    },
+    {
+      "name": "traversal-and-header-metadata-rejection",
+      "status": "PASS",
+      "observed": {
+        "statuses": [
+          400,
+          400,
+          400,
+          400,
+          400
+        ],
+        "row_count": 0
+      },
+      "expected": "path/control/oversized names cannot allocate or escape object storage"
+    },
+    {
+      "name": "ticket-private-hash-and-db-expiry-untrusted.html",
+      "status": "PASS",
+      "observed": {
+        "separate_from_id": true,
+        "stored_sha256_only": true,
+        "db_seconds_left": 899.991391
+      },
+      "expected": "separate upload authority is hash-only and expires on PostgreSQL time near15minutes"
+    },
+    {
+      "name": "reservation-before-bytes-untrusted.html",
+      "status": "PASS",
+      "observed": {
+        "rows": [
+          {
+            "id": "eefda27d9f7f688120c53788a8f1356d7cb08482ad24ff9eee21f5070ed1ab9e",
+            "binding": "issue_files",
+            "parent": "issue-red-one",
+            "owner": "alice",
+            "name": "untrusted.html",
+            "media": "text/html",
+            "length": 7,
+            "state": "reserved",
+            "sha256": "",
+            "live": true
+          }
+        ],
+        "physical_objects": 0
+      },
+      "expected": "committed principal/parent/length metadata exists before bytes"
+    },
+    {
+      "name": "ticket-csrf-origin-binding",
+      "status": "PASS",
+      "observed": {
+        "statuses": [
+          403,
+          403,
+          403,
+          400
+        ]
+      },
+      "expected": "forged or missing token, CSRF and Origin cannot finalize"
+    },
+    {
+      "name": "declared-html-still-attachment",
+      "status": "PASS",
+      "observed": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/octet-stream",
+          "content-length": "7",
+          "content-disposition": "attachment; filename=attachment.bin",
+          "x-content-type-options": "nosniff",
+          "cache-control": "no-store",
+          "content-security-policy": "default-src 'none'; sandbox",
+          "date": "Tue, 27 Oct 2026 23:14:42 GMT"
+        }
+      },
+      "expected": "declared HTML never authorizes inline rendering"
+    },
+    {
+      "name": "reader-cannot-delete",
+      "status": "PASS",
+      "observed": [
+        403,
+        {
+          "error": "denied"
+        }
+      ],
+      "expected": "Read authority cannot delete a published object"
+    },
+    {
+      "name": "ticket-private-hash-and-db-expiry-commit-abort",
+      "status": "PASS",
+      "observed": {
+        "separate_from_id": true,
+        "stored_sha256_only": true,
+        "db_seconds_left": 899.991689
+      },
+      "expected": "separate upload authority is hash-only and expires on PostgreSQL time near15minutes"
+    },
+    {
+      "name": "reservation-before-bytes-commit-abort",
+      "status": "PASS",
+      "observed": {
+        "rows": [
+          {
+            "id": "706af3cf0e5bbfe840ca1dab0cf39e768158953f33df9d9aeaa53a709c483825",
+            "binding": "issue_files",
+            "parent": "issue-red-one",
+            "owner": "alice",
+            "name": "commit-abort",
+            "media": "application/octet-stream",
+            "length": 5,
+            "state": "reserved",
+            "sha256": "",
+            "live": true
+          }
+        ],
+        "physical_objects": 0
+      },
+      "expected": "committed principal/parent/length metadata exists before bytes"
+    },
+    {
+      "name": "rename-survives-confirmed-db-abort",
+      "status": "PASS",
+      "observed": {
+        "finish": [
+          403,
+          {
+            "error": "denied"
+          }
+        ],
+        "rows": [
+          {
+            "id": "706af3cf0e5bbfe840ca1dab0cf39e768158953f33df9d9aeaa53a709c483825",
+            "binding": "issue_files",
+            "parent": "issue-red-one",
+            "owner": "alice",
+            "name": "commit-abort",
+            "media": "application/octet-stream",
+            "length": 5,
+            "state": "staged",
+            "sha256": "36bbe50ed96841d10443bcb670d6554f0a34b761be67ec9c4a8ad2c0c44ca42c",
+            "live": true
+          }
+        ],
+        "renamed_blob": true
+      },
+      "expected": "SQL abort does not claim to roll back filesystem rename or publish bytes"
+    },
+    {
+      "name": "explicit-retry-after-rename-abort",
+      "status": "PASS",
+      "observed": {
+        "finish": [
+          200,
+          {
+            "id": "706af3cf0e5bbfe840ca1dab0cf39e768158953f33df9d9aeaa53a709c483825",
+            "state": "ready"
+          }
+        ],
+        "rows": [
+          {
+            "id": "706af3cf0e5bbfe840ca1dab0cf39e768158953f33df9d9aeaa53a709c483825",
+            "binding": "issue_files",
+            "parent": "issue-red-one",
+            "owner": "alice",
+            "name": "commit-abort",
+            "media": "application/octet-stream",
+            "length": 5,
+            "state": "ready",
+            "sha256": "36bbe50ed96841d10443bcb670d6554f0a34b761be67ec9c4a8ad2c0c44ca42c",
+            "live": true
+          }
+        ]
+      },
+      "expected": "explicit retry verifies renamed bytes and publishes exactly one object"
+    },
+    {
+      "name": "different-root-fails-closed",
+      "status": "PASS",
+      "observed": {
+        "initialize_exit": 1,
+        "serve_exit": 1,
+        "fallback_blobs": 0
+      },
+      "expected": "a different directory identity cannot rebind app storage or create local fallback"
+    },
+    {
+      "name": "ticket-private-hash-and-db-expiry-revoked",
+      "status": "PASS",
+      "observed": {
+        "separate_from_id": true,
+        "stored_sha256_only": true,
+        "db_seconds_left": 899.991832
+      },
+      "expected": "separate upload authority is hash-only and expires on PostgreSQL time near15minutes"
+    },
+    {
+      "name": "reservation-before-bytes-revoked",
+      "status": "PASS",
+      "observed": {
+        "rows": [
+          {
+            "id": "f853fa4876c45a6fb19d6906f6932d8f35af47ad9cd2d2ff9b5691d83e97a6b2",
+            "binding": "issue_files",
+            "parent": "issue-red-one",
+            "owner": "alice",
+            "name": "revoked",
+            "media": "application/octet-stream",
+            "length": 1,
+            "state": "reserved",
+            "sha256": "",
+            "live": true
+          }
+        ],
+        "physical_objects": 0
+      },
+      "expected": "committed principal/parent/length metadata exists before bytes"
+    },
+    {
+      "name": "permission-rechecked-after-reservation",
+      "status": "PASS",
+      "observed": {
+        "put_status": 403
+      },
+      "expected": "a valid upload token cannot bypass committed parent-role revocation"
+    }
+  ],
+  "shutdowns": [
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "http_requests": 87,
+  "temporary_root": "/tmp/diamond-w6-independent-files-1w3d0ror",
+  "scope": "real two-node shared files and policy/stream/corruption behavior; frontend and durable-mount operations separate"
+}

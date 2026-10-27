@@ -1,0 +1,11 @@
+export component App:
+  state draft: Text = "雪😀"
+  state count: Text = "17"
+  state enabled: Bool = true
+  state optional: Text = ""
+  state parent: Text = "parent-b"
+  state choice: Text = "Two"
+  on save(value: Data):
+    draft = value.title
+  html:
+    <each items={["B", "A"]} as="row" key={row}><form schema="Data" as="value" on-submit={save(value)}><field name="title" label={"Title " + row} bind-value={draft}></field><field name="count" label="Count" bind-value={count}></field><field name="enabled" label="Enabled" bind-checked={enabled}></field><field name="optional" label="Optional" bind-value={optional}></field><field name="parent" label="Parent" bind-value={parent}></field><field name="choice" label="Choice" bind-value={choice}></field><submit label="Save"></submit></form></each>

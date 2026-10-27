@@ -1,0 +1,35 @@
+{
+  "status": "PASS",
+  "date": "2026-10-27",
+  "browser": "Google Chrome 156.0.8078.47",
+  "binary_sha256": "28a8f27b6db02a04301ffa458f03df38e6c37fad16aaa6b6929adcd448a51e30",
+  "applications": [
+    {
+      "name": "Diamond Forge",
+      "fixture": "examples/git-browser/diamond.toml",
+      "driver_receipt": "verification/lp4/forge-fixture.json",
+      "observations": [
+        "Signed in as synthetic alice through the real login form.",
+        "Selected LP4 organization and Zebra repository through native selects and loaded the repository workspace.",
+        "Created issue LP8 final Forge issue, then saved the updated title and body through the real issue editor.",
+        "Independent PostgreSQL readback returned the updated title/body under ID 68933a1947104a15470d8b33c0675b9b121f534f091773194a21bb71c6e05abb.",
+        "Signed out, signed in again, restored organization/repository selection, and observed the same updated issue in a new authenticated client epoch."
+      ]
+    },
+    {
+      "name": "Live workspace",
+      "fixture": "examples/live-workspace/diamond.toml",
+      "driver_receipt": "verification/lp4/workspace-fixture.json",
+      "observations": [
+        "Signed in as synthetic alice and created workspace/project records through the real component UI.",
+        "Created and updated issue b2d9c6cdb2ca3869953dad02f2489c134f9a03c386b33c69449db9235b6716d7.",
+        "Independent PostgreSQL readback returned the updated title/body.",
+        "Added a comment and observed Comment: LP8 final live comment through the live WebSocket view.",
+        "Queued durable job 8b3edf7bca58204c88780e394ab0e35b47e998e48513067f767ae8e4a247f3e2, ran a separate project-work process, and observed attempts 1, outcome completed, state done plus its result.",
+        "Signed out, signed in again, and read the same updated issue by ID through a new authenticated client epoch."
+      ]
+    }
+  ],
+  "cleanup": "Both owned application servers, PostgreSQL clusters, and the separate worker exited cleanly; disposable roots were removed by their fixture owners.",
+  "boundary": "Synthetic loopback applications and PostgreSQL, not an external OAuth provider, production Git remote, SMTP provider, or deployed proxy."
+}

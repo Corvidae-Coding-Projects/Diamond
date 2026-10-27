@@ -1,0 +1,90 @@
+export component Editor(issue: IssueId):
+  output changed(value: Action<Issue, EditError>)
+  state loaded: Issue = Issue(id: issue, workspace: WorkspaceId("none"), title: "Loading", revision: 0)
+  state draft: Text = ""
+  state result: Action<Issue, EditError> = ActionIdle
+  derived valid: Bool = valid_title(draft)
+  derived status: Text = outcome_text(result)
+  on mount:
+    loaded = rpc.load(issue)
+    draft = loaded.title
+  on reload:
+    loaded = rpc.load(issue)
+    draft = loaded.title
+  on save(value: EditIssue):
+    result = action.rename(issue, value)
+    loaded = match result:
+      ActionSucceeded(updated) => updated
+      _ => loaded
+    emit changed(result)
+  html:
+    <section aria-label="Issue editor">
+      <h2>Editing {issue}</h2>
+      <p id="saved-title">{loaded.title}</p>
+      <p>Revision {loaded.revision}</p>
+      <form schema="EditIssue" as="value" on-submit={save(value)}>
+        <label for="issue-title">Title</label>
+        <input id="issue-title" name="title" type="text" bind-value={draft}>
+        <button type="submit" disabled={pending}>Save title</button>
+      </form>
+      <p id="validation">{valid}</p>
+      <p id="action-status" role="status" aria-live="polite">{status}</p>
+      <button type="button" on-click={reload}>Reload saved title</button>
+    </section>
+
+export component Workspace:
+  state user: Text = ""
+  state username: Text = "alice"
+  state password: Text = ""
+  state rows: List<Issue> = []
+  state selected: List<IssueId> = []
+  state notification: Text = "No child completion"
+  state completions: Int = 0
+  on mount:
+    user = session.user()
+  on login:
+    user = session.login(username, password)
+    password = ""
+  on logout:
+    user = session.logout()
+    rows = []
+    selected = []
+    notification = "No child completion"
+    completions = 0
+  on refresh(id: WorkspaceId):
+    rows = rpc.list_issues(id)
+  on open(id: IssueId):
+    selected = [id]
+  on close:
+    selected = []
+  on saved(value: Action<Issue, EditError>):
+    notification = outcome_text(value)
+    completions = completions + 1
+    rows = replace_issue(rows, value)
+  html:
+    <main>
+      <h1>Diamond language spine</h1>
+      <p id="user">{user}</p>
+      <form on-submit={login}>
+        <label for="username">Username</label><input id="username" type="text" bind-value={username}>
+        <label for="password">Password</label><input id="password" type="password" bind-value={password}>
+        <button type="submit">Sign in</button>
+      </form>
+      <button type="button" on-click={logout}>Sign out</button>
+      <p id="notification" role="status">{notification}</p>
+      <p id="completions">{completions}</p>
+      <a href="/">Issue list</a>
+      <route path="/">
+        <button type="button" on-click={refresh(WorkspaceId("alpha"))}>Load alpha issues</button>
+        <button type="button" on-click={refresh(WorkspaceId("beta"))}>Load beta issues</button>
+        <ul><each items={rows} as="row" key={row.id}>
+          <li><span>{row.title}</span><button type="button" on-click={open(row.id)}>Edit {row.id}</button><a href={IssuePage(id: row.id)}>Open {row.id}</a></li>
+        </each></ul>
+        <button type="button" on-click={close}>Close editor</button>
+        <each items={selected} as="id" key={id}><use component="Editor" issue={id} on-changed={saved}></use></each>
+      </route>
+      <route name="IssuePage" as="detail">
+        <p id="route-id">{detail.id}</p>
+        <when test={user != ""}><use component="Editor" issue={detail.id} on-changed={saved}></use></when>
+      </route>
+    </main>

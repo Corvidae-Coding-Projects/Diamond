@@ -1,0 +1,12 @@
+export component Child:
+  output changed(value: Int)
+  on received(value: Int):
+    emit changed(value)
+  html:
+    <use component="Child" on-changed={received}></use>
+export component App:
+  state value: Int = 0
+  on received(update: Int):
+    value = update
+  html:
+    <use component="Child" on-changed={received}></use>

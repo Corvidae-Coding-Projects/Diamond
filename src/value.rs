@@ -28,6 +28,7 @@ pub(crate) enum Type {
     DataError,
     Result(Box<Self>),
     AppResult(Box<Self>, Box<Self>),
+    Action(Box<Self>, Box<Self>),
     Success(Box<Self>),
     Option(Box<Self>),
     Never,
@@ -43,7 +44,8 @@ impl Type {
             || matches!(other, Self::Never)
             || matches!((self, other), (Self::Text, Self::BoundedText(_, _)))
             || match (self, other) {
-                (Self::AppResult(a, e), Self::AppResult(b, f)) => a.accepts(b) && e.accepts(f),
+                (Self::AppResult(a, e), Self::AppResult(b, f))
+                | (Self::Action(a, e), Self::Action(b, f)) => a.accepts(b) && e.accepts(f),
                 (Self::AppResult(a, _) | Self::Result(a) | Self::Success(a), Self::Success(b))
                 | (Self::Result(a), Self::Result(b))
                 | (Self::Option(a), Self::Option(b))
@@ -61,6 +63,7 @@ impl fmt::Display for Type {
             Self::Timestamp => f.write_str("Timestamp"),
             Self::Duration => f.write_str("Duration"),
             Self::AppResult(a, e) => write!(f, "Result<{a}, {e}>"),
+            Self::Action(a, e) => write!(f, "Action<{a}, {e}>"),
             Self::Success(a) => write!(f, "Result<{a}, inferred error>"),
             Self::Bool => f.write_str("Bool"),
             Self::Text => f.write_str("Text"),
@@ -334,6 +337,15 @@ impl Value {
 
     pub(crate) fn fits(&self, ty: &Type) -> bool {
         match (&self.0, ty) {
+            (ValueKind::Variant(enumeration, tag, fields), Type::Action(success, error)) => {
+                enumeration == crate::action::ENUM
+                    && crate::action::cases(success, error)
+                        .get(tag)
+                        .is_some_and(|types| {
+                            fields.len() == types.len()
+                                && fields.iter().zip(types).all(|(value, ty)| value.fits(ty))
+                        })
+            }
             (ValueKind::Decimal(_), Type::Decimal)
             | (ValueKind::Timestamp(_), Type::Timestamp)
             | (ValueKind::Duration(_), Type::Duration)

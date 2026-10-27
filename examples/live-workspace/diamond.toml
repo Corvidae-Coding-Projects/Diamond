@@ -23,6 +23,7 @@ path = "tracker.dia"
 target = "browser"
 imports = ["shared", "parts"]
 [rpc]
+load_editor = "server.load_editor"
 queue_summary = "server.queue_summary"
 job_status = "server.job_status"
 create_comment = "server.create_comment"
@@ -39,6 +40,13 @@ update_issue = "server.update_issue"
 delete_issue = "server.delete_issue"
 issue_page = "server.issue_page"
 joined_projects = "server.joined_projects"
+[actions.save_editor]
+function = "server.save_editor"
+replay = "transactional"
+resource = "Issues"
+parent = "id"
+label = "Save issue"
+
 [storage]
 profile = "relational-v1"
 version = 1

@@ -1,0 +1,7 @@
+export component Child:
+  output changed(value: List<Option<Secret<"inventory">>>)
+  html:
+    <p>Child</p>
+export component App:
+  html:
+    <p>Root</p>

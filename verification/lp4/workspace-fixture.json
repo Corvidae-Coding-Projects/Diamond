@@ -1,0 +1,38 @@
+{
+  "status": "PASS",
+  "error": null,
+  "binary_sha256": "28a8f27b6db02a04301ffa458f03df38e6c37fad16aaa6b6929adcd448a51e30",
+  "driver_sha256": "2e32696475201548a59a5a228af16aefe0f87b8f2165c37b258b68aefce75aef",
+  "source_hashes": {
+    "examples/live-workspace/tracker.css": "94d2cb454d47237b5134eda6ff96f9ec295fd64aa1616394b2dab3103a447140",
+    "examples/live-workspace/diamond.svg": "5f295145c59d12fda9e777d4d864349e38b7c7dc03ce00cca00fc45033b3f534",
+    "examples/live-workspace/cards.dia": "57bfd0a925e9c571791b67f5fa707ac26daaa7866bfb8fb8741f9acc178c557f",
+    "examples/live-workspace/shared.dia": "2c59ce2da5cadd98c061bc986c551b60323d3cff05fd04c26264da3a402c264d",
+    "examples/live-workspace/server.dia": "3f25374daeda630ff5c3e2493ad995c9c0121eb41f5659c1e857d15dc77c6c58",
+    "examples/live-workspace/diamond.toml": "70252ea82d82b4c395383c22d382ee358c445ed2e9d6e2cb8d20cc0c36e9d60a",
+    "examples/live-workspace/tracker.dia": "7504c647ef192cdd070529f9ade605b7f766d32620c8e310afe4c3794df4da6b",
+    "examples/live-workspace/README.md": "f66131992b33a47ee4d9abb0a4b95352ab57824e0d0d5891dda63ff90fbf492c"
+  },
+  "observations": [
+    {
+      "name": "independent-sql-readback",
+      "rows": [
+        {
+          "id": "b2d9c6cdb2ca3869953dad02f2489c134f9a03c386b33c69449db9235b6716d7",
+          "title": "LP8 final workspace issue updated",
+          "body": "Updated through final-candidate real UI."
+        }
+      ]
+    }
+  ],
+  "shutdowns": [
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": []
+}

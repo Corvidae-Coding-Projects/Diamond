@@ -1,0 +1,97 @@
+{
+  "status": "PASS",
+  "binary_sha256": "34f31487113e5d6b14e0aa8c214aca44be80a71c16add9eab77945c9b6d72262",
+  "observations": [
+    {
+      "name": "opaque-stream-control",
+      "expected_accept": true,
+      "exit": 0,
+      "pass": true,
+      "diagnostic": ""
+    },
+    {
+      "name": "dynamic-channel-denied",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: ui.dia: D117 at 131:22: stream channel must be a static name"
+    },
+    {
+      "name": "undeclared-channel-denied",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: D330 at 0:0: unknown event channel"
+    },
+    {
+      "name": "non-text-parent-denied",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: ui.dia: D117 at 131:22: stream requires a static channel and parent Text"
+    },
+    {
+      "name": "text-cannot-replace-stream",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: ui.dia: D330 at 131:22: watch requires a typed Stream"
+    },
+    {
+      "name": "cross-channel-assignment-denied",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: ui.dia: D330 at 20:44: state initializer type mismatch"
+    },
+    {
+      "name": "stream-cannot-be-rendered",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: ui.dia: D330 at 103:9: render compound values through explicit fields, match, each or formatting utilities"
+    },
+    {
+      "name": "stream-cannot-be-compared",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: ui.dia: D115 at 20:23: operator is not defined for these types"
+    },
+    {
+      "name": "stream-cannot-cross-generic-rpc",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: RPC signatures require finite managed wire-safe types"
+    },
+    {
+      "name": "stream-cannot-be-persisted",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: server.dia: D900 unsupported at 21:1: database field feed of type Stream<\"document_changes\">"
+    },
+    {
+      "name": "legacy-untyped-watch-denied",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: ui.dia: D900 unsupported at 131:21: HTML attribute channel"
+    },
+    {
+      "name": "stream-has-no-public-constructor",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: ui.dia: D116 at 131:22: unknown function Stream"
+    },
+    {
+      "name": "generated-runtime-owns-stream-safety",
+      "exit": 0,
+      "pass": true,
+      "diagnostic": "",
+      "missing_markers": []
+    }
+  ]
+}

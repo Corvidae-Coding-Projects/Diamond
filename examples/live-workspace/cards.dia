@@ -1,7 +1,7 @@
 export component Card(issue: IssueCard):
+  output selected(id: CardId)
   state expanded: Bool = false
   state mounted: Int = 0
-  state draft: Text = issue.title
   derived identity: Text = id_text(issue.id)
   on mount:
     mounted = mounted + 1
@@ -9,16 +9,41 @@ export component Card(issue: IssueCard):
     expanded = false
   on toggle:
     expanded = not expanded
+  on open:
+    emit selected(issue.id)
   html:
     <article class="issue-card" id={"card-" + identity}>
       <h3>{issue.title}</h3>
       <p class="muted">{identity}</p>
-      <label for={"draft-" + identity}>Local draft</label>
-      <input id={"draft-" + identity} type="text" bind-value={draft}>
+      <button type="button" on-click={open}>Edit {issue.title}</button>
       <button type="button" on-click={toggle}>Toggle details</button>
       <when test={expanded}><pre>{issue.details}</pre></when>
       <p class="muted">Mount count: <span class="mount-count">{mounted}</span></p>
     </article>
+
+export component WorkspaceEditor(issue: CardId):
+  output changed(value: Action<WorkspaceEditorData, WorkspaceEditError>)
+  state loaded: WorkspaceEditorData = WorkspaceEditorData(id: issue, title: "Loading", details: "")
+  state draft_title: Text = ""
+  state draft_details: Text = ""
+  state result: Action<WorkspaceEditorData, WorkspaceEditError> = ActionIdle
+  on mount:
+    loaded = rpc.load_editor(issue)
+    draft_title = loaded.title
+    draft_details = loaded.details
+  on save(value: WorkspaceEdit):
+    result = action.save_editor(issue, value)
+    emit changed(result)
+  html:
+    <section class="panel" aria-label={"Edit issue " + id_text(issue)}>
+      <h3>Edit issue</h3>
+      <form schema="WorkspaceEdit" as="value" on-submit={save(value)}>
+        <field name="title" label="Issue title" description="Describe the work in a short title." bind-value={draft_title}></field>
+        <field name="details" label="Issue details" description="Add useful context." bind-value={draft_details} multiline="true"></field>
+        <submit label="Save issue"></submit>
+      </form>
+      <status value={workspace_edit_message(result)}></status>
+    </section>
 
 export component About(note: Text):
   state visits: Int = 0

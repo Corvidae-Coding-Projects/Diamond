@@ -102,6 +102,76 @@ impl Context<'_, '_> {
             },
         )
     }
+
+    pub(crate) fn receipt_check(
+        &mut self,
+        r: &str,
+        method: &str,
+        before: Option<&Value>,
+        after: Option<&Value>,
+        allow_missing: bool,
+    ) -> Result<()> {
+        let fields = |value: Option<&Value>| match value {
+            Some(Value(ValueKind::Record(_, fields))) => Ok(fields.clone()),
+            _ => Err(Error::Denied),
+        };
+        let first = fields(before.or(after))?;
+        let identifier = first.get("id").ok_or(Error::Denied)?;
+        let mut params = Parameters::default();
+        let value = params.add(
+            identifier,
+            &self.program.records[&self.program.resources[r]].fields["id"].ty,
+        )?;
+        let exists = !self
+            .connection
+            .relational_query(
+                &format!("SELECT 1 FROM {} WHERE id={value}", table(self.app, r)),
+                &params.bindings(),
+            )?
+            .is_empty();
+        if exists {
+            self.operation(
+                r,
+                "get",
+                &[],
+                std::slice::from_ref(identifier),
+                &mut ValueBudget::new(),
+            )?;
+        } else if !allow_missing {
+            return Err(Error::Denied);
+        }
+        self.scope.require(&Effect::Read(r.into()))?;
+        self.authorize(r, Action::Read, &[&first])?;
+        match method {
+            "get" => {
+                if before.is_some() || after.is_none() {
+                    return Err(Error::Denied);
+                }
+            }
+            "create" => {
+                if before.is_some() || after.is_none() {
+                    return Err(Error::Denied);
+                }
+                self.scope.require(&Effect::Write(r.into()))?;
+                self.authorize(r, Action::Create, &[&first])?;
+            }
+            "update" => {
+                let next = fields(after)?;
+                self.scope.require(&Effect::Write(r.into()))?;
+                self.authorize(r, Action::Read, &[&next])?;
+                self.authorize(r, Action::Update, &[&first, &next])?;
+            }
+            "delete" => {
+                if before.is_none() || after.is_some() {
+                    return Err(Error::Denied);
+                }
+                self.scope.require(&Effect::Write(r.into()))?;
+                self.authorize(r, Action::Delete, &[&first])?;
+            }
+            _ => return Err(Error::Denied),
+        }
+        Ok(())
+    }
     fn create(&mut self, r: &str, values: &[Value], budget: &mut ValueBudget) -> Result<Value> {
         let p = self.program;
         let app = self.app;

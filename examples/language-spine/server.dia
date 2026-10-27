@@ -1,0 +1,49 @@
+type MemberId = Id<"member">
+enum Role:
+  Editor
+  Reader
+type Member:
+  id: MemberId
+  workspace: WorkspaceId
+  user: UserId
+  role: Role
+resource Members: Member
+resource Issues: Issue
+
+type IssueChange:
+  title: Text<length: 1..120>
+  revision: Int
+
+policy Members:
+  read(row, by principal):
+    principal.is_user(row.user)
+
+policy Issues:
+  read(row, by principal):
+    principal.is_related("Membership", row.workspace)
+  update(before, after, by principal):
+    before.workspace == after.workspace and principal.has_role_in("Membership", before.workspace, .Editor)
+
+export fn main() -> Bool:
+  valid_title("New")
+
+fn private_marker() -> Text:
+  "lp2-server-only-canary"
+
+export fn list_issues(workspace: WorkspaceId) -> Result<List<Issue>, DataError>:
+  issues.select(workspace: workspace, limit: 20)
+
+export fn load(id: IssueId) -> Result<Issue, DataError>:
+  issues.get(id)
+
+export action rename(id: IssueId, value: EditIssue) -> Result<Issue, EditError>:
+  match issues.get(id):
+    Ok(before) =>
+      match issues.update(id, IssueChange(title: value.title, revision: before.revision + 1)):
+        Ok(issue) =>
+          # Deliberately validate after writing to demonstrate atomic rollback.
+          match valid_title(issue.title):
+            true => Ok(issue)
+            false => Err(TitleRejected)
+        Err(problem) => Err(SaveFailed)
+    Err(problem) => Err(SaveFailed)

@@ -180,6 +180,7 @@ fn declare_types(
                     "List",
                     "Blob",
                     "Stream",
+                    "Action",
                 ]
                 .contains(&name.as_str()))
         {
@@ -256,25 +257,42 @@ fn resolve(
             Type::Stream(channel.clone())
         }
         TypeName::BoundedText(a, b) => Type::BoundedText(*a, *b),
-        TypeName::Generic(name, arguments) if name == "Option" && arguments.len() == 1 => {
-            Type::Option(Box::new(resolve(
-                &arguments[0],
-                aliases,
-                records,
-                enums,
-                depth + 1,
-                location,
-            )?))
+        TypeName::Generic(name, arguments) if name == "Action" && arguments.len() == 2 => {
+            Type::Action(
+                Box::new(resolve(
+                    &arguments[0],
+                    aliases,
+                    records,
+                    enums,
+                    depth + 1,
+                    location,
+                )?),
+                Box::new(resolve(
+                    &arguments[1],
+                    aliases,
+                    records,
+                    enums,
+                    depth + 1,
+                    location,
+                )?),
+            )
         }
-        TypeName::Generic(name, arguments) if name == "List" && arguments.len() == 1 => {
-            Type::List(Box::new(resolve(
+        TypeName::Generic(name, arguments)
+            if ["Option", "List"].contains(&name.as_str()) && arguments.len() == 1 =>
+        {
+            let inner = Box::new(resolve(
                 &arguments[0],
                 aliases,
                 records,
                 enums,
                 depth + 1,
                 location,
-            )?))
+            )?);
+            if name == "Option" {
+                Type::Option(inner)
+            } else {
+                Type::List(inner)
+            }
         }
         TypeName::Generic(name, arguments)
             if name == "Result"
@@ -363,6 +381,10 @@ pub(crate) fn resolve_type(
         TypeName::Named(name) if program.aliases.contains_key(name) => {
             Ok(program.aliases[name].clone())
         }
+        TypeName::Generic(name, args) if name == "Action" && args.len() == 2 => Ok(Type::Action(
+            Box::new(resolve_type(&args[0], program, location)?),
+            Box::new(resolve_type(&args[1], program, location)?),
+        )),
         TypeName::Generic(name, args)
             if name == "Result"
                 && args.len() == 2
@@ -481,6 +503,8 @@ fn resolve_enums(source: &syntax::Program, program: &mut CheckedProgram) -> Resu
         ]
         .map(str::to_owned),
     );
+    constructors.extend(crate::action::EMPTY.map(str::to_owned));
+    constructors.extend(["ActionSucceeded".into(), "ActionRejected".into()]);
     for declaration in &source.declarations {
         if let Declaration::Enum(enumeration) = declaration {
             if enumeration.variants.is_empty() {
@@ -576,6 +600,7 @@ fn resolve_functions(source: &syntax::Program, program: &mut CheckedProgram) -> 
     for declaration in &source.declarations {
         if let Declaration::Function(function) = declaration {
             if crate::standard::is_builtin(&function.name)
+                || crate::action::constructor(&function.name)
                 || program.records.contains_key(&function.name)
                 || program.aliases.contains_key(&function.name)
                 || program
@@ -871,6 +896,12 @@ fn mismatch(location: Location, expected: &Type, actual: &Type) -> Error {
 
 fn common_type(a: &Type, b: &Type, location: Location) -> Result<Type> {
     match (a, b) {
+        (Type::Action(a, e), Type::Action(b, f)) => {
+            return Ok(Type::Action(
+                Box::new(common_type(a, b, location)?),
+                Box::new(common_type(e, f, location)?),
+            ));
+        }
         (Type::Success(a), Type::AppResult(b, e)) | (Type::AppResult(b, e), Type::Success(a)) => {
             return Ok(Type::AppResult(
                 Box::new(common_type(a, b, location)?),
@@ -899,6 +930,28 @@ pub(crate) fn constant(expression: &Expr) -> Result<Value> {
         ExprKind::Bool(value) => Ok(Value(ValueKind::Bool(*value))),
         ExprKind::Text(value) => Ok(Value(ValueKind::Text(value.clone()))),
         ExprKind::Name(name) if name == "None" => Ok(Value(ValueKind::None)),
+        ExprKind::Call {
+            callee,
+            arguments,
+            types,
+        } if matches!(&callee.kind, ExprKind::Name(name) if name == "Some")
+            && types.is_empty()
+            && arguments.len() == 1
+            && arguments[0].0.is_none() =>
+        {
+            Ok(Value(ValueKind::Some(Box::new(constant(&arguments[0].1)?))))
+        }
+        ExprKind::Unary(Unary::Negate, value) => {
+            let ValueKind::Int(value) = constant(value)?.0 else {
+                return Err(Error::unsupported(
+                    expression.location,
+                    "non-integer negative default",
+                ));
+            };
+            Ok(Value(ValueKind::Int(value.checked_neg().ok_or_else(
+                || Error::Input("integer overflow in default".into()),
+            )?)))
+        }
         _ => Err(Error::unsupported(
             expression.location,
             "non-literal field defaults",
@@ -960,7 +1013,11 @@ impl<'a> Checker<'a> {
         }
         let actual = checker.block(&function.body)?;
         if !function.result.accepts(&actual) {
-            return Err(mismatch(function.location, &function.result, &actual));
+            let location = function
+                .body
+                .last()
+                .map_or(function.location, |statement| statement.location);
+            return Err(mismatch(location, &function.result, &actual));
         }
         Ok(checker)
     }
@@ -1151,6 +1208,8 @@ impl<'a> Checker<'a> {
         Ok({
             if let Some(ty) = self.locals.get(name) {
                 ty.clone()
+            } else if let Some(ty) = crate::action::signature(name, &[]) {
+                ty
             } else if let Some((enumeration, fields)) = self.program.variant(name) {
                 if !fields.is_empty() {
                     return Err(Error::diagnostic(
@@ -1216,6 +1275,7 @@ impl<'a> Checker<'a> {
     fn match_expression(&mut self, value: &Expr, arms: &[MatchArm]) -> Result<Type> {
         let ty = self.expr(value)?;
         let cases: BTreeMap<String, Vec<Type>> = match &ty {
+            Type::Action(success, error) => crate::action::cases(success, error),
             Type::Enum(name) => self.program.enums[name]
                 .variants
                 .iter()
@@ -1554,6 +1614,9 @@ impl<'a> Checker<'a> {
         if name == "stream" {
             return self.stream_call(args, location);
         }
+        if crate::action::constructor(name) {
+            return self.action_constructor(name, args, location);
+        }
         if crate::standard::is_builtin(name) {
             return self.standard_call(name, args, location);
         }
@@ -1699,7 +1762,7 @@ impl<'a> Checker<'a> {
                     "forms cannot contain reserved CSRF or server-derived fields",
                 ));
             }
-            if !scalar_input_type(&field.ty) {
+            if crate::scalar_input::Scalar::checked(&field.ty, self.program).is_none() {
                 return Err(Error::unsupported(
                     location,
                     format!("form field {name} of type {}", field.ty),
@@ -1769,6 +1832,27 @@ impl<'a> Checker<'a> {
             location,
             "invalid constructor arguments",
         ))
+    }
+
+    fn action_constructor(
+        &mut self,
+        name: &str,
+        args: &[(Option<String>, Expr)],
+        location: Location,
+    ) -> Result<Type> {
+        if args.iter().any(|(name, _)| name.is_some()) {
+            return Err(Error::diagnostic(
+                "D122",
+                location,
+                "action variants use positional payloads",
+            ));
+        }
+        let types = args
+            .iter()
+            .map(|(_, value)| self.expr(value))
+            .collect::<Result<Vec<_>>>()?;
+        crate::action::signature(name, &types)
+            .ok_or_else(|| Error::diagnostic("D122", location, "invalid action variant payload"))
     }
 
     fn record(

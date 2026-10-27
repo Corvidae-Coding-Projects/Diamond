@@ -1,0 +1,26 @@
+{
+  "status": "PASS",
+  "observed_on": "2026-10-27",
+  "method": "Actual Chrome UI through browser control; accessibility state and read-only DOM inspection",
+  "scope": "Pure LP1 fixture only; no database, accounts, external adapters, or cross-browser qualification",
+  "source_commit": "4c0195faaa44fe42c1619b38d6532ae7dc33c101",
+  "binary_sha256": "9be3c601b87ddc61272d67a14a880614d0841d4933252d74cb3dad4f74116b29",
+  "fixture_sha256": {
+    "diamond.toml": "9d20c484f8223f097277875728a5d4d3135a775153590f5558493577c2e95a0e",
+    "server.dia": "9cf95be7bb00bce0b900c2a3f6b99e2ab9da117a81ae407d39d8f676ea6bcd2d",
+    "shared.dia": "feb0544b695de1aed6363a4fc03c0efbbc876d2d95d93819cb8b3c36ba9ba4b9",
+    "ui.dia": "578aede0e06334c3086ab1ff9f6ece58eb4ce09cd44693d41d0a6f17a0ec6f7c"
+  },
+  "url": "http://127.0.0.1:39171/",
+  "expected_summary": "9007199254740993|3|-2|-0.000002|😀|·a·b·",
+  "observations": [
+    {"name": "B01-hydration", "pass": true, "action": "Open fixture", "ready": "true", "initial": "9007199254740993|3|-2|-0.000002|😀|·a·b·", "result": "Not evaluated", "number": "7"},
+    {"name": "B02-escaped-text", "pass": true, "hostile_text": "<script>lp1()</script>", "script_nodes": 1, "meaning": "Only generated runtime script, no interpolated script node"},
+    {"name": "B03-browser-semantics", "pass": true, "action": "Click Evaluate shared semantics", "result": "9007199254740993|3|-2|-0.000002|😀|·a·b·", "number": "9"},
+    {"name": "B04-arithmetic-failure", "pass": true, "action": "Click Fail arithmetic", "result": "9007199254740993|3|-2|-0.000002|😀|·a·b·", "number": "9", "visible_error": "Diamond component update failed; previous local state was preserved."},
+    {"name": "B05-recovery", "pass": true, "action": "Click Recover valid state", "number": "7", "error_visible": false},
+    {"name": "B06-native-select", "pass": true, "action": "Select snow 雪 in Choice", "selected": "snow 雪", "selection_text": "snow 雪", "direct_children": [["OPTION", "Choose a value"], ["OPTION", "alpha"], ["OPTION", "snow 雪"]]},
+    {"name": "B07-duplicate-options", "pass": true, "action": "Click Reject duplicate options", "result": "9007199254740993|3|-2|-0.000002|😀|·a·b·", "number": "7", "selected": "snow 雪", "selection_text": "snow 雪", "direct_children": [["OPTION", "Choose a value"], ["OPTION", "alpha"], ["OPTION", "snow 雪"]], "visible_error": "Diamond component update failed; previous local state was preserved."},
+    {"name": "B08-final-recovery", "pass": true, "action": "Click Recover valid state", "result": "9007199254740993|3|-2|-0.000002|😀|·a·b·", "number": "7", "selected": "snow 雪", "error_visible": false}
+  ]
+}

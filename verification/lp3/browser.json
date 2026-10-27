@@ -1,0 +1,26 @@
+{
+  "status": "PASS",
+  "scope": "Actual Chrome UI against real Diamond pages, PostgreSQL and two application servers; transparent response forwarding/delay only",
+  "binary_sha256": "41e31757fd9507a9eaa9f1557cd29271f3fec03b7bdf3c4b663768b576f763ee",
+  "contract": "54cd629abd535f5bb408697de62233d7212ea748f0b49bd94d243f8f010bb5ba",
+  "origin": "http://127.0.0.1:39171",
+  "fixture_root_during_run": "/tmp/diamond-lp3-4q1kf0aa",
+  "tab_ids_during_run": ["2141266019", "2141266036"],
+  "fixture_receipt": "browser_fixture.json",
+  "screenshot": "browser.jpg",
+  "observations": [
+    {"name":"deep-link-hydration","pass":true,"steps":["Reload full checked alpha-b URL containing page=2 and Unicode search","Sign in as synthetic alice"],"observed":{"id":"alpha-b","page":"2","search":"雪😀","saved_title":"Old B","ready":"true"}},
+    {"name":"invalid-draft-preservation-and-errors","pass":true,"steps":["Enter title 雪😀, estimate -, note Preserved after validation","Submit","Enter overflow 9223372036854775808 and empty title","Submit","Enter 121 snow characters","Submit"],"observed":{"estimate_draft_preserved":"- then 9223372036854775808","note_preserved":"Preserved after validation","field_messages":["Enter a canonical 64-bit integer.","Enter a value.","Value is too long."],"estimate_aria_invalid":"true","error_description_targets_actual_span":true,"action_dispatches":0,"b_revision":0}},
+    {"name":"all-fields-commit-after-correction","pass":true,"steps":["Correct title to 雪😀 and estimate to 17","Check Published","Select Closed","Save"],"observed":{"title":"雪😀","estimate":"17","published":true,"parent":"alpha","status":"Closed","note":"Preserved after validation","b_revision":1,"notification":"Saved alpha-b: 雪😀","completions":"1"}},
+    {"name":"query-only-navigation-history-reload","pass":true,"steps":["Default view","Back","Forward","Page two","Reload"],"observed":"Same issue B; defaults page1/search absent and explicit page2/search 雪😀 agree. Root state survives client history; named descendants remount and reread committed fields. Reload resets root completion state and reads revision1."},
+    {"name":"fresh-tab","pass":true,"steps":["Open exact page2 Unicode deep link in a second tab"],"observed":{"id":"alpha-b","page":"2","search":"雪😀","title":"雪😀","estimate":"17","note":"Preserved after validation","ready":"true"}},
+    {"name":"all-route-scalar-kinds","pass":true,"steps":["Scalar routes","Reload"],"observed":{"count":"-17","enabled":"true","label":"雪 &<","status":"Closed","scope":"alpha","extra":"17","flag":"false","owner":"alpha","mode":"Open","url":"/values/-17/true/%E9%9B%AA%20%26%3C/Closed/alpha?extra=17&flag=false&mode=Open&owner=alpha"}},
+    {"name":"optional-form-decode-and-recovery","pass":true,"steps":["Optional form","Submit empty controls","Enter - and bad/id","Submit","Correct count17/owneralpha, select false and Closed","Submit","Reload"],"observed":{"empty_summary":"absent|absent|absent|absent","invalid_messages":["Enter a canonical 64-bit integer.","Enter a valid identifier."],"corrected_summary":"17|false|alpha|Closed","reload":"Empty controls; No submission"}},
+    {"name":"server-denial-distinct-from-local-errors","pass":true,"steps":["In fresh B tab enter title Denied draft remains and parent beta","Save"],"observed":{"outcome":"Access denied","parent_draft":"beta","title_draft":"Denied draft remains","saved_b_revision":1,"saved_b_title":"雪😀","local_field_errors":[]}},
+    {"name":"query-change-invalidates-late-output","pass":true,"steps":["Gate arm","Correct parent alpha, title Committed across query change, blank note","Save and observe Saving","Default view while reply delayed","Observe independent SQL","Release completed reply"],"observed":{"saved_b_revision":2,"saved_b_title":"Committed across query change","saved_note":null,"new_page":"1","new_editor_reads_committed_title":true,"parent_notification_unchanged":"Access denied","parent_completions_unchanged":"1"}},
+    {"name":"later-valid-save","pass":true,"steps":["Enter LP3 verified 雪😀","Save"],"observed":{"saved_b_revision":3,"saved_b_title":"LP3 verified 雪😀","estimate":"17","published":true,"parent":"alpha","status":"Closed","note":null,"notification":"Saved alpha-b: LP3 verified 雪😀","completions":"2"}},
+    {"name":"schema-owned-fallback","pass":true,"observed":{"method":"post","noValidate":true,"interpretation":"Native draft submission cannot use a default GET; managed validation produces associated errors."}}
+  ],
+  "console_review": "No Diamond-tagged error/warning entries in the final fresh-tab session.",
+  "coverage_limits": ["One Chrome environment", "No browser password draft submission: schema password controls reject at compile time; compiler/native receipt covers this deliberate boundary", "No prolonged resource or cross-browser campaign", "No durable action receipt/recovery claim"]
+}

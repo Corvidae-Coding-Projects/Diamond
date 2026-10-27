@@ -1,0 +1,5 @@
+export type ParentId = Id<"parent">
+export enum Choice:
+  One
+  Two
+export form Data(title: Text<length: 1..20>, count: Int, enabled: Bool, optional: Option<Bool>, parent: ParentId, choice: Choice)

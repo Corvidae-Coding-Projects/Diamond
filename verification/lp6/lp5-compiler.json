@@ -1,0 +1,172 @@
+{
+  "status": "PASS",
+  "binary_sha256": "278b10f6d64d966279e7ddaea9964d43904426c7478c20aafdd0f9228ce722e1",
+  "driver_sha256": "56ad959ef87c88c7791483e83f0f85820991818b703b124a287e57078cdd0bc5",
+  "observations": [
+    {
+      "name": "valid-transactional-source",
+      "pass": true,
+      "stderr": ""
+    },
+    {
+      "name": "invalid-replay",
+      "pass": true,
+      "expected": "transactional or never",
+      "stderr": "error: invalid input: action replay must be transactional or never",
+      "source_sha256": "63471ef333496a8c4556c21e1ad17a3dd6fbc400515985eb2ca7ac59f2898069"
+    },
+    {
+      "name": "missing-resource",
+      "pass": true,
+      "expected": "require a parent resource",
+      "stderr": "error: invalid input: transactional actions require a parent resource and parameter",
+      "source_sha256": "11f906f3c6d99277e32d36fae86f7b0b78bbcda33049b38464cc31c50884e506"
+    },
+    {
+      "name": "missing-parent",
+      "pass": true,
+      "expected": "require a parent resource",
+      "stderr": "error: invalid input: transactional actions require a parent resource and parameter",
+      "source_sha256": "ef04be41f9f33caa3b9e8d6b7d6362adda697ec8354361bb858e2d07bf73ef52"
+    },
+    {
+      "name": "unknown-resource",
+      "pass": true,
+      "expected": "resource is unknown",
+      "stderr": "error: invalid input: API resource is unknown",
+      "source_sha256": "c921f173f9daccaee75acfab29e223a0d7719d3183b551493f784a88612581a7"
+    },
+    {
+      "name": "wrong-parent-parameter",
+      "pass": true,
+      "expected": "match its resource nominal ID",
+      "stderr": "error: invalid input: transactional action parent parameter must match its resource nominal ID",
+      "source_sha256": "c903222f62f55437c2eb29a4faf9cd68aaaa0035d2f19af2c1e0e9e063fa9868"
+    },
+    {
+      "name": "wrong-parent-nominal",
+      "pass": true,
+      "expected": "match its resource nominal ID",
+      "stderr": "error: invalid input: transactional action parent parameter must match its resource nominal ID",
+      "source_sha256": "27e7deb99d0f92b38ee520393e36ce458f11cc948804e5a04280b980b2a46a51"
+    },
+    {
+      "name": "never-cannot-claim-parent",
+      "pass": true,
+      "expected": "requires transactional replay",
+      "stderr": "error: invalid input: action parent/resource requires transactional replay",
+      "source_sha256": "6ef7b9c6b8e6a8510779a760d1d0d3278b17b99d555d9dae7b4d1a110f4c749b"
+    },
+    {
+      "name": "blank-label",
+      "pass": true,
+      "expected": "1..80 nonblank",
+      "stderr": "error: invalid input: action label requires 1..80 nonblank Text scalars",
+      "source_sha256": "7c9e153a7219f465c88b9bfe13a47e0720c07be144117e394e05fd80d8d05fe1"
+    },
+    {
+      "name": "long-label",
+      "pass": true,
+      "expected": "1..80 nonblank",
+      "stderr": "error: invalid input: action label requires 1..80 nonblank Text scalars",
+      "source_sha256": "c167cdbe52c222e8389b18f4897672c02e30f536aff7a62bc43b2b6ded332f3d"
+    },
+    {
+      "name": "raw-rpc-action-bypass",
+      "pass": true,
+      "expected": "cannot use ordinary RPC",
+      "stderr": "error: invalid input: action declarations require actions bindings and cannot use ordinary RPC",
+      "source_sha256": "aef302d199a0ba65963e364225d3393b5a562e4981b228f57099b5b7efd02a62"
+    },
+    {
+      "name": "public-api-action",
+      "pass": true,
+      "expected": "require token authentication",
+      "stderr": "error: invalid input: API actions require token authentication",
+      "source_sha256": "2ac0f4bbbac1431f35011ca67a3d1d112d7cf8e506359a47998726751ccf995d"
+    },
+    {
+      "name": "duplicate-action-binding",
+      "pass": true,
+      "expected": "one unique actions binding",
+      "stderr": "error: invalid input: each declared action function requires one unique actions binding; API operations may alias that binding",
+      "source_sha256": "8664616ccf14e7c935b5a82354369c4413f4756ca099528d001d8d22bc0a664a"
+    },
+    {
+      "name": "unbound-declared-action",
+      "pass": true,
+      "expected": "RPC is not declared",
+      "stderr": "error: ui.dia: D330 at 14:14: RPC is not declared in the manifest",
+      "source_sha256": "a5f9d29c8a1ddf7713ff42ba1c55a8c0db70cb623d89e1bdc0e5461b23ac679a"
+    },
+    {
+      "name": "helper-set-query",
+      "pass": true,
+      "expected": "D334",
+      "stderr": "error: server.dia: D334 at 51:17: transactional actions support bounded CRUD dependencies; set and aggregate queries are not eligible"
+    },
+    {
+      "name": "nested-external-effect",
+      "pass": true,
+      "expected": "no external effects",
+      "stderr": "error: invalid input: transactional actions require declared read authority for parent and CRUD dependencies, and no external effects"
+    },
+    {
+      "name": "reference-all-action-states",
+      "pass": true,
+      "stdout": "corrupt\n",
+      "stderr": ""
+    },
+    {
+      "name": "real-artifact-build",
+      "pass": true,
+      "stderr": ""
+    },
+    {
+      "name": "artifact-versions",
+      "pass": true,
+      "observed": [
+        "0.20.0",
+        5,
+        7
+      ]
+    },
+    {
+      "name": "durable-contract-advertised",
+      "pass": true,
+      "observed": {
+        "action": true,
+        "submission": "runtime-issued durable invocation; prepare then execute/status/ack; the checked mutation and sealed receipt commit atomically",
+        "arguments": [
+          "Id<\"issue\">",
+          "__diamond_type_6_shared_EditIssue"
+        ],
+        "result": "Action<__diamond_type_6_shared_Issue, __diamond_type_6_shared_EditError>",
+        "effects": [
+          "Read(\"Issues\")",
+          "Write(\"Issues\")"
+        ],
+        "authenticated": true,
+        "replay": "transactional reconciliation only; uncertain delivery uses the same invocation status and never repeats the mutation"
+      }
+    },
+    {
+      "name": "api-contract-terminal-states",
+      "pass": true,
+      "observed": {
+        "action": "{tag:ActionSucceeded|ActionRejected|ActionInvalid|ActionDenied|ActionAborted|ActionUnknown|ActionExpired|ActionConflict|ActionCorrupt,fields:[typed payload if applicable]}",
+        "replay": "operations marked durable use explicit prepare/execute/status/ack reconciliation; no automatic mutation replay"
+      }
+    },
+    {
+      "name": "artifact-recheck",
+      "pass": true,
+      "stderr": ""
+    },
+    {
+      "name": "old-artifact-rejected",
+      "pass": true,
+      "stderr": "error: invalid input: incompatible server artifact format/language version"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "status": "PASS",
+  "binary_sha256": "28a8f27b6db02a04301ffa458f03df38e6c37fad16aaa6b6929adcd448a51e30",
+  "driver_sha256": "9973a0b6a2a61ea9b82b343435a911a31f6080962a85604cb8dc841246fea359",
+  "observations": [
+    {
+      "name": "render-components-below-capacity",
+      "pass": true,
+      "stderr": ""
+    },
+    {
+      "name": "render-component-capacity-1024",
+      "pass": true,
+      "expected": "component capacity",
+      "returncode": 1,
+      "stderr": "error: build project: resource limit exceeded: component capacity",
+      "emitted": false
+    },
+    {
+      "name": "browser-text-expansion-preflight",
+      "pass": true,
+      "runtime_sha256": "6080ace50b2f88b2dec2560c765ff165e3ae2048316c143f5cef81bf6586c982"
+    },
+    {
+      "name": "browser-remote-materialization-accounting",
+      "pass": true,
+      "expected": "root remote values count toward the per-event managed-value budget",
+      "runtime_sha256": "6080ace50b2f88b2dec2560c765ff165e3ae2048316c143f5cef81bf6586c982"
+    }
+  ]
+}

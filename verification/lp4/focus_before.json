@@ -1,0 +1,13 @@
+{
+  "status": "CONFIRMED_FAILURE",
+  "binary_sha256": "41e31757fd9507a9eaa9f1557cd29271f3fec03b7bdf3c4b663768b576f763ee",
+  "contract": "e1fb6e85fc0a0be3ce27a82cc56365aaf2b3acd291ea72156da9d37320cd843e",
+  "setup": "Actual ComponentLab Diamond app, two HTTP servers, PostgreSQL and native authenticated WebSocket; proxy forwards frames unchanged",
+  "steps": ["Sign in as synthetic alice", "Focus B Title; enter B local draft; Home then Shift+ArrowRight three times", "Publish insert (DABC)", "Publish reorder (DCAB)", "Publish insert again (DABC), which moves B's ancestor itself"],
+  "expected": {"focused":true,"value":"B local draft","start":0,"end":3},
+  "before": {"focused":true,"value":"B local draft","start":0,"end":3},
+  "after": {"focused":false,"active":"BODY","value":"B local draft","start":0,"end":3},
+  "first_two_updates": "Focus remained on B; the third update is necessary to move B itself and expose the bug.",
+  "fixture_corrections": ["Added a byte-transparent WebSocket tunnel: the first response-only proxy could not forward upgrades.","Added native event-table/sequence grants to the restricted fixture role: source grants alone did not grant SQL insert permission. These setup failures are not product findings."],
+  "replay": "python3 verification/lp4_components.py --serve; use the recorded browser actions and stdin insert/reorder/insert"
+}

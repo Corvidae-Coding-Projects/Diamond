@@ -1,4 +1,4 @@
-//! Emit checked browser IR, runtime and source mappings for pure call wrappers.
+//! Emit checked browser IR, runtime, and privacy-filtered source mappings.
 use super::lower::BrowserProgram;
 use crate::error::{Error, Result};
 use std::fmt::Write;
@@ -9,7 +9,7 @@ pub(super) fn emit(program: &BrowserProgram, contract: &str) -> Result<String> {
         serde_json::to_string(s).map_err(|_| Error::Input("browser string serialization".into()))
     };
     let mut output = format!(
-        "const __contract={};\nconst __program=JSON.parse({});\nconst __functions=Object.create(null);\n",
+        "const __contract={};\nconst __program=JSON.parse({});\nconst __functions=Object.create(null);\nconst __handlerLocations=Object.create(null);\nconst __handlerLabels=Object.create(null);\n",
         quote(contract)?,
         quote(&data)?
     );
@@ -24,11 +24,64 @@ pub(super) fn emit(program: &BrowserProgram, contract: &str) -> Result<String> {
         )
         .map_err(|_| Error::Limit("browser formatting"))?;
     }
+    for (component_name, component) in &program.components {
+        writeln!(
+            output,
+            "__handlerLocations[{}]=[{},{}]; // diamond-source:{}:{}",
+            quote(component_name)?,
+            component.location.line,
+            component.location.column,
+            component.location.line,
+            component.location.column
+        )
+        .map_err(|_| Error::Limit("browser formatting"))?;
+        for (event_name, event) in &component.events {
+            let handler = format!("{component_name}.{event_name}");
+            let label = format!("{}.{}", public_component_name(component_name), event_name);
+            writeln!(
+                output,
+                "__handlerLocations[{}]=[{},{}]; // diamond-source:{}:{}",
+                quote(&handler)?,
+                event.location.line,
+                event.location.column,
+                event.location.line,
+                event.location.column
+            )
+            .map_err(|_| Error::Limit("browser formatting"))?;
+            writeln!(
+                output,
+                "__handlerLabels[{}]={};",
+                quote(&handler)?,
+                quote(&label)?
+            )
+            .map_err(|_| Error::Limit("browser formatting"))?;
+        }
+    }
+    output.push_str(include_str!("inputs.js"));
+    output.push_str(include_str!("controls.js"));
+    output.push_str(include_str!("recovery.js"));
+    output.push_str(include_str!("interactions.js"));
     output.push_str(include_str!("runtime.js"));
     if output.len() > super::MAX_PROJECT_BYTES {
         return Err(Error::Limit("browser artifact"));
     }
     Ok(output)
+}
+
+fn public_component_name(name: &str) -> &str {
+    let Some(rest) = name.strip_prefix("__diamond_component_") else {
+        return name;
+    };
+    let Some((length, module_and_name)) = rest.split_once('_') else {
+        return name;
+    };
+    let Ok(length) = length.parse::<usize>() else {
+        return name;
+    };
+    module_and_name
+        .get(length..)
+        .and_then(|suffix| suffix.strip_prefix('_'))
+        .unwrap_or(name)
 }
 fn vlq(value: i64) -> String {
     let alphabet = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";

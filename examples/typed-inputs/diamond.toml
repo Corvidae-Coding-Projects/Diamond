@@ -1,0 +1,63 @@
+schema_version = 1
+name = "TypedInputs"
+server = "server"
+browser = "ui"
+component = "Workspace"
+provides = ["DbRead<Members>", "DbRead<Issues>", "DbWrite<Issues>"]
+
+[modules.shared]
+path = "shared.dia"
+target = "shared"
+
+[modules.server]
+path = "server.dia"
+target = "server"
+imports = ["shared"]
+provides = ["DbRead<Members>", "DbRead<Issues>", "DbWrite<Issues>"]
+
+[modules.ui]
+path = "ui.dia"
+target = "browser"
+imports = ["shared"]
+
+[rpc]
+list_issues = "server.list_issues"
+load = "server.load"
+
+[actions.rename]
+function = "server.rename"
+replay = "never"
+
+[storage]
+profile = "relational-v1"
+version = 1
+
+[storage.resources.Members]
+scope = "workspace"
+unique = [["workspace", "user"]]
+
+[storage.resources.Issues]
+scope = "workspace"
+indexes = [["workspace", "id"]]
+
+[storage.lookups.Membership]
+resource = "Members"
+scope = "workspace"
+principal = "user"
+role = "role"
+purpose = "Bound reads to current membership and writes to current editors."
+
+[identity]
+profile = "accounts-v1"
+enrollment = "closed"
+
+[http_api]
+version = 1
+
+[http_api.operations.rename]
+function = "server.rename"
+auth = "token"
+
+[http_api.operations.load]
+function = "server.load"
+auth = "token"

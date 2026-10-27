@@ -1,0 +1,40 @@
+export component Contract:
+  state output: Text = "Not evaluated"
+  state number: Int = 7
+  state selected: Text = ""
+  state choices: List<Text> = ["alpha", "snow 雪"]
+  derived initial: Text = contract_summary()
+
+  on evaluate:
+    output = contract_summary()
+    number = 9
+  on fail:
+    number = 1 / 0
+    output = "Uncommitted"
+  on duplicate:
+    choices = ["alpha", "alpha"]
+    output = "Uncommitted duplicate"
+  on recover:
+    number = 7
+    output = contract_summary()
+
+  html:
+    <main>
+      <h1>LP1 language contract</h1>
+      <p id="initial">{initial}</p>
+      <p id="result">{output}</p>
+      <p id="number">{number}</p>
+      <p id="hostile">{"<script>lp1()</script>"}</p>
+      <button type="button" on-click={evaluate}>Evaluate shared semantics</button>
+      <button type="button" on-click={fail}>Fail arithmetic</button>
+      <button type="button" on-click={duplicate}>Reject duplicate options</button>
+      <button type="button" on-click={recover}>Recover valid state</button>
+      <label for="choice">Choice</label>
+      <select id="choice" bind-value={selected}>
+        <option value="">Choose a value</option>
+        <each items={choices} as="choice" key={choice}>
+          <option value={choice}>{choice}</option>
+        </each>
+      </select>
+      <p id="selection">{selected}</p>
+    </main>

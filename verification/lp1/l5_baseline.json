@@ -1,0 +1,111 @@
+{
+  "status": "PASS",
+  "binary_sha256": "9be3c601b87ddc61272d67a14a880614d0841d4933252d74cb3dad4f74116b29",
+  "observations": [
+    {
+      "name": "workflow-control",
+      "expected_accept": true,
+      "exit": 0,
+      "pass": true,
+      "diagnostic": ""
+    },
+    {
+      "name": "capability-required",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: server.dia: D301 at 85:1: effects {Read(\"Documents\"), Write(\"Documents\"), Host(\"Workflows\")} exceed the application's declared authority"
+    },
+    {
+      "name": "known-state-enum",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: workflow state must name a declared enum"
+    },
+    {
+      "name": "fieldless-initial",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: workflow initial state must be a fieldless enum variant"
+    },
+    {
+      "name": "terminal-required",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: workflow requires a typed (Text, input, state) -> Result<state, DataError> handler, explicit terminal states, bounded timers/retries/transitions, transactional retry, and parent concurrency"
+    },
+    {
+      "name": "terminal-cannot-be-timer",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: workflow requires a typed (Text, input, state) -> Result<state, DataError> handler, explicit terminal states, bounded timers/retries/transitions, transactional retry, and parent concurrency"
+    },
+    {
+      "name": "timer-bounded",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: workflow requires a typed (Text, input, state) -> Result<state, DataError> handler, explicit terminal states, bounded timers/retries/transitions, transactional retry, and parent concurrency"
+    },
+    {
+      "name": "attempts-bounded",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: workflow requires a typed (Text, input, state) -> Result<state, DataError> handler, explicit terminal states, bounded timers/retries/transitions, transactional retry, and parent concurrency"
+    },
+    {
+      "name": "transitions-bounded",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: workflow requires a typed (Text, input, state) -> Result<state, DataError> handler, explicit terminal states, bounded timers/retries/transitions, transactional retry, and parent concurrency"
+    },
+    {
+      "name": "transactional-retry-only",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: workflow requires a typed (Text, input, state) -> Result<state, DataError> handler, explicit terminal states, bounded timers/retries/transitions, transactional retry, and parent concurrency"
+    },
+    {
+      "name": "parent-concurrency-owned",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: workflow requires a typed (Text, input, state) -> Result<state, DataError> handler, explicit terminal states, bounded timers/retries/transitions, transactional retry, and parent concurrency"
+    },
+    {
+      "name": "typed-handler-state",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: server.dia: D123 at 91:5: pattern is not a variant of the matched type"
+    },
+    {
+      "name": "external-effects-prohibited",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: workflow handlers require explicit parent read/write grants and may not perform uncertain external effects"
+    },
+    {
+      "name": "generic-input-bound",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: server.dia: D310 at 77:3: workflow generic type differs from the declared binding"
+    },
+    {
+      "name": "binding-static",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: server.dia: D310 at 80:3: workflow binding requires a static identifier"
+    }
+  ]
+}

@@ -1,0 +1,97 @@
+{
+  "status": "PASS",
+  "binary_sha256": "28a8f27b6db02a04301ffa458f03df38e6c37fad16aaa6b6929adcd448a51e30",
+  "observations": [
+    {
+      "name": "opaque-stream-control",
+      "expected_accept": true,
+      "exit": 0,
+      "pass": true,
+      "diagnostic": ""
+    },
+    {
+      "name": "dynamic-channel-denied",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error[D117]: stream channel must be a static name\n --> /tmp/diamond-l3-0xyu8_mx/1/ui.dia:131:22\n    |\n131 |       <watch stream={stream(title, document)} into=\"live\" cursor=\"cursor\"></watch>\n    |                      ^\n help: Match the function's parameter count, names, and checked types."
+    },
+    {
+      "name": "undeclared-channel-denied",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: D330 at 0:0: unknown event channel"
+    },
+    {
+      "name": "non-text-parent-denied",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error[D117]: stream requires a static channel and parent Text\n --> /tmp/diamond-l3-0xyu8_mx/3/ui.dia:131:22\n    |\n131 |       <watch stream={stream(\"document_changes\", true)} into=\"live\" cursor=\"cursor\"></watch>\n    |                      ^\n help: Match the function's parameter count, names, and checked types."
+    },
+    {
+      "name": "text-cannot-replace-stream",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error[D330]: watch requires a typed Stream\n --> /tmp/diamond-l3-0xyu8_mx/4/ui.dia:131:22\n    |\n131 |       <watch stream={document} into=\"live\" cursor=\"cursor\"></watch>\n    |                      ^\n help: Use typed scalar state, a declared click event, and pure imported functions in the W1 component subset."
+    },
+    {
+      "name": "cross-channel-assignment-denied",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error[D330]: state initializer type mismatch\n --> /tmp/diamond-l3-0xyu8_mx/5/ui.dia:20:44\n   |\n20 |   state feed: Stream<\"document_changes\"> = stream(\"other\", \"parent\")\n   |                                            ^\n help: Use typed scalar state, a declared click event, and pure imported functions in the W1 component subset."
+    },
+    {
+      "name": "stream-cannot-be-rendered",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error[D330]: render compound values through explicit fields, match, each or formatting utilities\n --> /tmp/diamond-l3-0xyu8_mx/6/ui.dia:103:9\n    |\n103 |     <p>{stream(\"document_changes\", \"parent\")}</p>\n    |         ^\n help: Use typed scalar state, a declared click event, and pure imported functions in the W1 component subset."
+    },
+    {
+      "name": "stream-cannot-be-compared",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error[D115]: operator is not defined for these types\n --> /tmp/diamond-l3-0xyu8_mx/7/ui.dia:20:23\n   |\n20 |   state equal: Bool = stream(\"document_changes\", \"parent\") == stream(\"document_changes\", \"parent\")\n   |                       ^\n help: Apply `not` to Bool or unary `-` to Int."
+    },
+    {
+      "name": "stream-cannot-cross-generic-rpc",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: RPC signatures require finite managed wire-safe types"
+    },
+    {
+      "name": "stream-cannot-be-persisted",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error[D900]: unsupported feature: database field feed of type Stream<\"document_changes\">\n --> /tmp/diamond-l3-0xyu8_mx/9/server.dia:21:1\n   |\n21 | resource Documents: Document\n   | ^\n help: Use the documented MVP subset or remove the unsupported operation."
+    },
+    {
+      "name": "legacy-untyped-watch-denied",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error[D900]: unsupported feature: HTML attribute channel\n --> /tmp/diamond-l3-0xyu8_mx/10/ui.dia:131:21\n    |\n131 |       <watch channel=\"document_changes\" parent={document} into=\"live\" cursor=\"cursor\"></watch>\n    |                     ^\n help: Use the documented MVP subset or remove the unsupported operation."
+    },
+    {
+      "name": "stream-has-no-public-constructor",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error[D116]: unknown function Stream\n --> /tmp/diamond-l3-0xyu8_mx/11/ui.dia:131:22\n    |\n131 |       <watch stream={Stream(\"document_changes\", document)} into=\"live\" cursor=\"cursor\"></watch>\n    |                      ^\n help: Call a declared function with the required arguments."
+    },
+    {
+      "name": "generated-runtime-owns-stream-safety",
+      "exit": 0,
+      "pass": true,
+      "diagnostic": "",
+      "missing_markers": []
+    }
+  ]
+}

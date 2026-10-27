@@ -1,0 +1,223 @@
+{
+  "status": "PASS",
+  "binary_sha256": "278b10f6d64d966279e7ddaea9964d43904426c7478c20aafdd0f9228ce722e1",
+  "driver_sha256": "22f0c7bd5fc64c9079c3b4e0799625be39a27009016c7b1264b427d2cb4cac3e",
+  "observations": [
+    {
+      "name": "missing-label",
+      "pass": true,
+      "expected": "label",
+      "stderr": "error: D330 at 0:0: accessible label/value is required"
+    },
+    {
+      "name": "blank-label",
+      "pass": true,
+      "expected": "nonempty",
+      "stderr": "error: D330 at 0:0: accessible names require nonempty Text; status/description values require Text"
+    },
+    {
+      "name": "label-type",
+      "pass": true,
+      "expected": "Text",
+      "stderr": "error: ui.dia: D330 at 18:36: accessible names require nonempty Text; status/description values require Text"
+    },
+    {
+      "name": "authored-id",
+      "pass": true,
+      "expected": "owned by the compiler",
+      "stderr": "error: D330 at 0:0: field IDs, labels, descriptions, errors and constraints are owned by the compiler"
+    },
+    {
+      "name": "field-unknown",
+      "pass": true,
+      "expected": "undeclared schema",
+      "stderr": "error: D330 at 0:0: undeclared schema form field"
+    },
+    {
+      "name": "field-duplicate",
+      "pass": true,
+      "expected": "duplicate schema",
+      "stderr": "error: D330 at 0:0: duplicate schema form field"
+    },
+    {
+      "name": "field-checked-type",
+      "pass": true,
+      "expected": "binding type",
+      "stderr": "error: D330 at 0:0: field draft binding type mismatch"
+    },
+    {
+      "name": "field-readonly",
+      "pass": true,
+      "expected": "binding type",
+      "stderr": "error: D330 at 0:0: field draft binding type mismatch"
+    },
+    {
+      "name": "field-no-binding",
+      "pass": true,
+      "expected": "exactly one",
+      "stderr": "error: D330 at 0:0: field requires exactly one checked draft binding"
+    },
+    {
+      "name": "field-two-bindings",
+      "pass": true,
+      "expected": "exactly one",
+      "stderr": "error: D330 at 0:0: field requires exactly one checked draft binding"
+    },
+    {
+      "name": "multiline-int",
+      "pass": true,
+      "expected": "scalar schema",
+      "stderr": "error: D330 at 0:0: field draft/control does not match its scalar schema"
+    },
+    {
+      "name": "field-outside",
+      "pass": true,
+      "expected": "own schema",
+      "stderr": "error: D330 at 0:0: field belongs inside its own schema form"
+    },
+    {
+      "name": "submit-outside",
+      "pass": true,
+      "expected": "own schema",
+      "stderr": "error: D330 at 0:0: submit belongs inside its own schema form"
+    },
+    {
+      "name": "submit-no-name",
+      "pass": true,
+      "expected": "label",
+      "stderr": "error: D330 at 0:0: submit requires only a nonempty label"
+    },
+    {
+      "name": "image-description",
+      "pass": true,
+      "expected": "alt",
+      "stderr": "error: D330 at 0:0: images require an author-supplied alt description; empty alt explicitly marks decoration"
+    },
+    {
+      "name": "handler-nominal",
+      "pass": true,
+      "expected": "field",
+      "stderr": "error: ui.dia: D113 at 12:26: field access needs a record"
+    },
+    {
+      "name": "output-unbound",
+      "pass": true,
+      "expected": "outputs",
+      "stderr": "error: D330 at 0:0: component properties and outputs must match its declared signature"
+    },
+    {
+      "name": "output-restricted",
+      "pass": true,
+      "expected": "managed",
+      "stderr": "error: ui.dia: D330 at 2:3: component messages require recursively safe managed data"
+    },
+    {
+      "name": "recursive-components",
+      "pass": true,
+      "expected": "cycle",
+      "stderr": "error: D330 at 0:0: component cycle"
+    },
+    {
+      "name": "dynamic-empty-name",
+      "pass": true,
+      "expected": "accessible name",
+      "stderr": "error: ui.dia: D330 at 18:36: accessible names require nonempty Text; status/description values require Text"
+    },
+    {
+      "name": "long-name",
+      "pass": true,
+      "expected": "accessible name",
+      "stderr": "error: build project: invalid input: accessible name must contain 1..256 nonblank Text scalars"
+    },
+    {
+      "name": "status-budget",
+      "pass": true,
+      "expected": "status text",
+      "stderr": "error: build project: resource limit exceeded: status text (512 scalars)"
+    },
+    {
+      "name": "reserved-id",
+      "pass": true,
+      "expected": "reserved",
+      "stderr": "error: build project: invalid input: component id is reserved by the runtime"
+    },
+    {
+      "name": "duplicate-identity",
+      "pass": true,
+      "expected": "duplicate key",
+      "stderr": "error: build project: invalid input: duplicate key"
+    },
+    {
+      "name": "expanded-native-node-budget",
+      "pass": true,
+      "stderr": "error: build project: resource limit exceeded: render node capacity"
+    },
+    {
+      "name": "child-identity",
+      "pass": true,
+      "stderr": "error: ui.dia: D330 at 82:3: identity changes require a direct root-component assignment before other remote work"
+    },
+    {
+      "name": "identity-after-remote",
+      "pass": true,
+      "stderr": "error: ui.dia: D330 at 108:3: identity changes require a direct root-component assignment before other remote work"
+    },
+    {
+      "name": "nested-identity",
+      "pass": true,
+      "stderr": "error: ui.dia: D330 at 108:3: identity changes require a direct root-component assignment before other remote work"
+    },
+    {
+      "name": "valid-controls-build",
+      "pass": true,
+      "stderr": ""
+    },
+    {
+      "name": "versions",
+      "pass": true,
+      "observed": [
+        "0.20.0",
+        5,
+        7
+      ]
+    },
+    {
+      "name": "ssr-unique-associated-controls",
+      "pass": true,
+      "controls": 14,
+      "control_ids": [
+        "diamond-control-root%2F1%2F9%2Ft%253Aone%2F0%2F1%2F3%2F1",
+        "diamond-control-root%2F1%2F9%2Ft%253Aone%2F0%2F1%2F3%2F3",
+        "diamond-control-root%2F1%2F9%2Ft%253Aone%2F0%2F1%2F3%2F5",
+        "diamond-control-root%2F1%2F9%2Ft%253Aone%2F0%2F1%2F3%2F7",
+        "diamond-control-root%2F1%2F9%2Ft%253Aone%2F0%2F1%2F3%2F9",
+        "diamond-control-root%2F1%2F9%2Ft%253Aone%2F0%2F1%2F3%2F11",
+        "diamond-control-root%2F1%2F9%2Ft%253Aone%2F0%2F1%2F3%2F13",
+        "diamond-control-root%2F1%2F9%2Ft%253A%25E9%259B%25AA%25F0%259F%2598%2580%2521%2527%2F0%2F1%2F3%2F1",
+        "diamond-control-root%2F1%2F9%2Ft%253A%25E9%259B%25AA%25F0%259F%2598%2580%2521%2527%2F0%2F1%2F3%2F3",
+        "diamond-control-root%2F1%2F9%2Ft%253A%25E9%259B%25AA%25F0%259F%2598%2580%2521%2527%2F0%2F1%2F3%2F5",
+        "diamond-control-root%2F1%2F9%2Ft%253A%25E9%259B%25AA%25F0%259F%2598%2580%2521%2527%2F0%2F1%2F3%2F7",
+        "diamond-control-root%2F1%2F9%2Ft%253A%25E9%259B%25AA%25F0%259F%2598%2580%2521%2527%2F0%2F1%2F3%2F9",
+        "diamond-control-root%2F1%2F9%2Ft%253A%25E9%259B%25AA%25F0%259F%2598%2580%2521%2527%2F0%2F1%2F3%2F11",
+        "diamond-control-root%2F1%2F9%2Ft%253A%25E9%259B%25AA%25F0%259F%2598%2580%2521%2527%2F0%2F1%2F3%2F13"
+      ]
+    },
+    {
+      "name": "artifact-recheck",
+      "pass": true,
+      "stderr": ""
+    },
+    {
+      "name": "public-native-consumer-build",
+      "pass": true,
+      "stderr": ""
+    },
+    {
+      "name": "public-native-render-parity",
+      "pass": true,
+      "stderr": "",
+      "native_length": 10730,
+      "fragment_length": 10730
+    }
+  ]
+}

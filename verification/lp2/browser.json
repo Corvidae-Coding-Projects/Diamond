@@ -1,0 +1,32 @@
+{
+  "status": "PASS",
+  "scope": "Actual Chrome UI operated through cua_repl against Diamond pages, two real app servers and isolated PostgreSQL; transparent response gate only",
+  "binary_sha256": "34f31487113e5d6b14e0aa8c214aca44be80a71c16add9eab77945c9b6d72262",
+  "contract": "616e93176c5402badea27b80b395a00437f096ba00cd1b4f483aa75735ddb754",
+  "origin": "http://127.0.0.1:39171",
+  "fixture_root_during_run": "/tmp/diamond-lp2-fec6bj3_",
+  "tab_id_during_run": "2141265966",
+  "fixture_lifecycle": "browser_fixture_lifecycle.json",
+  "screenshot": "browser.jpg",
+  "observations": [
+    {"name":"login-and-typed-row-event","pass":true,"steps":["Sign in as synthetic alice","Load alpha issues","Edit alpha-b"],"observed":"Old A/Old B are distinct rows; Editor receives alpha-b and reads Old B, revision 0"},
+    {"name":"empty-form-blocked-without-dispatch","pass":true,"steps":["Clear Title","Save title"],"observed":{"native_message":"Please fill out this field.","required":true,"native_maxLength":240,"forwarded_actions_before":0,"forwarded_actions_after":0,"saved_b_revision":0}},
+    {"name":"schema-form-action-child-output","pass":true,"steps":["Enter New 雪😀 <b>","Save title"],"observed":{"notification":"Saved alpha-b: New 雪😀 <b>","completions":"1","editor_title":"New 雪😀 <b>","b_revision":1,"a_title":"Old A","c_title":"Private C"}},
+    {"name":"named-link-direct-reload","pass":true,"steps":["Open alpha-b","Reload document"],"observed":{"pathname":"/issues/alpha-b","route_id":"alpha-b","saved_title":"New 雪😀 <b>","revision":1,"new_root_completions":"0"}},
+    {"name":"shared-rule-and-authoritative-rollback","pass":true,"steps":["Enter reject","Save title"],"observed":{"browser_valid_helper":"false","notification":"Title rejected; changes rolled back","saved_b_title":"New 雪😀 <b>","saved_b_revision":1}},
+    {"name":"dropped-response-proof-regression","pass":true,"steps":["Gate arm","Enter One uncertain commit","Save title","Observe actual completed response and SQL before delivery","Gate drop"],"observed":{"while_delayed":"Saving; Save title disabled","actual_dispatch_status":200,"b_title":"One uncertain commit","b_revision":2,"final_ui":"Completion unknown; refresh before retrying","parent_completions":"2","editor_preexisting_revision":1,"later_sql_b_revision_before_next_mutation":2},"interpretation":"A lost response does not fabricate success or repeat the business mutation. Seven total forwarded dispatches for six explicit saves by end of run include a transport repeat; database revisions account for five committed saves and one rollback."},
+    {"name":"explicit-read-after-uncertainty","pass":true,"steps":["Reload saved title"],"observed":{"editor_title":"One uncertain commit","revision":2,"outcome_remains":"Completion unknown; refresh before retrying"}},
+    {"name":"unmount-discards-late-output","pass":true,"steps":["Gate arm","Enter Committed after unmount","Save title","Issue list","Observe SQL","Gate release","Load alpha issues"],"observed":{"saved_b_title":"Committed after unmount","saved_b_revision":3,"parent_notification_unchanged":"Completion unknown; refresh before retrying","parent_completions_unchanged":"2","editor_removed":true,"subsequent_list_read":"Committed after unmount"}},
+    {"name":"identity-epoch-discards-late-output","pass":true,"steps":["Edit alpha-a","Gate arm","Enter Committed before signout","Save title","Sign out","Observe SQL","Gate release"],"observed":{"saved_a_title":"Committed before signout","saved_a_revision":1,"user":"","parent_notification":"No child completion","parent_completions":"0","editors":0}},
+    {"name":"history-and-named-route-remount","pass":true,"steps":["Sign in again","Load alpha issues","Open alpha-a","Issue list","Open alpha-b","Back","Back","Forward"],"observed":"Named IDs, headings and loaded saved titles track the selected route. Back to alpha-a mounts fresh Loading state before its read. Forward restores the list and its root state."},
+    {"name":"later-valid-action-after-faults","pass":true,"steps":["Edit alpha-a","Enter Final browser readback","Save title"],"observed":{"parent_notification":"Saved alpha-a: Final browser readback","parent_completions":"1","editor_title":"Final browser readback","a_revision":2}}
+  ],
+  "final_independent_sql": [
+    {"id":"alpha-a","workspace":"alpha","title":"Final browser readback","revision":2},
+    {"id":"alpha-b","workspace":"alpha","title":"Committed after unmount","revision":3},
+    {"id":"beta-c","workspace":"beta","title":"Private C","revision":0}
+  ],
+  "final_forwarded_action_requests": 7,
+  "console_review": "No Diamond-tagged warnings/errors. The retained tab had older 'Receiving end does not exist' connection messages predating the final fixture; no claim that all browser/extension logs were empty.",
+  "coverage_limits": ["One Chrome environment; no cross-browser qualification", "No claim of durable action receipts or recovery", "Output chain limits reviewed in source; no browser loop-stress campaign", "Actual responses were delayed/dropped after normal execution; no simulated application handlers"]
+}

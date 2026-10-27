@@ -6,7 +6,7 @@ use anyhow::{Context, Result, bail};
 use std::collections::BTreeSet;
 use std::fmt;
 use std::fmt::Write as _;
-use std::io::Read;
+use std::io::{Read, Write as IoWrite};
 use std::net::SocketAddr;
 use std::path::Path;
 use std::path::PathBuf;
@@ -72,13 +72,22 @@ fn try_main() -> Result<()> {
     }
     if command == "--version" {
         println!(
-            "diamond {} (W10 release-qualified web application profile)",
+            "diamond {} (LP8 qualified language profile)",
             env!("CARGO_PKG_VERSION")
         );
         return Ok(());
     }
     if command == "explain" {
         return explain(&arguments[1..]);
+    }
+    if command == "fmt" {
+        return format_files(&arguments[1..]);
+    }
+    if command == "lsp" {
+        if arguments.len() != 1 {
+            bail!("lsp accepts no arguments and communicates over standard input/output");
+        }
+        return diamond::run_language_server().context("run Diamond language server");
     }
     if command == "new" {
         return scaffold(&arguments[1..]);
@@ -462,7 +471,24 @@ fn load_checked_project(path: &Path) -> Result<diamond::CheckedProject> {
     } else {
         diamond::compile_project(path)
     }
-    .map_err(|error| anyhow::Error::msg(safe_text(&error.to_string())))
+    .map_err(|error| project_diagnostic(path, &error))
+}
+
+fn project_diagnostic(manifest: &Path, error: &diamond::Error) -> anyhow::Error {
+    if let diamond::Error::Source { path, source } = &error {
+        let source_path = manifest
+            .parent()
+            .unwrap_or_else(|| Path::new("."))
+            .join(path);
+        if let Ok(text) = read_source(&source_path.to_string_lossy()) {
+            return anyhow::Error::new(RenderedDiagnostic(render_diagnostic(
+                &source_path,
+                &text,
+                source,
+            )));
+        }
+    }
+    anyhow::Error::msg(safe_text(&error.to_string()))
 }
 
 fn project_special_command(
@@ -973,6 +999,104 @@ fn read_source(path: &str) -> Result<String> {
     String::from_utf8(bytes).context("Diamond source must be valid UTF-8")
 }
 
+fn format_files(arguments: &[String]) -> Result<()> {
+    let mut check = false;
+    let mut paths = Vec::new();
+    for argument in arguments {
+        if argument == "--check" {
+            if check {
+                bail!("fmt received duplicate --check");
+            }
+            check = true;
+        } else if argument.starts_with('-') {
+            bail!("unsupported fmt option {}", safe_text(argument));
+        } else {
+            paths.push(argument.as_str());
+        }
+    }
+    if paths.is_empty() {
+        bail!("fmt requires at least one Diamond source file");
+    }
+
+    let mut formatted = Vec::with_capacity(paths.len());
+    for path in paths {
+        let source = read_source(path)?;
+        let output = diamond::format_source(&source).map_err(|error| {
+            anyhow::Error::new(RenderedDiagnostic(render_diagnostic(
+                Path::new(path),
+                &source,
+                &error,
+            )))
+        })?;
+        formatted.push((PathBuf::from(path), source, output));
+    }
+
+    let changed = formatted
+        .iter()
+        .filter(|(_, source, output)| source != output)
+        .count();
+    if check {
+        if changed > 0 {
+            bail!("{changed} Diamond source file(s) would be reformatted");
+        }
+        println!("checked formatting for {} file(s)", formatted.len());
+        return Ok(());
+    }
+    for (path, source, output) in &formatted {
+        if source != output {
+            write_source_atomically(path, output.as_bytes())?;
+        }
+    }
+    println!("formatted {changed} of {} file(s)", formatted.len());
+    Ok(())
+}
+
+fn write_source_atomically(path: &Path, contents: &[u8]) -> Result<()> {
+    let metadata = std::fs::symlink_metadata(path).with_context(|| {
+        format!(
+            "inspect Diamond source {}",
+            safe_text(&path.to_string_lossy())
+        )
+    })?;
+    if metadata.file_type().is_symlink() || !metadata.is_file() {
+        bail!("Diamond source formatting requires a regular non-symlink file");
+    }
+    let parent = path.parent().unwrap_or_else(|| Path::new("."));
+    let name = path
+        .file_name()
+        .and_then(|value| value.to_str())
+        .context("Diamond source filename must be valid UTF-8")?;
+    let mut temporary = None;
+    for attempt in 0..1000u32 {
+        let candidate = parent.join(format!(
+            ".{name}.diamond-fmt-{}-{attempt}.tmp",
+            std::process::id()
+        ));
+        let mut options = std::fs::OpenOptions::new();
+        options.write(true).create_new(true);
+        match options.open(&candidate) {
+            Ok(mut file) => {
+                file.set_permissions(metadata.permissions())?;
+                if let Err(error) = file.write_all(contents).and_then(|()| file.sync_all()) {
+                    drop(file);
+                    let _ = std::fs::remove_file(&candidate);
+                    return Err(error).context("write formatted Diamond source");
+                }
+                temporary = Some(candidate);
+                break;
+            }
+            Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => {}
+            Err(error) => return Err(error).context("create formatted Diamond source"),
+        }
+    }
+    let temporary = temporary.context("create unique formatted Diamond source")?;
+    if let Err(error) = std::fs::rename(&temporary, path) {
+        let _ = std::fs::remove_file(&temporary);
+        return Err(error).context("replace formatted Diamond source");
+    }
+    Ok(())
+}
+
 fn open_source(path: &str) -> Result<std::fs::File> {
     let mut options = std::fs::OpenOptions::new();
     options.read(true);
@@ -1042,6 +1166,12 @@ fn render_diagnostic(path: &Path, source: &str, error: &diamond::Error) -> Strin
                 caret_width = caret,
             )
             .is_ok(),
+            "writing to a String cannot fail"
+        );
+    }
+    if let Some(explanation) = diagnostic_help::lookup(code) {
+        assert!(
+            write!(rendered, "\n help: {}", explanation.remedy).is_ok(),
             "writing to a String cannot fail"
         );
     }
@@ -1221,7 +1351,7 @@ fn read_password(password_stdin: bool) -> Result<Zeroizing<String>> {
 
 fn help() {
     println!(
-        "Diamond {} — W10 release-qualified web application profile\n\n  diamond new NEW_DIRECTORY [--template workspace|catalog]\n  diamond project-work PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-deploy-check PROJECT --postgres-env VARIABLE --runtime-env VARIABLE --origin https://app.example --identity-mailbox PRIVATE_DIRECTORY\n  diamond project-backup PROJECT --postgres-env VARIABLE --runtime-env VARIABLE --out NEW_DIRECTORY --backup-key-env VARIABLE\n  diamond project-restore PROJECT --postgres-env VARIABLE --runtime-env VARIABLE --from BACKUP_DIRECTORY --backup-key-env VARIABLE\n  diamond project-recover PROJECT --postgres-env VARIABLE --policy resume|cancel\n  diamond check FILE_OR_PROJECT\n  diamond build PROJECT --out NEW_DIRECTORY\n  diamond serve PROJECT_OR_BUILD [--listen 127.0.0.1:PORT] [--postgres-env VARIABLE --origin http://localhost:PORT] [--identity-mailbox PRIVATE_DIRECTORY] [--runtime-env VARIABLE]\n  diamond run PROJECT_OR_BUILD [--postgres-env VARIABLE]\n  diamond project-init PROJECT --postgres-env VARIABLE\n  diamond project-files-init PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-files-clean PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-git-init PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-git-reconcile PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-git-promote PROJECT --postgres-env VARIABLE --runtime-env VARIABLE --binding NAME --expected-generation N\n  diamond project-git-authorized-key PROJECT --postgres-env VARIABLE --fingerprint SHA256:VALUE --ssh-launcher ABSOLUTE_EXECUTABLE\n  diamond project-git-authorized-principals PROJECT --postgres-env VARIABLE --ssh-launcher ABSOLUTE_EXECUTABLE\n  diamond project-git-ssh PROJECT --postgres-env VARIABLE --runtime-env VARIABLE --key-id VALUE\n  diamond project-user-add PROJECT --postgres-env VARIABLE --user USERNAME [--password-stdin]\n  diamond project-admin-add PROJECT --postgres-env VARIABLE --user USERNAME --email ADDRESS [--password-stdin]\n  diamond project-status PROJECT --postgres-env VARIABLE\n  diamond project-migrate PROJECT --postgres-env VARIABLE\n  diamond project-backfill PROJECT --postgres-env VARIABLE [--batch 100]\n  diamond project-audit PROJECT --postgres-env VARIABLE\n  diamond run FILE [--database PATH] [--auth PATH] [--listen 127.0.0.1:PORT] [--max-requests N]\n  diamond db-init FILE --database PATH\n  diamond user-add --auth PATH --user USERNAME [--password-stdin]\n  diamond explain CODE\n\nOpen http://localhost:PORT for browser secure-cookie support.\nSee README.md for installation, examples, supported language, limits, and W10 evidence.",
+        "Diamond {} — production-readiness language profile\n\n  diamond new NEW_DIRECTORY [--template workspace|catalog]\n  diamond fmt [--check] FILE...\n  diamond lsp\n  diamond project-work PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-deploy-check PROJECT --postgres-env VARIABLE --runtime-env VARIABLE --origin https://app.example --identity-mailbox PRIVATE_DIRECTORY\n  diamond project-backup PROJECT --postgres-env VARIABLE --runtime-env VARIABLE --out NEW_DIRECTORY --backup-key-env VARIABLE\n  diamond project-restore PROJECT --postgres-env VARIABLE --runtime-env VARIABLE --from BACKUP_DIRECTORY --backup-key-env VARIABLE\n  diamond project-recover PROJECT --postgres-env VARIABLE --policy resume|cancel\n  diamond check FILE_OR_PROJECT\n  diamond build PROJECT --out NEW_DIRECTORY\n  diamond serve PROJECT_OR_BUILD [--listen 127.0.0.1:PORT] [--postgres-env VARIABLE --origin http://localhost:PORT] [--identity-mailbox PRIVATE_DIRECTORY] [--runtime-env VARIABLE]\n  diamond run PROJECT_OR_BUILD [--postgres-env VARIABLE]\n  diamond project-init PROJECT --postgres-env VARIABLE\n  diamond project-files-init PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-files-clean PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-git-init PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-git-reconcile PROJECT --postgres-env VARIABLE --runtime-env VARIABLE\n  diamond project-git-promote PROJECT --postgres-env VARIABLE --runtime-env VARIABLE --binding NAME --expected-generation N\n  diamond project-git-authorized-key PROJECT --postgres-env VARIABLE --fingerprint SHA256:VALUE --ssh-launcher ABSOLUTE_EXECUTABLE\n  diamond project-git-authorized-principals PROJECT --postgres-env VARIABLE --ssh-launcher ABSOLUTE_EXECUTABLE\n  diamond project-git-ssh PROJECT --postgres-env VARIABLE --runtime-env VARIABLE --key-id VALUE\n  diamond project-user-add PROJECT --postgres-env VARIABLE --user USERNAME [--password-stdin]\n  diamond project-admin-add PROJECT --postgres-env VARIABLE --user USERNAME --email ADDRESS [--password-stdin]\n  diamond project-status PROJECT --postgres-env VARIABLE\n  diamond project-migrate PROJECT --postgres-env VARIABLE\n  diamond project-backfill PROJECT --postgres-env VARIABLE [--batch 100]\n  diamond project-audit PROJECT --postgres-env VARIABLE\n  diamond run FILE [--database PATH] [--auth PATH] [--listen 127.0.0.1:PORT] [--max-requests N]\n  diamond db-init FILE --database PATH\n  diamond user-add --auth PATH --user USERNAME [--password-stdin]\n  diamond explain CODE\n\nOpen http://localhost:PORT for browser secure-cookie support.\nSee README.md for installation, examples, supported language, limits, and qualification evidence.",
         env!("CARGO_PKG_VERSION")
     );
     println!(

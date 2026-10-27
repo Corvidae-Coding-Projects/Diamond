@@ -1,0 +1,24 @@
+{
+  "status": "FIXED_AND_REPLAYED",
+  "date": "2026-10-27",
+  "findings": [
+    {
+      "id": "LP7-F01",
+      "original_observation": "The first formatter draft shifted indentation inside checked HTML, which changed whitespace Text nodes. Its semantic before/after guard rejected the write.",
+      "fix": "Keep HTML body lines byte-preserved while normalizing the enclosing Diamond source block.",
+      "replay": "F1-format-valid-preserves-content-and-checks and the formatter unit test pass; the second format is byte-identical."
+    },
+    {
+      "id": "LP7-F02",
+      "original_observation": "A function result mismatch pointed to the function declaration at 1:1 instead of the final mismatched expression at 3:3.",
+      "fix": "Use the final statement location for function result mismatches, retaining the declaration location only for an empty body.",
+      "replay": "D1 single-file and project-module diagnostics now point at the mismatched expression with code, caret, and remedy."
+    },
+    {
+      "id": "LP7-F03",
+      "original_observation": "The first real Chrome failure exposed the compiler-qualified internal component symbol before `.fail`.",
+      "fix": "Emit a separate compiler-owned public handler-label map while retaining the qualified key for runtime lookup and source mapping.",
+      "replay": "Actual Chrome displayed `Contract.fail`; the following Recover event succeeded and cleared the error."
+    }
+  ]
+}

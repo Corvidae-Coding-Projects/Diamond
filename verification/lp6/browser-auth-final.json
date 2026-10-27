@@ -1,0 +1,39 @@
+{
+  "status": "PASS",
+  "observed_on": "2026-10-27",
+  "method": "Actual Chrome UI through browser control against the disposable LP5 two-node fixture",
+  "scope": "Exact LP6 candidate binary; authenticated mount epoch and logout cleanup only",
+  "binary_sha256": "278b10f6d64d966279e7ddaea9964d43904426c7478c20aafdd0f9228ce722e1",
+  "observations": [
+    {
+      "name": "interactive-login-establishes-fresh-identity",
+      "pass": true,
+      "user": "alice",
+      "cards": 3,
+      "components": 4,
+      "ready": "true",
+      "password_cleared": true
+    },
+    {
+      "name": "authenticated-reload-mount-completes-once",
+      "pass": true,
+      "user": "alice",
+      "components": 1,
+      "cards": 0,
+      "ready": "true",
+      "error_hidden": true,
+      "password_cleared": true,
+      "fixture_note": "The fixture mount handler intentionally requests only session.user; layout loading exists only in its login handler, so zero cards after reload is application behavior, not a runtime failure."
+    },
+    {
+      "name": "logout-clears-private-runtime-state",
+      "pass": true,
+      "components": 1,
+      "cards": 0,
+      "recovery_hidden": true,
+      "recovery_children": 0,
+      "ready": "true",
+      "error_hidden": true
+    }
+  ]
+}

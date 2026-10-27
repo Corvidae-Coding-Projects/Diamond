@@ -14,10 +14,12 @@ use tokio::sync::Semaphore;
 
 #[derive(Debug)]
 struct Server {
+    project: CheckedProject,
+    shell: artifact::PageShell,
     address: SocketAddr,
     files: BTreeMap<String, String>,
     pages: BTreeMap<String, String>,
-    permits: Semaphore,
+    permits: Arc<Semaphore>,
 }
 
 pub(super) fn serve(project: &CheckedProject, address: SocketAddr) -> Result<()> {
@@ -31,7 +33,7 @@ pub(super) fn serve(project: &CheckedProject, address: SocketAddr) -> Result<()>
             "call the synchronous project serve API outside an async runtime",
         ));
     }
-    let files = artifact::files(project)?
+    let files: BTreeMap<_, _> = artifact::files(project)?
         .into_iter()
         .filter(|(path, _)| {
             path == "index.html" || path.starts_with("assets/") || path.starts_with("pages/")
@@ -43,6 +45,7 @@ pub(super) fn serve(project: &CheckedProject, address: SocketAddr) -> Result<()>
         .iter()
         .map(|p| (p.clone(), artifact::page_key(p)))
         .collect();
+    let shell = artifact::PageShell::from_files(project, &files)?;
     let runtime = tokio::runtime::Builder::new_multi_thread()
         .worker_threads(2)
         .max_blocking_threads(4)
@@ -52,10 +55,12 @@ pub(super) fn serve(project: &CheckedProject, address: SocketAddr) -> Result<()>
         let listener = tokio::net::TcpListener::bind(address).await?;
         let address = listener.local_addr()?;
         let state = Arc::new(Server {
+            project: project.clone(),
+            shell,
             address,
             files,
             pages,
-            permits: Semaphore::new(16),
+            permits: Arc::new(Semaphore::new(16)),
         });
         let application = Router::new().fallback(handler).with_state(state);
         eprintln!("Diamond W1 project server: http://{address}");
@@ -69,7 +74,7 @@ pub(super) fn serve(project: &CheckedProject, address: SocketAddr) -> Result<()>
 }
 
 async fn handler(State(server): State<Arc<Server>>, request: Request) -> Response {
-    let Ok(_permit) = server.permits.try_acquire() else {
+    let Ok(permit) = Arc::clone(&server.permits).try_acquire_owned() else {
         return response(
             StatusCode::SERVICE_UNAVAILABLE,
             "text/plain; charset=utf-8",
@@ -101,9 +106,9 @@ async fn handler(State(server): State<Arc<Server>>, request: Request) -> Respons
             .headers()
             .keys()
             .any(|name| name == "forwarded" || name.as_str().starts_with("x-forwarded-"))
-        || request.uri().query().is_some()
+        || (request.uri().query().is_some() && !named_target(&server, &request))
         || request.uri().path().starts_with("//")
-        || request.uri().path().contains(['%', '\\'])
+        || (request.uri().path().contains(['%', '\\']) && !named_target(&server, &request))
         || request.headers().contains_key(header::TRANSFER_ENCODING)
         || request.headers().contains_key(header::UPGRADE)
         || request
@@ -139,12 +144,67 @@ async fn handler(State(server): State<Arc<Server>>, request: Request) -> Respons
         let kind = artifact::content_type(path);
         return response(StatusCode::OK, kind, content, head);
     }
+    if server
+        .project
+        .browser
+        .schemas
+        .match_path(
+            request
+                .uri()
+                .path_and_query()
+                .map_or("/", |target| target.as_str()),
+        )
+        .is_some()
+    {
+        let path = request
+            .uri()
+            .path_and_query()
+            .map_or("/", |target| target.as_str())
+            .to_owned();
+        return dynamic_page(server, permit, path, head).await;
+    }
     response(
         StatusCode::NOT_FOUND,
         "text/plain; charset=utf-8",
         "Not found",
         head,
     )
+}
+
+fn named_target(server: &Server, request: &Request) -> bool {
+    server
+        .project
+        .browser
+        .schemas
+        .match_path(
+            request
+                .uri()
+                .path_and_query()
+                .map_or("/", |target| target.as_str()),
+        )
+        .is_some()
+}
+
+async fn dynamic_page(
+    server: Arc<Server>,
+    permit: tokio::sync::OwnedSemaphorePermit,
+    path: String,
+    head: bool,
+) -> Response {
+    match tokio::task::spawn_blocking(move || {
+        let _permit = permit;
+        server.shell.render(&server.project, &path)
+    })
+    .await
+    {
+        Ok(Ok(page)) => response(StatusCode::OK, "text/html; charset=utf-8", &page, head),
+        _ => response(
+            StatusCode::SERVICE_UNAVAILABLE,
+            "text/plain; charset=utf-8",
+            "Page unavailable",
+            head,
+        ),
+    }
 }
 
 pub(super) fn response(status: StatusCode, kind: &'static str, text: &str, head: bool) -> Response {

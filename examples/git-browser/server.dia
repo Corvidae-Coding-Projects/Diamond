@@ -803,7 +803,7 @@ export fn repository_page(organization: Text, after: Text) -> Result<RepositoryP
     true => list_slice(rows, 0, 20)
     false => rows
   let cards = for row in visible:
-    RepositoryCard(id: id_text(row.id), organization: id_text(row.organization), name: row.name, description: row.description, visibility: visibility_text(row.public))
+    RepositoryCard(key: row.id, id: id_text(row.id), organization: id_text(row.organization), name: row.name, description: row.description, visibility: visibility_text(row.public))
   let cursor = next_repository_cursor(rows)?
   let total = repositories.count(organization: OrganizationId(organization))?
   Ok(RepositoryPage(cards: cards, after: cursor, total: total))
@@ -847,7 +847,7 @@ export fn issue_page(organization: Text, repository: Text, after: Text) -> Resul
     true => list_slice(rows, 0, 20)
     false => rows
   let cards = for row in visible:
-    IssueCard(id: id_text(row.id), title: row.title, state: issue_state_text(row.state), author: id_text(row.author))
+    IssueCard(key: row.id, id: id_text(row.id), title: row.title, state: issue_state_text(row.state), author: id_text(row.author))
   let cursor = next_issue_cursor(rows)?
   let total = issues.count(organization: OrganizationId(organization), repository: RepositoryId(repository))?
   Ok(IssuePage(cards: cards, after: cursor, total: total))
@@ -855,6 +855,18 @@ export fn issue_page(organization: Text, repository: Text, after: Text) -> Resul
 export fn read_issue(issue: Text) -> Result<IssueDetail, DataError>:
   let row = issues.get(IssueId(issue))?
   Ok(IssueDetail(id: id_text(row.id), title: row.title, body: row.body, state: issue_state_text(row.state), author: id_text(row.author)))
+
+export fn load_issue_editor(id: IssueKey) -> Result<IssueEditorData, DataError>:
+  let row = issues.get(id)?
+  Ok(IssueEditorData(key: row.id, title: row.title, body: row.body))
+
+export action save_issue_editor(id: IssueKey, value: IssueEditorForm) -> Result<IssueEditorData, IssueEditorError>:
+  match issues.get(id):
+    Ok(before) =>
+      match issues.update(id, EditIssue(title: value.title, body: value.body, state: before.state)):
+        Ok(row) => Ok(IssueEditorData(key: row.id, title: row.title, body: row.body))
+        Err(problem) => Err(SaveFailed)
+    Err(problem) => Err(SaveFailed)
 
 export fn edit_issue(issue: Text, title: Text<length: 1..160>, body: Text<length: 0..16000>) -> Result<IssueDetail, DataError>:
   let before = issues.get(IssueId(issue))?

@@ -60,7 +60,8 @@ fn references(nodes: &mut [lower::Node], urls: &BTreeMap<String, String>) -> Res
             }
             lower::Node::When(_, children)
             | lower::Node::Each { children, .. }
-            | lower::Node::Route(_, children) => references(children, urls)?,
+            | lower::Node::Route(_, children)
+            | lower::Node::NamedRoute { children, .. } => references(children, urls)?,
             _ => {}
         }
     }

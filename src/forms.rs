@@ -1,11 +1,16 @@
 //! Strict bounded form decoding derived from checked record declarations.
 
 use crate::error::{Error, Result};
-use crate::hir::Record;
+use crate::hir::{CheckedProgram, Record};
 use crate::value::{Type, Value, ValueKind};
 use std::collections::BTreeMap;
 
-pub(crate) fn parse(body: &[u8], name: &str, record: &Record) -> Result<Value> {
+pub(crate) fn parse(
+    body: &[u8],
+    name: &str,
+    record: &Record,
+    program: &CheckedProgram,
+) -> Result<Value> {
     if body.len() > 65_536 {
         return Err(Error::Limit("form body"));
     }
@@ -15,7 +20,7 @@ pub(crate) fn parse(body: &[u8], name: &str, record: &Record) -> Result<Value> {
     if input.keys().any(|name| !record.fields.contains_key(name)) {
         return Err(Error::Input("unknown form field".into()));
     }
-    record_value(&input, name, record)
+    record_value(&input, name, record, program)
 }
 
 pub(crate) fn fields(body: &[u8]) -> Result<BTreeMap<String, String>> {
@@ -39,7 +44,12 @@ pub(crate) fn fields(body: &[u8]) -> Result<BTreeMap<String, String>> {
     Ok(input)
 }
 
-fn record_value(input: &BTreeMap<String, String>, name: &str, record: &Record) -> Result<Value> {
+fn record_value(
+    input: &BTreeMap<String, String>,
+    name: &str,
+    record: &Record,
+    program: &CheckedProgram,
+) -> Result<Value> {
     let mut fields = BTreeMap::new();
     for (name, field) in &record.fields {
         if field.created_by {
@@ -48,7 +58,12 @@ fn record_value(input: &BTreeMap<String, String>, name: &str, record: &Record) -
             ));
         }
         let value = match input.get(name) {
-            Some(value) => scalar(value, &field.ty)?,
+            Some(value) => crate::scalar_input::Scalar::checked(&field.ty, program)
+                .ok_or_else(|| Error::Input("unsupported form field type".into()))?
+                .decode(value)
+                .map_err(|_| {
+                    Error::Input("form field violates its declared scalar schema".into())
+                })?,
             None => field
                 .default
                 .clone()
@@ -80,39 +95,6 @@ pub(crate) fn csrf_hidden(token: &str) -> String {
         "<input type=\"hidden\" name=\"_diamond_csrf\" value=\"{}\">",
         crate::template::escape(token)
     )
-}
-
-fn scalar(raw: &str, ty: &Type) -> Result<Value> {
-    let value = Value(match ty {
-        Type::Text | Type::BoundedText(_, _) => ValueKind::Text(raw.into()),
-        Type::Int => ValueKind::Int(
-            raw.parse()
-                .map_err(|_| Error::Input("invalid integer field".into()))?,
-        ),
-        Type::Bool => match raw {
-            "true" => ValueKind::Bool(true),
-            "false" => ValueKind::Bool(false),
-            _ => return Err(Error::Input("Boolean field requires true or false".into())),
-        },
-        Type::Id(tag) => ValueKind::Id(tag.clone(), raw.into()),
-        Type::Option(inner) => {
-            return if raw.is_empty() {
-                Ok(Value(ValueKind::None))
-            } else {
-                Ok(Value(ValueKind::Some(Box::new(scalar(raw, inner)?))))
-            };
-        }
-        _ => {
-            return Err(Error::unsupported(
-                crate::Location::default(),
-                format!("form field type {ty}"),
-            ));
-        }
-    });
-    if !value.fits(ty) {
-        return Err(Error::Input("form field violates declared bounds".into()));
-    }
-    Ok(value)
 }
 
 pub(crate) fn decode(value: &str) -> Result<String> {

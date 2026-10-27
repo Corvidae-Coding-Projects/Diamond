@@ -1,0 +1,6 @@
+export component App:
+  state user: Text = ""
+  on login:
+    user = session.login("alice", "synthetic")
+  html:
+    <button on-click={login}>Login</button>

@@ -1,0 +1,19 @@
+schema_version = 1
+name = "LP1Contract"
+server = "server"
+browser = "ui"
+component = "Contract"
+
+[modules.server]
+path = "server.dia"
+target = "server"
+imports = ["shared"]
+
+[modules.shared]
+path = "shared.dia"
+target = "shared"
+
+[modules.ui]
+path = "ui.dia"
+target = "browser"
+imports = ["shared"]

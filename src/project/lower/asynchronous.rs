@@ -52,7 +52,7 @@ impl Rewrite<'_, '_> {
                 for (_, value) in arguments {
                     *value = self.expr(value, locals)?;
                 }
-                if matches!(&callee.kind,ExprKind::Field(base,_) if matches!(&base.kind,ExprKind::Name(n) if ["rpc","session","files"].contains(&n.as_str())))
+                if matches!(&callee.kind,ExprKind::Field(base,_) if matches!(&base.kind,ExprKind::Name(n) if ["rpc","action","session","files"].contains(&n.as_str())))
                 {
                     let value = self.lower.remote(&out, &self.scope(locals), self.rpc)?;
                     let EventValue::Remote { result, .. } = &value else {
@@ -101,6 +101,14 @@ impl Rewrite<'_, '_> {
                         }
                         Pattern::Constructor(name, names) => {
                             let fields = match (&ty, name.as_str()) {
+                                (Type::Action(success, error), name) => {
+                                    crate::action::cases(success, error)
+                                        .get(name)
+                                        .cloned()
+                                        .ok_or_else(|| {
+                                            super::error(arm.location, "invalid action pattern")
+                                        })?
+                                }
                                 (Type::Option(inner), "Some")
                                 | (
                                     Type::Result(inner)

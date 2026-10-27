@@ -69,7 +69,7 @@ pub(super) fn files(project: &CheckedProject) -> Result<BTreeMap<String, String>
     for route in &project.browser.routes {
         let content = project.render_page(route)?;
         let page = format!(
-            "<!doctype html>\n<html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>{}</title><link rel=\"stylesheet\" href=\"/{style}\"></head><body><div id=\"diamond-app\" data-contract=\"{}\">{content}</div><p id=\"diamond-error\" role=\"alert\" hidden></p><script type=\"module\" src=\"/{asset}\"></script></body></html>\n",
+            "<!doctype html>\n<html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>{}</title><link rel=\"stylesheet\" href=\"/{style}\"></head><body><div id=\"diamond-app\" data-contract=\"{}\">{content}</div><aside id=\"diamond-recovery\" aria-label=\"Pending changes\" hidden></aside><p id=\"diamond-error\" role=\"alert\" hidden></p><script type=\"module\" src=\"/{asset}\"></script></body></html>\n",
             crate::template::escape(&project.manifest.name),
             contract_id(project)?
         );
@@ -134,7 +134,7 @@ pub(super) fn files(project: &CheckedProject) -> Result<BTreeMap<String, String>
             .collect(),
         rpc: super::rpc::contracts(&project.rpc, &project.server, &project.manifest.public_rpc),
         rpc_id: contract_id(project)?,
-        wire_version: 3,
+        wire_version: super::WIRE_VERSION,
         http_api: project
             .manifest
             .http_api
@@ -205,6 +205,45 @@ pub(super) fn write(project: &CheckedProject, output: &Path) -> Result<()> {
         fs::remove_dir_all(&staging)?;
     }
     result
+}
+
+#[derive(Clone, Debug)]
+pub(super) struct PageShell {
+    prefix: String,
+    suffix: String,
+}
+
+impl PageShell {
+    pub(super) fn from_files(
+        project: &CheckedProject,
+        files: &BTreeMap<String, String>,
+    ) -> Result<Self> {
+        let asset = files
+            .keys()
+            .find(|path| {
+                path.starts_with("assets/")
+                    && Path::new(path)
+                        .extension()
+                        .is_some_and(|extension| extension.eq_ignore_ascii_case("js"))
+            })
+            .ok_or_else(|| input("missing browser asset"))?;
+        let (_, style) = super::assets::files(project)?;
+        Ok(Self {
+            prefix: format!(
+                "<!doctype html>\n<html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>{}</title><link rel=\"stylesheet\" href=\"/{style}\"></head><body><div id=\"diamond-app\" data-contract=\"{}\">",
+                crate::template::escape(&project.manifest.name),
+                contract_id(project)?
+            ),
+            suffix: format!(
+                "</div><aside id=\"diamond-recovery\" aria-label=\"Pending changes\" hidden></aside><p id=\"diamond-error\" role=\"alert\" hidden></p><script type=\"module\" src=\"/{asset}\"></script></body></html>\n"
+            ),
+        })
+    }
+
+    pub(super) fn render(&self, project: &CheckedProject, path: &str) -> Result<String> {
+        let content = project.render_page(path)?;
+        Ok(format!("{}{content}{}", self.prefix, self.suffix))
+    }
 }
 
 pub(super) fn load(directory: &Path) -> Result<CheckedProject> {

@@ -1,0 +1,144 @@
+{
+  "status": "PASS",
+  "binary_sha256": "278b10f6d64d966279e7ddaea9964d43904426c7478c20aafdd0f9228ce722e1",
+  "error": null,
+  "results": [
+    {
+      "name": "hostile-websocket-handshakes-reject",
+      "status": "PASS",
+      "observed": {
+        "missing-origin": {
+          "status": 403,
+          "status_line": "HTTP/1.1 403 Forbidden",
+          "bytes": 428
+        },
+        "hostile-origin": {
+          "status": 400,
+          "status_line": "HTTP/1.1 400 Bad Request",
+          "bytes": 439
+        },
+        "duplicate-origin": {
+          "status": 400,
+          "status_line": "HTTP/1.1 400 Bad Request",
+          "bytes": 439
+        },
+        "duplicate-cookie": {
+          "status": 401,
+          "status_line": "HTTP/1.1 401 Unauthorized",
+          "bytes": 490
+        },
+        "authorization-confusion": {
+          "status": 403,
+          "status_line": "HTTP/1.1 403 Forbidden",
+          "bytes": 428
+        },
+        "query": {
+          "status": 400,
+          "status_line": "HTTP/1.1 400 Bad Request",
+          "bytes": 439
+        },
+        "noncanonical-zero": {
+          "status": 403,
+          "status_line": "HTTP/1.1 403 Forbidden",
+          "bytes": 428
+        },
+        "signed-zero": {
+          "status": 403,
+          "status_line": "HTTP/1.1 403 Forbidden",
+          "bytes": 428
+        },
+        "negative-zero": {
+          "status": 403,
+          "status_line": "HTTP/1.1 403 Forbidden",
+          "bytes": 428
+        },
+        "cursor-overflow": {
+          "status": 403,
+          "status_line": "HTTP/1.1 403 Forbidden",
+          "bytes": 428
+        },
+        "encoded-parent": {
+          "status": 400,
+          "status_line": "HTTP/1.1 400 Bad Request",
+          "bytes": 439
+        },
+        "unknown-channel": {
+          "status": 403,
+          "status_line": "HTTP/1.1 403 Forbidden",
+          "bytes": 428
+        }
+      },
+      "expected": "missing/duplicate/hostile authority, query/encoding, unknown binding and noncanonical cursor handshakes do not upgrade"
+    },
+    {
+      "name": "hostile-websocket-frames-close-without-publication",
+      "status": "PASS",
+      "observed": {
+        "text": {
+          "kind": "close",
+          "code": null,
+          "reason": ""
+        },
+        "unmasked": {
+          "kind": "close",
+          "code": null,
+          "reason": ""
+        },
+        "fragmented": {
+          "kind": "close",
+          "code": null,
+          "reason": ""
+        },
+        "fragmented_control": {
+          "kind": "close",
+          "code": null,
+          "reason": ""
+        },
+        "events_before": 0,
+        "events_after": 0
+      },
+      "expected": "unsolicited text/fragmented messages and malformed mask/control framing terminate their connection and never create durable events"
+    },
+    {
+      "name": "valid-ping-and-event-recover-after-hostile-frames",
+      "status": "PASS",
+      "observed": {
+        "upgrade": 101,
+        "pong": {
+          "kind": "frame",
+          "opcode": 10,
+          "bytes": 7
+        },
+        "emit": [
+          200,
+          {
+            "value": "1"
+          }
+        ],
+        "delivery": {
+          "cursor": "1",
+          "value": "post-hostile typed event"
+        },
+        "read_status": 200
+      },
+      "expected": "a canonical socket permits bounded ping/pong and receives a real typed publication after hostile peers are dropped; ordinary HTTP remains usable"
+    }
+  ],
+  "shutdowns": [
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "http_requests": 5,
+  "elapsed_seconds": 2.151574195995636,
+  "raw_handshakes": 12,
+  "upgraded_frame_scenarios": 5,
+  "command": "python3 verification/w9_independent/websocket_malformed.py --binary target/debug/diamond",
+  "oracle": "ORACLES.md E2",
+  "temporary_root_removed": true
+}

@@ -1,0 +1,79 @@
+{
+  "binary_sha256": "6f5c7e0427abfc9483ce165ef78effbf0cdccbd8643176d2e05675f6dff5fbd7",
+  "first": [
+    200,
+    {
+      "value": {
+        "fields": [
+          {
+            "id": {
+              "tag": "issue",
+              "value": "alpha-b"
+            },
+            "note": "Before recovery",
+            "revision": "1",
+            "title": "LP5 before",
+            "workspace": {
+              "tag": "workspace",
+              "value": "alpha"
+            }
+          }
+        ],
+        "tag": "ActionSucceeded"
+      }
+    }
+  ],
+  "duplicate": [
+    200,
+    {
+      "value": {
+        "fields": [],
+        "tag": "ActionUnknown"
+      }
+    }
+  ],
+  "status_request": [
+    404,
+    {
+      "error": "not_found"
+    }
+  ],
+  "rows": [
+    {
+      "id": "alpha-a",
+      "title": "Issue A",
+      "note": "Original note",
+      "revision": 0
+    },
+    {
+      "id": "alpha-b",
+      "title": "LP5 before",
+      "note": "Before recovery",
+      "revision": 1
+    },
+    {
+      "id": "alpha-c",
+      "title": "Issue C",
+      "note": "Original note",
+      "revision": 0
+    },
+    {
+      "id": "alpha-d",
+      "title": "Issue D",
+      "note": "Original note",
+      "revision": 0
+    }
+  ],
+  "expected_lp5": "Fresh authorized status returns the durable committed result without another write",
+  "baseline_gap": "No durable status path; duplicate single-use proof returns Unknown",
+  "shutdowns": [
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": []
+}

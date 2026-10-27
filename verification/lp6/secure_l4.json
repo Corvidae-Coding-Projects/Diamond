@@ -1,0 +1,83 @@
+{
+  "status": "PASS",
+  "binary_sha256": "4ce83ca2bfb10b8371f0005b9cc46fb0da81a2347bb3210e2a2b6af030acc0ad",
+  "observations": [
+    {
+      "name": "mail-control",
+      "expected_accept": true,
+      "exit": 0,
+      "pass": true,
+      "diagnostic": ""
+    },
+    {
+      "name": "missing-mail-capability",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: server.dia: D301 at 70:1: effects {Read(\"Documents\"), Write(\"Documents\"), Host(\"Mail<document_mail>\")} exceed the application's declared authority"
+    },
+    {
+      "name": "dynamic-binding-denied",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: server.dia: D310 at 65:3: mail binding requires a static name"
+    },
+    {
+      "name": "unknown-binding-denied",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: server.dia: D310 at 68:3: unknown mail binding"
+    },
+    {
+      "name": "dynamic-template-denied",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: server.dia: D310 at 65:3: mail template requires a static name"
+    },
+    {
+      "name": "unknown-template-denied",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: server.dia: D310 at 65:3: unknown mail template"
+    },
+    {
+      "name": "header-injection-denied",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: invalid plain-text mail template"
+    },
+    {
+      "name": "recipient-type-denied",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: server.dia: D310 at 65:3: mail arguments do not match the declared operation"
+    },
+    {
+      "name": "secret-body-denied",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: server.dia: D310 at 65:3: mail arguments do not match the declared operation"
+    },
+    {
+      "name": "binding-resource-denied",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: invalid durable binding resource or payload type"
+    },
+    {
+      "name": "attempt-bound-denied",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: invalid mail binding or absent mail/resource capabilities"
+    }
+  ]
+}

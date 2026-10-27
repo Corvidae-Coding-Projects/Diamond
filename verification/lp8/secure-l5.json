@@ -1,0 +1,111 @@
+{
+  "status": "PASS",
+  "binary_sha256": "28a8f27b6db02a04301ffa458f03df38e6c37fad16aaa6b6929adcd448a51e30",
+  "observations": [
+    {
+      "name": "workflow-control",
+      "expected_accept": true,
+      "exit": 0,
+      "pass": true,
+      "diagnostic": ""
+    },
+    {
+      "name": "capability-required",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error[D301]: effects {Read(\"Documents\"), Write(\"Documents\"), Host(\"Workflows\")} exceed the application's declared authority\n --> /home/doll/diamond/.diamond/diamond-l5-3trg3vvi/1/server.dia:85:1\n   |\n85 | export fn cancel_document_flow(id: Text) -> Result<Text, DataError>:\n   | ^\n help: Declare the exact application effect required by this call path."
+    },
+    {
+      "name": "known-state-enum",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: workflow state must name a declared enum"
+    },
+    {
+      "name": "fieldless-initial",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: workflow initial state must be a fieldless enum variant"
+    },
+    {
+      "name": "terminal-required",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: workflow requires a typed (Text, input, state) -> Result<state, DataError> handler, explicit terminal states, bounded timers/retries/transitions, transactional retry, and parent concurrency"
+    },
+    {
+      "name": "terminal-cannot-be-timer",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: workflow requires a typed (Text, input, state) -> Result<state, DataError> handler, explicit terminal states, bounded timers/retries/transitions, transactional retry, and parent concurrency"
+    },
+    {
+      "name": "timer-bounded",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: workflow requires a typed (Text, input, state) -> Result<state, DataError> handler, explicit terminal states, bounded timers/retries/transitions, transactional retry, and parent concurrency"
+    },
+    {
+      "name": "attempts-bounded",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: workflow requires a typed (Text, input, state) -> Result<state, DataError> handler, explicit terminal states, bounded timers/retries/transitions, transactional retry, and parent concurrency"
+    },
+    {
+      "name": "transitions-bounded",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: workflow requires a typed (Text, input, state) -> Result<state, DataError> handler, explicit terminal states, bounded timers/retries/transitions, transactional retry, and parent concurrency"
+    },
+    {
+      "name": "transactional-retry-only",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: workflow requires a typed (Text, input, state) -> Result<state, DataError> handler, explicit terminal states, bounded timers/retries/transitions, transactional retry, and parent concurrency"
+    },
+    {
+      "name": "parent-concurrency-owned",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: workflow requires a typed (Text, input, state) -> Result<state, DataError> handler, explicit terminal states, bounded timers/retries/transitions, transactional retry, and parent concurrency"
+    },
+    {
+      "name": "typed-handler-state",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error[D123]: pattern is not a variant of the matched type\n --> /home/doll/diamond/.diamond/diamond-l5-3trg3vvi/11/server.dia:91:5\n   |\n91 |     Queued => Ok(Waiting)\n   |     ^\n help: Use supported patterns and cover every variant without duplicates."
+    },
+    {
+      "name": "external-effects-prohibited",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: workflow handlers require explicit parent read/write grants and may not perform uncertain external effects"
+    },
+    {
+      "name": "generic-input-bound",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error[D310]: workflow generic type differs from the declared binding\n --> /home/doll/diamond/.diamond/diamond-l5-3trg3vvi/13/server.dia:77:3\n   |\n77 |   host.workflow_submit<Bool>(\"document_flow\", parent, input, key)\n   |   ^\n help: Call a registered host operation with its exact argument types and declare its module/application capability budget."
+    },
+    {
+      "name": "binding-static",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error[D310]: workflow binding requires a static identifier\n --> /home/doll/diamond/.diamond/diamond-l5-3trg3vvi/14/server.dia:80:3\n   |\n80 |   host.workflow_status(id, id)\n   |   ^\n help: Call a registered host operation with its exact argument types and declare its module/application capability budget."
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "status": "FAIL",
+  "binary_sha256": "9ed5bfe28ebff433262582bc78121fe4a651f27b5afadad0739abc325701bc70",
+  "driver_sha256": "70d37ad00ef8196aece4b9b79801694628c6369f901bd785add479a2b3ac4cb2",
+  "observations": [
+    {
+      "name": "render-components-below-capacity",
+      "pass": true,
+      "stderr": ""
+    },
+    {
+      "name": "render-component-capacity-1024",
+      "pass": false,
+      "expected": "component capacity",
+      "returncode": 0,
+      "stderr": "",
+      "emitted": true
+    },
+    {
+      "name": "browser-text-expansion-preflight",
+      "pass": false,
+      "runtime_sha256": "0d00732804090bd68bd08bdc64af0fb8f319421abc570eb2c70155428673f5cd"
+    }
+  ]
+}

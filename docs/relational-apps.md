@@ -1,5 +1,10 @@
 # W4 relational data and authorization
 
+**Historical W4 guide.** Statements below about W5–W10 remaining are the
+boundary of the original W4 checkpoint, not the current implementation. See the
+[canonical language contract](language-specification.md) and
+[profile matrix](language-profiles.md) for the LP8-qualified surface.
+
 Diamond 0.10.0 adds an opt-in `relational-v1` PostgreSQL profile. It stores checked
 fields in typed columns and executes supported queries in SQL. Ordinary requests
 do not load and validate every row. The SQLite adapter and the bounded W2

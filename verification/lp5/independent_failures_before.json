@@ -1,0 +1,2476 @@
+{
+  "root": "/tmp/diamond-lp5-independent/run-ssnssdj_",
+  "binary_sha256": "807a5dedb8f303ec9a794268c9ba356c96da49a2da2634275a8af446249c361d",
+  "source_sha256": {
+    "src/project/actions/durable.rs": "1be589a3d35830388a332b46a821c93055efdb9cbdab1ca41ab660536871a608",
+    "src/project/actions/receipts.rs": "6371ae88ddde07a437b42b848722868c85de4cc57eb0bc54c42634ba2510b683",
+    "src/project/actions/footprint.rs": "4f12008e613a626271e000563ee30def0389fe810fe05f378f25d51c00bd4bef",
+    "src/project/actions/eligibility.rs": "3dc487410ab1bd4ef1a9afdd213858b6d66ce0731e863cc9b844d49e20f6cd73",
+    "src/project/storage.rs": "cc8c9f4deaa55123dec7f66f3c09771c8bfc36b27a6193ba11dea1fc68411267",
+    "src/relational/runtime.rs": "c955cb37f160bd2e80c428b73e619fb8d18b8306f4ab3319179ce2a5228c6f68",
+    "src/project/connected/profiles.rs": "2ebe3e241f99a6e9420ea2f48d31658c39e64e17ba05d9fbede23ff9ed1a6c2f",
+    "src/project/recovery.js": "584c4d0d915dcf29cefe8999e9d33721d1d4cce51eb2c3812765c08e34e8d89e"
+  },
+  "oracle": "LP5 AC6-8 and SCENARIOS independently specified before execution.",
+  "observations": [
+    {
+      "name": "prepared-status-fences-late-execution",
+      "pass": true,
+      "expected": "Status establishes terminal abort; delayed execute cannot mutate.",
+      "status": [
+        200,
+        {
+          "value": {
+            "fields": [],
+            "tag": "ActionAborted"
+          }
+        }
+      ],
+      "late_execute": [
+        200,
+        {
+          "value": {
+            "fields": [],
+            "tag": "ActionAborted"
+          }
+        }
+      ],
+      "revision": [
+        {
+          "revision": 0
+        }
+      ]
+    },
+    {
+      "name": "protected-scalar-source-revocation",
+      "pass": true,
+      "expected": "Source-row revocation denies old scalar, despite readable parent.",
+      "saved": [
+        200,
+        {
+          "value": {
+            "fields": [
+              "IndependentSecretTitle: IndependentSecretNote"
+            ],
+            "tag": "ActionSucceeded"
+          }
+        }
+      ],
+      "status_after_revoke": [
+        403,
+        {
+          "error": "denied"
+        }
+      ],
+      "duplicate_after_revoke": [
+        403,
+        {
+          "error": "denied"
+        }
+      ],
+      "revision": [
+        {
+          "revision": 1
+        }
+      ]
+    },
+    {
+      "name": "protected-scalar-restored-authority",
+      "pass": true,
+      "expected": "Restored current authority recovers same original result.",
+      "status": [
+        200,
+        {
+          "value": {
+            "fields": [
+              "IndependentSecretTitle: IndependentSecretNote"
+            ],
+            "tag": "ActionSucceeded"
+          }
+        }
+      ],
+      "revision": [
+        {
+          "revision": 1
+        }
+      ]
+    },
+    {
+      "name": "protected-scalar-current-row-parent",
+      "pass": true,
+      "expected": "Current inaccessible source parent denies old scalar.",
+      "observed": [
+        403,
+        {
+          "error": "denied"
+        }
+      ]
+    },
+    {
+      "name": "corrupt-receipt-no-replay",
+      "pass": true,
+      "expected": "Corrupt receipt explicit, one mutation.",
+      "status": [
+        200,
+        {
+          "value": {
+            "fields": [],
+            "tag": "ActionCorrupt"
+          }
+        }
+      ],
+      "retry": [
+        200,
+        {
+          "value": {
+            "fields": [],
+            "tag": "ActionCorrupt"
+          }
+        }
+      ],
+      "revision": [
+        {
+          "revision": 1
+        }
+      ]
+    },
+    {
+      "name": "expired-and-pruned-identity-no-replay",
+      "pass": true,
+      "expected": "Expired before/after ordinary cleanup, never replay.",
+      "status_before": [
+        200,
+        {
+          "value": {
+            "fields": [],
+            "tag": "ActionExpired"
+          }
+        }
+      ],
+      "retry_before": [
+        200,
+        {
+          "value": {
+            "fields": [],
+            "tag": "ActionExpired"
+          }
+        }
+      ],
+      "status_after": [
+        200,
+        {
+          "value": {
+            "fields": [],
+            "tag": "ActionExpired"
+          }
+        }
+      ],
+      "retry_after": [
+        200,
+        {
+          "value": {
+            "fields": [],
+            "tag": "ActionExpired"
+          }
+        }
+      ],
+      "revision": [
+        {
+          "revision": 1
+        }
+      ]
+    },
+    {
+      "name": "oversize-terminal-output-rollback-recoverable",
+      "pass": true,
+      "expected": "Oversize receipt rolls back and preserves small recoverable abort.",
+      "submit": [
+        200,
+        {
+          "value": {
+            "fields": [],
+            "tag": "ActionAborted"
+          }
+        }
+      ],
+      "status": [
+        200,
+        {
+          "value": {
+            "fields": [],
+            "tag": "ActionAborted"
+          }
+        }
+      ],
+      "revision": [
+        {
+          "revision": 0
+        }
+      ]
+    },
+    {
+      "name": "crud-footprint-boundary-61",
+      "pass": true,
+      "expected": "At/below 64 facts success; over limit rolls back with recoverable terminal abort.",
+      "invocation": "8a0a7268a2328c86b3291f9640a538e8d7ed63afc3aa21dd2f7aad9985277b76",
+      "arguments": [
+        {
+          "tag": "issue",
+          "value": "alpha-b"
+        },
+        [
+          {
+            "tag": "issue",
+            "value": "extra-0"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-1"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-2"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-3"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-4"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-5"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-6"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-7"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-8"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-9"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-10"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-11"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-12"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-13"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-14"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-15"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-16"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-17"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-18"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-19"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-20"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-21"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-22"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-23"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-24"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-25"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-26"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-27"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-28"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-29"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-30"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-31"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-32"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-33"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-34"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-35"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-36"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-37"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-38"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-39"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-40"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-41"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-42"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-43"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-44"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-45"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-46"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-47"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-48"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-49"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-50"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-51"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-52"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-53"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-54"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-55"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-56"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-57"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-58"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-59"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-60"
+          }
+        ]
+      ],
+      "submit": [
+        200,
+        {
+          "value": {
+            "fields": [
+              "Read 61"
+            ],
+            "tag": "ActionSucceeded"
+          }
+        }
+      ],
+      "status": [
+        200,
+        {
+          "value": {
+            "fields": [
+              "Read 61"
+            ],
+            "tag": "ActionSucceeded"
+          }
+        }
+      ],
+      "retry": [
+        200,
+        {
+          "value": {
+            "fields": [
+              "Read 61"
+            ],
+            "tag": "ActionSucceeded"
+          }
+        }
+      ],
+      "revision": [
+        {
+          "revision": 1
+        }
+      ]
+    },
+    {
+      "name": "crud-footprint-boundary-62",
+      "pass": true,
+      "expected": "At/below 64 facts success; over limit rolls back with recoverable terminal abort.",
+      "invocation": "40ef91c73f3abcb0b394bfd3aba8cb15f6b3ebfb29054308ba841afea8c7eb2e",
+      "arguments": [
+        {
+          "tag": "issue",
+          "value": "alpha-b"
+        },
+        [
+          {
+            "tag": "issue",
+            "value": "extra-0"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-1"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-2"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-3"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-4"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-5"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-6"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-7"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-8"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-9"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-10"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-11"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-12"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-13"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-14"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-15"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-16"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-17"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-18"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-19"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-20"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-21"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-22"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-23"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-24"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-25"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-26"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-27"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-28"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-29"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-30"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-31"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-32"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-33"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-34"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-35"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-36"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-37"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-38"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-39"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-40"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-41"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-42"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-43"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-44"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-45"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-46"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-47"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-48"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-49"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-50"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-51"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-52"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-53"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-54"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-55"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-56"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-57"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-58"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-59"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-60"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-61"
+          }
+        ]
+      ],
+      "submit": [
+        200,
+        {
+          "value": {
+            "fields": [
+              "Read 62"
+            ],
+            "tag": "ActionSucceeded"
+          }
+        }
+      ],
+      "status": [
+        200,
+        {
+          "value": {
+            "fields": [
+              "Read 62"
+            ],
+            "tag": "ActionSucceeded"
+          }
+        }
+      ],
+      "retry": [
+        200,
+        {
+          "value": {
+            "fields": [
+              "Read 62"
+            ],
+            "tag": "ActionSucceeded"
+          }
+        }
+      ],
+      "revision": [
+        {
+          "revision": 1
+        }
+      ]
+    },
+    {
+      "name": "crud-footprint-boundary-63",
+      "pass": false,
+      "expected": "At/below 64 facts success; over limit rolls back with recoverable terminal abort.",
+      "invocation": "c4316ee79517569ceb216540b65bbe07d89e326ff3cf64d9307f9ee890cbb81b",
+      "arguments": [
+        {
+          "tag": "issue",
+          "value": "alpha-b"
+        },
+        [
+          {
+            "tag": "issue",
+            "value": "extra-0"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-1"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-2"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-3"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-4"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-5"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-6"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-7"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-8"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-9"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-10"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-11"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-12"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-13"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-14"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-15"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-16"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-17"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-18"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-19"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-20"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-21"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-22"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-23"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-24"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-25"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-26"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-27"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-28"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-29"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-30"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-31"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-32"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-33"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-34"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-35"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-36"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-37"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-38"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-39"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-40"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-41"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-42"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-43"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-44"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-45"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-46"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-47"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-48"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-49"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-50"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-51"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-52"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-53"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-54"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-55"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-56"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-57"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-58"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-59"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-60"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-61"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-62"
+          }
+        ]
+      ],
+      "submit": [
+        200,
+        {
+          "value": {
+            "fields": [],
+            "tag": "ActionAborted"
+          }
+        }
+      ],
+      "status": [
+        200,
+        {
+          "value": {
+            "fields": [],
+            "tag": "ActionCorrupt"
+          }
+        }
+      ],
+      "retry": [
+        200,
+        {
+          "value": {
+            "fields": [],
+            "tag": "ActionCorrupt"
+          }
+        }
+      ],
+      "revision": [
+        {
+          "revision": 0
+        }
+      ]
+    },
+    {
+      "name": "crud-footprint-boundary-64",
+      "pass": false,
+      "expected": "At/below 64 facts success; over limit rolls back with recoverable terminal abort.",
+      "invocation": "4ef73d25d4449fe8302863a6195876987e2dea8c38764cc3cfea4420e04ab32c",
+      "arguments": [
+        {
+          "tag": "issue",
+          "value": "alpha-b"
+        },
+        [
+          {
+            "tag": "issue",
+            "value": "extra-0"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-1"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-2"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-3"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-4"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-5"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-6"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-7"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-8"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-9"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-10"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-11"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-12"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-13"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-14"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-15"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-16"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-17"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-18"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-19"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-20"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-21"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-22"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-23"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-24"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-25"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-26"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-27"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-28"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-29"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-30"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-31"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-32"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-33"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-34"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-35"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-36"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-37"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-38"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-39"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-40"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-41"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-42"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-43"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-44"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-45"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-46"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-47"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-48"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-49"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-50"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-51"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-52"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-53"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-54"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-55"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-56"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-57"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-58"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-59"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-60"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-61"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-62"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-63"
+          }
+        ]
+      ],
+      "submit": [
+        200,
+        {
+          "value": {
+            "fields": [],
+            "tag": "ActionAborted"
+          }
+        }
+      ],
+      "status": [
+        200,
+        {
+          "value": {
+            "fields": [],
+            "tag": "ActionCorrupt"
+          }
+        }
+      ],
+      "retry": [
+        200,
+        {
+          "value": {
+            "fields": [],
+            "tag": "ActionCorrupt"
+          }
+        }
+      ],
+      "revision": [
+        {
+          "revision": 0
+        }
+      ]
+    },
+    {
+      "name": "crud-footprint-boundary-65",
+      "pass": false,
+      "expected": "At/below 64 facts success; over limit rolls back with recoverable terminal abort.",
+      "invocation": "8e7c5ef58066173c0b3bccc8c8ffb3a0b5a355e64ecc74f77e7c608b40e43616",
+      "arguments": [
+        {
+          "tag": "issue",
+          "value": "alpha-b"
+        },
+        [
+          {
+            "tag": "issue",
+            "value": "extra-0"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-1"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-2"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-3"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-4"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-5"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-6"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-7"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-8"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-9"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-10"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-11"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-12"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-13"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-14"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-15"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-16"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-17"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-18"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-19"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-20"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-21"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-22"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-23"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-24"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-25"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-26"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-27"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-28"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-29"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-30"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-31"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-32"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-33"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-34"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-35"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-36"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-37"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-38"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-39"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-40"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-41"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-42"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-43"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-44"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-45"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-46"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-47"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-48"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-49"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-50"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-51"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-52"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-53"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-54"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-55"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-56"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-57"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-58"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-59"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-60"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-61"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-62"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-63"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-64"
+          }
+        ]
+      ],
+      "submit": [
+        200,
+        {
+          "value": {
+            "fields": [],
+            "tag": "ActionAborted"
+          }
+        }
+      ],
+      "status": [
+        200,
+        {
+          "value": {
+            "fields": [],
+            "tag": "ActionCorrupt"
+          }
+        }
+      ],
+      "retry": [
+        200,
+        {
+          "value": {
+            "fields": [],
+            "tag": "ActionCorrupt"
+          }
+        }
+      ],
+      "revision": [
+        {
+          "revision": 0
+        }
+      ]
+    },
+    {
+      "name": "crud-footprint-boundary-70",
+      "pass": false,
+      "expected": "At/below 64 facts success; over limit rolls back with recoverable terminal abort.",
+      "invocation": "46ba8e731f6af03b74c6901ea86324d5d9aa6da691c5a06dac7820bc9d1a1ea4",
+      "arguments": [
+        {
+          "tag": "issue",
+          "value": "alpha-b"
+        },
+        [
+          {
+            "tag": "issue",
+            "value": "extra-0"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-1"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-2"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-3"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-4"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-5"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-6"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-7"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-8"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-9"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-10"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-11"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-12"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-13"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-14"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-15"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-16"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-17"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-18"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-19"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-20"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-21"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-22"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-23"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-24"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-25"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-26"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-27"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-28"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-29"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-30"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-31"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-32"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-33"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-34"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-35"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-36"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-37"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-38"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-39"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-40"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-41"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-42"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-43"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-44"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-45"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-46"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-47"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-48"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-49"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-50"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-51"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-52"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-53"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-54"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-55"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-56"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-57"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-58"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-59"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-60"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-61"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-62"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-63"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-64"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-65"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-66"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-67"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-68"
+          },
+          {
+            "tag": "issue",
+            "value": "extra-69"
+          }
+        ]
+      ],
+      "submit": [
+        200,
+        {
+          "value": {
+            "fields": [],
+            "tag": "ActionAborted"
+          }
+        }
+      ],
+      "status": [
+        200,
+        {
+          "value": {
+            "fields": [],
+            "tag": "ActionCorrupt"
+          }
+        }
+      ],
+      "retry": [
+        200,
+        {
+          "value": {
+            "fields": [],
+            "tag": "ActionCorrupt"
+          }
+        }
+      ],
+      "revision": [
+        {
+          "revision": 0
+        }
+      ]
+    },
+    {
+      "name": "delete-declared-parent-terminal-recovery",
+      "pass": false,
+      "expected": "Accepted parent deletion retains recoverable outcome under current sealed tombstone policy.",
+      "invocation": "493d13e1993f884bcc5215809524e455be19bc3d3f51448f81c7f28b2abdf398",
+      "arguments": [
+        {
+          "tag": "issue",
+          "value": "alpha-b"
+        },
+        {
+          "tag": "issue",
+          "value": "alpha-b"
+        }
+      ],
+      "submit": [
+        200,
+        {
+          "value": {
+            "fields": [
+              "Deleted Issue B"
+            ],
+            "tag": "ActionSucceeded"
+          }
+        }
+      ],
+      "status": [
+        403,
+        {
+          "error": "denied"
+        }
+      ],
+      "retry": [
+        403,
+        {
+          "error": "denied"
+        }
+      ],
+      "rows": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Issue A",
+          "note": "Original note",
+          "revision": 0
+        },
+        {
+          "id": "alpha-c",
+          "workspace": "alpha",
+          "title": "Issue C",
+          "note": "Original note",
+          "revision": 0
+        },
+        {
+          "id": "alpha-d",
+          "workspace": "alpha",
+          "title": "Issue D",
+          "note": "Original note",
+          "revision": 0
+        }
+      ]
+    },
+    {
+      "name": "deleted-parent-revocation-denied",
+      "pass": true,
+      "expected": "Deleted-parent tombstone never bypasses current membership revocation.",
+      "status": [
+        403,
+        {
+          "error": "denied"
+        }
+      ]
+    }
+  ],
+  "contract": "d5aa1ff491b3bf75463b19cfc17db7c1b299194460a086d3f47d563bdb03dc20",
+  "artifact": "/tmp/diamond-lp5-independent/run-ssnssdj_/build-26625977973165",
+  "versions": {
+    "language_version": "0.20.0",
+    "format_version": 5,
+    "wire_version": 7
+  },
+  "status": "FAIL",
+  "shutdowns": [
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "trace": [
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/_diamond/session",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/login",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/rename/prepare",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/_diamond/session",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/login",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/rename/status",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/rename",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/protected_scalar/prepare",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/protected_scalar",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/protected_scalar/status",
+      "status": 403
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/protected_scalar",
+      "status": 403
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/protected_scalar/status",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/protected_scalar/status",
+      "status": 403
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/rename/prepare",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/rename",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/rename/status",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/rename",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/rename/prepare",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/rename",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/rename/status",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/rename",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/rename/prepare",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/rename/status",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/rename",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/large_receipt/prepare",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/large_receipt",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/large_receipt/status",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/bulk_read/prepare",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/bulk_read",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/bulk_read/status",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/bulk_read",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/bulk_read/prepare",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/bulk_read",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/bulk_read/status",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/bulk_read",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/bulk_read/prepare",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/bulk_read",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/bulk_read/status",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/bulk_read",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/bulk_read/prepare",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/bulk_read",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/bulk_read/status",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/bulk_read",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/bulk_read/prepare",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/bulk_read",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/bulk_read/status",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/bulk_read",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/bulk_read/prepare",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/bulk_read",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/bulk_read/status",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/bulk_read",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/delete_child/prepare",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/delete_child",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/delete_child/status",
+      "status": 403
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/delete_child",
+      "status": 403
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/delete_child/status",
+      "status": 403
+    }
+  ],
+  "driver_sha256": "67c73e73db151431e63a60dbd34c325fbaba5cb1591606df164c83236e8e9815"
+}

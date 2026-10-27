@@ -1,0 +1,101 @@
+schema_version = 1
+name = "ActionLab"
+server = "server"
+browser = "ui"
+component = "Workspace"
+provides = ["Events", "DbRead<Members>", "DbRead<Issues>", "DbWrite<Issues>"]
+
+[modules.shared]
+path = "shared.dia"
+target = "shared"
+
+[modules.server]
+path = "server.dia"
+target = "server"
+imports = ["shared"]
+provides = ["Events", "DbRead<Members>", "DbRead<Issues>", "DbWrite<Issues>"]
+
+[modules.ui]
+path = "ui.dia"
+target = "browser"
+imports = ["shared"]
+
+[rpc]
+layout = "server.layout"
+publish = "server.publish"
+list_issues = "server.list_issues"
+load = "server.load"
+
+[actions.rename]
+function = "server.rename"
+replay = "transactional"
+resource = "Issues"
+parent = "id"
+label = "Save issue"
+
+[actions.protected_scalar]
+function = "server.protected_scalar"
+resource = "Issues"
+parent = "id"
+
+[actions.create_child]
+function = "server.create_child"
+resource = "Issues"
+parent = "parent"
+
+[actions.delete_child]
+function = "server.delete_child"
+resource = "Issues"
+parent = "parent"
+
+[actions.large_receipt]
+function = "server.large_receipt"
+resource = "Issues"
+parent = "id"
+
+[actions.bulk_read]
+function = "server.bulk_read"
+resource = "Issues"
+parent = "id"
+
+[storage]
+profile = "relational-v1"
+version = 1
+
+[storage.resources.Members]
+scope = "workspace"
+unique = [["workspace", "user"]]
+
+[storage.resources.Issues]
+scope = "workspace"
+indexes = [["workspace", "id"]]
+
+[storage.lookups.Membership]
+resource = "Members"
+scope = "workspace"
+principal = "user"
+role = "role"
+purpose = "Bound reads to current membership and writes to current editors."
+
+[identity]
+profile = "accounts-v1"
+enrollment = "closed"
+
+[http_api]
+version = 1
+
+[http_api.operations.rename]
+function = "server.rename"
+auth = "token"
+
+[http_api.operations.rename_alias]
+function = "server.rename"
+auth = "token"
+
+[http_api.operations.load]
+function = "server.load"
+auth = "token"
+
+[events.layout]
+resource = "Issues"
+payload = "Layout"

@@ -163,12 +163,49 @@ fn decode_inner(ty: &Type, value: &Json, p: &CheckedProgram, depth: usize) -> Re
         }
         Type::Record(n) => decode_record(n, value, p, depth)?,
         Type::Enum(n) => decode_enum(n, value, p, depth)?,
+        Type::Action(success, error) => decode_action(success, error, value, p, depth)?,
         _ => return Err(bad()),
     });
     if !result.fits(ty) {
         return Err(bad());
     }
     Ok(result)
+}
+
+fn decode_action(
+    success: &Type,
+    error: &Type,
+    value: &Json,
+    p: &CheckedProgram,
+    depth: usize,
+) -> Result<ValueKind> {
+    let object = value
+        .as_object()
+        .filter(|value| value.len() == 2)
+        .ok_or_else(bad)?;
+    let tag = object
+        .get("tag")
+        .and_then(Json::as_str)
+        .filter(|tag| !matches!(*tag, "ActionIdle" | "ActionSubmitting"))
+        .ok_or_else(bad)?;
+    let fields = object
+        .get("fields")
+        .and_then(Json::as_array)
+        .ok_or_else(bad)?;
+    let cases = crate::action::cases(success, error);
+    let types = cases
+        .get(tag)
+        .filter(|types| types.len() == fields.len())
+        .ok_or_else(bad)?;
+    Ok(ValueKind::Variant(
+        crate::action::ENUM.into(),
+        tag.into(),
+        types
+            .iter()
+            .zip(fields)
+            .map(|(ty, value)| decode_inner(ty, value, p, depth + 1))
+            .collect::<Result<_>>()?,
+    ))
 }
 
 fn decode_record(n: &str, value: &Json, p: &CheckedProgram, depth: usize) -> Result<ValueKind> {

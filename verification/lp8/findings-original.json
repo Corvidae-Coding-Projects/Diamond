@@ -1,0 +1,37 @@
+{
+  "status": "RESOLVED",
+  "date": "2026-10-27",
+  "candidate_binary_sha256": "28a8f27b6db02a04301ffa458f03df38e6c37fad16aaa6b6929adcd448a51e30",
+  "findings": [
+    {
+      "kind": "product",
+      "finding": "The first formatter implementation shifted checked HTML body whitespace and its semantic guard correctly rejected the output.",
+      "resolution": "Preserve exact checked-HTML body bytes while formatting Diamond structure; semantic and idempotence replay passes."
+    },
+    {
+      "kind": "product",
+      "finding": "A function result mismatch was initially located at the function declaration rather than the final expression.",
+      "resolution": "Attribute the result mismatch to the last statement location; single-file and project diagnostics replay at the expression."
+    },
+    {
+      "kind": "product",
+      "finding": "The first browser failure label exposed a generated internal handler identifier.",
+      "resolution": "Separate the qualified internal lookup key from the safe public Component.event label; private server sources remain absent."
+    },
+    {
+      "kind": "product-quality",
+      "finding": "The warning-denied all-target Clippy gate found an oversized LSP dispatcher, needless JSON ownership, and panic helpers in the formatter test.",
+      "resolution": "Split the dispatcher into bounded handlers, borrow response values, and return Result from the test; strict Clippy passes without lint suppression."
+    },
+    {
+      "kind": "oracle",
+      "finding": "The first deterministic-build oracle expected a nonexistent sources.json rather than the implemented private server.json manifest.",
+      "resolution": "Corrected the frozen harness expectation; product artifacts were unchanged and the two-build comparison passes."
+    },
+    {
+      "kind": "oracle",
+      "finding": "The first cross-engine accessibility oracle assumed aria-describedby contained exactly one ID, while generated controls correctly referenced both description and error IDs.",
+      "resolution": "Corrected the oracle to require both resolved relationships; all three engines pass."
+    }
+  ]
+}

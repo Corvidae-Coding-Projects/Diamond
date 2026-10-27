@@ -1,0 +1,76 @@
+{
+  "status": "PASS",
+  "binary_sha256": "4ce83ca2bfb10b8371f0005b9cc46fb0da81a2347bb3210e2a2b6af030acc0ad",
+  "observations": [
+    {
+      "name": "declarative-auto-injection-control",
+      "expected_accept": true,
+      "exit": 0,
+      "pass": true,
+      "diagnostic": ""
+    },
+    {
+      "name": "declaration-required-for-automatic-auth",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: server.dia: D310 at 47:3: automatic HTTP authentication requires a declarative secret binding"
+    },
+    {
+      "name": "adapter-closed",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: secret adapter, kind, audience, and declared capability/provider must agree"
+    },
+    {
+      "name": "kind-closed",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: secret adapter, kind, audience, and declared capability/provider must agree"
+    },
+    {
+      "name": "audience-bound",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: invalid secret name, binding, or audience"
+    },
+    {
+      "name": "consumer-capability-required",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: secret adapter, kind, audience, and declared capability/provider must agree"
+    },
+    {
+      "name": "one-secret-per-consumer",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: one secret declaration is allowed per adapter binding"
+    },
+    {
+      "name": "unknown-secret-field-denied",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: invalid project manifest: TOML parse error at line 86, column 1\ufffd   |\ufffd86 | value = \"never\"\ufffd   | ^^^^^\ufffdunknown field `value`, expected one of `adapter`, `binding`, `kind`, `audience`\ufffd"
+    },
+    {
+      "name": "automatic-post-body-typed",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: server.dia: D310 at 50:3: HTTP body type mismatch"
+    },
+    {
+      "name": "dynamic-destination-denied",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: server.dia: D310 at 47:3: destination requires a static name"
+    }
+  ]
+}

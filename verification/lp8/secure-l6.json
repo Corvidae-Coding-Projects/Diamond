@@ -1,0 +1,76 @@
+{
+  "status": "PASS",
+  "binary_sha256": "28a8f27b6db02a04301ffa458f03df38e6c37fad16aaa6b6929adcd448a51e30",
+  "observations": [
+    {
+      "name": "declarative-auto-injection-control",
+      "expected_accept": true,
+      "exit": 0,
+      "pass": true,
+      "diagnostic": ""
+    },
+    {
+      "name": "declaration-required-for-automatic-auth",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error[D310]: automatic HTTP authentication requires a declarative secret binding\n --> /home/doll/diamond/.diamond/diamond-l6-_be6x_tu/1/server.dia:47:3\n   |\n47 |   host.http_get<Text>(\"inventory\", path)\n   |   ^\n help: Call a registered host operation with its exact argument types and declare its module/application capability budget."
+    },
+    {
+      "name": "adapter-closed",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: secret adapter, kind, audience, and declared capability/provider must agree"
+    },
+    {
+      "name": "kind-closed",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: secret adapter, kind, audience, and declared capability/provider must agree"
+    },
+    {
+      "name": "audience-bound",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: invalid secret name, binding, or audience"
+    },
+    {
+      "name": "consumer-capability-required",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: secret adapter, kind, audience, and declared capability/provider must agree"
+    },
+    {
+      "name": "one-secret-per-consumer",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: one secret declaration is allowed per adapter binding"
+    },
+    {
+      "name": "unknown-secret-field-denied",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: invalid project manifest: TOML parse error at line 86, column 1\ufffd   |\ufffd86 | value = \"never\"\ufffd   | ^^^^^\ufffdunknown field `value`, expected one of `adapter`, `binding`, `kind`, `audience`\ufffd"
+    },
+    {
+      "name": "automatic-post-body-typed",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error[D310]: HTTP body type mismatch\n --> /home/doll/diamond/.diamond/diamond-l6-_be6x_tu/8/server.dia:50:3\n   |\n50 |   host.http_post<Bool, Text>(\"inventory\", path, body)\n   |   ^\n help: Call a registered host operation with its exact argument types and declare its module/application capability budget."
+    },
+    {
+      "name": "dynamic-destination-denied",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error[D310]: destination requires a static name\n --> /home/doll/diamond/.diamond/diamond-l6-_be6x_tu/9/server.dia:47:3\n   |\n47 |   host.http_get<Text>(path, path)\n   |   ^\n help: Call a registered host operation with its exact argument types and declare its module/application capability budget."
+    }
+  ]
+}

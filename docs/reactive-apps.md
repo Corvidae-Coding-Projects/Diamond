@@ -1,5 +1,12 @@
 # W3 reactive applications
 
+**W3 guide with later additions.** The original release/fixture descriptions,
+“W4–W10 work” statements, and language 0.9.0/wire 2 metadata below are historical.
+The current runtime is language 0.20.0, artifact format 5, and wire 7; see the
+[canonical contract](language-specification.md) and
+[profile matrix](language-profiles.md) for the current supported surface. Original
+W3 evidence is not qualification of a later binary.
+
 Diamond 0.9.0 adds the language/frontend slice to the existing local project and
 connected PostgreSQL profiles. The workspace example now has typed issue cards,
 keyed local edits, a validated creation form, and an About route. All application
@@ -111,7 +118,7 @@ failures rather than invented application values.
 
 Legacy `Result<T, DataError>` remains supported. Pure `Err("detail")` and
 `error_message` preserve detail locally. Across RPC, DataError is deliberately
-redacted to `Denied`, `InvalidInput`, `Aborted`, or `ApplicationFailure`; the last
+redacted to `Denied`, `InvalidInput`, `Aborted`, `RetryableAbort`, or `ApplicationFailure`; the last
 decodes as `Application failed.`. Use an explicit application enum for public
 structured details. A top-level legacy Result failure retains W2's sanitized
 HTTP error behavior. A nested legacy Result can cross as a tagged value.
@@ -153,9 +160,10 @@ project budget, with a 1 MiB ceiling per input.
 
 Generated source maps contain only reachable browser/shared declarations, with
 unreachable declaration lines redacted. Server sources stay private. Mappings
-identify pure-function entry wrappers; they are not expression-level stepping
-or component-event source maps. Console errors retain runtime stack context;
-user-visible errors are bounded and do not disclose managed application errors.
+identify pure-function entry wrappers, components, and event handlers; they are
+not statement-level stepping maps. A failed event displays its safe public
+`Component.event` label. Console errors retain runtime stack context; user-visible
+errors are bounded and do not disclose managed application errors.
 
 Browser evaluation allows 100,000 steps and 64 call frames per event/render,
 depth-32 managed/wire values, at most 1,000 list items, 4 MiB weighted single

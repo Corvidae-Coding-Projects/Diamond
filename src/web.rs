@@ -66,7 +66,7 @@ pub(crate) fn serve(
         browser,
     };
     eprintln!(
-        "Diamond checkpoint-six development server: http://localhost:{} (http://{address})",
+        "Diamond single-file development server: http://localhost:{} (http://{address})",
         address.port()
     );
     for stream in listener

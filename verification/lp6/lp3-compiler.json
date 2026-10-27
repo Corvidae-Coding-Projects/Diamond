@@ -1,0 +1,214 @@
+{
+  "status": "PASS",
+  "binary_sha256": "278b10f6d64d966279e7ddaea9964d43904426c7478c20aafdd0f9228ce722e1",
+  "driver_sha256": "2d42e8d5fa591cafea81362a837667dd24dfa6d44a31e64ea8dee43bc80cf9f4",
+  "observations": [
+    {
+      "name": "optional-bounded-literal-reference-regression",
+      "pass": true,
+      "stdout": "\u96ea\ud83d\ude00\n",
+      "stderr": ""
+    },
+    {
+      "name": "route-unbounded-text",
+      "pass": true,
+      "expected": "route requires",
+      "stderr": "error: shared.dia: D331 at 25:1: route requires distinct supported scalar fields, a literal namespace prefix, and a canonical local path/query template"
+    },
+    {
+      "name": "route-list",
+      "pass": true,
+      "expected": "default",
+      "stderr": "error: shared.dia: D102 at 25:37: field default does not satisfy its declared type"
+    },
+    {
+      "name": "route-optional-path",
+      "pass": true,
+      "expected": "route requires",
+      "stderr": "error: shared.dia: D331 at 25:1: route requires distinct supported scalar fields, a literal namespace prefix, and a canonical local path/query template"
+    },
+    {
+      "name": "route-path-default",
+      "pass": true,
+      "expected": "route requires",
+      "stderr": "error: shared.dia: D331 at 28:1: route requires distinct supported scalar fields, a literal namespace prefix, and a canonical local path/query template"
+    },
+    {
+      "name": "route-unknown-query",
+      "pass": true,
+      "expected": "route requires",
+      "stderr": "error: shared.dia: D331 at 25:1: route requires distinct supported scalar fields, a literal namespace prefix, and a canonical local path/query template"
+    },
+    {
+      "name": "route-duplicate-query",
+      "pass": true,
+      "expected": "route requires",
+      "stderr": "error: shared.dia: D331 at 25:1: route requires distinct supported scalar fields, a literal namespace prefix, and a canonical local path/query template"
+    },
+    {
+      "name": "route-unused-field",
+      "pass": true,
+      "expected": "route requires",
+      "stderr": "error: shared.dia: D331 at 25:1: route requires distinct supported scalar fields, a literal namespace prefix, and a canonical local path/query template"
+    },
+    {
+      "name": "route-reserved",
+      "pass": true,
+      "expected": "route requires",
+      "stderr": "error: shared.dia: D331 at 25:1: route requires distinct supported scalar fields, a literal namespace prefix, and a canonical local path/query template"
+    },
+    {
+      "name": "route-overlap",
+      "pass": true,
+      "expected": "ambiguous",
+      "stderr": "error: shared.dia: D331 at 26:1: ambiguous named route patterns"
+    },
+    {
+      "name": "route-wrong-id",
+      "pass": true,
+      "expected": "expected Id<\"issue\">",
+      "stderr": "error: ui.dia: D110 at 125:130: expected Id<\"issue\">, found Id<\"user\">"
+    },
+    {
+      "name": "dynamic-url-text",
+      "pass": true,
+      "expected": "typed route",
+      "stderr": "error: ui.dia: D330 at 132:18: dynamic href requires a declared typed route value"
+    },
+    {
+      "name": "form-password",
+      "pass": true,
+      "expected": "password",
+      "stderr": "error: D330 at 0:0: schema controls must match their scalar kind; password/file/hidden fields are forbidden"
+    },
+    {
+      "name": "form-hidden",
+      "pass": true,
+      "expected": "inputs require",
+      "stderr": "error: D330 at 0:0: inputs require a binding and a static text/password/checkbox type"
+    },
+    {
+      "name": "form-extra",
+      "pass": true,
+      "expected": "undeclared schema",
+      "stderr": "error: D330 at 0:0: undeclared schema form field"
+    },
+    {
+      "name": "form-duplicate",
+      "pass": true,
+      "expected": "duplicate schema",
+      "stderr": "error: D330 at 0:0: duplicate schema form field"
+    },
+    {
+      "name": "form-wrong-checkbox",
+      "pass": true,
+      "expected": "duplicate schema",
+      "stderr": "error: D330 at 0:0: duplicate schema form field"
+    },
+    {
+      "name": "form-constraints-owned",
+      "pass": true,
+      "expected": "owned by the compiler",
+      "stderr": "error: D330 at 0:0: schema field constraints are owned by the compiler"
+    },
+    {
+      "name": "form-method-owned",
+      "pass": true,
+      "expected": "transport is owned",
+      "stderr": "error: D330 at 0:0: schema form transport is owned by the runtime"
+    },
+    {
+      "name": "form-select-extra-option",
+      "pass": true,
+      "expected": "exactly match",
+      "stderr": "error: D330 at 0:0: schema select options must exactly match its allowed values"
+    },
+    {
+      "name": "form-restricted-type",
+      "pass": true,
+      "expected": "restricted fields",
+      "stderr": "error: invalid input: input fields require Text, Int, Bool, nominal Id, unit enum, or one-level Option; server-derived/restricted fields are forbidden"
+    },
+    {
+      "name": "form-nested-option",
+      "pass": true,
+      "expected": "one-level Option",
+      "stderr": "error: invalid input: input fields require Text, Int, Bool, nominal Id, unit enum, or one-level Option; server-derived/restricted fields are forbidden"
+    },
+    {
+      "name": "form-record-type",
+      "pass": true,
+      "expected": "one-level Option",
+      "stderr": "error: invalid input: input fields require Text, Int, Bool, nominal Id, unit enum, or one-level Option; server-derived/restricted fields are forbidden"
+    },
+    {
+      "name": "valid-build",
+      "pass": true,
+      "stderr": ""
+    },
+    {
+      "name": "versions",
+      "pass": true,
+      "observed": [
+        "0.20.0",
+        5,
+        7
+      ]
+    },
+    {
+      "name": "exact-original-sources",
+      "pass": true
+    },
+    {
+      "name": "rechecked-artifact",
+      "pass": true,
+      "stderr": ""
+    },
+    {
+      "name": "old-artifact-rejected",
+      "pass": true,
+      "stderr": "error: invalid input: incompatible server artifact format/language version\n"
+    },
+    {
+      "name": "native-consumer-build",
+      "pass": true,
+      "stderr": ""
+    },
+    {
+      "name": "native-render-/issues/alpha-a",
+      "pass": true,
+      "exit": 0,
+      "expected_accept": true
+    },
+    {
+      "name": "native-render-/issues/alpha-a?page=2&search=%E9%9B%AA%F0%9F%98%80",
+      "pass": true,
+      "exit": 0,
+      "expected_accept": true
+    },
+    {
+      "name": "native-render-/issues/alpha-a?page=1",
+      "pass": true,
+      "exit": 2,
+      "expected_accept": false
+    },
+    {
+      "name": "native-render-/issues/alpha-a?search=%2f",
+      "pass": true,
+      "exit": 2,
+      "expected_accept": false
+    },
+    {
+      "name": "native-render-/issues/alpha-a?page=2#fragment",
+      "pass": true,
+      "exit": 2,
+      "expected_accept": false
+    },
+    {
+      "name": "native-render-/values/-9223372036854775808/false/%E9%9B%AA/Closed/alpha",
+      "pass": true,
+      "exit": 0,
+      "expected_accept": true
+    }
+  ]
+}

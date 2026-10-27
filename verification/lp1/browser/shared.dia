@@ -1,0 +1,2 @@
+export fn contract_summary() -> Text:
+  int_text(9007199254740993) + "|" + int_text(len("A😀é")) + "|" + int_text(-7 / 3) + "|" + decimal_text(decimal_multiply(decimal_units(-1), decimal_units(1500000), "half_even")) + "|" + text_slice("A😀é", 1, 1) + "|" + text_replace("ab", "", "·")

@@ -1,0 +1,84 @@
+{
+  "binary_sha256": "6f5c7e0427abfc9483ce165ef78effbf0cdccbd8643176d2e05675f6dff5fbd7",
+  "status": "PASS",
+  "observations": [
+    {
+      "project": "examples/accounts-workspace/diamond.toml",
+      "pass": true,
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "project": "examples/catalog/diamond.toml",
+      "pass": true,
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "project": "examples/components/diamond.toml",
+      "pass": true,
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "project": "examples/files-workspace/diamond.toml",
+      "pass": true,
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "project": "examples/foundations/diamond.toml",
+      "pass": true,
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "project": "examples/functions/authority/diamond.toml",
+      "pass": true,
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "project": "examples/functions/relational/diamond.toml",
+      "pass": true,
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "project": "examples/git-browser/diamond.toml",
+      "pass": true,
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "project": "examples/language-spine/diamond.toml",
+      "pass": true,
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "project": "examples/live-workspace/diamond.toml",
+      "pass": true,
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "project": "examples/relational-workspace/diamond.toml",
+      "pass": true,
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "project": "examples/typed-inputs/diamond.toml",
+      "pass": true,
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "project": "examples/workspace/diamond.toml",
+      "pass": true,
+      "exit": 0,
+      "stderr": ""
+    }
+  ]
+}

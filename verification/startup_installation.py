@@ -110,7 +110,7 @@ def main() -> int:
                 (observed["exit"] == 0, "installed version failed"),
                 (
                     observed["stdout"]
-                    == f"diamond {VERSION} (W10 release-qualified web application profile)\n",
+                    == f"diamond {VERSION} (LP8 qualified language profile)\n",
                     "installed version mismatch",
                 ),
             ],
@@ -123,7 +123,7 @@ def main() -> int:
                 (observed["exit"] == 0, "installed help failed"),
                 ("diamond explain CODE" in str(observed["stdout"]), "explain absent from help"),
                 (
-                    "W10 release-qualified web application profile"
+                    "production-readiness language profile"
                     in str(observed["stdout"]),
                     "checkpoint label mismatch",
                 ),

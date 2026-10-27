@@ -1,0 +1,17 @@
+{
+  "binary_sha256":"6f5c7e0427abfc9483ce165ef78effbf0cdccbd8643176d2e05675f6dff5fbd7",
+  "method":"Actual command results from the final candidate; not simulated checks",
+  "status":"PASS",
+  "commands":[
+    {"command":"cargo build --locked --all-features","exit":0},
+    {"command":"cargo clippy --all-targets --all-features -- -D warnings","exit":0},
+    {"command":"cargo test --locked --all-features","exit":0,"unit_tests":10,"doctests":38},
+    {"command":"cargo fmt --check","exit":0},
+    {"command":"cargo doc --locked --all-features --no-deps","exit":0},
+    {"command":"git diff --check","exit":0}
+  ],
+  "public_rust_api_changed":false,
+  "msrv":"1.96",
+  "unsafe_added_or_modified":false,
+  "miri":"Not applicable: no unsafe code added or modified"
+}

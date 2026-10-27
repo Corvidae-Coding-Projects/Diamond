@@ -1,0 +1,11 @@
+{
+  "status": "FAIL",
+  "case": "unknown transactional parent resource",
+  "mutation": "resource = \"Issues\" changed to resource = \"Absent\" in an API-bound action",
+  "observed": "thread 'main' panicked at src/project/api.rs:82:60: no entry found for key",
+  "expected": "a bounded checked diagnostic with no panic",
+  "root_cause": "API scope derivation indexed storage and record maps before action eligibility rejected the unknown resource",
+  "fix": "use checked map lookups at the API consumer boundary; the final compiler corpus returns API resource is unknown",
+  "final_replay": "verification/lp5/compiler.json: unknown-resource pass",
+  "note": "The transient pre-fix binary hash was not retained; exact mutation and failure text are retained."
+}

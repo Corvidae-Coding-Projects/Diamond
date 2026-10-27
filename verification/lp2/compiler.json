@@ -1,0 +1,301 @@
+{
+  "status": "PASS",
+  "binary_sha256": "28a8f27b6db02a04301ffa458f03df38e6c37fad16aaa6b6929adcd448a51e30",
+  "driver_sha256": "c082fc7f0b39290c7f3f7bf74ae946d4b10d78b6e2b1af0311e29b6547c34f2f",
+  "observations": [
+    {
+      "name": "valid-connected-source",
+      "pass": true,
+      "stderr": ""
+    },
+    {
+      "name": "event-wrong-nominal",
+      "pass": true,
+      "expected": "handler/output argument type mismatch",
+      "stderr": "error[D330]: handler/output argument type mismatch\n --> /tmp/diamond-lp2-compiler-q3p07tj4/event-wrong-nominal/ui.dia:81:76\n   |\n81 |           <li><span>{row.title}</span><button type=\"button\" on-click={open(UserId(\"alice\"))}>Edit {row.id}</button><a hr\u2026\n   |                                                                            ^\n help: Use typed scalar state, a declared click event, and pure imported functions in the W1 component subset.",
+      "source_sha256": "597012c5a62a1b73c5ca9f5d64d9e8278b560c9971e2b4fc66a3de9a8f553d1f"
+    },
+    {
+      "name": "event-missing-argument",
+      "pass": true,
+      "expected": "argument count mismatch",
+      "stderr": "error[D330]: handler/output argument count mismatch\n --> /tmp/diamond-lp2-compiler-q3p07tj4/event-missing-argument/ui.dia:81:71\n   |\n81 |           <li><span>{row.title}</span><button type=\"button\" on-click={open}>Edit {row.id}</button><a href={IssuePage(id:\u2026\n   |                                                                       ^\n help: Use typed scalar state, a declared click event, and pure imported functions in the W1 component subset.",
+      "source_sha256": "139e8f6ee1327bcfad6343ba1daec7711f9bf535ada1a62e5c0dd9afac609c31"
+    },
+    {
+      "name": "output-wrong-payload",
+      "pass": true,
+      "expected": "argument type mismatch",
+      "stderr": "error[D330]: handler/output argument type mismatch\n --> /tmp/diamond-lp2-compiler-q3p07tj4/output-wrong-payload/ui.dia:19:18\n   |\n19 |     emit changed(issue)\n   |                  ^\n help: Use typed scalar state, a declared click event, and pure imported functions in the W1 component subset.",
+      "source_sha256": "a24865af2764ca80f0d3930b37e4a01c4c36a316a0177f5500e15d17e19f4e74"
+    },
+    {
+      "name": "output-parent-signature",
+      "pass": true,
+      "expected": "signature mismatch",
+      "stderr": "error[D330]: component output handler signature mismatch\n --> /tmp/diamond-lp2-compiler-q3p07tj4/output-parent-signature/ui.dia:82:96\n   |\n82 | \u2026tems={selected} as=\"id\" key={id}><use component=\"Editor\" issue={id} on-changed={saved}></use></each>\n   |                                                                                  ^\n help: Use typed scalar state, a declared click event, and pure imported functions in the W1 component subset.",
+      "source_sha256": "fc069e2ff2907faaafdc5062fba01a2f5684fd9d14fb4f2aaf9f19ff1a767593"
+    },
+    {
+      "name": "output-unbound",
+      "pass": true,
+      "expected": "properties and outputs must match",
+      "stderr": "error: D330 at 0:0: component properties and outputs must match its declared signature",
+      "source_sha256": "d7ad6f7eb02f1131743e2528b580522ff4616182e11ba44539fe27831674aa3b"
+    },
+    {
+      "name": "output-undeclared",
+      "pass": true,
+      "expected": "declared component output",
+      "stderr": "error[D330]: emit requires a declared component output\n --> /tmp/diamond-lp2-compiler-q3p07tj4/output-undeclared/ui.dia:19:5\n   |\n19 |     emit absent(result)\n   |     ^\n help: Use typed scalar state, a declared click event, and pure imported functions in the W1 component subset.",
+      "source_sha256": "5621b8499f082aa5ff5044dffa0d3c3514e0e8ad7762cc769e240125f42dc87a"
+    },
+    {
+      "name": "lifecycle-argument",
+      "pass": true,
+      "expected": "lifecycle events take no parameters",
+      "stderr": "error[D330]: lifecycle events take no parameters\n --> /tmp/diamond-lp2-compiler-q3p07tj4/lifecycle-argument/ui.dia:8:3\n  |\n8 |   on mount(id: IssueId):\n  |   ^\n help: Use typed scalar state, a declared click event, and pure imported functions in the W1 component subset.",
+      "source_sha256": "21774d5f4a36eaef2b1bdd0a71600e5a2222110a0d7bb3c28ae521dea42a3b7c"
+    },
+    {
+      "name": "lifecycle-output",
+      "pass": true,
+      "expected": "lifecycle events cannot emit",
+      "stderr": "error[D330]: lifecycle events cannot emit component outputs\n --> /tmp/diamond-lp2-compiler-q3p07tj4/lifecycle-output/ui.dia:11:5\n   |\n11 |     emit changed(result)\n   |     ^\n help: Use typed scalar state, a declared click event, and pure imported functions in the W1 component subset.",
+      "source_sha256": "23c5c5c683acbd925bbf9727f34c8861c87b534ace51dd7885a648efe5247471"
+    },
+    {
+      "name": "form-unknown-control",
+      "pass": true,
+      "expected": "schema",
+      "stderr": "error: D330 at 0:0: undeclared schema form field",
+      "source_sha256": "d74f8a872d30639a5b5175ef8921a2638b667dfd994db21eaef3e4f903f183cd"
+    },
+    {
+      "name": "form-duplicate-control",
+      "pass": true,
+      "expected": "schema",
+      "stderr": "error: D330 at 0:0: duplicate schema form field",
+      "source_sha256": "04f1307a744dbb4d061ca988c763af19070ce9a63eb06b594e7a76ae9f2391f4"
+    },
+    {
+      "name": "form-unsupported-kind",
+      "pass": true,
+      "expected": "input fields require",
+      "stderr": "error: invalid input: input fields require Text, Int, Bool, nominal Id, unit enum, or one-level Option; server-derived/restricted fields are forbidden",
+      "source_sha256": "d87430b7eea81d74af7835028d1e88a6147a743751959f54da449775b41e7475"
+    },
+    {
+      "name": "route-wrong-link-id",
+      "pass": true,
+      "expected": "expected Id<\"issue\">",
+      "stderr": "error[D110]: expected Id<\"issue\">, found Id<\"user\">\n --> /tmp/diamond-lp2-compiler-q3p07tj4/route-wrong-link-id/ui.dia:81:130\n   |\n81 | \u2026e=\"button\" on-click={open(row.id)}>Edit {row.id}</button><a href={IssuePage(id: UserId(\"alice\"))}>Open {row.id}</a></li>\n   |                                                                                  ^\n help: Use an expression supported by the declared type and current scope.",
+      "source_sha256": "b60ad566c12750daeef918afe30678ec17cbc3d29f4db56f28948a70fd78aacd"
+    },
+    {
+      "name": "route-unbounded-field",
+      "pass": true,
+      "expected": "route requires distinct supported scalar",
+      "stderr": "error[D331]: route requires distinct supported scalar fields, a literal namespace prefix, and a canonical local path/query template\n --> /tmp/diamond-lp2-compiler-q3p07tj4/route-unbounded-field/shared.dia:16:1\n   |\n16 | export route IssuePage(id: Text) = \"/issues/{id}\"\n   | ^",
+      "source_sha256": "6f90e3b2191a8b0327b49258d88c231d24416ac7f3ff536065905179dc4230d8"
+    },
+    {
+      "name": "route-query-mode",
+      "pass": true,
+      "expected": "route",
+      "stderr": "error[D331]: route requires distinct supported scalar fields, a literal namespace prefix, and a canonical local path/query template\n --> /tmp/diamond-lp2-compiler-q3p07tj4/route-query-mode/shared.dia:16:1\n   |\n16 | export route IssuePage(id: IssueId) = \"/issues/{id}?extra=1\"\n   | ^",
+      "source_sha256": "3b66788b8ae38c6950de34636598d66bae9137de240ad07f4051cdca2fc1b948"
+    },
+    {
+      "name": "action-through-rpc",
+      "pass": true,
+      "expected": "action",
+      "stderr": "error: invalid input: action declarations require actions bindings and cannot use ordinary RPC",
+      "source_sha256": "f8066a2c20d2d6269f3eecb7fab0ee64a5d2df29daa11303df93fdb25bac1c3b"
+    },
+    {
+      "name": "action-source-wrapper",
+      "pass": true,
+      "expected": "D333",
+      "stderr": "error[D333]: actions are dispatcher boundaries and cannot be called as ordinary source functions\n --> /tmp/diamond-lp2-compiler-q3p07tj4/action-source-wrapper/server.dia:31:3\n   |\n31 |   rename(id, value)\n   |   ^",
+      "source_sha256": "b84261e1fca6566594706a711dcc4746e0e9b27a46b559ace3033cf98994cad9"
+    },
+    {
+      "name": "unsupported-replay",
+      "pass": true,
+      "expected": "transactional or never",
+      "stderr": "error: invalid input: action replay must be transactional or never",
+      "source_sha256": "9822b29ccb032e17353c03a6e7da80578f8e90e6a1cc455a31e0941de39b284f"
+    },
+    {
+      "name": "unsupported-action-field",
+      "pass": true,
+      "expected": "unknown field",
+      "stderr": "error: invalid input: invalid project manifest: TOML parse error at line 30, column 1\ufffd   |\ufffd30 | recovery = true\ufffd   | ^^^^^^^^\ufffdunknown field `recovery`, expected one of `function`, `replay`, `resource`, `parent`, `label`\ufffd",
+      "source_sha256": "a3ef50702a814576343dcf68f5144cd4d2af38bca6264724b3373d7bb7d7b07a"
+    },
+    {
+      "name": "missing-write-grant",
+      "pass": true,
+      "expected": "D301",
+      "stderr": "error[D301]: effects {Read(\"Issues\"), Write(\"Issues\")} exceed the application's declared authority\n --> /tmp/diamond-lp2-compiler-q3p07tj4/missing-write-grant/server.dia:39:1\n   |\n39 | export action rename(id: IssueId, value: EditIssue) -> Result<Issue, EditError>:\n   | ^\n help: Declare the exact application effect required by this call path.",
+      "source_sha256": "5f3e35e0e10c11006115ab70d02896d884c6ab22458103957470845cd53642fe"
+    },
+    {
+      "name": "restricted-output-nested",
+      "pass": true,
+      "expected": "recursively safe managed data",
+      "stderr": "error[D330]: component messages require recursively safe managed data\n --> /tmp/diamond-lp2-compiler-q3p07tj4/restricted-output-nested/ui.dia:2:3\n  |\n2 |   output changed(value: List<Option<Secret<\"inventory\">>>)\n  |   ^\n help: Use typed scalar state, a declared click event, and pure imported functions in the W1 component subset.",
+      "source_sha256": "7b9d1250e2029e4990585944721548c532159daaf7e778bf8593674cf978b509"
+    },
+    {
+      "name": "restricted-event-nested",
+      "pass": true,
+      "expected": "recursively safe managed data",
+      "stderr": "error[D330]: component messages require recursively safe managed data\n --> /tmp/diamond-lp2-compiler-q3p07tj4/restricted-event-nested/ui.dia:56:3\n   |\n56 |   on open(id: Option<Secret<\"inventory\">>):\n   |   ^\n help: Use typed scalar state, a declared click event, and pure imported functions in the W1 component subset.",
+      "source_sha256": "1d356f0ea2924f19d4fbc5e95db9f63d71cddcaa7f5efbae1767b1800136b9e0"
+    },
+    {
+      "name": "restricted-state-inferred-none",
+      "pass": true,
+      "expected": "state",
+      "stderr": "error[D330]: declared state type is not a finite managed browser value\n --> /tmp/diamond-lp2-compiler-q3p07tj4/restricted-state-inferred-none/ui.dia:4:47\n  |\n4 |   state hidden: Option<Secret<\"inventory\">> = None\n  |                                               ^\n help: Use typed scalar state, a declared click event, and pure imported functions in the W1 component subset.",
+      "source_sha256": "bc4263ea5f8be960d46fae49178636f457e526b7b98700ef09516e14a7a9042e"
+    },
+    {
+      "name": "restricted-action-empty-state",
+      "pass": true,
+      "expected": "state",
+      "stderr": "error[D330]: declared state type is not a finite managed browser value\n --> /tmp/diamond-lp2-compiler-q3p07tj4/restricted-action-empty-state/ui.dia:5:66\n  |\n5 |   state result: Action<Option<Secret<\"inventory\">>, EditError> = ActionIdle\n  |                                                                  ^\n help: Use typed scalar state, a declared click event, and pure imported functions in the W1 component subset.",
+      "source_sha256": "7530f227553f6069163b26eafa92da82502daaaae9258d4e21327a52ab79dc5a"
+    },
+    {
+      "name": "restricted-property-type",
+      "pass": true,
+      "expected": "component properties require finite managed browser types",
+      "stderr": "error[D330]: component properties require finite managed browser types\n --> /tmp/diamond-lp2-compiler-q3p07tj4/restricted-property-type/ui.dia:1:1\n  |\n1 | export component Editor(issue: IssueId, hidden: Option<Secret<\"inventory\">>):\n  | ^\n help: Use typed scalar state, a declared click event, and pure imported functions in the W1 component subset.",
+      "source_sha256": "01a13d48a3479d5d07874d2650b186e641a514d575eed480c2bf06ee80d06404"
+    },
+    {
+      "name": "reference-ActionIdle",
+      "pass": true,
+      "expected": "idle",
+      "stdout": "idle\n",
+      "stderr": ""
+    },
+    {
+      "name": "reference-ActionSubmitting",
+      "pass": true,
+      "expected": "submitting",
+      "stdout": "submitting\n",
+      "stderr": ""
+    },
+    {
+      "name": "reference-ActionSucceeded(\"7\")",
+      "pass": true,
+      "expected": "7",
+      "stdout": "7\n",
+      "stderr": ""
+    },
+    {
+      "name": "reference-ActionRejected(Failed)",
+      "pass": true,
+      "expected": "rejected",
+      "stdout": "rejected\n",
+      "stderr": ""
+    },
+    {
+      "name": "reference-ActionInvalid",
+      "pass": true,
+      "expected": "invalid",
+      "stdout": "invalid\n",
+      "stderr": ""
+    },
+    {
+      "name": "reference-ActionDenied",
+      "pass": true,
+      "expected": "denied",
+      "stdout": "denied\n",
+      "stderr": ""
+    },
+    {
+      "name": "reference-ActionAborted",
+      "pass": true,
+      "expected": "aborted",
+      "stdout": "aborted\n",
+      "stderr": ""
+    },
+    {
+      "name": "reference-ActionUnknown",
+      "pass": true,
+      "expected": "unknown",
+      "stdout": "unknown\n",
+      "stderr": ""
+    },
+    {
+      "name": "reference-ActionExpired",
+      "pass": true,
+      "expected": "expired",
+      "stdout": "expired\n",
+      "stderr": ""
+    },
+    {
+      "name": "reference-ActionConflict",
+      "pass": true,
+      "expected": "conflict",
+      "stdout": "conflict\n",
+      "stderr": ""
+    },
+    {
+      "name": "reference-ActionCorrupt",
+      "pass": true,
+      "expected": "corrupt",
+      "stdout": "corrupt\n",
+      "stderr": ""
+    },
+    {
+      "name": "real-build",
+      "pass": true,
+      "stderr": ""
+    },
+    {
+      "name": "metadata-versions",
+      "pass": true,
+      "observed": [
+        "0.20.0",
+        5,
+        7
+      ]
+    },
+    {
+      "name": "original-source-comments-retained",
+      "pass": true,
+      "expected": "exact input bytes including comments"
+    },
+    {
+      "name": "public-assets-exclude-server-canary",
+      "pass": true,
+      "public_assets": 3
+    },
+    {
+      "name": "rechecked-artifact",
+      "pass": true,
+      "stderr": ""
+    },
+    {
+      "name": "incompatible-format_version",
+      "pass": true,
+      "stderr": "error: invalid input: incompatible server artifact format/language version\n"
+    },
+    {
+      "name": "incompatible-language_version",
+      "pass": true,
+      "stderr": "error: invalid input: incompatible server artifact format/language version\n"
+    },
+    {
+      "name": "tampered-contract",
+      "pass": true,
+      "stderr": "error: invalid input: build artifact mismatch; rebuild from trusted project sources\n"
+    }
+  ]
+}

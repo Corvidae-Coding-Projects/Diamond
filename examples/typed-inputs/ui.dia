@@ -1,0 +1,141 @@
+export component Editor(issue: IssueId):
+  output changed(value: Action<Issue, EditError>)
+  state loaded: Issue = Issue(id: issue, workspace: WorkspaceId("none"), title: "Loading", revision: 0, estimate: 0, published: false, parent: WorkspaceId("none"), status: Open, note: None)
+  state draft: Text = ""
+  state estimate: Text = "0"
+  state published: Bool = false
+  state parent: Text = ""
+  state status_draft: Text = "Open"
+  state note: Text = ""
+  state result: Action<Issue, EditError> = ActionIdle
+  derived valid: Bool = valid_title(draft)
+  derived status: Text = outcome_text(result)
+  on mount:
+    loaded = rpc.load(issue)
+    draft = loaded.title
+    estimate = int_text(loaded.estimate)
+    published = loaded.published
+    parent = id_text(loaded.parent)
+    status_draft = status_text(loaded.status)
+    note = note_text(loaded.note)
+  on reload:
+    loaded = rpc.load(issue)
+    draft = loaded.title
+    estimate = int_text(loaded.estimate)
+    published = loaded.published
+    parent = id_text(loaded.parent)
+    status_draft = status_text(loaded.status)
+    note = note_text(loaded.note)
+  on save(value: EditIssue):
+    result = action.rename(issue, value)
+    loaded = match result:
+      ActionSucceeded(updated) => updated
+      _ => loaded
+    emit changed(result)
+  html:
+    <section aria-label="Issue editor">
+      <h2>Editing {issue}</h2>
+      <p id="saved-title">{loaded.title}</p>
+      <p>Revision {loaded.revision}</p>
+      <p id="saved-estimate">{loaded.estimate}</p><p id="saved-published">{loaded.published}</p><p id="saved-parent">{loaded.parent}</p><p id="saved-status">{status_text(loaded.status)}</p><p id="saved-note">{note_text(loaded.note)}</p>
+      <form schema="EditIssue" as="value" on-submit={save(value)}>
+        <label for="issue-title">Title</label>
+        <input id="issue-title" name="title" type="text" bind-value={draft}>
+        <label for="estimate">Estimate</label><input id="estimate" name="estimate" type="text" bind-value={estimate}>
+        <label for="published">Published</label><input id="published" name="published" type="checkbox" bind-checked={published}>
+        <label for="parent">Parent workspace</label><input id="parent" name="parent" type="text" bind-value={parent}>
+        <label for="status">Status</label><select id="status" name="status" bind-value={status_draft}><option value="Open">Open</option><option value="Closed">Closed</option></select>
+        <label for="note">Optional note</label><textarea id="note" name="note" bind-value={note}></textarea>
+        <button type="submit" disabled={pending}>Save title</button>
+      </form>
+      <p id="validation">{valid}</p>
+      <p id="action-status" role="status" aria-live="polite">{status}</p>
+      <button type="button" on-click={reload}>Reload saved title</button>
+    </section>
+
+export component OptionalForm:
+  state count: Text = ""
+  state flag: Text = ""
+  state owner: Text = ""
+  state mode: Text = ""
+  state accepted: Text = "No submission"
+  on accept(value: OptionalFields):
+    accepted = optional_int(value.count) + "|" + optional_bool(value.flag) + "|" + optional_id(value.owner) + "|" + optional_status(value.mode)
+  html:
+    <section>
+      <h2>Optional scalar fields</h2>
+      <form schema="OptionalFields" as="value" on-submit={accept(value)}>
+        <label for="optional-count">Optional count</label><input id="optional-count" name="count" type="text" bind-value={count}>
+        <label for="optional-flag">Optional flag</label><select id="optional-flag" name="flag" bind-value={flag}><option value="">Absent</option><option value="true">True</option><option value="false">False</option></select>
+        <label for="optional-owner">Optional owner</label><input id="optional-owner" name="owner" type="text" bind-value={owner}>
+        <label for="optional-mode">Optional mode</label><select id="optional-mode" name="mode" bind-value={mode}><option value="">Absent</option><option value="Open">Open</option><option value="Closed">Closed</option></select>
+        <button type="submit">Decode optional fields</button>
+      </form>
+      <p id="optional-result">{accepted}</p>
+    </section>
+
+export component Workspace:
+  state user: Text = ""
+  state username: Text = "alice"
+  state password: Text = ""
+  state rows: List<Issue> = []
+  state selected: List<IssueId> = []
+  state notification: Text = "No child completion"
+  state completions: Int = 0
+  on mount:
+    user = session.user()
+  on login:
+    user = session.login(username, password)
+    password = ""
+  on logout:
+    user = session.logout()
+    rows = []
+    selected = []
+    notification = "No child completion"
+    completions = 0
+  on refresh(id: WorkspaceId):
+    rows = rpc.list_issues(id)
+  on open(id: IssueId):
+    selected = [id]
+  on close:
+    selected = []
+  on saved(value: Action<Issue, EditError>):
+    notification = outcome_text(value)
+    completions = completions + 1
+    rows = replace_issue(rows, value)
+  html:
+    <main>
+      <h1>Diamond typed inputs</h1>
+      <a href={ValuePage(count: -17, enabled: true, label: "雪 &<", status: Closed, scope: WorkspaceId("alpha"), extra: Some(17), flag: Some(false), owner: Some(WorkspaceId("alpha")), mode: Some(Open))}>Scalar routes</a>
+      <a href="/optional-form">Optional form</a>
+      <p id="user">{user}</p>
+      <form on-submit={login}>
+        <label for="username">Username</label><input id="username" type="text" bind-value={username}>
+        <label for="password">Password</label><input id="password" type="password" bind-value={password}>
+        <button type="submit">Sign in</button>
+      </form>
+      <button type="button" on-click={logout}>Sign out</button>
+      <p id="notification" role="status">{notification}</p>
+      <p id="completions">{completions}</p>
+      <a href="/">Issue list</a>
+      <route path="/">
+        <button type="button" on-click={refresh(WorkspaceId("alpha"))}>Load alpha issues</button>
+        <button type="button" on-click={refresh(WorkspaceId("beta"))}>Load beta issues</button>
+        <ul><each items={rows} as="row" key={row.id}>
+          <li><span>{row.title}</span><button type="button" on-click={open(row.id)}>Edit {row.id}</button><a href={IssuePage(id: row.id, page: 2, search: Some("雪😀"))}>Open {row.id}</a></li>
+        </each></ul>
+        <button type="button" on-click={close}>Close editor</button>
+        <each items={selected} as="id" key={id}><use component="Editor" issue={id} on-changed={saved}></use></each>
+      </route>
+      <route name="IssuePage" as="detail">
+        <p id="route-id">{detail.id}</p><p id="page">{detail.page}</p><p id="search">{note_text(detail.search)}</p>
+        <a href={IssuePage(id: detail.id)}>Default view</a><a href={IssuePage(id: detail.id, page: 2, search: Some("雪😀"))}>Page two</a>
+        <when test={user != ""}><use component="Editor" issue={detail.id} on-changed={saved}></use></when>
+      </route>
+      <route name="ValuePage" as="values">
+        <h2>Scalar route values</h2>
+        <p id="scalar-count">{values.count}</p><p id="scalar-enabled">{values.enabled}</p><p id="scalar-label">{values.label}</p><p id="scalar-status">{status_text(values.status)}</p><p id="scalar-scope">{values.scope}</p>
+        <p id="scalar-extra">{optional_int(values.extra)}</p><p id="scalar-flag">{optional_bool(values.flag)}</p><p id="scalar-owner">{optional_id(values.owner)}</p><p id="scalar-mode">{optional_status(values.mode)}</p>
+      </route>
+      <route path="/optional-form"><use component="OptionalForm"></use></route>
+    </main>

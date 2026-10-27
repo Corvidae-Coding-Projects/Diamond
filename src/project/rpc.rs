@@ -9,13 +9,18 @@ use std::collections::BTreeMap;
 
 #[derive(Clone, Debug)]
 pub(super) struct Operation {
+    pub action: bool,
+    pub durable: bool,
     pub function: String,
     pub arguments: Vec<Type>,
     pub result: Type,
+    pub client_result: Type,
 }
 
 #[derive(Debug, Serialize)]
 pub(super) struct Contract {
+    action: bool,
+    submission: Option<&'static str>,
     arguments: Vec<String>,
     result: String,
     effects: Vec<String>,
@@ -23,10 +28,48 @@ pub(super) struct Contract {
     replay: &'static str,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum BindingKind {
+    Rpc,
+    Action,
+    Api,
+}
+
 pub(super) fn operations(
     manifest: &Manifest,
     modules: &BTreeMap<String, Module>,
     program: &CheckedProgram,
+) -> Result<BTreeMap<String, Operation>> {
+    bindings(manifest, modules, program, BindingKind::Rpc)
+}
+
+pub(super) fn action_operations(
+    manifest: &Manifest,
+    modules: &BTreeMap<String, Module>,
+    program: &CheckedProgram,
+) -> Result<BTreeMap<String, Operation>> {
+    let mut proxy = manifest.clone();
+    proxy.rpc = manifest
+        .actions
+        .iter()
+        .map(|(name, binding)| (name.clone(), binding.function.clone()))
+        .collect();
+    bindings(&proxy, modules, program, BindingKind::Action)
+}
+
+pub(super) fn api_operations(
+    manifest: &Manifest,
+    modules: &BTreeMap<String, Module>,
+    program: &CheckedProgram,
+) -> Result<BTreeMap<String, Operation>> {
+    bindings(manifest, modules, program, BindingKind::Api)
+}
+
+fn bindings(
+    manifest: &Manifest,
+    modules: &BTreeMap<String, Module>,
+    program: &CheckedProgram,
+    mode: BindingKind,
 ) -> Result<BTreeMap<String, Operation>> {
     manifest
         .rpc
@@ -52,6 +95,15 @@ pub(super) fn operations(
                 .functions
                 .get(function)
                 .ok_or_else(|| input("RPC function must be reachable from the server entry"))?;
+            let action = super::actions::declared(modules, function);
+            let durable = action
+                && manifest
+                    .actions
+                    .values()
+                    .any(|action| action.function == *binding && action.durable());
+            if mode == BindingKind::Rpc && action || mode == BindingKind::Action && !action {
+                return Err(input("action declarations require actions bindings and cannot use ordinary RPC"));
+            }
             let result = if let Type::Result(inner) = &checked.result {
                 inner.as_ref()
             } else {
@@ -77,6 +129,8 @@ pub(super) fn operations(
             Ok((
                 name.clone(),
                 Operation {
+                    action,
+                    durable,
                     function: function.clone(),
                     arguments: checked
                         .parameters
@@ -84,10 +138,23 @@ pub(super) fn operations(
                         .map(|(_, ty)| ty.clone())
                         .collect(),
                     result: result.clone(),
+                    client_result: client_result(result, action)?,
                 },
             ))
         })
         .collect()
+}
+
+fn client_result(result: &Type, action: bool) -> Result<Type> {
+    if !action {
+        return Ok(result.clone());
+    }
+    let Type::AppResult(value, error) = result else {
+        return Err(input(
+            "actions require Result<Value, declared application enum>",
+        ));
+    };
+    Ok(Type::Action(value.clone(), error.clone()))
 }
 
 pub(super) fn contracts(
@@ -101,15 +168,25 @@ pub(super) fn contracts(
             (
                 name.clone(),
                 Contract {
+                    action: op.action,
+                    submission: op.action.then_some(if op.durable {
+                        "runtime-issued durable invocation; prepare then execute/status/ack; the checked mutation and sealed receipt commit atomically"
+                    } else {
+                        "runtime-issued single-use proof; prepare then execute; duplicate/expired/uncertain proofs never execute and return ActionUnknown; no result recovery"
+                    }),
                     arguments: op.arguments.iter().map(ToString::to_string).collect(),
-                    result: op.result.to_string(),
+                    result: op.client_result.to_string(),
                     effects: program.functions[&op.function]
                         .effects
                         .iter()
                         .map(|v| format!("{v:?}"))
                         .collect(),
                     authenticated: !public.contains(name),
-                    replay: "never automatic; failed mutation delivery may have an unknown outcome",
+                    replay: if op.durable {
+                        "transactional reconciliation only; uncertain delivery uses the same invocation status and never repeats the mutation"
+                    } else {
+                        "never automatic; failed mutation delivery may have an unknown outcome"
+                    },
                 },
             )
         })

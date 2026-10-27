@@ -1,0 +1,46 @@
+{
+  "status": "PASS",
+  "browser": "Chrome extension-controlled real page",
+  "origin": "http://127.0.0.1:39171/",
+  "binary_sha256": "9ed5bfe28ebff433262582bc78121fe4a651f27b5afadad0739abc325701bc70",
+  "observations": [
+    {
+      "name": "double-click-fenced",
+      "pass": true,
+      "visible": "Save button disabled; status Saving; recovery notice Saving changes",
+      "independent_sql": "alpha-b revision 1",
+      "forwarded_action_requests": 1
+    },
+    {
+      "name": "reload-discovers-server-reference",
+      "pass": true,
+      "visible": "The outcome is unknown. Check it before submitting again.",
+      "local_storage_keys": [],
+      "session_storage_keys": [],
+      "dom_contains_invocation_or_payload": false
+    },
+    {
+      "name": "explicit-status-reconciliation",
+      "pass": true,
+      "visible": "Saved successfully. Reload the view to see the saved data.",
+      "independent_sql": "alpha-b title Final browser recovery; revision 1"
+    },
+    {
+      "name": "dismiss-acknowledges-reference",
+      "pass": true,
+      "visible": "Recovery notice removed",
+      "independent_sql": "invocation ack true"
+    },
+    {
+      "name": "identity-change-clears-private-recovery",
+      "pass": true,
+      "visible_before_logout": "Unknown recovery notice for second committed action",
+      "visible_after_logout": "No account name, no recovery region",
+      "independent_sql": "second action committed once; alpha-a title Final identity pending; revision 1; invocation remains unacknowledged for future authorized discovery"
+    }
+  ],
+  "coverage_limits": [
+    "One current Chrome environment",
+    "No cross-browser or prolonged resource campaign; those remain LP8 qualification scope"
+  ]
+}

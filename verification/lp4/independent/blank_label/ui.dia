@@ -1,0 +1,6 @@
+export component App:
+  state draft: Text = "valid"
+  on save(value: Data):
+    draft = value.title
+  html:
+    <form schema="Data" as="value" on-submit={save(value)}><field name="title" label="  " bind-value={draft}></field><submit label="Save"></submit></form>

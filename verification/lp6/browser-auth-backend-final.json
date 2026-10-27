@@ -1,0 +1,1614 @@
+{
+  "status": "PASS",
+  "error": null,
+  "binary_sha256": "278b10f6d64d966279e7ddaea9964d43904426c7478c20aafdd0f9228ce722e1",
+  "driver_sha256": "14fd02781c9c53dfd5d2a78443b651f6d49fba0597de71e4f41a87ab55385493",
+  "observations": [
+    {
+      "name": "prepare",
+      "pass": true,
+      "observed": [
+        200,
+        {
+          "invocation": "ae4840e46cecf3273052c01677f4537861c02fcfa3061fbad84995c5de1695b7"
+        }
+      ]
+    },
+    {
+      "name": "same-principal-concurrent-intent",
+      "pass": true,
+      "observed": [
+        200,
+        {
+          "invocation": "ae4840e46cecf3273052c01677f4537861c02fcfa3061fbad84995c5de1695b7"
+        }
+      ]
+    },
+    {
+      "name": "concurrent-single-mutation",
+      "pass": true,
+      "observed": [
+        [
+          200,
+          {
+            "value": {
+              "fields": [
+                {
+                  "id": {
+                    "tag": "issue",
+                    "value": "alpha-b"
+                  },
+                  "note": "LP5 note",
+                  "revision": "1",
+                  "title": "LP5 saved B",
+                  "workspace": {
+                    "tag": "workspace",
+                    "value": "alpha"
+                  }
+                }
+              ],
+              "tag": "ActionSucceeded"
+            }
+          }
+        ],
+        [
+          200,
+          {
+            "value": {
+              "fields": [
+                {
+                  "id": {
+                    "tag": "issue",
+                    "value": "alpha-b"
+                  },
+                  "note": "LP5 note",
+                  "revision": "1",
+                  "title": "LP5 saved B",
+                  "workspace": {
+                    "tag": "workspace",
+                    "value": "alpha"
+                  }
+                }
+              ],
+              "tag": "ActionSucceeded"
+            }
+          }
+        ]
+      ],
+      "rows": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Issue A",
+          "note": "Original note",
+          "revision": 0
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "LP5 saved B",
+          "note": "LP5 note",
+          "revision": 1
+        },
+        {
+          "id": "alpha-c",
+          "workspace": "alpha",
+          "title": "Issue C",
+          "note": "Original note",
+          "revision": 0
+        },
+        {
+          "id": "alpha-d",
+          "workspace": "alpha",
+          "title": "Issue D",
+          "note": "Original note",
+          "revision": 0
+        }
+      ]
+    },
+    {
+      "name": "fresh-session-recovery",
+      "pass": true,
+      "observed": [
+        200,
+        {
+          "value": {
+            "fields": [
+              {
+                "id": {
+                  "tag": "issue",
+                  "value": "alpha-b"
+                },
+                "note": "LP5 note",
+                "revision": "1",
+                "title": "LP5 saved B",
+                "workspace": {
+                  "tag": "workspace",
+                  "value": "alpha"
+                }
+              }
+            ],
+            "tag": "ActionSucceeded"
+          }
+        }
+      ]
+    },
+    {
+      "name": "changed-input-conflict",
+      "pass": true,
+      "observed": [
+        200,
+        {
+          "value": {
+            "fields": [],
+            "tag": "ActionConflict"
+          }
+        }
+      ]
+    },
+    {
+      "name": "other-principal-denied",
+      "pass": true,
+      "observed": [
+        403,
+        {
+          "error": "denied"
+        }
+      ]
+    },
+    {
+      "name": "application-error-rollback-receipt",
+      "pass": true,
+      "observed": [
+        200,
+        {
+          "value": {
+            "fields": [
+              {
+                "fields": [],
+                "tag": "TitleRejected"
+              }
+            ],
+            "tag": "ActionRejected"
+          }
+        }
+      ],
+      "rows": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Issue A",
+          "note": "Original note",
+          "revision": 0
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "LP5 saved B",
+          "note": "LP5 note",
+          "revision": 1
+        },
+        {
+          "id": "alpha-c",
+          "workspace": "alpha",
+          "title": "Issue C",
+          "note": "Original note",
+          "revision": 0
+        },
+        {
+          "id": "alpha-d",
+          "workspace": "alpha",
+          "title": "Issue D",
+          "note": "Original note",
+          "revision": 0
+        }
+      ]
+    },
+    {
+      "name": "generated-0-concurrent-prepare",
+      "pass": true,
+      "observed": [
+        [
+          200,
+          {
+            "invocation": "65c64ea82addc613995fe3ff2f3d90b588dda723171c7afdbac0641b4dcb6d4a"
+          }
+        ],
+        [
+          200,
+          {
+            "invocation": "65c64ea82addc613995fe3ff2f3d90b588dda723171c7afdbac0641b4dcb6d4a"
+          }
+        ]
+      ]
+    },
+    {
+      "name": "generated-0-exactly-one-and-canonical",
+      "pass": true,
+      "observed_tags": [
+        "ActionSucceeded",
+        "ActionSucceeded",
+        "ActionSucceeded"
+      ],
+      "rows": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Issue A",
+          "note": "Original note",
+          "revision": 0
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "First generated",
+          "note": "Generated note",
+          "revision": 2
+        },
+        {
+          "id": "alpha-c",
+          "workspace": "alpha",
+          "title": "Issue C",
+          "note": "Original note",
+          "revision": 0
+        },
+        {
+          "id": "alpha-d",
+          "workspace": "alpha",
+          "title": "Issue D",
+          "note": "Original note",
+          "revision": 0
+        }
+      ]
+    },
+    {
+      "name": "generated-0-changed-input",
+      "pass": true,
+      "observed": [
+        200,
+        {
+          "value": {
+            "fields": [],
+            "tag": "ActionConflict"
+          }
+        }
+      ]
+    },
+    {
+      "name": "generated-1-concurrent-prepare",
+      "pass": true,
+      "observed": [
+        [
+          200,
+          {
+            "invocation": "da9f9ea2e9fda053a022940edd33efefcdcf7604a672b337b9cc7f36ba95f958"
+          }
+        ],
+        [
+          200,
+          {
+            "invocation": "da9f9ea2e9fda053a022940edd33efefcdcf7604a672b337b9cc7f36ba95f958"
+          }
+        ]
+      ]
+    },
+    {
+      "name": "generated-1-exactly-one-and-canonical",
+      "pass": true,
+      "observed_tags": [
+        "ActionSucceeded",
+        "ActionSucceeded",
+        "ActionSucceeded"
+      ],
+      "rows": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Issue A",
+          "note": "Original note",
+          "revision": 0
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "\u96ea\ud83d\ude00",
+          "note": "Generated note",
+          "revision": 3
+        },
+        {
+          "id": "alpha-c",
+          "workspace": "alpha",
+          "title": "Issue C",
+          "note": "Original note",
+          "revision": 0
+        },
+        {
+          "id": "alpha-d",
+          "workspace": "alpha",
+          "title": "Issue D",
+          "note": "Original note",
+          "revision": 0
+        }
+      ]
+    },
+    {
+      "name": "generated-1-changed-input",
+      "pass": true,
+      "observed": [
+        200,
+        {
+          "value": {
+            "fields": [],
+            "tag": "ActionConflict"
+          }
+        }
+      ]
+    },
+    {
+      "name": "generated-2-concurrent-prepare",
+      "pass": true,
+      "observed": [
+        [
+          200,
+          {
+            "invocation": "3e1438c42bb054f3efc22e60717ecac004a63af2591074d65f7411bd33a4c5bb"
+          }
+        ],
+        [
+          200,
+          {
+            "invocation": "3e1438c42bb054f3efc22e60717ecac004a63af2591074d65f7411bd33a4c5bb"
+          }
+        ]
+      ]
+    },
+    {
+      "name": "generated-2-exactly-one-and-canonical",
+      "pass": true,
+      "observed_tags": [
+        "ActionSucceeded",
+        "ActionSucceeded",
+        "ActionSucceeded"
+      ],
+      "rows": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Issue A",
+          "note": "Original note",
+          "revision": 0
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "note": "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+          "revision": 4
+        },
+        {
+          "id": "alpha-c",
+          "workspace": "alpha",
+          "title": "Issue C",
+          "note": "Original note",
+          "revision": 0
+        },
+        {
+          "id": "alpha-d",
+          "workspace": "alpha",
+          "title": "Issue D",
+          "note": "Original note",
+          "revision": 0
+        }
+      ]
+    },
+    {
+      "name": "generated-2-changed-input",
+      "pass": true,
+      "observed": [
+        200,
+        {
+          "value": {
+            "fields": [],
+            "tag": "ActionConflict"
+          }
+        }
+      ]
+    },
+    {
+      "name": "generated-3-concurrent-prepare",
+      "pass": true,
+      "observed": [
+        [
+          200,
+          {
+            "invocation": "e861300e6322a0cf04d10b31f6d11b72250cd20828592db4433c6e72526b2efb"
+          }
+        ],
+        [
+          200,
+          {
+            "invocation": "e861300e6322a0cf04d10b31f6d11b72250cd20828592db4433c6e72526b2efb"
+          }
+        ]
+      ]
+    },
+    {
+      "name": "generated-3-exactly-one-and-canonical",
+      "pass": true,
+      "observed_tags": [
+        "ActionSucceeded",
+        "ActionSucceeded",
+        "ActionSucceeded"
+      ],
+      "rows": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Issue A",
+          "note": "Original note",
+          "revision": 0
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "Quoted \" value",
+          "note": "Generated note",
+          "revision": 5
+        },
+        {
+          "id": "alpha-c",
+          "workspace": "alpha",
+          "title": "Issue C",
+          "note": "Original note",
+          "revision": 0
+        },
+        {
+          "id": "alpha-d",
+          "workspace": "alpha",
+          "title": "Issue D",
+          "note": "Original note",
+          "revision": 0
+        }
+      ]
+    },
+    {
+      "name": "generated-3-changed-input",
+      "pass": true,
+      "observed": [
+        200,
+        {
+          "value": {
+            "fields": [],
+            "tag": "ActionConflict"
+          }
+        }
+      ]
+    },
+    {
+      "name": "generated-4-concurrent-prepare",
+      "pass": true,
+      "observed": [
+        [
+          200,
+          {
+            "invocation": "23244e71535576a709b749788a9de7274477c9d716febc28d8cf163572817656"
+          }
+        ],
+        [
+          200,
+          {
+            "invocation": "23244e71535576a709b749788a9de7274477c9d716febc28d8cf163572817656"
+          }
+        ]
+      ]
+    },
+    {
+      "name": "generated-4-exactly-one-and-canonical",
+      "pass": true,
+      "observed_tags": [
+        "ActionSucceeded",
+        "ActionSucceeded",
+        "ActionSucceeded"
+      ],
+      "rows": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Issue A",
+          "note": "Original note",
+          "revision": 0
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "Leading spaces  ",
+          "note": "Generated note",
+          "revision": 6
+        },
+        {
+          "id": "alpha-c",
+          "workspace": "alpha",
+          "title": "Issue C",
+          "note": "Original note",
+          "revision": 0
+        },
+        {
+          "id": "alpha-d",
+          "workspace": "alpha",
+          "title": "Issue D",
+          "note": "Original note",
+          "revision": 0
+        }
+      ]
+    },
+    {
+      "name": "generated-4-changed-input",
+      "pass": true,
+      "observed": [
+        200,
+        {
+          "value": {
+            "fields": [],
+            "tag": "ActionConflict"
+          }
+        }
+      ]
+    },
+    {
+      "name": "generated-5-concurrent-prepare",
+      "pass": true,
+      "observed": [
+        [
+          200,
+          {
+            "invocation": "5659cdd4fde345d853e2503a02358830b4f997118185a3b226688e24f1b2cbb9"
+          }
+        ],
+        [
+          200,
+          {
+            "invocation": "5659cdd4fde345d853e2503a02358830b4f997118185a3b226688e24f1b2cbb9"
+          }
+        ]
+      ]
+    },
+    {
+      "name": "generated-5-exactly-one-and-canonical",
+      "pass": true,
+      "observed_tags": [
+        "ActionSucceeded",
+        "ActionSucceeded",
+        "ActionSucceeded"
+      ],
+      "rows": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Issue A",
+          "note": "Original note",
+          "revision": 0
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "Leading spaces  ",
+          "note": "Generated note",
+          "revision": 6
+        },
+        {
+          "id": "alpha-c",
+          "workspace": "alpha",
+          "title": "A/B literal",
+          "note": "Generated note",
+          "revision": 1
+        },
+        {
+          "id": "alpha-d",
+          "workspace": "alpha",
+          "title": "Issue D",
+          "note": "Original note",
+          "revision": 0
+        }
+      ]
+    },
+    {
+      "name": "generated-5-changed-input",
+      "pass": true,
+      "observed": [
+        200,
+        {
+          "value": {
+            "fields": [],
+            "tag": "ActionConflict"
+          }
+        }
+      ]
+    },
+    {
+      "name": "generated-6-concurrent-prepare",
+      "pass": true,
+      "observed": [
+        [
+          200,
+          {
+            "invocation": "fe1fb624919fe659da4a285770fda91f638911cb1d34b8414625e65cd2da89b0"
+          }
+        ],
+        [
+          200,
+          {
+            "invocation": "fe1fb624919fe659da4a285770fda91f638911cb1d34b8414625e65cd2da89b0"
+          }
+        ]
+      ]
+    },
+    {
+      "name": "generated-6-exactly-one-and-canonical",
+      "pass": true,
+      "observed_tags": [
+        "ActionSucceeded",
+        "ActionSucceeded",
+        "ActionSucceeded"
+      ],
+      "rows": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Issue A",
+          "note": "Original note",
+          "revision": 0
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "Leading spaces  ",
+          "note": "Generated note",
+          "revision": 6
+        },
+        {
+          "id": "alpha-c",
+          "workspace": "alpha",
+          "title": "distinct-seven",
+          "note": "Generated note",
+          "revision": 2
+        },
+        {
+          "id": "alpha-d",
+          "workspace": "alpha",
+          "title": "Issue D",
+          "note": "Original note",
+          "revision": 0
+        }
+      ]
+    },
+    {
+      "name": "generated-6-changed-input",
+      "pass": true,
+      "observed": [
+        200,
+        {
+          "value": {
+            "fields": [],
+            "tag": "ActionConflict"
+          }
+        }
+      ]
+    },
+    {
+      "name": "generated-7-concurrent-prepare",
+      "pass": true,
+      "observed": [
+        [
+          200,
+          {
+            "invocation": "62938920735679ce0795dd3d9e2f38746bd0070da1295ed4f5bbd5c8896147c9"
+          }
+        ],
+        [
+          200,
+          {
+            "invocation": "62938920735679ce0795dd3d9e2f38746bd0070da1295ed4f5bbd5c8896147c9"
+          }
+        ]
+      ]
+    },
+    {
+      "name": "generated-7-exactly-one-and-canonical",
+      "pass": true,
+      "observed_tags": [
+        "ActionSucceeded",
+        "ActionSucceeded",
+        "ActionSucceeded"
+      ],
+      "rows": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Issue A",
+          "note": "Original note",
+          "revision": 0
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "Final generated",
+          "note": "Generated note",
+          "revision": 7
+        },
+        {
+          "id": "alpha-c",
+          "workspace": "alpha",
+          "title": "distinct-seven",
+          "note": "Generated note",
+          "revision": 2
+        },
+        {
+          "id": "alpha-d",
+          "workspace": "alpha",
+          "title": "Issue D",
+          "note": "Original note",
+          "revision": 0
+        }
+      ]
+    },
+    {
+      "name": "generated-7-changed-input",
+      "pass": true,
+      "observed": [
+        200,
+        {
+          "value": {
+            "fields": [],
+            "tag": "ActionConflict"
+          }
+        }
+      ]
+    },
+    {
+      "name": "prepared-status-closes-and-fences",
+      "pass": true,
+      "observed": [
+        [
+          200,
+          {
+            "value": {
+              "fields": [],
+              "tag": "ActionAborted"
+            }
+          }
+        ],
+        [
+          200,
+          {
+            "value": {
+              "fields": [],
+              "tag": "ActionAborted"
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "name": "changed-parent-no-execution",
+      "pass": true,
+      "observed": [
+        200,
+        {
+          "value": {
+            "fields": [],
+            "tag": "ActionConflict"
+          }
+        }
+      ]
+    },
+    {
+      "name": "changed-project-version",
+      "pass": true,
+      "observed": [
+        200,
+        {
+          "value": {
+            "fields": [],
+            "tag": "ActionConflict"
+          }
+        }
+      ]
+    },
+    {
+      "name": "protected-scalar-commits",
+      "pass": true,
+      "observed": [
+        200,
+        {
+          "value": {
+            "fields": [
+              "Scalar source: LP5-protected-scalar-canary"
+            ],
+            "tag": "ActionSucceeded"
+          }
+        }
+      ]
+    },
+    {
+      "name": "scalar-source-current-row-reauthorized",
+      "pass": true,
+      "observed": [
+        403,
+        {
+          "error": "denied"
+        }
+      ]
+    },
+    {
+      "name": "revocation-precondition",
+      "pass": true,
+      "observed": [
+        200,
+        {
+          "value": {
+            "fields": [
+              {
+                "id": {
+                  "tag": "issue",
+                  "value": "alpha-b"
+                },
+                "note": "LP5 note",
+                "revision": "8",
+                "title": "Revocation target",
+                "workspace": {
+                  "tag": "workspace",
+                  "value": "alpha"
+                }
+              }
+            ],
+            "tag": "ActionSucceeded"
+          }
+        }
+      ]
+    },
+    {
+      "name": "current-write-permission-reauthorized",
+      "pass": true,
+      "observed": [
+        [
+          403,
+          {
+            "error": "denied"
+          }
+        ],
+        [
+          403,
+          {
+            "error": "denied"
+          }
+        ]
+      ]
+    },
+    {
+      "name": "create-receipt-recovery",
+      "pass": true,
+      "observed": [
+        200,
+        {
+          "value": {
+            "fields": [
+              {
+                "id": {
+                  "tag": "issue",
+                  "value": "fa90cc186c7b5815b2556373c73ee6cd8a9390e222c31e9a66f51ae3083d00db"
+                },
+                "note": "Created note",
+                "revision": "0",
+                "title": "Created by invocation",
+                "workspace": {
+                  "tag": "workspace",
+                  "value": "alpha"
+                }
+              }
+            ],
+            "tag": "ActionSucceeded"
+          }
+        }
+      ]
+    },
+    {
+      "name": "deleted-parent-tombstone-recovery",
+      "pass": true,
+      "observed": [
+        [
+          200,
+          {
+            "value": {
+              "fields": [
+                "Deleted Created by invocation"
+              ],
+              "tag": "ActionSucceeded"
+            }
+          }
+        ],
+        [
+          200,
+          {
+            "value": {
+              "fields": [
+                "Deleted Created by invocation"
+              ],
+              "tag": "ActionSucceeded"
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "name": "recreated-parent-current-policy-denied",
+      "pass": true,
+      "observed": [
+        403,
+        {
+          "error": "denied"
+        }
+      ]
+    },
+    {
+      "name": "recreated-parent-never-deleted-again",
+      "pass": true,
+      "observed": [
+        [
+          200,
+          {
+            "value": {
+              "fields": [
+                "Deleted Created by invocation"
+              ],
+              "tag": "ActionSucceeded"
+            }
+          }
+        ],
+        [
+          200,
+          {
+            "value": {
+              "fields": [
+                "Deleted Created by invocation"
+              ],
+              "tag": "ActionSucceeded"
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "name": "deleted-parent-current-policy-denial",
+      "pass": true,
+      "observed": [
+        403,
+        {
+          "error": "denied"
+        }
+      ]
+    },
+    {
+      "name": "corrupt-envelope",
+      "pass": true,
+      "observed": [
+        [
+          200,
+          {
+            "value": {
+              "fields": [],
+              "tag": "ActionCorrupt"
+            }
+          }
+        ],
+        [
+          200,
+          {
+            "value": {
+              "fields": [],
+              "tag": "ActionCorrupt"
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "name": "corrupt-fingerprint",
+      "pass": true,
+      "observed": [
+        [
+          200,
+          {
+            "value": {
+              "fields": [],
+              "tag": "ActionCorrupt"
+            }
+          }
+        ],
+        [
+          200,
+          {
+            "value": {
+              "fields": [],
+              "tag": "ActionCorrupt"
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "name": "corrupt-parent",
+      "pass": true,
+      "observed": [
+        [
+          200,
+          {
+            "value": {
+              "fields": [],
+              "tag": "ActionCorrupt"
+            }
+          }
+        ],
+        [
+          200,
+          {
+            "value": {
+              "fields": [],
+              "tag": "ActionCorrupt"
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "name": "corrupt-resource",
+      "pass": true,
+      "observed": [
+        [
+          200,
+          {
+            "value": {
+              "fields": [],
+              "tag": "ActionCorrupt"
+            }
+          }
+        ],
+        [
+          200,
+          {
+            "value": {
+              "fields": [],
+              "tag": "ActionCorrupt"
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "name": "corrupt-authority",
+      "pass": true,
+      "observed": [
+        [
+          200,
+          {
+            "value": {
+              "fields": [],
+              "tag": "ActionCorrupt"
+            }
+          }
+        ],
+        [
+          200,
+          {
+            "value": {
+              "fields": [],
+              "tag": "ActionCorrupt"
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "name": "corrupt-version",
+      "pass": true,
+      "observed": [
+        [
+          200,
+          {
+            "value": {
+              "fields": [],
+              "tag": "ActionCorrupt"
+            }
+          }
+        ],
+        [
+          200,
+          {
+            "value": {
+              "fields": [],
+              "tag": "ActionCorrupt"
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "name": "corrupt-endpoint",
+      "pass": true,
+      "observed": [
+        [
+          200,
+          {
+            "value": {
+              "fields": [],
+              "tag": "ActionCorrupt"
+            }
+          }
+        ],
+        [
+          200,
+          {
+            "value": {
+              "fields": [],
+              "tag": "ActionCorrupt"
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "name": "corrupt-subject",
+      "pass": true,
+      "observed": [
+        [
+          200,
+          {
+            "value": {
+              "fields": [],
+              "tag": "ActionCorrupt"
+            }
+          }
+        ],
+        [
+          200,
+          {
+            "value": {
+              "fields": [],
+              "tag": "ActionCorrupt"
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "name": "committed-receipt-expiration",
+      "pass": true,
+      "observed": [
+        200,
+        {
+          "value": {
+            "fields": [],
+            "tag": "ActionExpired"
+          }
+        }
+      ]
+    },
+    {
+      "name": "pruned-identity-never-resurrects",
+      "pass": true,
+      "observed": [
+        200,
+        {
+          "value": {
+            "fields": [],
+            "tag": "ActionExpired"
+          }
+        }
+      ]
+    },
+    {
+      "name": "receipt-size-1000",
+      "pass": true,
+      "observed_tag": "ActionSucceeded",
+      "returned_text_bytes": 128000
+    },
+    {
+      "name": "receipt-size-3000",
+      "pass": true,
+      "observed_tag": "ActionAborted",
+      "returned_text_bytes": 0
+    },
+    {
+      "name": "footprint-boundary-64",
+      "pass": true,
+      "observed": [
+        [
+          200,
+          {
+            "value": {
+              "fields": [
+                "Read 62"
+              ],
+              "tag": "ActionSucceeded"
+            }
+          }
+        ],
+        [
+          200,
+          {
+            "value": {
+              "fields": [
+                "Read 62"
+              ],
+              "tag": "ActionSucceeded"
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "name": "footprint-boundary-65",
+      "pass": true,
+      "observed": [
+        [
+          200,
+          {
+            "value": {
+              "fields": [],
+              "tag": "ActionAborted"
+            }
+          }
+        ],
+        [
+          200,
+          {
+            "value": {
+              "fields": [],
+              "tag": "ActionAborted"
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "name": "disabled-account-current-auth",
+      "pass": true,
+      "observed": [
+        401,
+        {
+          "error": "authentication_required"
+        }
+      ]
+    },
+    {
+      "name": "fresh-current-account-can-recover",
+      "pass": true
+    },
+    {
+      "name": "api-prepare",
+      "pass": true,
+      "observed_status": 200
+    },
+    {
+      "name": "api-shared-durable-dispatch",
+      "pass": true,
+      "observed_tags": [
+        "ActionSucceeded",
+        "ActionSucceeded"
+      ]
+    },
+    {
+      "name": "api-profile-subject-alias-bindings",
+      "pass": true,
+      "observed": [
+        [
+          200,
+          {
+            "api_version": 1,
+            "value": {
+              "fields": [],
+              "tag": "ActionConflict"
+            }
+          }
+        ],
+        [
+          200,
+          {
+            "api_version": 1,
+            "value": {
+              "fields": [],
+              "tag": "ActionConflict"
+            }
+          }
+        ],
+        [
+          200,
+          {
+            "value": {
+              "fields": [],
+              "tag": "ActionConflict"
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "name": "same-token-current-scope-fingerprint",
+      "pass": true,
+      "observed": [
+        200,
+        {
+          "api_version": 1,
+          "value": {
+            "fields": [],
+            "tag": "ActionConflict"
+          }
+        }
+      ]
+    },
+    {
+      "name": "same-token-operation-fingerprint",
+      "pass": true,
+      "observed": [
+        200,
+        {
+          "api_version": 1,
+          "value": {
+            "fields": [],
+            "tag": "ActionConflict"
+          }
+        }
+      ]
+    },
+    {
+      "name": "revoked-token-current-auth",
+      "pass": true,
+      "observed": [
+        401,
+        {
+          "error": "authentication_required"
+        }
+      ]
+    },
+    {
+      "name": "actual-row-lock-wait",
+      "pass": true
+    },
+    {
+      "name": "process-kill-before-commit",
+      "pass": true,
+      "transport": {
+        "transport": "RemoteDisconnected"
+      },
+      "observed": [
+        200,
+        {
+          "value": {
+            "fields": [],
+            "tag": "ActionAborted"
+          }
+        }
+      ]
+    },
+    {
+      "name": "postgres-before_commit",
+      "pass": true,
+      "observed_http": [
+        503,
+        {
+          "error": "outcome_unknown"
+        }
+      ],
+      "observed_status": [
+        200,
+        {
+          "value": {
+            "fields": [],
+            "tag": "ActionAborted"
+          }
+        }
+      ],
+      "boundary": {
+        "mode": "before_commit",
+        "application_update_observed": true,
+        "receipt_update_observed": true,
+        "actual_postgres_commit_complete": false,
+        "commit_ack_delivered": false
+      }
+    },
+    {
+      "name": "postgres-after_commit_ack_loss",
+      "pass": true,
+      "observed_http": [
+        503,
+        {
+          "error": "outcome_unknown"
+        }
+      ],
+      "observed_status": [
+        200,
+        {
+          "value": {
+            "fields": [
+              {
+                "id": {
+                  "tag": "issue",
+                  "value": "alpha-b"
+                },
+                "note": "LP5 note",
+                "revision": "14",
+                "title": "PG fault after_commit_ack_loss",
+                "workspace": {
+                  "tag": "workspace",
+                  "value": "alpha"
+                }
+              }
+            ],
+            "tag": "ActionSucceeded"
+          }
+        }
+      ],
+      "boundary": {
+        "mode": "after_commit_ack_loss",
+        "application_update_observed": true,
+        "receipt_update_observed": true,
+        "actual_postgres_commit_complete": true,
+        "commit_ack_delivered": false
+      }
+    },
+    {
+      "name": "pending-capacity-16",
+      "pass": true,
+      "observed": [
+        429,
+        {
+          "error": "rate_limited"
+        }
+      ],
+      "native_pending_count": "16",
+      "identity_rate_attempts": "1"
+    },
+    {
+      "name": "expired-pending-cleanup",
+      "pass": true
+    },
+    {
+      "name": "total-user-capacity-128",
+      "pass": true,
+      "observed": [
+        429,
+        {
+          "error": "rate_limited"
+        }
+      ],
+      "native_user_count": "128",
+      "identity_rate_attempts": "1",
+      "setup": "Count-only injected control rows; envelopes are not claimed valid"
+    },
+    {
+      "name": "global-capacity-4096",
+      "pass": true,
+      "observed": [
+        429,
+        {
+          "error": "rate_limited"
+        }
+      ],
+      "native_global_count": "4096",
+      "identity_rate_attempts": "1",
+      "setup": "Count-only injected control rows; envelopes are not claimed valid"
+    },
+    {
+      "name": "valid-after-capacity-cleanup",
+      "pass": true
+    },
+    {
+      "name": "browser-independent-sql",
+      "rows": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Issue A",
+          "note": "Original note",
+          "revision": 0
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "Issue B",
+          "note": "Original note",
+          "revision": 0
+        },
+        {
+          "id": "alpha-c",
+          "workspace": "alpha",
+          "title": "Issue C",
+          "note": "Original note",
+          "revision": 0
+        },
+        {
+          "id": "alpha-d",
+          "workspace": "alpha",
+          "title": "Issue D",
+          "note": "Original note",
+          "revision": 0
+        }
+      ],
+      "invocations": [],
+      "forwarded_actions": 0,
+      "held": null
+    }
+  ],
+  "shutdowns": [
+    {
+      "node": "V",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": -9,
+      "expected_exit": -9,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": []
+}

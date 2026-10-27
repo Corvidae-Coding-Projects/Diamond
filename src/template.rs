@@ -213,6 +213,7 @@ impl Template<'_> {
                     "into",
                     "cursor",
                     "path",
+                    "schema",
                     "src",
                     "alt",
                     "required",
@@ -227,6 +228,10 @@ impl Template<'_> {
                     "autocomplete",
                     "width",
                     "height",
+                    "label",
+                    "description",
+                    "multiline",
+                    "aria-atomic",
                 ]
                 .contains(&name)
                     || tag == "use"))
@@ -248,7 +253,8 @@ impl Template<'_> {
         .contains(&tag)
             || (self.browser
                 && [
-                    "when", "each", "use", "route", "img", "select", "option", "watch",
+                    "when", "each", "use", "route", "img", "select", "option", "watch", "field",
+                    "submit", "status",
                 ]
                 .contains(&tag)))
         {

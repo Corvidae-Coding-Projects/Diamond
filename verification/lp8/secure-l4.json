@@ -1,0 +1,83 @@
+{
+  "status": "PASS",
+  "binary_sha256": "28a8f27b6db02a04301ffa458f03df38e6c37fad16aaa6b6929adcd448a51e30",
+  "observations": [
+    {
+      "name": "mail-control",
+      "expected_accept": true,
+      "exit": 0,
+      "pass": true,
+      "diagnostic": ""
+    },
+    {
+      "name": "missing-mail-capability",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error[D301]: effects {Read(\"Documents\"), Write(\"Documents\"), Host(\"Mail<document_mail>\")} exceed the application's declared authority\n --> /home/doll/diamond/.diamond/diamond-l4-bmhae2zq/1/server.dia:70:1\n   |\n70 | export fn cancel_mail(id: Text) -> Result<Text, DataError>:\n   | ^\n help: Declare the exact application effect required by this call path."
+    },
+    {
+      "name": "dynamic-binding-denied",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error[D310]: mail binding requires a static name\n --> /home/doll/diamond/.diamond/diamond-l4-bmhae2zq/2/server.dia:65:3\n   |\n65 |   host.mail_submit(parent, parent, recipient, \"notice\", body, key)\n   |   ^\n help: Call a registered host operation with its exact argument types and declare its module/application capability budget."
+    },
+    {
+      "name": "unknown-binding-denied",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error[D310]: unknown mail binding\n --> /home/doll/diamond/.diamond/diamond-l4-bmhae2zq/3/server.dia:68:3\n   |\n68 |   host.mail_status(\"missing\", id)\n   |   ^\n help: Call a registered host operation with its exact argument types and declare its module/application capability budget."
+    },
+    {
+      "name": "dynamic-template-denied",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error[D310]: mail template requires a static name\n --> /home/doll/diamond/.diamond/diamond-l4-bmhae2zq/4/server.dia:65:3\n   |\n65 |   host.mail_submit(\"document_mail\", parent, recipient, key, body, key)\n   |   ^\n help: Call a registered host operation with its exact argument types and declare its module/application capability budget."
+    },
+    {
+      "name": "unknown-template-denied",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error[D310]: unknown mail template\n --> /home/doll/diamond/.diamond/diamond-l4-bmhae2zq/5/server.dia:65:3\n   |\n65 |   host.mail_submit(\"document_mail\", parent, recipient, \"missing\", body, key)\n   |   ^\n help: Call a registered host operation with its exact argument types and declare its module/application capability budget."
+    },
+    {
+      "name": "header-injection-denied",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: invalid plain-text mail template"
+    },
+    {
+      "name": "recipient-type-denied",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error[D310]: mail arguments do not match the declared operation\n --> /home/doll/diamond/.diamond/diamond-l4-bmhae2zq/7/server.dia:65:3\n   |\n65 |   host.mail_submit(\"document_mail\", parent, true, \"notice\", body, key)\n   |   ^\n help: Call a registered host operation with its exact argument types and declare its module/application capability budget."
+    },
+    {
+      "name": "secret-body-denied",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error[D310]: mail arguments do not match the declared operation\n --> /home/doll/diamond/.diamond/diamond-l4-bmhae2zq/8/server.dia:65:3\n   |\n65 |   host.mail_submit(\"document_mail\", parent, recipient, \"notice\", host.secret(\"inventory\"), key)\n   |   ^\n help: Call a registered host operation with its exact argument types and declare its module/application capability budget."
+    },
+    {
+      "name": "binding-resource-denied",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: invalid durable binding resource or payload type"
+    },
+    {
+      "name": "attempt-bound-denied",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: invalid mail binding or absent mail/resource capabilities"
+    }
+  ]
+}

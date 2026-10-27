@@ -1,5 +1,13 @@
 # W1 project foundations
 
+**Historical W1 snapshot.** Its first-subset limitations, 64-field/event counts,
+rendering behavior, and future-work statements describe that checkpoint. For
+Diamond 0.20.0, use the [canonical contract](language-specification.md) and
+[profile/limit matrix](language-profiles.md). In particular, the current parser
+allows 128 total properties/state/derived entries and 128 events per component.
+The commands and sample syntax below remain an introduction, not a complete
+inventory of today's project runtime.
+
 Diamond 0.7.0 added the first general-web expansion checkpoint, retained in 0.9.0. It keeps the
 single-file interpreter and its SQLite/browser-account behavior. The project
 entry is a separate, deliberately small initial subset: modules, scalar browser

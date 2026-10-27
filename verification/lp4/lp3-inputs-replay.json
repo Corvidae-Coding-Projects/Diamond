@@ -1,0 +1,1403 @@
+{
+  "status": "PASS",
+  "error": null,
+  "binary_sha256": "6f5c7e0427abfc9483ce165ef78effbf0cdccbd8643176d2e05675f6dff5fbd7",
+  "driver_sha256": "fd84a40974528805c02e043bab1a57dd036984ab2f91ce6414f4fe0ce9258087",
+  "seed": 3517120515,
+  "observations": [
+    {
+      "name": "versions",
+      "pass": true,
+      "observed": [
+        "0.19.0",
+        4,
+        6
+      ],
+      "expected": [
+        "0.19.0",
+        4,
+        6
+      ]
+    },
+    {
+      "name": "all-scalars-and-optional-persist",
+      "pass": true,
+      "observed": [
+        [
+          200,
+          {
+            "value": {
+              "fields": [
+                {
+                  "estimate": "17",
+                  "id": {
+                    "tag": "issue",
+                    "value": "alpha-b"
+                  },
+                  "note": {
+                    "tag": "Some",
+                    "value": "ordinary draft"
+                  },
+                  "parent": {
+                    "tag": "workspace",
+                    "value": "alpha"
+                  },
+                  "published": true,
+                  "revision": "1",
+                  "status": {
+                    "fields": [],
+                    "tag": "Closed"
+                  },
+                  "title": "雪😀",
+                  "workspace": {
+                    "tag": "workspace",
+                    "value": "alpha"
+                  }
+                }
+              ],
+              "tag": "ActionSucceeded"
+            }
+          }
+        ],
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "Old A",
+            "revision": 0,
+            "estimate": 0,
+            "published": false,
+            "parent": "alpha",
+            "status": "Open",
+            "note": null
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "雪😀",
+            "revision": 1,
+            "estimate": 17,
+            "published": true,
+            "parent": "alpha",
+            "status": "Closed",
+            "note": "ordinary draft"
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0,
+            "estimate": 0,
+            "published": false,
+            "parent": "beta",
+            "status": "Open",
+            "note": null
+          }
+        ]
+      ],
+      "expected": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Old A",
+          "revision": 0,
+          "estimate": 0,
+          "published": false,
+          "parent": "alpha",
+          "status": "Open",
+          "note": null
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "雪😀",
+          "revision": 1,
+          "estimate": 17,
+          "published": true,
+          "parent": "alpha",
+          "status": "Closed",
+          "note": "ordinary draft"
+        },
+        {
+          "id": "beta-c",
+          "workspace": "beta",
+          "title": "Private C",
+          "revision": 0,
+          "estimate": 0,
+          "published": false,
+          "parent": "beta",
+          "status": "Open",
+          "note": null
+        }
+      ]
+    },
+    {
+      "name": "fresh-client-typed-values",
+      "pass": true,
+      "observed": [
+        200,
+        {
+          "value": {
+            "estimate": "17",
+            "id": {
+              "tag": "issue",
+              "value": "alpha-b"
+            },
+            "note": {
+              "tag": "Some",
+              "value": "ordinary draft"
+            },
+            "parent": {
+              "tag": "workspace",
+              "value": "alpha"
+            },
+            "published": true,
+            "revision": "1",
+            "status": {
+              "fields": [],
+              "tag": "Closed"
+            },
+            "title": "雪😀",
+            "workspace": {
+              "tag": "workspace",
+              "value": "alpha"
+            }
+          }
+        }
+      ],
+      "expected": {
+        "title": "雪😀",
+        "estimate": "17",
+        "published": true,
+        "parent": {
+          "tag": "workspace",
+          "value": "alpha"
+        },
+        "status": {
+          "tag": "Closed",
+          "fields": []
+        },
+        "note": {
+          "tag": "Some",
+          "value": "ordinary draft"
+        }
+      }
+    },
+    {
+      "name": "bob-cannot-write",
+      "pass": true,
+      "observed": [
+        200,
+        {
+          "value": {
+            "fields": [],
+            "tag": "ActionDenied"
+          }
+        }
+      ],
+      "expected": "ActionDenied, no write"
+    },
+    {
+      "name": "reader-cannot-write",
+      "pass": true,
+      "observed": [
+        200,
+        {
+          "value": {
+            "fields": [],
+            "tag": "ActionDenied"
+          }
+        }
+      ],
+      "expected": "ActionDenied, no write"
+    },
+    {
+      "name": "valid-id-does-not-grant-parent-authority",
+      "pass": true,
+      "observed": [
+        200,
+        {
+          "value": {
+            "fields": [],
+            "tag": "ActionDenied"
+          }
+        }
+      ],
+      "expected": "ActionDenied, no write"
+    },
+    {
+      "name": "raw-minus",
+      "pass": true,
+      "observed": [
+        400,
+        {
+          "error": "invalid_input"
+        }
+      ],
+      "expected": "strict schema rejection before action; no write"
+    },
+    {
+      "name": "raw-overflow",
+      "pass": true,
+      "observed": [
+        400,
+        {
+          "error": "invalid_input"
+        }
+      ],
+      "expected": "strict schema rejection before action; no write"
+    },
+    {
+      "name": "raw-leading-zero",
+      "pass": true,
+      "observed": [
+        400,
+        {
+          "error": "invalid_input"
+        }
+      ],
+      "expected": "strict schema rejection before action; no write"
+    },
+    {
+      "name": "raw-plus",
+      "pass": true,
+      "observed": [
+        400,
+        {
+          "error": "invalid_input"
+        }
+      ],
+      "expected": "strict schema rejection before action; no write"
+    },
+    {
+      "name": "raw-negative-zero",
+      "pass": true,
+      "observed": [
+        400,
+        {
+          "error": "invalid_input"
+        }
+      ],
+      "expected": "strict schema rejection before action; no write"
+    },
+    {
+      "name": "raw-empty-title",
+      "pass": true,
+      "observed": [
+        400,
+        {
+          "error": "invalid_input"
+        }
+      ],
+      "expected": "strict schema rejection before action; no write"
+    },
+    {
+      "name": "raw-multibyte-overlong",
+      "pass": true,
+      "observed": [
+        400,
+        {
+          "error": "invalid_input"
+        }
+      ],
+      "expected": "strict schema rejection before action; no write"
+    },
+    {
+      "name": "raw-wrong-id-tag",
+      "pass": true,
+      "observed": [
+        400,
+        {
+          "error": "invalid_input"
+        }
+      ],
+      "expected": "strict schema rejection before action; no write"
+    },
+    {
+      "name": "raw-enum-payload",
+      "pass": true,
+      "observed": [
+        400,
+        {
+          "error": "invalid_input"
+        }
+      ],
+      "expected": "strict schema rejection before action; no write"
+    },
+    {
+      "name": "raw-enum-unknown",
+      "pass": true,
+      "observed": [
+        400,
+        {
+          "error": "invalid_input"
+        }
+      ],
+      "expected": "strict schema rejection before action; no write"
+    },
+    {
+      "name": "raw-extra",
+      "pass": true,
+      "observed": [
+        400,
+        {
+          "error": "invalid_input"
+        }
+      ],
+      "expected": "strict schema rejection before action; no write"
+    },
+    {
+      "name": "raw-created-by",
+      "pass": true,
+      "observed": [
+        400,
+        {
+          "error": "invalid_input"
+        }
+      ],
+      "expected": "strict schema rejection before action; no write"
+    },
+    {
+      "name": "raw-wrong-bool",
+      "pass": true,
+      "observed": [
+        400,
+        {
+          "error": "invalid_input"
+        }
+      ],
+      "expected": "strict schema rejection before action; no write"
+    },
+    {
+      "name": "raw-bad-option",
+      "pass": true,
+      "observed": [
+        400,
+        {
+          "error": "invalid_input"
+        }
+      ],
+      "expected": "strict schema rejection before action; no write"
+    },
+    {
+      "name": "duplicate-json-field",
+      "pass": true,
+      "observed": [
+        400,
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "Old A",
+            "revision": 0,
+            "estimate": 0,
+            "published": false,
+            "parent": "alpha",
+            "status": "Open",
+            "note": null
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "雪😀",
+            "revision": 1,
+            "estimate": 17,
+            "published": true,
+            "parent": "alpha",
+            "status": "Closed",
+            "note": "ordinary draft"
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0,
+            "estimate": 0,
+            "published": false,
+            "parent": "beta",
+            "status": "Open",
+            "note": null
+          }
+        ]
+      ],
+      "expected": "reject before mutation"
+    },
+    {
+      "name": "invalid-utf8",
+      "pass": true,
+      "observed": [
+        400,
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "Old A",
+            "revision": 0,
+            "estimate": 0,
+            "published": false,
+            "parent": "alpha",
+            "status": "Open",
+            "note": null
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "雪😀",
+            "revision": 1,
+            "estimate": 17,
+            "published": true,
+            "parent": "alpha",
+            "status": "Closed",
+            "note": "ordinary draft"
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0,
+            "estimate": 0,
+            "published": false,
+            "parent": "beta",
+            "status": "Open",
+            "note": null
+          }
+        ]
+      ],
+      "expected": "reject before mutation"
+    },
+    {
+      "name": "unpaired-surrogate",
+      "pass": true,
+      "observed": [
+        400,
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "Old A",
+            "revision": 0,
+            "estimate": 0,
+            "published": false,
+            "parent": "alpha",
+            "status": "Open",
+            "note": null
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "雪😀",
+            "revision": 1,
+            "estimate": 17,
+            "published": true,
+            "parent": "alpha",
+            "status": "Closed",
+            "note": "ordinary draft"
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0,
+            "estimate": 0,
+            "published": false,
+            "parent": "beta",
+            "status": "Open",
+            "note": null
+          }
+        ]
+      ],
+      "expected": "reject before mutation"
+    },
+    {
+      "name": "invalid-csrf",
+      "pass": true,
+      "observed": [
+        403,
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "Old A",
+            "revision": 0,
+            "estimate": 0,
+            "published": false,
+            "parent": "alpha",
+            "status": "Open",
+            "note": null
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "雪😀",
+            "revision": 1,
+            "estimate": 17,
+            "published": true,
+            "parent": "alpha",
+            "status": "Closed",
+            "note": "ordinary draft"
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0,
+            "estimate": 0,
+            "published": false,
+            "parent": "beta",
+            "status": "Open",
+            "note": null
+          }
+        ]
+      ],
+      "expected": "reject before mutation"
+    },
+    {
+      "name": "generated-valid-0",
+      "pass": true,
+      "observed": [
+        200,
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "Old A",
+            "revision": 0,
+            "estimate": 0,
+            "published": false,
+            "parent": "alpha",
+            "status": "Open",
+            "note": null
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "Case 0 雪😀",
+            "revision": 2,
+            "estimate": 9223372036854775807,
+            "published": false,
+            "parent": "alpha",
+            "status": "Closed",
+            "note": "note <b>&"
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0,
+            "estimate": 0,
+            "published": false,
+            "parent": "beta",
+            "status": "Open",
+            "note": null
+          }
+        ]
+      ],
+      "expected": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Old A",
+          "revision": 0,
+          "estimate": 0,
+          "published": false,
+          "parent": "alpha",
+          "status": "Open",
+          "note": null
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "Case 0 雪😀",
+          "revision": 2,
+          "estimate": 9223372036854775807,
+          "published": false,
+          "parent": "alpha",
+          "status": "Closed",
+          "note": "note <b>&"
+        },
+        {
+          "id": "beta-c",
+          "workspace": "beta",
+          "title": "Private C",
+          "revision": 0,
+          "estimate": 0,
+          "published": false,
+          "parent": "beta",
+          "status": "Open",
+          "note": null
+        }
+      ]
+    },
+    {
+      "name": "generated-valid-1",
+      "pass": true,
+      "observed": [
+        200,
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "Old A",
+            "revision": 0,
+            "estimate": 0,
+            "published": false,
+            "parent": "alpha",
+            "status": "Open",
+            "note": null
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "Case 1 雪😀",
+            "revision": 3,
+            "estimate": 0,
+            "published": true,
+            "parent": "alpha",
+            "status": "Open",
+            "note": null
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0,
+            "estimate": 0,
+            "published": false,
+            "parent": "beta",
+            "status": "Open",
+            "note": null
+          }
+        ]
+      ],
+      "expected": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Old A",
+          "revision": 0,
+          "estimate": 0,
+          "published": false,
+          "parent": "alpha",
+          "status": "Open",
+          "note": null
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "Case 1 雪😀",
+          "revision": 3,
+          "estimate": 0,
+          "published": true,
+          "parent": "alpha",
+          "status": "Open",
+          "note": null
+        },
+        {
+          "id": "beta-c",
+          "workspace": "beta",
+          "title": "Private C",
+          "revision": 0,
+          "estimate": 0,
+          "published": false,
+          "parent": "beta",
+          "status": "Open",
+          "note": null
+        }
+      ]
+    },
+    {
+      "name": "generated-valid-2",
+      "pass": true,
+      "observed": [
+        200,
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "Old A",
+            "revision": 0,
+            "estimate": 0,
+            "published": false,
+            "parent": "alpha",
+            "status": "Open",
+            "note": null
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "Case 2 雪😀",
+            "revision": 4,
+            "estimate": 0,
+            "published": false,
+            "parent": "alpha",
+            "status": "Closed",
+            "note": "note <b>&"
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0,
+            "estimate": 0,
+            "published": false,
+            "parent": "beta",
+            "status": "Open",
+            "note": null
+          }
+        ]
+      ],
+      "expected": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Old A",
+          "revision": 0,
+          "estimate": 0,
+          "published": false,
+          "parent": "alpha",
+          "status": "Open",
+          "note": null
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "Case 2 雪😀",
+          "revision": 4,
+          "estimate": 0,
+          "published": false,
+          "parent": "alpha",
+          "status": "Closed",
+          "note": "note <b>&"
+        },
+        {
+          "id": "beta-c",
+          "workspace": "beta",
+          "title": "Private C",
+          "revision": 0,
+          "estimate": 0,
+          "published": false,
+          "parent": "beta",
+          "status": "Open",
+          "note": null
+        }
+      ]
+    },
+    {
+      "name": "generated-valid-3",
+      "pass": true,
+      "observed": [
+        200,
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "Old A",
+            "revision": 0,
+            "estimate": 0,
+            "published": false,
+            "parent": "alpha",
+            "status": "Open",
+            "note": null
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "Case 3 雪😀",
+            "revision": 5,
+            "estimate": -9223372036854775808,
+            "published": true,
+            "parent": "alpha",
+            "status": "Open",
+            "note": null
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0,
+            "estimate": 0,
+            "published": false,
+            "parent": "beta",
+            "status": "Open",
+            "note": null
+          }
+        ]
+      ],
+      "expected": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Old A",
+          "revision": 0,
+          "estimate": 0,
+          "published": false,
+          "parent": "alpha",
+          "status": "Open",
+          "note": null
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "Case 3 雪😀",
+          "revision": 5,
+          "estimate": -9223372036854775808,
+          "published": true,
+          "parent": "alpha",
+          "status": "Open",
+          "note": null
+        },
+        {
+          "id": "beta-c",
+          "workspace": "beta",
+          "title": "Private C",
+          "revision": 0,
+          "estimate": 0,
+          "published": false,
+          "parent": "beta",
+          "status": "Open",
+          "note": null
+        }
+      ]
+    },
+    {
+      "name": "generated-valid-4",
+      "pass": true,
+      "observed": [
+        200,
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "Old A",
+            "revision": 0,
+            "estimate": 0,
+            "published": false,
+            "parent": "alpha",
+            "status": "Open",
+            "note": null
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "Case 4 雪😀",
+            "revision": 6,
+            "estimate": -9223372036854775808,
+            "published": false,
+            "parent": "alpha",
+            "status": "Closed",
+            "note": "note <b>&"
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0,
+            "estimate": 0,
+            "published": false,
+            "parent": "beta",
+            "status": "Open",
+            "note": null
+          }
+        ]
+      ],
+      "expected": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Old A",
+          "revision": 0,
+          "estimate": 0,
+          "published": false,
+          "parent": "alpha",
+          "status": "Open",
+          "note": null
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "Case 4 雪😀",
+          "revision": 6,
+          "estimate": -9223372036854775808,
+          "published": false,
+          "parent": "alpha",
+          "status": "Closed",
+          "note": "note <b>&"
+        },
+        {
+          "id": "beta-c",
+          "workspace": "beta",
+          "title": "Private C",
+          "revision": 0,
+          "estimate": 0,
+          "published": false,
+          "parent": "beta",
+          "status": "Open",
+          "note": null
+        }
+      ]
+    },
+    {
+      "name": "generated-valid-5",
+      "pass": true,
+      "observed": [
+        200,
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "Old A",
+            "revision": 0,
+            "estimate": 0,
+            "published": false,
+            "parent": "alpha",
+            "status": "Open",
+            "note": null
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "Case 5 雪😀",
+            "revision": 7,
+            "estimate": -17,
+            "published": true,
+            "parent": "alpha",
+            "status": "Open",
+            "note": null
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0,
+            "estimate": 0,
+            "published": false,
+            "parent": "beta",
+            "status": "Open",
+            "note": null
+          }
+        ]
+      ],
+      "expected": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Old A",
+          "revision": 0,
+          "estimate": 0,
+          "published": false,
+          "parent": "alpha",
+          "status": "Open",
+          "note": null
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "Case 5 雪😀",
+          "revision": 7,
+          "estimate": -17,
+          "published": true,
+          "parent": "alpha",
+          "status": "Open",
+          "note": null
+        },
+        {
+          "id": "beta-c",
+          "workspace": "beta",
+          "title": "Private C",
+          "revision": 0,
+          "estimate": 0,
+          "published": false,
+          "parent": "beta",
+          "status": "Open",
+          "note": null
+        }
+      ]
+    },
+    {
+      "name": "generated-valid-6",
+      "pass": true,
+      "observed": [
+        200,
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "Old A",
+            "revision": 0,
+            "estimate": 0,
+            "published": false,
+            "parent": "alpha",
+            "status": "Open",
+            "note": null
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "Case 6 雪😀",
+            "revision": 8,
+            "estimate": 17,
+            "published": false,
+            "parent": "alpha",
+            "status": "Closed",
+            "note": "note <b>&"
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0,
+            "estimate": 0,
+            "published": false,
+            "parent": "beta",
+            "status": "Open",
+            "note": null
+          }
+        ]
+      ],
+      "expected": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Old A",
+          "revision": 0,
+          "estimate": 0,
+          "published": false,
+          "parent": "alpha",
+          "status": "Open",
+          "note": null
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "Case 6 雪😀",
+          "revision": 8,
+          "estimate": 17,
+          "published": false,
+          "parent": "alpha",
+          "status": "Closed",
+          "note": "note <b>&"
+        },
+        {
+          "id": "beta-c",
+          "workspace": "beta",
+          "title": "Private C",
+          "revision": 0,
+          "estimate": 0,
+          "published": false,
+          "parent": "beta",
+          "status": "Open",
+          "note": null
+        }
+      ]
+    },
+    {
+      "name": "generated-valid-7",
+      "pass": true,
+      "observed": [
+        200,
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "Old A",
+            "revision": 0,
+            "estimate": 0,
+            "published": false,
+            "parent": "alpha",
+            "status": "Open",
+            "note": null
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "Case 7 雪😀",
+            "revision": 9,
+            "estimate": 9223372036854775807,
+            "published": true,
+            "parent": "alpha",
+            "status": "Open",
+            "note": null
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0,
+            "estimate": 0,
+            "published": false,
+            "parent": "beta",
+            "status": "Open",
+            "note": null
+          }
+        ]
+      ],
+      "expected": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Old A",
+          "revision": 0,
+          "estimate": 0,
+          "published": false,
+          "parent": "alpha",
+          "status": "Open",
+          "note": null
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "Case 7 雪😀",
+          "revision": 9,
+          "estimate": 9223372036854775807,
+          "published": true,
+          "parent": "alpha",
+          "status": "Open",
+          "note": null
+        },
+        {
+          "id": "beta-c",
+          "workspace": "beta",
+          "title": "Private C",
+          "revision": 0,
+          "estimate": 0,
+          "published": false,
+          "parent": "beta",
+          "status": "Open",
+          "note": null
+        }
+      ]
+    },
+    {
+      "name": "url-valid-/issues/alpha-a",
+      "pass": true,
+      "observed": 200,
+      "expected": "200 correct pure SSR typed fields"
+    },
+    {
+      "name": "url-valid-/issues/alpha-a?page=2",
+      "pass": true,
+      "observed": 200,
+      "expected": "200 correct pure SSR typed fields"
+    },
+    {
+      "name": "url-valid-/issues/alpha-a?page=2&search=%E9%9B%AA%F0%9F%98%80",
+      "pass": true,
+      "observed": 200,
+      "expected": "200 correct pure SSR typed fields"
+    },
+    {
+      "name": "url-valid-/issues/alpha-b?page=-9223372036854775808",
+      "pass": true,
+      "observed": 200,
+      "expected": "200 correct pure SSR typed fields"
+    },
+    {
+      "name": "all-route-scalars-and-optionals",
+      "pass": true,
+      "observed": 200,
+      "expected": {
+        "count": "-17",
+        "enabled": "true",
+        "label": "雪 &amp;&lt;",
+        "status": "Closed",
+        "scope": "alpha",
+        "extra": "17",
+        "flag": "false",
+        "owner": "alpha",
+        "mode": "Open"
+      }
+    },
+    {
+      "name": "url-invalid-/issues/alpha-a?page=1",
+      "pass": true,
+      "observed": 400,
+      "expected": "bounded rejection, no app mutation"
+    },
+    {
+      "name": "url-invalid-/issues/alpha-a?",
+      "pass": true,
+      "observed": 400,
+      "expected": "bounded rejection, no app mutation"
+    },
+    {
+      "name": "url-invalid-/issues/alpha-a?unknown=x",
+      "pass": true,
+      "observed": 400,
+      "expected": "bounded rejection, no app mutation"
+    },
+    {
+      "name": "url-invalid-/issues/alpha-a?page=2&page=3",
+      "pass": true,
+      "observed": 400,
+      "expected": "bounded rejection, no app mutation"
+    },
+    {
+      "name": "url-invalid-/issues/alpha-a?%70age=2",
+      "pass": true,
+      "observed": 400,
+      "expected": "bounded rejection, no app mutation"
+    },
+    {
+      "name": "url-invalid-/issues/alpha-a?page=02",
+      "pass": true,
+      "observed": 400,
+      "expected": "bounded rejection, no app mutation"
+    },
+    {
+      "name": "url-invalid-/issues/alpha-a?page=-0",
+      "pass": true,
+      "observed": 400,
+      "expected": "bounded rejection, no app mutation"
+    },
+    {
+      "name": "url-invalid-/issues/alpha-a?page=+2",
+      "pass": true,
+      "observed": 400,
+      "expected": "bounded rejection, no app mutation"
+    },
+    {
+      "name": "url-invalid-/issues/alpha-a?page=9223372036854775808",
+      "pass": true,
+      "observed": 400,
+      "expected": "bounded rejection, no app mutation"
+    },
+    {
+      "name": "url-invalid-/issues/alpha-a?search=",
+      "pass": true,
+      "observed": 400,
+      "expected": "bounded rejection, no app mutation"
+    },
+    {
+      "name": "url-invalid-/issues/alpha-a?search=%",
+      "pass": true,
+      "observed": 400,
+      "expected": "bounded rejection, no app mutation"
+    },
+    {
+      "name": "url-invalid-/issues/alpha-a?search=%FF",
+      "pass": true,
+      "observed": 400,
+      "expected": "bounded rejection, no app mutation"
+    },
+    {
+      "name": "url-invalid-/issues/alpha-a?search=%ED%A0%80",
+      "pass": true,
+      "observed": 400,
+      "expected": "bounded rejection, no app mutation"
+    },
+    {
+      "name": "url-invalid-/issues/alpha-a?search=%252F",
+      "pass": true,
+      "observed": 400,
+      "expected": "bounded rejection, no app mutation"
+    },
+    {
+      "name": "url-invalid-/issues/alpha-a?search=%2F",
+      "pass": true,
+      "observed": 400,
+      "expected": "bounded rejection, no app mutation"
+    },
+    {
+      "name": "url-invalid-/issues/alpha-a?search=%5C",
+      "pass": true,
+      "observed": 400,
+      "expected": "bounded rejection, no app mutation"
+    },
+    {
+      "name": "url-invalid-/issues/alpha-a?search=%00",
+      "pass": true,
+      "observed": 400,
+      "expected": "bounded rejection, no app mutation"
+    },
+    {
+      "name": "url-invalid-/issues/alpha-a?search=%0A",
+      "pass": true,
+      "observed": 400,
+      "expected": "bounded rejection, no app mutation"
+    },
+    {
+      "name": "url-invalid-/issues/alpha-a?search=%3F",
+      "pass": true,
+      "observed": 400,
+      "expected": "bounded rejection, no app mutation"
+    },
+    {
+      "name": "url-invalid-/issues/alpha-a?search=%23",
+      "pass": true,
+      "observed": 400,
+      "expected": "bounded rejection, no app mutation"
+    },
+    {
+      "name": "url-invalid-/issues/alpha-a?search=%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA",
+      "pass": true,
+      "observed": 400,
+      "expected": "bounded rejection, no app mutation"
+    },
+    {
+      "name": "url-invalid-/issues/alpha-a?search=a+b",
+      "pass": true,
+      "observed": 400,
+      "expected": "bounded rejection, no app mutation"
+    },
+    {
+      "name": "url-invalid-/issues/alpha-a?search=x&page=2",
+      "pass": true,
+      "observed": 400,
+      "expected": "bounded rejection, no app mutation"
+    },
+    {
+      "name": "url-invalid-/issues/a%2Fb",
+      "pass": true,
+      "observed": 400,
+      "expected": "bounded rejection, no app mutation"
+    },
+    {
+      "name": "url-invalid-/issues/%61lpha-a",
+      "pass": true,
+      "observed": 400,
+      "expected": "bounded rejection, no app mutation"
+    },
+    {
+      "name": "url-invalid-//issues/alpha-a",
+      "pass": true,
+      "observed": 400,
+      "expected": "bounded rejection, no app mutation"
+    },
+    {
+      "name": "url-invalid-/issues/alpha-a/",
+      "pass": true,
+      "observed": 404,
+      "expected": "bounded rejection, no app mutation"
+    },
+    {
+      "name": "url-invalid-/issues/",
+      "pass": true,
+      "observed": 404,
+      "expected": "bounded rejection, no app mutation"
+    }
+  ],
+  "shutdowns": [
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "source_files": {
+    "examples/typed-inputs/README.md": "d445db31fa5881b75d8aaddfe306a0448a502d0a9e4360bb05e49df27ad6b0aa",
+    "examples/typed-inputs/diamond.toml": "bb155bd16d5c5bd6d6626945604da71894761b4f9bd8f7326f08d4c4e22f9483",
+    "examples/typed-inputs/server.dia": "1e63a6a129627d9df66f93b77f7b36e315214184c82dfd23e173ee64f43aa82b",
+    "examples/typed-inputs/shared.dia": "9f04b8edf5abe17b8d555413c94b73a8664d2a66ebddc8cf58bfabe39990fd9d",
+    "examples/typed-inputs/ui.dia": "7fa909c0ee682b2725b17e8997390b54960e4d5e41e13d19e945846a1334f9e5"
+  }
+}

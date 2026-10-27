@@ -1,11 +1,12 @@
 //! Retain only declarations reachable from the checked browser component graph.
-use super::{Component, EventValue, Expression, Node};
+use super::{Component, EventStep, EventValue, Expression, Node};
 use crate::hir::CheckedProgram;
 use crate::syntax::{Expr, ExprKind, Statement, StatementKind};
 use crate::value::Type;
 use std::collections::{BTreeMap, BTreeSet};
 #[derive(Default)]
 pub(super) struct Usage {
+    pub actions: BTreeSet<String>,
     pub functions: BTreeSet<String>,
     pub records: BTreeSet<String>,
     pub enums: BTreeSet<String>,
@@ -27,9 +28,24 @@ pub(super) fn used(program: &CheckedProgram, components: &BTreeMap<String, Compo
         for (_, e) in c.state.iter().chain(&c.derived) {
             reach.expression(e);
         }
-        for assignments in c.events.values() {
-            for (_, e) in assignments {
-                reach.event(e);
+        for event in c.events.values() {
+            for (_, ty) in &event.parameters {
+                reach.ty(ty);
+            }
+            for step in &event.body {
+                match step {
+                    EventStep::Assign(_, e) => reach.event(e),
+                    EventStep::Emit(_, args) => {
+                        for e in args {
+                            reach.expression(e);
+                        }
+                    }
+                }
+            }
+        }
+        for parameters in c.outputs.values() {
+            for (_, ty) in parameters {
+                reach.ty(ty);
             }
         }
         reach.nodes(&c.template);
@@ -72,7 +88,7 @@ impl Reach<'_> {
                 }
             }
             Type::List(t) | Type::Option(t) | Type::Result(t) | Type::Success(t) => self.ty(t),
-            Type::AppResult(t, e) => {
+            Type::AppResult(t, e) | Type::Action(t, e) => {
                 self.ty(t);
                 self.ty(e);
             }
@@ -155,11 +171,15 @@ impl Reach<'_> {
                 }
             }
             EventValue::Remote {
+                operation,
                 arguments,
                 types,
                 result,
                 ..
             } => {
+                if let Some(name) = operation.strip_prefix("action/") {
+                    self.used.actions.insert(name.into());
+                }
                 for e in arguments {
                     self.expression(e);
                 }
@@ -173,6 +193,13 @@ impl Reach<'_> {
     fn nodes(&mut self, nodes: &[Node]) {
         for n in nodes {
             match n {
+                Node::Field(control) => {
+                    self.expression(&control.label);
+                    if let Some(description) = &control.description {
+                        self.expression(description);
+                    }
+                }
+                Node::Submit(value) | Node::Status(value) => self.expression(value),
                 Node::Value(e) => self.expression(e),
                 Node::Watch {
                     stream, payload, ..
@@ -205,13 +232,30 @@ impl Reach<'_> {
                     ..
                 } => {
                     for (_, a) in attributes {
-                        if let super::Attribute::Value(e) = a {
-                            self.expression(e);
+                        match a {
+                            super::Attribute::Value(e) | super::Attribute::Route(e) => {
+                                self.expression(e);
+                            }
+                            super::Attribute::Event(handler) => {
+                                for e in &handler.arguments {
+                                    self.expression(e);
+                                }
+                            }
+                            super::Attribute::Form { schema, .. } => {
+                                self.ty(&Type::Record(schema.clone()));
+                            }
+                            _ => {}
                         }
                     }
                     self.nodes(children);
                 }
                 Node::Route(_, children) => self.nodes(children),
+                Node::NamedRoute {
+                    route, children, ..
+                } => {
+                    self.ty(&Type::Record(route.clone()));
+                    self.nodes(children);
+                }
                 Node::Text(_) => {}
             }
         }

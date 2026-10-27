@@ -1,0 +1,320 @@
+{
+  "binary_sha256": "6f5c7e0427abfc9483ce165ef78effbf0cdccbd8643176d2e05675f6dff5fbd7",
+  "interface": "Actual Chrome via browser-control tools; native DOM observations and keyboard/locator actions; no injected app handlers or state",
+  "observations": [
+    {
+      "name": "mixed-controls-hydration",
+      "observed": {
+        "fields": [
+          {
+            "id": "diamond-control-root%2F1%2F9%2Ft%253Aone%2F0%2F1%2F3%2F1",
+            "label": [
+              "Title"
+            ],
+            "links": [
+              "diamond-control-root%2F1%2F9%2Ft%253Aone%2F0%2F1%2F3%2F1-description",
+              "diamond-control-root%2F1%2F9%2Ft%253Aone%2F0%2F1%2F3%2F1-error"
+            ],
+            "name": "title"
+          },
+          {
+            "id": "diamond-control-root%2F1%2F9%2Ft%253Aone%2F0%2F1%2F3%2F3",
+            "label": [
+              "Enabled"
+            ],
+            "links": [
+              "diamond-control-root%2F1%2F9%2Ft%253Aone%2F0%2F1%2F3%2F3-error"
+            ],
+            "name": "enabled"
+          },
+          {
+            "id": "diamond-control-root%2F1%2F9%2Ft%253Aone%2F0%2F1%2F3%2F5",
+            "label": [
+              "Count"
+            ],
+            "links": [
+              "diamond-control-root%2F1%2F9%2Ft%253Aone%2F0%2F1%2F3%2F5-error"
+            ],
+            "name": "count"
+          },
+          {
+            "id": "diamond-control-root%2F1%2F9%2Ft%253Aone%2F0%2F1%2F3%2F7",
+            "label": [
+              "Mode"
+            ],
+            "links": [
+              "diamond-control-root%2F1%2F9%2Ft%253Aone%2F0%2F1%2F3%2F7-error"
+            ],
+            "name": "mode"
+          },
+          {
+            "id": "diamond-control-root%2F1%2F9%2Ft%253Aone%2F0%2F1%2F3%2F9",
+            "label": [
+              "Note"
+            ],
+            "links": [
+              "diamond-control-root%2F1%2F9%2Ft%253Aone%2F0%2F1%2F3%2F9-error"
+            ],
+            "name": "note"
+          },
+          {
+            "id": "diamond-control-root%2F1%2F9%2Ft%253Aone%2F0%2F1%2F3%2F11",
+            "label": [
+              "Owner"
+            ],
+            "links": [
+              "diamond-control-root%2F1%2F9%2Ft%253Aone%2F0%2F1%2F3%2F11-error"
+            ],
+            "name": "owner"
+          },
+          {
+            "id": "diamond-control-root%2F1%2F9%2Ft%253Aone%2F0%2F1%2F3%2F13",
+            "label": [
+              "Optional flag"
+            ],
+            "links": [
+              "diamond-control-root%2F1%2F9%2Ft%253Aone%2F0%2F1%2F3%2F13-error"
+            ],
+            "name": "optional"
+          },
+          {
+            "id": "diamond-control-root%2F1%2F9%2Ft%253A%25E9%259B%25AA%25F0%259F%2598%2580%2521%2527%2F0%2F1%2F3%2F1",
+            "label": [
+              "Title"
+            ],
+            "links": [
+              "diamond-control-root%2F1%2F9%2Ft%253A%25E9%259B%25AA%25F0%259F%2598%2580%2521%2527%2F0%2F1%2F3%2F1-description",
+              "diamond-control-root%2F1%2F9%2Ft%253A%25E9%259B%25AA%25F0%259F%2598%2580%2521%2527%2F0%2F1%2F3%2F1-error"
+            ],
+            "name": "title"
+          },
+          {
+            "id": "diamond-control-root%2F1%2F9%2Ft%253A%25E9%259B%25AA%25F0%259F%2598%2580%2521%2527%2F0%2F1%2F3%2F3",
+            "label": [
+              "Enabled"
+            ],
+            "links": [
+              "diamond-control-root%2F1%2F9%2Ft%253A%25E9%259B%25AA%25F0%259F%2598%2580%2521%2527%2F0%2F1%2F3%2F3-error"
+            ],
+            "name": "enabled"
+          },
+          {
+            "id": "diamond-control-root%2F1%2F9%2Ft%253A%25E9%259B%25AA%25F0%259F%2598%2580%2521%2527%2F0%2F1%2F3%2F5",
+            "label": [
+              "Count"
+            ],
+            "links": [
+              "diamond-control-root%2F1%2F9%2Ft%253A%25E9%259B%25AA%25F0%259F%2598%2580%2521%2527%2F0%2F1%2F3%2F5-error"
+            ],
+            "name": "count"
+          },
+          {
+            "id": "diamond-control-root%2F1%2F9%2Ft%253A%25E9%259B%25AA%25F0%259F%2598%2580%2521%2527%2F0%2F1%2F3%2F7",
+            "label": [
+              "Mode"
+            ],
+            "links": [
+              "diamond-control-root%2F1%2F9%2Ft%253A%25E9%259B%25AA%25F0%259F%2598%2580%2521%2527%2F0%2F1%2F3%2F7-error"
+            ],
+            "name": "mode"
+          },
+          {
+            "id": "diamond-control-root%2F1%2F9%2Ft%253A%25E9%259B%25AA%25F0%259F%2598%2580%2521%2527%2F0%2F1%2F3%2F9",
+            "label": [
+              "Note"
+            ],
+            "links": [
+              "diamond-control-root%2F1%2F9%2Ft%253A%25E9%259B%25AA%25F0%259F%2598%2580%2521%2527%2F0%2F1%2F3%2F9-error"
+            ],
+            "name": "note"
+          },
+          {
+            "id": "diamond-control-root%2F1%2F9%2Ft%253A%25E9%259B%25AA%25F0%259F%2598%2580%2521%2527%2F0%2F1%2F3%2F11",
+            "label": [
+              "Owner"
+            ],
+            "links": [
+              "diamond-control-root%2F1%2F9%2Ft%253A%25E9%259B%25AA%25F0%259F%2598%2580%2521%2527%2F0%2F1%2F3%2F11-error"
+            ],
+            "name": "owner"
+          },
+          {
+            "id": "diamond-control-root%2F1%2F9%2Ft%253A%25E9%259B%25AA%25F0%259F%2598%2580%2521%2527%2F0%2F1%2F3%2F13",
+            "label": [
+              "Optional flag"
+            ],
+            "links": [
+              "diamond-control-root%2F1%2F9%2Ft%253A%25E9%259B%25AA%25F0%259F%2598%2580%2521%2527%2F0%2F1%2F3%2F13-error"
+            ],
+            "name": "optional"
+          }
+        ],
+        "ready": "true"
+      }
+    },
+    {
+      "name": "native-invalid-integer",
+      "observed": {
+        "enabled": true,
+        "focused": "count",
+        "invalid": [
+          {
+            "errors": [
+              "Enter a canonical 64-bit integer."
+            ],
+            "name": "count"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mixed-controls-recovered-submit",
+      "observed": {
+        "checked": true,
+        "invalid": 0,
+        "ready": "true",
+        "status": [
+          "Parent received Draft one",
+          "Saved Draft one",
+          "Ready"
+        ]
+      }
+    },
+    {
+      "name": "logout-clears-state-with-pending-save",
+      "observed": {
+        "completions": "0",
+        "editors": 0,
+        "hasPrivateDraft": false,
+        "notification": "No completion",
+        "user": ""
+      }
+    },
+    {
+      "name": "unicode-key-reorder",
+      "observed": {
+        "checked": [
+          false,
+          true
+        ],
+        "ids": [
+          "diamond-control-root%2F1%2F9%2Ft%253A%25E9%259B%25AA%25F0%259F%2598%2580%2521%2527%2F0%2F1%2F3%2F1",
+          "diamond-control-root%2F1%2F9%2Ft%253A%25E9%259B%25AA%25F0%259F%2598%2580%2521%2527%2F0%2F1%2F3%2F3",
+          "diamond-control-root%2F1%2F9%2Ft%253A%25E9%259B%25AA%25F0%259F%2598%2580%2521%2527%2F0%2F1%2F3%2F5",
+          "diamond-control-root%2F1%2F9%2Ft%253A%25E9%259B%25AA%25F0%259F%2598%2580%2521%2527%2F0%2F1%2F3%2F7",
+          "diamond-control-root%2F1%2F9%2Ft%253A%25E9%259B%25AA%25F0%259F%2598%2580%2521%2527%2F0%2F1%2F3%2F9",
+          "diamond-control-root%2F1%2F9%2Ft%253A%25E9%259B%25AA%25F0%259F%2598%2580%2521%2527%2F0%2F1%2F3%2F11",
+          "diamond-control-root%2F1%2F9%2Ft%253A%25E9%259B%25AA%25F0%259F%2598%2580%2521%2527%2F0%2F1%2F3%2F13",
+          "diamond-control-root%2F1%2F9%2Ft%253Aone%2F0%2F1%2F3%2F1",
+          "diamond-control-root%2F1%2F9%2Ft%253Aone%2F0%2F1%2F3%2F3",
+          "diamond-control-root%2F1%2F9%2Ft%253Aone%2F0%2F1%2F3%2F5",
+          "diamond-control-root%2F1%2F9%2Ft%253Aone%2F0%2F1%2F3%2F7",
+          "diamond-control-root%2F1%2F9%2Ft%253Aone%2F0%2F1%2F3%2F9",
+          "diamond-control-root%2F1%2F9%2Ft%253Aone%2F0%2F1%2F3%2F11",
+          "diamond-control-root%2F1%2F9%2Ft%253Aone%2F0%2F1%2F3%2F13"
+        ],
+        "order": [
+          "Editor 雪😀!'",
+          "Editor one"
+        ],
+        "ready": "true"
+      }
+    },
+    {
+      "name": "bob-cannot-rehydrate-old-private-components",
+      "observed": {
+        "completions": "0",
+        "editors": 0,
+        "error": "Request rejected. Check your session, input, and permissions. Earlier server calls may already have committed.",
+        "privateText": false,
+        "user": ""
+      }
+    },
+    {
+      "name": "focus-before-live-final",
+      "observed": {
+        "end": 3,
+        "id": "diamond-control-root%2F1%2F16%2F3%2Fd%253Aissue%253Aalpha-b%2F0%2F1%2F0%2F1%2F3%2F1",
+        "start": 0,
+        "value": "Final focus draft"
+      }
+    },
+    {
+      "name": "focus-after-live-final",
+      "observed": {
+        "end": 3,
+        "errorHidden": true,
+        "id": "diamond-control-root%2F1%2F16%2F3%2Fd%253Aissue%253Aalpha-b%2F0%2F1%2F0%2F1%2F3%2F1",
+        "order": [
+          "Card alpha-d",
+          "Card alpha-a",
+          "Card alpha-b",
+          "Card alpha-c"
+        ],
+        "start": 0,
+        "value": "Final focus draft"
+      }
+    },
+    {
+      "name": "native-tab-order-and-keyboard-submit",
+      "observed": [
+        {
+          "name": "enabled",
+          "tag": "INPUT"
+        },
+        {
+          "name": "count",
+          "tag": "INPUT"
+        },
+        {
+          "name": "mode",
+          "tag": "SELECT"
+        },
+        {
+          "name": "note",
+          "tag": "TEXTAREA"
+        },
+        {
+          "name": "owner",
+          "tag": "INPUT"
+        },
+        {
+          "name": "optional",
+          "tag": "SELECT"
+        },
+        {
+          "name": "Save details",
+          "tag": "BUTTON"
+        }
+      ],
+      "status": [
+        "Parent received Draft one",
+        "Ready",
+        "Saved Draft one"
+      ]
+    },
+    {
+      "name": "forge-final-child-and-parent",
+      "observed": {
+        "status": [
+          "Saved issue: Forge target final",
+          "Saved issue: Forge target final"
+        ],
+        "editor": "Edit issue\nIssue title\nDescribe the work in a short title.\nIssue description\nAdd context for the people doing this work.\nSave issue\n\nSaved issue: Forge target final"
+      }
+    },
+    {
+      "name": "workspace-parent-refresh-and-context-unmount",
+      "observed": {
+        "status": "Saved issue: Workspace target final",
+        "editorCount": 0,
+        "targetCard": 1
+      }
+    },
+    {
+      "name": "exact-native-browser-generated-id-parity",
+      "pass": true,
+      "fields": 14
+    }
+  ]
+}

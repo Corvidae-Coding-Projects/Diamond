@@ -61,7 +61,11 @@ export type OrganizationCard:
   id: Text
   name: Text
 
+export type RepositoryKey = Id<"repository">
+export type IssueKey = Id<"issue">
+
 export type RepositoryCard:
+  key: RepositoryKey
   id: Text
   organization: Text
   name: Text
@@ -74,6 +78,7 @@ export type RepositoryPage:
   total: Int
 
 export type IssueCard:
+  key: IssueKey
   id: Text
   title: Text
   state: Text
@@ -90,6 +95,29 @@ export type IssueDetail:
   body: Text
   state: Text
   author: Text
+
+export type IssueEditorData:
+  key: IssueKey
+  title: Text<length: 1..160>
+  body: Text<length: 0..16000>
+
+export form IssueEditorForm(title: Text<length: 1..160>, body: Text<length: 0..16000>)
+export enum IssueEditorError:
+  SaveFailed
+
+export fn editor_message(value: Action<IssueEditorData, IssueEditorError>) -> Text:
+  match value:
+    ActionIdle => "Ready to edit."
+    ActionSubmitting => "Saving issue…"
+    ActionSucceeded(issue) => "Saved issue: " + issue.title
+    ActionRejected(problem) => "Save rejected. Your changes were not applied."
+    ActionInvalid => "Check the issue fields."
+    ActionDenied => "Your access to this issue changed."
+    ActionAborted => "Save aborted. Refresh before retrying."
+    ActionExpired => "Recovery expired. Check the record before submitting again."
+    ActionConflict => "The request or application changed. Check the record before submitting again."
+    ActionCorrupt => "Recovery unavailable. Check the record before submitting again."
+    ActionUnknown => "Completion unknown. Refresh before retrying."
 
 export type CommentCard:
   id: Text

@@ -297,6 +297,8 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
             ExprKind::Name(name) => {
                 if let Some(value) = locals.get(name) {
                     self.values.copy(value)?
+                } else if crate::action::EMPTY.contains(&name.as_str()) {
+                    crate::action::value(name, Vec::new())
                 } else if let Some((enumeration, fields)) = self.program.variant(name) {
                     if !fields.is_empty() {
                         return Err(Error::Denied);
@@ -1264,6 +1266,7 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
                     request.body,
                     &record,
                     &self.program.records[&record],
+                    self.program,
                 ));
             }
             return self.repository_call(name, method, arguments, locals);
@@ -1376,6 +1379,9 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
             .iter()
             .map(|(_, value)| self.expr(value, locals))
             .collect::<Result<Vec<_>>>()?;
+        if crate::action::constructor(name) {
+            return Ok(crate::action::value(name, values));
+        }
         if let Some((enumeration, fields)) = self.program.variant(name) {
             if !fields
                 .iter()

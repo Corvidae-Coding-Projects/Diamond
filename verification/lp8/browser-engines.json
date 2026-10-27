@@ -1,0 +1,89 @@
+{
+  "status": "PASS",
+  "binary_sha256": "28a8f27b6db02a04301ffa458f03df38e6c37fad16aaa6b6929adcd448a51e30",
+  "driver_sha256": "e93314e5f5b3e0283e774457f2a5ae3725fb150b2c999036fbd70b0def73648d",
+  "runner_sha256": "12ceb434164ff6a0ee3e42e81ac6adfea832452a76d8b39302a3e066f57826c7",
+  "compatibilityLibraries": {
+    "icu76": "c1bf762996de9ecba9b9d871e4928a8090f023a3e9e7fa3240b3d90f892a01dc",
+    "woff1": "628a2a993556027adaa4e93a675fee341e3d47d306db7f3811ff56ea84a42022"
+  },
+  "fatal": null,
+  "observations": [
+    {
+      "name": "Chromium",
+      "pass": true,
+      "checks": {
+        "initial": true,
+        "sharedSemantics": true,
+        "mappedFailureAtomic": true,
+        "recovery": true,
+        "keyboard": true,
+        "lp1Narrow": true,
+        "accessibleRelationships": true,
+        "structuredError": true,
+        "componentKeyboard": true,
+        "componentNarrow": true
+      },
+      "timingsMs": {
+        "initialNavigation": 514,
+        "sharedEvent": 25,
+        "componentNavigation": 513,
+        "validationEvent": 41
+      },
+      "consoleErrors": [],
+      "version": "156.0.8078.47"
+    },
+    {
+      "name": "Firefox",
+      "pass": true,
+      "checks": {
+        "initial": true,
+        "sharedSemantics": true,
+        "mappedFailureAtomic": true,
+        "recovery": true,
+        "keyboard": true,
+        "lp1Narrow": true,
+        "accessibleRelationships": true,
+        "structuredError": true,
+        "componentKeyboard": true,
+        "componentNarrow": true
+      },
+      "timingsMs": {
+        "initialNavigation": 588,
+        "sharedEvent": 31,
+        "componentNavigation": 514,
+        "validationEvent": 50
+      },
+      "consoleErrors": [],
+      "version": "142.0.1"
+    },
+    {
+      "name": "WebKit",
+      "pass": true,
+      "checks": {
+        "initial": true,
+        "sharedSemantics": true,
+        "mappedFailureAtomic": true,
+        "recovery": true,
+        "keyboard": true,
+        "lp1Narrow": true,
+        "accessibleRelationships": true,
+        "structuredError": true,
+        "componentKeyboard": true,
+        "componentNarrow": true
+      },
+      "timingsMs": {
+        "initialNavigation": 510,
+        "sharedEvent": 51,
+        "componentNavigation": 511,
+        "validationEvent": 33
+      },
+      "consoleErrors": [],
+      "version": "26.0"
+    }
+  ],
+  "shutdowns": {
+    "lp1": 0,
+    "components": 0
+  }
+}

@@ -9,6 +9,7 @@ use zeroize::Zeroizing;
 pub(in crate::project) struct Grant {
     pub principal: Principal,
     pub restrictions: Restrictions,
+    pub fingerprint: String,
 }
 impl PostgresStore {
     pub(in crate::project) fn create_credential(
@@ -122,6 +123,15 @@ impl PostgresStore {
         };
         Ok(Grant {
             principal,
+            fingerprint: super::super::artifact::hash(
+                &serde_json::to_vec(&(
+                    digest(&self.app, "api", token),
+                    epoch,
+                    &operations,
+                    &scopes,
+                ))
+                .map_err(|_| Error::Denied)?,
+            ),
             restrictions: scopes,
         })
     }

@@ -1,0 +1,435 @@
+{
+  "status": "FAIL",
+  "qualification_complete": false,
+  "binary_sha256": "4ce83ca2bfb10b8371f0005b9cc46fb0da81a2347bb3210e2a2b6af030acc0ad",
+  "driver_sha256": "809e135db1fcd6119c34041e529406dcd17126fef01d0d3351925ee5da2b8488",
+  "hardware": {
+    "hostname": "dollspace-laptop",
+    "kernel": "7.2.12-200.fc44.x86_64",
+    "machine": "x86_64",
+    "cpu": "Intel(R) Core(TM) Ultra 9 275HX",
+    "logical_cpus": 24,
+    "memory_kib": 32259300,
+    "python": "3.14.8"
+  },
+  "thresholds_fixed_before_run": {
+    "clients": 100,
+    "records": 100000,
+    "duration_seconds": 1800,
+    "success_floor": 0.9,
+    "successful_p99_ceiling_seconds": 3.0
+  },
+  "observed": {
+    "duration_seconds": 25.067,
+    "requests": 1200,
+    "successful_requests": 629,
+    "success_ratio": 0.524167,
+    "requests_per_second": 47.872,
+    "successful_p50_seconds": 0.001157,
+    "successful_p95_seconds": 0.022233,
+    "successful_p99_seconds": 0.058948,
+    "request_errors": {
+      "ConnectionRefusedError": 100
+    },
+    "by_operation": {
+      "api-count": {
+        "statuses": {
+          "200": 11,
+          "429": 13
+        },
+        "successes": 11,
+        "p50_seconds": 0.016358,
+        "p95_seconds": 0.042089,
+        "p99_seconds": 0.042089,
+        "max_seconds": 0.058948
+      },
+      "api-page": {
+        "statuses": {
+          "503": 1,
+          "200": 14,
+          "429": 20
+        },
+        "successes": 14,
+        "p50_seconds": 0.007636,
+        "p95_seconds": 0.03041,
+        "p99_seconds": 0.03041,
+        "max_seconds": 0.037175
+      },
+      "api-read": {
+        "statuses": {
+          "503": 1,
+          "200": 26,
+          "429": 34
+        },
+        "successes": 26,
+        "p50_seconds": 0.007395,
+        "p95_seconds": 0.033089,
+        "p99_seconds": 0.062461,
+        "max_seconds": 0.069032
+      },
+      "count": {
+        "statuses": {
+          "503": 5,
+          "200": 18,
+          "429": 73
+        },
+        "successes": 18,
+        "p50_seconds": 0.01765,
+        "p95_seconds": 0.031253,
+        "p99_seconds": 0.031253,
+        "max_seconds": 0.034182
+      },
+      "joined": {
+        "statuses": {
+          "503": 3,
+          "200": 9,
+          "429": 36
+        },
+        "successes": 9,
+        "p50_seconds": 0.015465,
+        "p95_seconds": 0.018894,
+        "p99_seconds": 0.018894,
+        "max_seconds": 0.02032
+      },
+      "page": {
+        "statuses": {
+          "503": 5,
+          "200": 34,
+          "429": 129
+        },
+        "successes": 34,
+        "p50_seconds": 0.007286,
+        "p95_seconds": 0.051396,
+        "p99_seconds": 0.063,
+        "max_seconds": 0.06448
+      },
+      "read": {
+        "statuses": {
+          "503": 13,
+          "200": 56,
+          "429": 219
+        },
+        "successes": 56,
+        "p50_seconds": 0.007377,
+        "p95_seconds": 0.049837,
+        "p99_seconds": 0.065134,
+        "max_seconds": 0.066904
+      },
+      "ready": {
+        "statuses": {
+          "503": 5,
+          "200": 115
+        },
+        "successes": 115,
+        "p50_seconds": 0.007318,
+        "p95_seconds": 0.009978,
+        "p99_seconds": 0.014882,
+        "max_seconds": 0.050442
+      },
+      "root": {
+        "statuses": {
+          "200": 346,
+          "503": 14
+        },
+        "successes": 346,
+        "p50_seconds": 0.000623,
+        "p95_seconds": 0.001788,
+        "p99_seconds": 0.008765,
+        "max_seconds": 0.011012
+      }
+    },
+    "maximum_rss_kib": {
+      "node_A": 58684,
+      "node_B": 35112,
+      "worker_one": 33528,
+      "worker_two": 31576
+    },
+    "database_records": 100004,
+    "final_counts": {
+      "records": 100004,
+      "jobs": 1,
+      "jobs_done": 1,
+      "jobs_incomplete": 0,
+      "events": 1
+    },
+    "final_readiness": {
+      "A": 200,
+      "B": 200
+    },
+    "slow_transfer": {
+      "begin_status": 200,
+      "put_status": 200,
+      "seconds": 12.832,
+      "bytes_sent": 8388608,
+      "finish_status": 200,
+      "delete_status": 200
+    },
+    "websocket": {
+      "events": [
+        {
+          "elapsed": 0.511,
+          "value": {
+            "cursor": "1",
+            "value": "capacity event 0"
+          }
+        }
+      ],
+      "end": {
+        "error": "OSError",
+        "elapsed": 25.076
+      }
+    },
+    "query_plan": [
+      {
+        "Plan": {
+          "Node Type": "Limit",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "Startup Cost": 0.42,
+          "Total Cost": 0.84,
+          "Plan Rows": 2,
+          "Plan Width": 194,
+          "Actual Startup Time": 0.017,
+          "Actual Total Time": 0.02,
+          "Actual Rows": 2.0,
+          "Actual Loops": 1,
+          "Disabled": false,
+          "Shared Hit Blocks": 5,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0,
+          "Plans": [
+            {
+              "Node Type": "Index Scan",
+              "Parent Relationship": "Outer",
+              "Parallel Aware": false,
+              "Async Capable": false,
+              "Scan Direction": "Forward",
+              "Index Name": "k_07fc2a7d1e3c534c9dd57e04d5eca8cb74be6eef",
+              "Relation Name": "r_45792abffaa8e959_666067dd376e5d45",
+              "Alias": "r_45792abffaa8e959_666067dd376e5d45",
+              "Startup Cost": 0.42,
+              "Total Cost": 10509.12,
+              "Plan Rows": 50260,
+              "Plan Width": 194,
+              "Actual Startup Time": 0.017,
+              "Actual Total Time": 0.019,
+              "Actual Rows": 2.0,
+              "Actual Loops": 1,
+              "Disabled": false,
+              "Index Cond": "((workspace = '4e2d7c125c1399cd1436002baf5a5bc4ab981a4eeb6d567c809af3727d6c6566'::text) AND (rank < 1000))",
+              "Rows Removed by Index Recheck": 0,
+              "Index Searches": 1,
+              "Shared Hit Blocks": 5,
+              "Shared Read Blocks": 0,
+              "Shared Dirtied Blocks": 0,
+              "Shared Written Blocks": 0,
+              "Local Hit Blocks": 0,
+              "Local Read Blocks": 0,
+              "Local Dirtied Blocks": 0,
+              "Local Written Blocks": 0,
+              "Temp Read Blocks": 0,
+              "Temp Written Blocks": 0
+            }
+          ]
+        },
+        "Planning": {
+          "Shared Hit Blocks": 125,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0
+        },
+        "Planning Time": 0.183,
+        "Triggers": [],
+        "Execution Time": 0.032
+      }
+    ],
+    "control": [
+      {
+        "elapsed": 0.005,
+        "job_status": 200,
+        "event_status": 200,
+        "edit_status": 200
+      },
+      {
+        "action": "kill-restart-node-B",
+        "elapsed": 9.005,
+        "recovery_seconds": 3.233
+      },
+      {
+        "action": "kill-restart-worker-two",
+        "elapsed": 13.842,
+        "recovery_seconds": 3.004
+      }
+    ],
+    "samples": [
+      {
+        "elapsed": 0.005,
+        "rss_kib": {
+          "node_A": 53824,
+          "node_B": 33988,
+          "worker_one": 31804,
+          "worker_two": 31568
+        },
+        "metrics": {
+          "A": {
+            "status": 503,
+            "value": {
+              "error": "unavailable"
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_git_transports": 0,
+              "active_requests": 16,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 52
+            }
+          }
+        },
+        "database": {
+          "connections": 19,
+          "jobs": 0,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 0,
+          "objects": 0
+        }
+      },
+      {
+        "elapsed": 16.946,
+        "rss_kib": {
+          "node_A": 58684,
+          "node_B": 35112,
+          "worker_one": 33528,
+          "worker_two": 31576
+        },
+        "metrics": {
+          "A": {
+            "status": 200,
+            "value": {
+              "active_git_transports": 0,
+              "active_requests": 1,
+              "active_sockets": 1,
+              "draining": false,
+              "requests": 461
+            }
+          },
+          "B": {
+            "status": 200,
+            "value": {
+              "active_git_transports": 0,
+              "active_requests": 0,
+              "active_sockets": 0,
+              "draining": false,
+              "requests": 102
+            }
+          }
+        },
+        "database": {
+          "connections": 17,
+          "jobs": 1,
+          "jobs_pending": 0,
+          "jobs_running": 0,
+          "jobs_dead": 0,
+          "events": 1,
+          "objects": 1
+        }
+      }
+    ],
+    "receiver": {
+      "attempts": [
+        {
+          "path": "/v1/dedup/fbb8fa7293e780429c9f5ea94115e605d26258bfbecafb4b48eef253882e0a0c",
+          "key": "fbb8fa7293e780429c9f5ea94115e605d26258bfbecafb4b48eef253882e0a0c",
+          "body_sha256": "8a49c346b3bd43f66d16bb5cd37c74bcf8dce5d0da3334b9d7b89f78da5b5429",
+          "bytes": 26
+        }
+      ],
+      "effect_keys": [
+        "fbb8fa7293e780429c9f5ea94115e605d26258bfbecafb4b48eef253882e0a0c"
+      ],
+      "effects": 1,
+      "counts": {
+        "/v1/dedup/fbb8fa7293e780429c9f5ea94115e605d26258bfbecafb4b48eef253882e0a0c": 1
+      }
+    }
+  },
+  "failures": [
+    {
+      "name": "success-floor",
+      "observed": 0.5241666666666667,
+      "expected": ">=0.9 despite planned interruption"
+    },
+    {
+      "name": "socket-lifetime",
+      "observed": {
+        "error": "OSError",
+        "elapsed": 25.076
+      },
+      "expected": "the original authenticated socket closes only near its documented 30-minute lifetime and releases its permit"
+    }
+  ],
+  "scope": "two real app nodes, two real workers, isolated PostgreSQL and shared filesystem; 100 client threads use actual loopback HTTP; direct SQL only seeds and independently observes the fixed synthetic corpus",
+  "shutdowns": [
+    {
+      "node": "B",
+      "exit": -9,
+      "expected_exit": -9,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "worker": "two",
+      "exit": -9,
+      "expected_exit": -9,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "worker": "one",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "worker": "two",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "temporary_root_removed": true
+}

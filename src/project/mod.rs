@@ -1,6 +1,7 @@
 //! Checked project graphs, target separation, and versioned application builds.
 
 mod accounts;
+mod actions;
 mod api;
 pub(crate) mod artifact;
 mod assets;
@@ -20,6 +21,7 @@ mod queries;
 mod render;
 pub(crate) mod resolve;
 mod rpc;
+mod schemas;
 mod secrets;
 mod server;
 pub(crate) mod storage;
@@ -38,7 +40,9 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::net::SocketAddr;
 use std::path::Path;
 
-const FORMAT_VERSION: u32 = 1;
+const FORMAT_VERSION: u32 = 5;
+const MANIFEST_VERSION: u32 = 1;
+const WIRE_VERSION: u32 = 7;
 const MAX_PROJECT_BYTES: usize = 8 * crate::MAX_SOURCE_BYTES;
 const LINE_STRIDE: usize = crate::MAX_SOURCE_BYTES + 1;
 
@@ -74,6 +78,8 @@ struct Manifest {
     modules: BTreeMap<String, ModuleConfig>,
     #[serde(default)]
     rpc: BTreeMap<String, String>,
+    #[serde(default)]
+    actions: BTreeMap<String, actions::Binding>,
     #[serde(default)]
     public_rpc: BTreeSet<String>,
     #[serde(default)]
@@ -268,7 +274,7 @@ impl CheckedProject {
     /// # Ok::<(),diamond::Error>(())
     /// ```
     pub fn render_page(&self, path: &str) -> Result<String> {
-        if !self.browser.routes.contains(path) {
+        if !self.browser.routes.contains(path) && self.browser.schemas.match_path(path).is_none() {
             return Err(input("unknown browser route"));
         }
         render::render(self, path)
@@ -766,7 +772,7 @@ fn synchronous_context() -> Result<()> {
 fn manifest(source: &str) -> Result<Manifest> {
     let manifest: Manifest = toml::from_str(source)
         .map_err(|error| input(&format!("invalid project manifest: {error}")))?;
-    if manifest.schema_version != FORMAT_VERSION {
+    if manifest.schema_version != MANIFEST_VERSION {
         return Err(input("unsupported project manifest version"));
     }
     if !resolve::identifier(&manifest.name)
@@ -885,19 +891,7 @@ fn compile_sources(
     }
     let modules = parse_modules(&manifest, &sources)?;
     let server = check_server(&manifest, &modules)?;
-    let rpc = rpc::operations(&manifest, &modules, &server)?;
-    for name in &manifest.public_rpc {
-        let op = rpc
-            .get(name)
-            .ok_or_else(|| input("public RPC must be explicitly declared"))?;
-        if server.functions[&op.function]
-            .effects
-            .iter()
-            .any(|e| !matches!(e, Effect::Read(_)))
-        {
-            return Err(input("public RPC must have only read effects"));
-        }
-    }
+    let rpc = checked_operations(&manifest, &modules, &server)?;
     let api = api::operations(&manifest, &modules, &server)?;
     let queries = queries::checked(&manifest, &modules, &server, &rpc)?;
     let jobs = jobs::checked(&manifest, &modules, &server)?;
@@ -907,6 +901,15 @@ fn compile_sources(
     let browser_source = combined(&modules, &browser_names);
     let browser_checked =
         crate::checker::check(&browser_source).map_err(|error| locate(&modules, error))?;
+    let schemas = schemas::Schemas::checked(&modules, &browser_checked)
+        .map_err(|error| locate(&modules, error))?;
+    for name in schemas.routes.keys().chain(schemas.forms.keys()) {
+        if !server.records.contains_key(name) {
+            return Err(input(
+                "reactive schemas must be imported by the server and browser",
+            ));
+        }
+    }
     let root = &modules[&manifest.browser];
     if !root.parsed.exports.contains(&manifest.component) {
         return Err(input("root browser component must be exported"));
@@ -925,19 +928,23 @@ fn compile_sources(
         &browser_checked,
         &component.name,
         &components,
-        &rpc,
-        manifest.identity.as_ref(),
-        manifest.files.as_ref(),
-        manifest
-            .events
-            .iter()
-            .map(|(n, b)| Ok((n.clone(), events::payload(b, &modules, &manifest, &server)?)))
-            .collect::<Result<_>>()?,
+        lower::Interfaces {
+            actions: &manifest.actions,
+            rpc: &rpc,
+            identity: manifest.identity.as_ref(),
+            files: manifest.files.as_ref(),
+            channels: manifest
+                .events
+                .iter()
+                .map(|(n, b)| Ok((n.clone(), events::payload(b, &modules, &manifest, &server)?)))
+                .collect::<Result<_>>()?,
+            schemas: &schemas,
+        },
     )
     .map_err(|error| locate(&modules, error))?;
     let urls = assets::urls(&manifest, &sources)?;
     assets::resolve(&mut browser, &urls)?;
-    Ok(CheckedProject {
+    let project = CheckedProject {
         manifest_source,
         sources,
         manifest,
@@ -950,7 +957,41 @@ fn compile_sources(
         jobs,
         workflows,
         queries,
-    })
+    };
+    actions::checked(&project).map_err(|error| locate(&project.modules, error))?;
+    Ok(project)
+}
+
+fn checked_operations(
+    manifest: &Manifest,
+    modules: &BTreeMap<String, Module>,
+    server: &CheckedProgram,
+) -> Result<BTreeMap<String, rpc::Operation>> {
+    let mut rpc = rpc::operations(manifest, modules, server)?;
+    for (name, operation) in rpc::action_operations(manifest, modules, server)? {
+        if rpc.insert(name, operation).is_some() {
+            return Err(input("RPC and action names must be distinct"));
+        }
+    }
+    if rpc.len() > 128 {
+        return Err(Error::Limit("RPC and action declarations"));
+    }
+    for name in &manifest.public_rpc {
+        let op = rpc
+            .get(name)
+            .ok_or_else(|| input("public RPC must be explicitly declared"))?;
+        if op.action {
+            return Err(input("actions require authenticated dispatch"));
+        }
+        if server.functions[&op.function]
+            .effects
+            .iter()
+            .any(|e| !matches!(e, Effect::Read(_)))
+        {
+            return Err(input("public RPC must have only read effects"));
+        }
+    }
+    Ok(rpc)
 }
 
 fn parse_modules(
@@ -964,6 +1005,16 @@ fn parse_modules(
             .ok_or_else(|| input("missing module source"))?;
         let parsed = crate::parser::project_module(source)
             .map_err(|error| source_error(&config.path, error))?;
+        if !parsed.actions.is_empty() && config.target != Target::Server {
+            return Err(input("actions belong to server modules"));
+        }
+        if parsed
+            .actions
+            .iter()
+            .any(|name| !parsed.exports.contains(name))
+        {
+            return Err(input("actions must be explicitly exported"));
+        }
         if name != &manifest.server
             && config.target != Target::Shared
             && parsed

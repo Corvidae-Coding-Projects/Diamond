@@ -1,0 +1,18 @@
+schema_version = 1
+name = "ReusableControls"
+server = "server"
+browser = "ui"
+component = "App"
+provides = []
+
+[modules.shared]
+path = "shared.dia"
+target = "shared"
+[modules.server]
+path = "server.dia"
+target = "server"
+imports = ["shared"]
+[modules.ui]
+path = "ui.dia"
+target = "browser"
+imports = ["shared"]

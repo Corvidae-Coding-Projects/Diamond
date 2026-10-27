@@ -1,0 +1,639 @@
+{
+  "status": "PASS",
+  "scope": "Independent bounded LP2 CLI/native/real two-node HTTP/PostgreSQL verification; no browser execution",
+  "candidate_binary_sha256": "34f31487113e5d6b14e0aa8c214aca44be80a71c16add9eab77945c9b6d72262",
+  "error": null,
+  "observations": [
+    {
+      "name": "literal-prepare-binding-compiles",
+      "pass": true,
+      "expected": "action binding literally named prepare with API alias accepted",
+      "observed": {
+        "contract": "fabf99aecdc4797abf0498bda220c83d62554c51ad28e1c1cd10ad3e68953944",
+        "versions": [
+          "0.17.0",
+          2,
+          4
+        ]
+      }
+    },
+    {
+      "name": "action-requires-relational-and-identity",
+      "pass": true,
+      "expected": "actions require relational-v1 storage and accounts-v1 identity",
+      "observed": {
+        "exit": 1,
+        "stderr": "error: invalid input: LP2 actions require relational-v1 storage and accounts-v1 identity",
+        "command": [
+          "/tmp/diamond-lp2-independent-7klktkhy/diamond",
+          "check",
+          "/tmp/diamond-lp2-independent-7klktkhy/no-profile/diamond.toml"
+        ]
+      }
+    },
+    {
+      "name": "relational-action-without-identity-rejected",
+      "pass": true,
+      "expected": "actions require relational-v1 storage and accounts-v1 identity",
+      "observed": {
+        "exit": 1,
+        "stderr": "error: invalid input: LP2 actions require relational-v1 storage and accounts-v1 identity",
+        "command": [
+          "/tmp/diamond-lp2-independent-7klktkhy/diamond",
+          "check",
+          "/tmp/diamond-lp2-independent-7klktkhy/no-identity/diamond.toml"
+        ]
+      }
+    },
+    {
+      "name": "nested-secret-action-result-rejected",
+      "pass": true,
+      "expected": "finite managed wire-safe types",
+      "observed": {
+        "exit": 1,
+        "stderr": "error: invalid input: RPC signatures require finite managed wire-safe types",
+        "command": [
+          "/tmp/diamond-lp2-independent-7klktkhy/diamond",
+          "check",
+          "/tmp/diamond-lp2-independent-7klktkhy/restricted/diamond.toml"
+        ]
+      }
+    },
+    {
+      "name": "native-consumer-no-host-grant",
+      "pass": true,
+      "expected": "Error::Denied from an actual checked native consumer without PostgreSQL grant",
+      "observed": {
+        "exit": 0,
+        "stdout": "DENIED_WITHOUT_NATIVE_GRANT\n",
+        "stderr": "",
+        "build_command": [
+          "rustc",
+          "--edition=2024",
+          "/tmp/diamond-lp2-independent-7klktkhy/native.rs",
+          "--extern",
+          "diamond=/home/doll/diamond/target/debug/libdiamond.rlib",
+          "-L",
+          "dependency=/home/doll/diamond/target/debug/deps",
+          "-o",
+          "/tmp/diamond-lp2-independent-7klktkhy/native-consumer"
+        ],
+        "library_sha256": "88c251a8825983f6d50d0d1f60fdf7bce82751705a98839141e670836d34443f"
+      }
+    },
+    {
+      "name": "cookie-action-named-prepare",
+      "pass": true,
+      "expected": "ActionSucceeded and only alpha-b revision 1",
+      "observed": {
+        "response": [
+          200,
+          {
+            "value": {
+              "fields": [
+                {
+                  "id": {
+                    "tag": "issue",
+                    "value": "alpha-b"
+                  },
+                  "revision": "1",
+                  "title": "Named action",
+                  "workspace": {
+                    "tag": "workspace",
+                    "value": "alpha"
+                  }
+                }
+              ],
+              "tag": "ActionSucceeded"
+            }
+          }
+        ],
+        "rows": [
+          {
+            "id": "alpha-a",
+            "title": "Old A",
+            "revision": 0
+          },
+          {
+            "id": "alpha-b",
+            "title": "Named action",
+            "revision": 1
+          },
+          {
+            "id": "beta-c",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "cookie-proof-duplicate",
+      "pass": true,
+      "expected": "ActionUnknown, no second revision",
+      "observed": {
+        "response": [
+          200,
+          {
+            "value": {
+              "fields": [],
+              "tag": "ActionUnknown"
+            }
+          }
+        ],
+        "rows": [
+          {
+            "id": "alpha-a",
+            "title": "Old A",
+            "revision": 0
+          },
+          {
+            "id": "alpha-b",
+            "title": "Named action",
+            "revision": 1
+          },
+          {
+            "id": "beta-c",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "api-action-alias-named-prepare",
+      "pass": true,
+      "expected": "versioned API ActionSucceeded and revision 2",
+      "observed": {
+        "response": [
+          200,
+          {
+            "api_version": 1,
+            "value": {
+              "fields": [
+                {
+                  "id": {
+                    "tag": "issue",
+                    "value": "alpha-b"
+                  },
+                  "revision": "2",
+                  "title": "API alias",
+                  "workspace": {
+                    "tag": "workspace",
+                    "value": "alpha"
+                  }
+                }
+              ],
+              "tag": "ActionSucceeded"
+            }
+          }
+        ],
+        "rows": [
+          {
+            "id": "alpha-a",
+            "title": "Old A",
+            "revision": 0
+          },
+          {
+            "id": "alpha-b",
+            "title": "API alias",
+            "revision": 2
+          },
+          {
+            "id": "beta-c",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "api-duplicate-versioned-envelope",
+      "pass": true,
+      "expected": "api_version 1; ActionUnknown; no mutation",
+      "observed": {
+        "response": [
+          200,
+          {
+            "api_version": 1,
+            "value": {
+              "fields": [],
+              "tag": "ActionUnknown"
+            }
+          }
+        ],
+        "rows": [
+          {
+            "id": "alpha-a",
+            "title": "Old A",
+            "revision": 0
+          },
+          {
+            "id": "alpha-b",
+            "title": "API alias",
+            "revision": 2
+          },
+          {
+            "id": "beta-c",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "cross-node-single-use-race",
+      "pass": true,
+      "expected": "one success, one unknown, revision increments once",
+      "observed": {
+        "responses": [
+          [
+            200,
+            {
+              "value": {
+                "fields": [
+                  {
+                    "id": {
+                      "tag": "issue",
+                      "value": "alpha-b"
+                    },
+                    "revision": "3",
+                    "title": "Race once",
+                    "workspace": {
+                      "tag": "workspace",
+                      "value": "alpha"
+                    }
+                  }
+                ],
+                "tag": "ActionSucceeded"
+              }
+            }
+          ],
+          [
+            200,
+            {
+              "value": {
+                "fields": [],
+                "tag": "ActionUnknown"
+              }
+            }
+          ]
+        ],
+        "rows": [
+          {
+            "id": "alpha-a",
+            "title": "Old A",
+            "revision": 0
+          },
+          {
+            "id": "alpha-b",
+            "title": "Race once",
+            "revision": 3
+          },
+          {
+            "id": "beta-c",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "changed-input-proof-binding",
+      "pass": true,
+      "expected": "changed input cannot execute or consume the original matching proof",
+      "observed": {
+        "response": [
+          200,
+          {
+            "value": {
+              "fields": [],
+              "tag": "ActionUnknown"
+            }
+          }
+        ],
+        "rows": [
+          {
+            "id": "alpha-a",
+            "title": "Old A",
+            "revision": 0
+          },
+          {
+            "id": "alpha-b",
+            "title": "Race once",
+            "revision": 3
+          },
+          {
+            "id": "beta-c",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "original-input-after-mismatch",
+      "pass": true,
+      "expected": "valid original proof still works once",
+      "observed": {
+        "response": [
+          200,
+          {
+            "value": {
+              "fields": [
+                {
+                  "id": {
+                    "tag": "issue",
+                    "value": "alpha-b"
+                  },
+                  "revision": "4",
+                  "title": "Bound original",
+                  "workspace": {
+                    "tag": "workspace",
+                    "value": "alpha"
+                  }
+                }
+              ],
+              "tag": "ActionSucceeded"
+            }
+          }
+        ],
+        "rows": [
+          {
+            "id": "alpha-a",
+            "title": "Old A",
+            "revision": 0
+          },
+          {
+            "id": "alpha-b",
+            "title": "Bound original",
+            "revision": 4
+          },
+          {
+            "id": "beta-c",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "cookie-proof-api-realm-denied",
+      "pass": true,
+      "expected": "cookie proof never authorizes API action",
+      "observed": {
+        "response": [
+          200,
+          {
+            "api_version": 1,
+            "value": {
+              "fields": [],
+              "tag": "ActionUnknown"
+            }
+          }
+        ],
+        "rows": [
+          {
+            "id": "alpha-a",
+            "title": "Old A",
+            "revision": 0
+          },
+          {
+            "id": "alpha-b",
+            "title": "Bound original",
+            "revision": 4
+          },
+          {
+            "id": "beta-c",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "original-realm-recovers",
+      "pass": true,
+      "expected": "correct realm executes once",
+      "observed": {
+        "response": [
+          200,
+          {
+            "value": {
+              "fields": [
+                {
+                  "id": {
+                    "tag": "issue",
+                    "value": "alpha-b"
+                  },
+                  "revision": "5",
+                  "title": "Realm original",
+                  "workspace": {
+                    "tag": "workspace",
+                    "value": "alpha"
+                  }
+                }
+              ],
+              "tag": "ActionSucceeded"
+            }
+          }
+        ],
+        "rows": [
+          {
+            "id": "alpha-a",
+            "title": "Old A",
+            "revision": 0
+          },
+          {
+            "id": "alpha-b",
+            "title": "Realm original",
+            "revision": 5
+          },
+          {
+            "id": "beta-c",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "expired-proof-no-false-abort",
+      "pass": true,
+      "expected": "expired proof returns unknown and never executes",
+      "observed": {
+        "response": [
+          200,
+          {
+            "value": {
+              "fields": [],
+              "tag": "ActionUnknown"
+            }
+          }
+        ],
+        "rows": [
+          {
+            "id": "alpha-a",
+            "title": "Old A",
+            "revision": 0
+          },
+          {
+            "id": "alpha-b",
+            "title": "Realm original",
+            "revision": 5
+          },
+          {
+            "id": "beta-c",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "membership-revoked-after-prepare",
+      "pass": true,
+      "expected": "fresh resource authorization denies the prepared action",
+      "observed": {
+        "response": [
+          200,
+          {
+            "value": {
+              "fields": [],
+              "tag": "ActionDenied"
+            }
+          }
+        ],
+        "rows": [
+          {
+            "id": "alpha-a",
+            "title": "Old A",
+            "revision": 0
+          },
+          {
+            "id": "alpha-b",
+            "title": "Realm original",
+            "revision": 5
+          },
+          {
+            "id": "beta-c",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "fresh-client-independent-readback",
+      "pass": true,
+      "expected": "fresh client and second node observe only the five committed mutations",
+      "observed": {
+        "response": [
+          200,
+          {
+            "value": {
+              "id": {
+                "tag": "issue",
+                "value": "alpha-b"
+              },
+              "revision": "5",
+              "title": "Realm original",
+              "workspace": {
+                "tag": "workspace",
+                "value": "alpha"
+              }
+            }
+          }
+        ],
+        "rows": [
+          {
+            "id": "alpha-a",
+            "title": "Old A",
+            "revision": 0
+          },
+          {
+            "id": "alpha-b",
+            "title": "Realm original",
+            "revision": 5
+          },
+          {
+            "id": "beta-c",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "named-public-route-direct-document",
+      "pass": true,
+      "expected": "200 public pure SSR with correctly bound nominal detail ID",
+      "observed": {
+        "status": 200,
+        "bytes": 1264,
+        "sha256": "70d91f381c40eaced56da33d9ada7462d377082f65cc5a34236eef148e0048cc"
+      }
+    }
+  ],
+  "fixture_mutations": [
+    "actions.rename binding renamed to actions.prepare",
+    "http_api.operations.rename alias renamed to prepare",
+    "UI action.rename renamed to action.prepare; source action function remains server.rename"
+  ],
+  "fixture_sha256": {
+    "diamond.toml": "e9cc699e9c257126cf1a4790e7bf7aad5fb3a13b27a62de8f831b9e536a3b7df",
+    "server.dia": "a9fb54f1358c9a9d026cd667948920c2123dda2226e278384e55263e0bf8063c",
+    "shared.dia": "805b57dcf89460ba1d72a9a4c31f40aa80a1195c5a3ffc55f435635e57a280cb",
+    "ui.dia": "d7139fafced3f6a87e81a2a15a0bc64470665221e4592f787b29a4e0aca9c2a4"
+  },
+  "native_consumer_source": "fn main() -> Result<(), Box<dyn std::error::Error>> {\n let path=std::env::args().nth(1).ok_or(\"missing project\")?;\n let project=diamond::compile_project(std::path::Path::new(&path))?;\n match project.evaluate(None) {\n  Err(diamond::Error::Denied) => println!(\"DENIED_WITHOUT_NATIVE_GRANT\"),\n  other => return Err(format!(\"unexpected native result: {other:?}\").into()),\n }\n Ok(())\n}\n",
+  "runtime_endpoint_ports": {
+    "A": 58045,
+    "B": 60845
+  },
+  "shutdowns": [
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "source_only_review": {
+    "files": [
+      "src/project/runtime.js::__dispatch, __commit, __dispose",
+      "src/project/interactions.js::__deliverOutputs"
+    ],
+    "bounds": "Shared chain 64 deliveries / 30 seconds; generation, binding-generation, auth epoch, source/parent activity checked before delivery; disposal/rebinding cancels owned pending work",
+    "verdict": "Source-backed only; not independently executed in a real browser in this task"
+  },
+  "gaps": [
+    "No independent browser/output-loop/lifetime dispatch execution because browser tabs were excluded",
+    "No independent fault injection between proof commit and application transaction; no commit-acknowledgement-loss test",
+    "Runtime PostgreSQL connection uses the disposable cluster owner; least-privilege SQL-role campaign was not repeated",
+    "No whole-codebase security certification"
+  ],
+  "reviewed_existing_receipts": {
+    "compiler.json": {
+      "status": "PASS",
+      "binary_sha256": "34f31487113e5d6b14e0aa8c214aca44be80a71c16add9eab77945c9b6d72262"
+    },
+    "results.json": {
+      "status": "PASS",
+      "binary_sha256": "61cdc077d8b893f313e9787ef9d4d5e760448ea26e4fef938c68eb9a452d82d0"
+    },
+    "browser_fixture_lifecycle.json": {
+      "status": "PASS",
+      "binary_sha256": "696a2ab98aa77e4ac0dd502942bcae46fd323bb873264df0cf5e29403b339928"
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "binary_sha256": "298280babac30b98ca3234246831d14f3dcf7f426f87585280fbbce46c66448f",
+  "failures": [
+    {
+      "case": "raw_id_collision",
+      "command": [
+        "/tmp/lp4-independent-ilr87ee7/diamond",
+        "build",
+        "/tmp/lp4-independent-ilr87ee7/raw_id_collision/diamond.toml",
+        "--out",
+        "/tmp/lp4-independent-ilr87ee7/raw_id_collision/build-original-replay"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "source_sha256": "f1322dadb00d5e008bf30ab5bdb4bdeecab9258435251fbf3ed55c17f584d286",
+      "duplicate_ids": [
+        "diamond-control-root%2F1%2F0"
+      ],
+      "native_html_nodes": 25,
+      "options": 0
+    },
+    {
+      "case": "large_choice_forms",
+      "command": [
+        "/tmp/lp4-independent-ilr87ee7/diamond",
+        "build",
+        "/tmp/lp4-independent-ilr87ee7/large_choice_forms/diamond.toml",
+        "--out",
+        "/tmp/lp4-independent-ilr87ee7/large_choice_forms/build-original-replay"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "source_sha256": "b0b496f41d446369ccb6b0ca78016485da56ad2e6aec35feea04b2781e1ce093",
+      "duplicate_ids": [],
+      "native_html_nodes": 13715,
+      "options": 6400
+    }
+  ]
+}

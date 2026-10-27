@@ -1,4 +1,6 @@
 //! Pure server rendering of the checked browser tree; never executes mount/RPC.
+mod controls;
+
 use super::{
     CheckedProject,
     lower::{Attribute, Node},
@@ -18,9 +20,15 @@ pub(super) fn render(project: &CheckedProject, path: &str) -> Result<String> {
         path,
         interpreter: crate::eval::Interpreter::new(&project.browser_checked, &scope, None, None),
         count: 0,
+        components: 0,
     };
     let mut output = String::new();
-    renderer.component(&project.browser.component, &BTreeMap::new(), &mut output)?;
+    renderer.component(
+        &project.browser.component,
+        &BTreeMap::new(),
+        "root",
+        &mut output,
+    )?;
     if output.len() > super::MAX_PROJECT_BYTES {
         return Err(Error::Limit("rendered page"));
     }
@@ -31,6 +39,7 @@ struct Render<'a, 's> {
     path: &'a str,
     interpreter: crate::eval::Interpreter<'a, 's>,
     count: usize,
+    components: usize,
 }
 impl Render<'_, '_> {
     fn value(
@@ -48,8 +57,13 @@ impl Render<'_, '_> {
         &mut self,
         name: &str,
         props: &BTreeMap<String, Value>,
+        identity: &str,
         out: &mut String,
     ) -> Result<()> {
+        self.components += 1;
+        if self.components > 1024 {
+            return Err(Error::Limit("component capacity"));
+        }
         let def = &self.project.browser.components[name];
         let mut locals = props.clone();
         for (n, e) in &def.state {
@@ -71,7 +85,7 @@ impl Render<'_, '_> {
             crate::template::escape(name)
         )
         .map_err(|_| Error::Limit("HTML formatting"))?;
-        self.nodes(&def.template, &locals, out)?;
+        self.nodes(&def.template, &locals, identity, out)?;
         out.push_str("</diamond-component>");
         Ok(())
     }
@@ -79,26 +93,52 @@ impl Render<'_, '_> {
         &mut self,
         nodes: &[Node],
         locals: &BTreeMap<String, Value>,
+        identity: &str,
         out: &mut String,
     ) -> Result<()> {
         let escape = escaped;
-        for node in nodes {
+        for (index, node) in nodes.iter().enumerate() {
+            let id = format!("{identity}/{index}");
+            if id.len() > 8192 {
+                return Err(Error::Limit("component identity bytes"));
+            }
             self.count += 1;
             if self.count > 8192 {
                 return Err(Error::Limit("render node capacity"));
             }
             match node {
+                Node::Field(_) | Node::Submit(_) | Node::Status(_) => {
+                    self.managed_control(node, locals, &id, out)?;
+                }
                 Node::Watch { .. } => {}
                 Node::Text(s) => out.push_str(&escape(s)),
                 Node::Value(e) => out.push_str(&escape(&self.value(e, locals)?.display_text()?)),
                 Node::When(e, children) => {
                     if self.value(e, locals)?.boolean()? {
-                        self.nodes(children, locals, out)?;
+                        self.nodes(children, locals, &id, out)?;
                     }
                 }
                 Node::Route(path, children) => {
                     if path == self.path {
-                        self.nodes(children, locals, out)?;
+                        self.nodes(children, locals, &id, out)?;
+                    }
+                }
+                Node::NamedRoute {
+                    route,
+                    binding,
+                    children,
+                } => {
+                    if let Some((name, value)) = self.project.browser.schemas.match_path(self.path)
+                        && &name == route
+                    {
+                        let mut nested = locals.clone();
+                        nested.insert(binding.clone(), value);
+                        self.nodes(
+                            children,
+                            &nested,
+                            &format!("{id}/{}", controls::encode(self.path)),
+                            out,
+                        )?;
                     }
                 }
                 Node::Each {
@@ -114,35 +154,96 @@ impl Render<'_, '_> {
                     for value in values {
                         let mut nested = locals.clone();
                         nested.insert(binding.clone(), value);
-                        if !keys.insert(self.value(key, &nested)?.display_text()?) {
+                        let key = self.value(key, &nested)?;
+                        let key = controls::key(&key)?;
+                        if !keys.insert(key.clone()) {
                             return Err(Error::Input("duplicate key".into()));
                         }
                         out.push_str("<diamond-fragment>");
-                        self.nodes(children, &nested, out)?;
+                        self.nodes(
+                            children,
+                            &nested,
+                            &format!("{id}/{}", controls::encode(&key)),
+                            out,
+                        )?;
                         out.push_str("</diamond-fragment>");
                     }
                 }
                 Node::Use {
                     component,
                     properties,
+                    ..
                 } => {
                     let props = properties
                         .iter()
                         .map(|(n, e)| Ok((n.clone(), self.value(e, locals)?)))
                         .collect::<Result<_>>()?;
-                    self.component(component, &props, out)?;
+                    self.component(component, &props, &id, out)?;
                 }
                 Node::Element {
                     tag,
                     attributes,
                     children,
                 } => {
-                    self.element(tag, attributes, children, locals, out)?;
+                    self.element(tag, attributes, children, locals, &id, out)?;
                 }
             }
             if out.len() > super::MAX_PROJECT_BYTES {
                 return Err(Error::Limit("rendered page bytes"));
             }
+        }
+        Ok(())
+    }
+    fn managed_control(
+        &mut self,
+        node: &Node,
+        locals: &BTreeMap<String, Value>,
+        id: &str,
+        out: &mut String,
+    ) -> Result<()> {
+        let escape = escaped;
+        match node {
+            Node::Field(field) => {
+                self.count += controls::field_cost(field)?;
+                if self.count > 8192 {
+                    return Err(Error::Limit("render node capacity"));
+                }
+                let label = self.value(&field.label, locals)?.display_text()?;
+                let description = field
+                    .description
+                    .as_ref()
+                    .map(|value| self.value(value, locals)?.display_text())
+                    .transpose()?;
+                out.push_str(&controls::field(
+                    field,
+                    &label,
+                    description.as_deref(),
+                    locals.get(&field.binding).ok_or(Error::Denied)?,
+                    id,
+                )?);
+            }
+            Node::Submit(label) => {
+                self.count += 1;
+                let label = self.value(label, locals)?.display_text()?;
+                controls::name(&label)?;
+                write!(out, "<button type=\"submit\">{}</button>", escape(&label))
+                    .map_err(|_| Error::Limit("HTML formatting"))?;
+            }
+            Node::Status(value) => {
+                self.count += 1;
+                let value = self.value(value, locals)?.display_text()?;
+                controls::message(&value)?;
+                write!(
+                    out,
+                    "<p role=\"status\" aria-live=\"polite\" aria-atomic=\"true\">{}</p>",
+                    escape(&value)
+                )
+                .map_err(|_| Error::Limit("HTML formatting"))?;
+            }
+            _ => return Err(Error::Denied),
+        }
+        if self.count > 8192 {
+            return Err(Error::Limit("render node capacity"));
         }
         Ok(())
     }
@@ -152,6 +253,7 @@ impl Render<'_, '_> {
         attributes: &[(String, Attribute)],
         children: &[Node],
         locals: &BTreeMap<String, Value>,
+        identity: &str,
         out: &mut String,
     ) -> Result<()> {
         let escape = escaped;
@@ -161,16 +263,23 @@ impl Render<'_, '_> {
             let value = match a {
                 Attribute::Text(s) => s.clone(),
                 Attribute::Value(e) => self.value(e, locals)?.display_text()?,
+                Attribute::Route(e) => self.project.browser.schemas.url(&self.value(e, locals)?)?,
                 Attribute::Binding(n) => locals.get(n).ok_or(Error::Denied)?.display_text()?,
                 Attribute::Checked(n) => locals.get(n).ok_or(Error::Denied)?.boolean()?.to_string(),
-                Attribute::Event(_) => continue,
+                Attribute::Field(name) => name.clone(),
+                Attribute::Event(_) | Attribute::Form { .. } => continue,
             };
             let name = match a {
                 Attribute::Binding(_) => "value",
                 Attribute::Checked(_) => "checked",
+                Attribute::Field(_) => "data-diamond-field",
                 _ => n,
             };
-            if name == "id" && ["diamond-app", "diamond-error"].contains(&value.as_str()) {
+            if name == "id"
+                && (["diamond-app", "diamond-error", "diamond-recovery"].contains(&value.as_str())
+                    || value.starts_with("diamond-control-")
+                    || value.starts_with("diamond-field-"))
+            {
                 return Err(Error::Input(
                     "component id is reserved by the runtime".into(),
                 ));
@@ -198,7 +307,7 @@ impl Render<'_, '_> {
             self.select(attributes, children, locals, out)?;
         } else {
             let mut content = String::new();
-            self.nodes(children, locals, &mut content)?;
+            self.nodes(children, locals, identity, &mut content)?;
             if tag == "pre" && content.starts_with('\n') {
                 out.push('\n');
             }
@@ -301,7 +410,8 @@ impl Render<'_, '_> {
                     let mut rendered_attributes = attributes.clone();
                     rendered_attributes
                         .push(("selected".into(), Attribute::Text(selected.to_string())));
-                    self.element(tag, &rendered_attributes, children, locals, out)?;
+                    // Checked options contain text only, with no component/control identity.
+                    self.element(tag, &rendered_attributes, children, locals, "option", out)?;
                 }
                 _ => return Err(Error::Denied),
             }

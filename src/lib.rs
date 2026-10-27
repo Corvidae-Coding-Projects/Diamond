@@ -1,16 +1,20 @@
-//! Diamond's checkpoint-six compiler, reference interpreter, and local web runtime.
+//! Diamond's checked compiler, reference interpreter, tooling, and managed web
+//! runtimes.
 //!
-//! Executable programs are sealed behind checking. This is a restricted,
-//! single-task development prototype, not a production security implementation.
+//! Executable programs are sealed behind checking. Each runtime profile retains
+//! the authority, resource, and deployment limits documented for that profile.
 
 mod accounts;
+mod action;
 mod auth;
 mod authority;
 mod browser_auth;
 mod checker;
 mod data;
+mod editor;
 mod error;
 mod eval;
+mod formatter;
 mod forms;
 mod hir;
 mod host;
@@ -22,6 +26,7 @@ mod policy;
 mod project;
 mod relational;
 mod rich_text;
+mod scalar_input;
 mod security;
 mod standard;
 mod syntax;
@@ -42,6 +47,38 @@ use std::path::Path;
 
 /// Maximum accepted Diamond source size in UTF-8 bytes.
 pub const MAX_SOURCE_BYTES: usize = 1_048_576;
+
+/// Format one valid Diamond source document without changing parsed meaning.
+///
+/// Comments, string contents, and template-relative whitespace are preserved.
+/// Line endings and source indentation are canonicalized deterministically.
+///
+/// # Errors
+/// Returns the original parser diagnostic for invalid source, or a bounded
+/// formatting error if the formatted text would not preserve parsed meaning.
+///
+/// ```
+/// let source = "# heading\nfn main() -> Int:\n    40 + 2\n";
+/// let formatted = diamond::format_source(source)?;
+/// assert_eq!(formatted, "# heading\nfn main() -> Int:\n  40 + 2\n");
+/// assert_eq!(diamond::format_source(&formatted)?, formatted);
+/// # Ok::<(), diamond::Error>(())
+/// ```
+pub fn format_source(source: &str) -> Result<String, Error> {
+    formatter::format(source)
+}
+
+/// Run the bounded Diamond language server over standard input/output.
+///
+/// This is the implementation used by `diamond lsp`; embedding applications
+/// normally launch that command instead of calling this function directly.
+///
+/// # Errors
+/// Returns I/O, protocol, message-budget, or invalid-document transport errors.
+#[doc(hidden)]
+pub fn run_language_server() -> Result<(), Error> {
+    editor::run()
+}
 
 /// Run the runtime-owned Git pre-receive entry point.
 ///

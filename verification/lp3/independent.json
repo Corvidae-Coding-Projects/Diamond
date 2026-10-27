@@ -1,0 +1,2535 @@
+{
+  "status": "PASS",
+  "error": null,
+  "binary_sha256": "41e31757fd9507a9eaa9f1557cd29271f3fec03b7bdf3c4b663768b576f763ee",
+  "native_library_sha256": "cbc66ef9d5393a202165a4abcf54cb57124e9c80975a1410b43dfca940b206b2",
+  "driver_sha256": "aff94179783810324fc6c3896a9e0925acd9d96d8ff444c39128c8f0cb731238",
+  "native_driver_sha256": "05d5dec85a7408509fe9c805db721d853967b1e57989581e311e889754d37c8e",
+  "seed": 3517123268,
+  "observations": [
+    {
+      "name": "native-result-count",
+      "pass": true,
+      "observed": 59,
+      "expected": 59
+    },
+    {
+      "name": "native /issues/alpha-a",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "static-http /issues/alpha-a",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "connected-http /issues/alpha-a",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "native /issues/alpha-a?page=2&search=%E9%9B%AA%F0%9F%98%80",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "static-http /issues/alpha-a?page=2&search=%E9%9B%AA%F0%9F%98%80",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "connected-http /issues/alpha-a?page=2&search=%E9%9B%AA%F0%9F%98%80",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "native /defaults",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "static-http /defaults",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "connected-http /defaults",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "native /defaults?enabled=false&text=",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "static-http /defaults?enabled=false&text=",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "connected-http /defaults?enabled=false&text=",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "native /required?enabled=false&scope=alpha&state=Open&text=",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "static-http /required?enabled=false&scope=alpha&state=Open&text=",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "connected-http /required?enabled=false&scope=alpha&state=Open&text=",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "native /values/0/false/e%CC%81/Open/alpha?extra=-17&flag=false&mode=Closed&owner=alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "static-http /values/0/false/e%CC%81/Open/alpha?extra=-17&flag=false&mode=Closed&owner=alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "connected-http /values/0/false/e%CC%81/Open/alpha?extra=-17&flag=false&mode=Closed&owner=alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "native /values/-9223372036854775808/true/%E2%80%A8%E2%80%A9/Closed/alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "static-http /values/-9223372036854775808/true/%E2%80%A8%E2%80%A9/Closed/alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "connected-http /values/-9223372036854775808/true/%E2%80%A8%E2%80%A9/Closed/alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "native /values/9223372036854775807/false/%E2%80%A8%E2%80%A9/Closed/alpha?extra=-17&flag=false&mode=Closed&owner=alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "static-http /values/9223372036854775807/false/%E2%80%A8%E2%80%A9/Closed/alpha?extra=-17&flag=false&mode=Closed&owner=alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "connected-http /values/9223372036854775807/false/%E2%80%A8%E2%80%A9/Closed/alpha?extra=-17&flag=false&mode=Closed&owner=alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "native /values/17/true/~._-/Open/alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "static-http /values/17/true/~._-/Open/alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "connected-http /values/17/true/~._-/Open/alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "native /values/-9223372036854775808/false/%E2%80%8E/Closed/alpha?extra=-17&flag=false&mode=Closed&owner=alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "static-http /values/-9223372036854775808/false/%E2%80%8E/Closed/alpha?extra=-17&flag=false&mode=Closed&owner=alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "connected-http /values/-9223372036854775808/false/%E2%80%8E/Closed/alpha?extra=-17&flag=false&mode=Closed&owner=alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "native /values/9223372036854775807/true/~._-/Closed/alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "static-http /values/9223372036854775807/true/~._-/Closed/alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "connected-http /values/9223372036854775807/true/~._-/Closed/alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "native /values/-17/false/e%CC%81/Open/alpha?extra=-17&flag=false&mode=Closed&owner=alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "static-http /values/-17/false/e%CC%81/Open/alpha?extra=-17&flag=false&mode=Closed&owner=alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "connected-http /values/-17/false/e%CC%81/Open/alpha?extra=-17&flag=false&mode=Closed&owner=alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "native /values/9223372036854775807/true/%C3%A9/Closed/alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "static-http /values/9223372036854775807/true/%C3%A9/Closed/alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "connected-http /values/9223372036854775807/true/%C3%A9/Closed/alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "native /values/17/false/~._-/Closed/alpha?extra=-17&flag=false&mode=Closed&owner=alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "static-http /values/17/false/~._-/Closed/alpha?extra=-17&flag=false&mode=Closed&owner=alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "connected-http /values/17/false/~._-/Closed/alpha?extra=-17&flag=false&mode=Closed&owner=alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "native /values/-17/true/e%CC%81/Open/alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "static-http /values/-17/true/e%CC%81/Open/alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "connected-http /values/-17/true/e%CC%81/Open/alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "native /values/9223372036854775807/false/~._-/Closed/alpha?extra=-17&flag=false&mode=Closed&owner=alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "static-http /values/9223372036854775807/false/~._-/Closed/alpha?extra=-17&flag=false&mode=Closed&owner=alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "connected-http /values/9223372036854775807/false/~._-/Closed/alpha?extra=-17&flag=false&mode=Closed&owner=alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "native /values/-9223372036854775808/true/%E2%80%A8%E2%80%A9/Closed/alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "static-http /values/-9223372036854775808/true/%E2%80%A8%E2%80%A9/Closed/alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "connected-http /values/-9223372036854775808/true/%E2%80%A8%E2%80%A9/Closed/alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "native /values/9223372036854775807/false/%C3%A9/Open/alpha?extra=-17&flag=false&mode=Closed&owner=alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "static-http /values/9223372036854775807/false/%C3%A9/Open/alpha?extra=-17&flag=false&mode=Closed&owner=alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "connected-http /values/9223372036854775807/false/%C3%A9/Open/alpha?extra=-17&flag=false&mode=Closed&owner=alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "native /values/0/true/%E2%80%8E/Closed/alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "static-http /values/0/true/%E2%80%8E/Closed/alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "connected-http /values/0/true/%E2%80%8E/Closed/alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "native /values/17/false/%E9%9B%AA%F0%9F%98%80/Closed/alpha?extra=-17&flag=false&mode=Closed&owner=alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "static-http /values/17/false/%E9%9B%AA%F0%9F%98%80/Closed/alpha?extra=-17&flag=false&mode=Closed&owner=alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "connected-http /values/17/false/%E9%9B%AA%F0%9F%98%80/Closed/alpha?extra=-17&flag=false&mode=Closed&owner=alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "native /values/0/true/e%CC%81/Open/alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "static-http /values/0/true/e%CC%81/Open/alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "connected-http /values/0/true/e%CC%81/Open/alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "native /values/9223372036854775807/false/~._-/Closed/alpha?extra=-17&flag=false&mode=Closed&owner=alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "static-http /values/9223372036854775807/false/~._-/Closed/alpha?extra=-17&flag=false&mode=Closed&owner=alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "connected-http /values/9223372036854775807/false/~._-/Closed/alpha?extra=-17&flag=false&mode=Closed&owner=alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "native /values/-17/true/a%20b/Closed/alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "static-http /values/-17/true/a%20b/Closed/alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "connected-http /values/-17/true/a%20b/Closed/alpha",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": null
+      },
+      "expected": "200 and exact declared fields"
+    },
+    {
+      "name": "native /defaults?enabled=true",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "static-http /defaults?enabled=true",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "connected-http /defaults?enabled=true",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "native /defaults?state=Closed",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "static-http /defaults?state=Closed",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "connected-http /defaults?state=Closed",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "native /defaults?text=%E9%9B%AA%F0%9F%98%80",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "static-http /defaults?text=%E9%9B%AA%F0%9F%98%80",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "connected-http /defaults?text=%E9%9B%AA%F0%9F%98%80",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "native /required",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "static-http /required",
+      "pass": true,
+      "observed": {
+        "status": 404,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "connected-http /required",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "native /required?enabled=false&scope=alpha&state=Open",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "static-http /required?enabled=false&scope=alpha&state=Open",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "connected-http /required?enabled=false&scope=alpha&state=Open",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "native /issues/alpha-a?page=1",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "static-http /issues/alpha-a?page=1",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "connected-http /issues/alpha-a?page=1",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "native /issues/alpha-a?search=",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "static-http /issues/alpha-a?search=",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "connected-http /issues/alpha-a?search=",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "native /issues/alpha-a?",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "static-http /issues/alpha-a?",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "connected-http /issues/alpha-a?",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "native /issues/alpha-a?page=02",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "static-http /issues/alpha-a?page=02",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "connected-http /issues/alpha-a?page=02",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "native /issues/alpha-a?page=-0",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "static-http /issues/alpha-a?page=-0",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "connected-http /issues/alpha-a?page=-0",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "native /issues/alpha-a?page=%32",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "static-http /issues/alpha-a?page=%32",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "connected-http /issues/alpha-a?page=%32",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "native /issues/alpha-a?page=9223372036854775808",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "static-http /issues/alpha-a?page=9223372036854775808",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "connected-http /issues/alpha-a?page=9223372036854775808",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "native /issues/alpha-a?search=x&page=2",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "static-http /issues/alpha-a?search=x&page=2",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "connected-http /issues/alpha-a?search=x&page=2",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "native /issues/alpha-a?page=2&page=3",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "static-http /issues/alpha-a?page=2&page=3",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "connected-http /issues/alpha-a?page=2&page=3",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "native /issues/alpha-a?%70age=2",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "static-http /issues/alpha-a?%70age=2",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "connected-http /issues/alpha-a?%70age=2",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "native /issues/alpha-a?unknown=x",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "static-http /issues/alpha-a?unknown=x",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "connected-http /issues/alpha-a?unknown=x",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "native /issues/alpha-a?search=a+b",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "static-http /issues/alpha-a?search=a+b",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "connected-http /issues/alpha-a?search=a+b",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "native /issues/alpha-a?search=%2f",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "static-http /issues/alpha-a?search=%2f",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "connected-http /issues/alpha-a?search=%2f",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "native /issues/alpha-a?search=%252F",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "static-http /issues/alpha-a?search=%252F",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "connected-http /issues/alpha-a?search=%252F",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "native /issues/alpha-a?search=%C0%AF",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "static-http /issues/alpha-a?search=%C0%AF",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "connected-http /issues/alpha-a?search=%C0%AF",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "native /issues/alpha-a?search=%ED%A0%80",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "static-http /issues/alpha-a?search=%ED%A0%80",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "connected-http /issues/alpha-a?search=%ED%A0%80",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "native /issues/alpha-a?search=%EF%BF%BD%FF",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "static-http /issues/alpha-a?search=%EF%BF%BD%FF",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "connected-http /issues/alpha-a?search=%EF%BF%BD%FF",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "native /issues/alpha-a?search=%23",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "static-http /issues/alpha-a?search=%23",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "connected-http /issues/alpha-a?search=%23",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "native /issues/alpha-a?search=%3F",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "static-http /issues/alpha-a?search=%3F",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "connected-http /issues/alpha-a?search=%3F",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "native /issues/alpha-a?search=%5C",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "static-http /issues/alpha-a?search=%5C",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "connected-http /issues/alpha-a?search=%5C",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "native /issues/alpha-a?search=%00",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "static-http /issues/alpha-a?search=%00",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "connected-http /issues/alpha-a?search=%00",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "native /issues/alpha-a?search=%7F",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "static-http /issues/alpha-a?search=%7F",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "connected-http /issues/alpha-a?search=%7F",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "native /issues/alpha-a?search=%C2%85",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "static-http /issues/alpha-a?search=%C2%85",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "connected-http /issues/alpha-a?search=%C2%85",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "native /issues/a%2Fb",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "static-http /issues/a%2Fb",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "connected-http /issues/a%2Fb",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "native /issues/%61lpha-a",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "static-http /issues/%61lpha-a",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "connected-http /issues/%61lpha-a",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "native //issues/alpha-a",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "static-http //issues/alpha-a",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "connected-http //issues/alpha-a",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "native /values/17/true/./Open/alpha",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "static-http /values/17/true/./Open/alpha",
+      "pass": true,
+      "observed": {
+        "status": 404,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "connected-http /values/17/true/./Open/alpha",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "native /values/17/true/../Open/alpha",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "static-http /values/17/true/../Open/alpha",
+      "pass": true,
+      "observed": {
+        "status": 404,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "connected-http /values/17/true/../Open/alpha",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "native /values/17/True/x/Open/alpha",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "static-http /values/17/True/x/Open/alpha",
+      "pass": true,
+      "observed": {
+        "status": 404,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "connected-http /values/17/True/x/Open/alpha",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "native /values/17/true/x/Unknown/alpha",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "static-http /values/17/true/x/Unknown/alpha",
+      "pass": true,
+      "observed": {
+        "status": 404,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "connected-http /values/17/true/x/Unknown/alpha",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "native /issues/alpha-a?search=%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "static-http /issues/alpha-a?search=%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "connected-http /issues/alpha-a?search=%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": null
+      },
+      "expected": "400/404"
+    },
+    {
+      "name": "schema-prehydration-method-post",
+      "pass": true,
+      "observed": "<form method=\"post\">\n        <label for=\"optional-count\">Optional count</label><input id=\"optional-count\" name=\"count\" type=\"text\" value=\"\" maxlength=",
+      "expected": "schema form method=post"
+    },
+    {
+      "name": "wire-all-scalars-sql",
+      "pass": true,
+      "observed": {
+        "outcome": [
+          200,
+          {
+            "value": {
+              "fields": [
+                {
+                  "estimate": "17",
+                  "id": {
+                    "tag": "issue",
+                    "value": "alpha-a"
+                  },
+                  "note": {
+                    "tag": "None"
+                  },
+                  "parent": {
+                    "tag": "workspace",
+                    "value": "alpha"
+                  },
+                  "published": false,
+                  "revision": "1",
+                  "status": {
+                    "fields": [],
+                    "tag": "Closed"
+                  },
+                  "title": "\u96ea\ud83d\ude00",
+                  "workspace": {
+                    "tag": "workspace",
+                    "value": "alpha"
+                  }
+                }
+              ],
+              "tag": "ActionSucceeded"
+            }
+          }
+        ],
+        "rows": [
+          {
+            "id": "alpha-a",
+            "title": "\u96ea\ud83d\ude00",
+            "revision": 1,
+            "estimate": 17,
+            "published": false,
+            "parent": "alpha",
+            "status": "Closed",
+            "note": null
+          }
+        ]
+      },
+      "expected": [
+        {
+          "id": "alpha-a",
+          "title": "\u96ea\ud83d\ude00",
+          "revision": 1,
+          "estimate": 17,
+          "published": false,
+          "parent": "alpha",
+          "status": "Closed",
+          "note": null
+        }
+      ]
+    },
+    {
+      "name": "wire-invalid-int +17",
+      "pass": true,
+      "observed": [
+        400,
+        {
+          "error": "invalid_input"
+        }
+      ],
+      "expected": "400 SQL unchanged"
+    },
+    {
+      "name": "wire-invalid-int 017",
+      "pass": true,
+      "observed": [
+        400,
+        {
+          "error": "invalid_input"
+        }
+      ],
+      "expected": "400 SQL unchanged"
+    },
+    {
+      "name": "wire-invalid-int -0",
+      "pass": true,
+      "observed": [
+        400,
+        {
+          "error": "invalid_input"
+        }
+      ],
+      "expected": "400 SQL unchanged"
+    },
+    {
+      "name": "wire-invalid-int 1.0",
+      "pass": true,
+      "observed": [
+        400,
+        {
+          "error": "invalid_input"
+        }
+      ],
+      "expected": "400 SQL unchanged"
+    },
+    {
+      "name": "wire-invalid-int 1e2",
+      "pass": true,
+      "observed": [
+        400,
+        {
+          "error": "invalid_input"
+        }
+      ],
+      "expected": "400 SQL unchanged"
+    },
+    {
+      "name": "wire-invalid-int 9223372036854775808",
+      "pass": true,
+      "observed": [
+        400,
+        {
+          "error": "invalid_input"
+        }
+      ],
+      "expected": "400 SQL unchanged"
+    },
+    {
+      "name": "wire-invalid-int -9223372036854775809",
+      "pass": true,
+      "observed": [
+        400,
+        {
+          "error": "invalid_input"
+        }
+      ],
+      "expected": "400 SQL unchanged"
+    },
+    {
+      "name": "wire-invalid-int -",
+      "pass": true,
+      "observed": [
+        400,
+        {
+          "error": "invalid_input"
+        }
+      ],
+      "expected": "400 SQL unchanged"
+    },
+    {
+      "name": "wire-invalid-int  17",
+      "pass": true,
+      "observed": [
+        400,
+        {
+          "error": "invalid_input"
+        }
+      ],
+      "expected": "400 SQL unchanged"
+    },
+    {
+      "name": "wire-wrong-nominal",
+      "pass": true,
+      "observed": [
+        400,
+        {
+          "error": "invalid_input"
+        }
+      ],
+      "expected": "400 SQL unchanged"
+    },
+    {
+      "name": "wire-extra",
+      "pass": true,
+      "observed": [
+        400,
+        {
+          "error": "invalid_input"
+        }
+      ],
+      "expected": "400 SQL unchanged"
+    },
+    {
+      "name": "wire-enum-payload",
+      "pass": true,
+      "observed": [
+        400,
+        {
+          "error": "invalid_input"
+        }
+      ],
+      "expected": "400 SQL unchanged"
+    },
+    {
+      "name": "wire-empty-title",
+      "pass": true,
+      "observed": [
+        400,
+        {
+          "error": "invalid_input"
+        }
+      ],
+      "expected": "400 SQL unchanged"
+    },
+    {
+      "name": "wire-surrogate",
+      "pass": true,
+      "observed": [
+        400,
+        {
+          "error": "invalid_input"
+        }
+      ],
+      "expected": "400 SQL unchanged"
+    },
+    {
+      "name": "urlencoded-all-scalars",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": "    <p id=\"title\">\u96ea\ud83d\ude00</p><p id=\"estimate\">17</p><p id=\"published\">false</p><p id=\"parent\">alpha</p><p id=\"status\">Closed</p>"
+      },
+      "expected": "200 exact decoded fields"
+    },
+    {
+      "name": "urlencoded-invalid-duplicate",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": "Invalid input"
+      },
+      "expected": "400 before action continuation"
+    },
+    {
+      "name": "urlencoded-invalid-extra",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": "Invalid input"
+      },
+      "expected": "400 before action continuation"
+    },
+    {
+      "name": "urlencoded-invalid-bad-percent",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": "Invalid input"
+      },
+      "expected": "400 before action continuation"
+    },
+    {
+      "name": "urlencoded-invalid-invalid-utf8",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": "Invalid input"
+      },
+      "expected": "400 before action continuation"
+    },
+    {
+      "name": "urlencoded-invalid-surrogate",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": "Invalid input"
+      },
+      "expected": "400 before action continuation"
+    },
+    {
+      "name": "urlencoded-invalid-+17",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": "Invalid input"
+      },
+      "expected": "400 before action continuation"
+    },
+    {
+      "name": "urlencoded-invalid-017",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": "Invalid input"
+      },
+      "expected": "400 before action continuation"
+    },
+    {
+      "name": "urlencoded-invalid--0",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": "Invalid input"
+      },
+      "expected": "400 before action continuation"
+    },
+    {
+      "name": "urlencoded-invalid-9223372036854775808",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": "Invalid input"
+      },
+      "expected": "400 before action continuation"
+    },
+    {
+      "name": "urlencoded-invalid--",
+      "pass": true,
+      "observed": {
+        "status": 400,
+        "body": "Invalid input"
+      },
+      "expected": "400 before action continuation"
+    },
+    {
+      "name": "compile-reject-password-control",
+      "pass": true,
+      "observed": {
+        "exit": 1,
+        "stderr": "error: D330 at 0:0: schema controls must match their scalar kind; password/file/hidden fields are forbidden\n"
+      },
+      "expected": "explicit compiler rejection"
+    },
+    {
+      "name": "compile-reject-secret-form",
+      "pass": true,
+      "observed": {
+        "exit": 1,
+        "stderr": "error: invalid input: input fields require Text, Int, Bool, nominal Id, unit enum, or one-level Option; server-derived/restricted fields are forbidden\n"
+      },
+      "expected": "explicit compiler rejection"
+    },
+    {
+      "name": "compile-reject-nested-option",
+      "pass": true,
+      "observed": {
+        "exit": 1,
+        "stderr": "error: invalid input: input fields require Text, Int, Bool, nominal Id, unit enum, or one-level Option; server-derived/restricted fields are forbidden\n"
+      },
+      "expected": "explicit compiler rejection"
+    },
+    {
+      "name": "compile-reject-server-derived",
+      "pass": true,
+      "observed": {
+        "exit": 1,
+        "stderr": "error[D117]: forms cannot contain reserved CSRF or server-derived fields\n --> /tmp/diamond-lp3-independent-zae732hh/created-by.dia:18:15\n   |\n18 |   let value = request.form<Input>()?\n   |               ^\n"
+      },
+      "expected": "compiler rejection"
+    },
+    {
+      "name": "valid-followup",
+      "pass": true,
+      "observed": {
+        "outcome": [
+          200,
+          {
+            "value": {
+              "fields": [
+                {
+                  "estimate": "-17",
+                  "id": {
+                    "tag": "issue",
+                    "value": "alpha-a"
+                  },
+                  "note": {
+                    "tag": "None"
+                  },
+                  "parent": {
+                    "tag": "workspace",
+                    "value": "alpha"
+                  },
+                  "published": false,
+                  "revision": "2",
+                  "status": {
+                    "fields": [],
+                    "tag": "Closed"
+                  },
+                  "title": "Final ordinary",
+                  "workspace": {
+                    "tag": "workspace",
+                    "value": "alpha"
+                  }
+                }
+              ],
+              "tag": "ActionSucceeded"
+            }
+          }
+        ],
+        "rows": [
+          {
+            "id": "alpha-a",
+            "title": "Final ordinary",
+            "revision": 2,
+            "estimate": -17,
+            "published": false,
+            "parent": "alpha",
+            "status": "Closed",
+            "note": null
+          }
+        ]
+      },
+      "expected": "later valid action works"
+    },
+    {
+      "name": "runtime-log-no-password",
+      "pass": true,
+      "observed": true,
+      "expected": "synthetic password absent"
+    }
+  ],
+  "elapsed_seconds": 2.1727595779993862,
+  "request_trace": [
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/_diamond/session",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/login",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/issues/alpha-a",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/issues/alpha-a?page=2&search=%E9%9B%AA%F0%9F%98%80",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/defaults",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/defaults?enabled=false&text=",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/required?enabled=false&scope=alpha&state=Open&text=",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/values/0/false/e%CC%81/Open/alpha?extra=-17&flag=false&mode=Closed&owner=alpha",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/values/-9223372036854775808/true/%E2%80%A8%E2%80%A9/Closed/alpha",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/values/9223372036854775807/false/%E2%80%A8%E2%80%A9/Closed/alpha?extra=-17&flag=false&mode=Closed&owner=alpha",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/values/17/true/~._-/Open/alpha",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/values/-9223372036854775808/false/%E2%80%8E/Closed/alpha?extra=-17&flag=false&mode=Closed&owner=alpha",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/values/9223372036854775807/true/~._-/Closed/alpha",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/values/-17/false/e%CC%81/Open/alpha?extra=-17&flag=false&mode=Closed&owner=alpha",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/values/9223372036854775807/true/%C3%A9/Closed/alpha",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/values/17/false/~._-/Closed/alpha?extra=-17&flag=false&mode=Closed&owner=alpha",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/values/-17/true/e%CC%81/Open/alpha",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/values/9223372036854775807/false/~._-/Closed/alpha?extra=-17&flag=false&mode=Closed&owner=alpha",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/values/-9223372036854775808/true/%E2%80%A8%E2%80%A9/Closed/alpha",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/values/9223372036854775807/false/%C3%A9/Open/alpha?extra=-17&flag=false&mode=Closed&owner=alpha",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/values/0/true/%E2%80%8E/Closed/alpha",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/values/17/false/%E9%9B%AA%F0%9F%98%80/Closed/alpha?extra=-17&flag=false&mode=Closed&owner=alpha",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/values/0/true/e%CC%81/Open/alpha",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/values/9223372036854775807/false/~._-/Closed/alpha?extra=-17&flag=false&mode=Closed&owner=alpha",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/values/-17/true/a%20b/Closed/alpha",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/defaults?enabled=true",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/defaults?state=Closed",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/defaults?text=%E9%9B%AA%F0%9F%98%80",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/required",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/required?enabled=false&scope=alpha&state=Open",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/issues/alpha-a?page=1",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/issues/alpha-a?search=",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/issues/alpha-a?",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/issues/alpha-a?page=02",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/issues/alpha-a?page=-0",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/issues/alpha-a?page=%32",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/issues/alpha-a?page=9223372036854775808",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/issues/alpha-a?search=x&page=2",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/issues/alpha-a?page=2&page=3",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/issues/alpha-a?%70age=2",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/issues/alpha-a?unknown=x",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/issues/alpha-a?search=a+b",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/issues/alpha-a?search=%2f",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/issues/alpha-a?search=%252F",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/issues/alpha-a?search=%C0%AF",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/issues/alpha-a?search=%ED%A0%80",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/issues/alpha-a?search=%EF%BF%BD%FF",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/issues/alpha-a?search=%23",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/issues/alpha-a?search=%3F",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/issues/alpha-a?search=%5C",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/issues/alpha-a?search=%00",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/issues/alpha-a?search=%7F",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/issues/alpha-a?search=%C2%85",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/issues/a%2Fb",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/issues/%61lpha-a",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "//issues/alpha-a",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/values/17/true/./Open/alpha",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/values/17/true/../Open/alpha",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/values/17/True/x/Open/alpha",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/values/17/true/x/Unknown/alpha",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/issues/alpha-a?search=%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA%E9%9B%AA",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "GET",
+      "path": "/optional-form",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/rename/prepare",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/rename",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/rename/prepare",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/rename/prepare",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/rename/prepare",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/rename/prepare",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/rename/prepare",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/rename/prepare",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/rename/prepare",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/rename/prepare",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/rename/prepare",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/rename/prepare",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/rename/prepare",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/rename/prepare",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/rename/prepare",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/rename/prepare",
+      "status": 400
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/rename/prepare",
+      "status": 200
+    },
+    {
+      "node": "A",
+      "method": "POST",
+      "path": "/_diamond/actions/rename",
+      "status": 200
+    }
+  ],
+  "shutdowns": [
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "gaps": [
+    "No browser operated here; parent owns browser verification.",
+    "Legacy URL-encoded fields carry no nominal wire tags; declaration assigns their nominal type.",
+    "URL identifiers confer no access authority.",
+    "Schema password controls reject; dedicated account draft lifecycle outside this campaign."
+  ]
+}

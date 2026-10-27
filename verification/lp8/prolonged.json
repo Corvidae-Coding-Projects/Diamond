@@ -1,0 +1,349 @@
+{
+  "status": "PASS",
+  "binary_sha256": "28a8f27b6db02a04301ffa458f03df38e6c37fad16aaa6b6929adcd448a51e30",
+  "driver_sha256": "4199f32944d59cea48cfeca3312b5c97e01be8f2a92580a2e4dfbdab1eb81b30",
+  "error": null,
+  "observations": [
+    {
+      "name": "one-thousand-real-http-and-authorized-operations",
+      "pass": true,
+      "count": 1000,
+      "status_counts": {
+        "200": 1000
+      }
+    },
+    {
+      "name": "graceful-node-restart-releases-old-process",
+      "pass": true,
+      "old_pid": 333075,
+      "old_pid_released": true,
+      "restart_status": 200
+    },
+    {
+      "name": "valid-follow-up-after-prolonged-run",
+      "pass": true,
+      "statuses": [
+        200,
+        200
+      ]
+    },
+    {
+      "name": "resources-settle-within-declared-envelope",
+      "pass": true,
+      "nodes": {
+        "A": {
+          "before": {
+            "pid": 333064,
+            "rss_kib": 54444,
+            "fds": 40,
+            "tasks": 7
+          },
+          "after": {
+            "pid": 333064,
+            "rss_kib": 54840,
+            "fds": 40,
+            "tasks": 7
+          },
+          "peak_rss_kib": 54836
+        },
+        "B": {
+          "before": {
+            "pid": 333075,
+            "rss_kib": 34988,
+            "fds": 40,
+            "tasks": 7
+          },
+          "after": {
+            "pid": 333120,
+            "rss_kib": 35496,
+            "fds": 40,
+            "tasks": 7
+          },
+          "peak_rss_kib": 50972
+        }
+      },
+      "database_before": 12,
+      "database_after": 12,
+      "sample_count": 11,
+      "envelope": {
+        "rss_growth_kib": 32768,
+        "fd_growth": 4,
+        "task_growth": 2
+      }
+    }
+  ],
+  "samples": [
+    {
+      "label": "settled-before",
+      "elapsed": 37169.857910375,
+      "nodes": {
+        "A": {
+          "pid": 333064,
+          "rss_kib": 54444,
+          "fds": 40,
+          "tasks": 7
+        },
+        "B": {
+          "pid": 333075,
+          "rss_kib": 34988,
+          "fds": 40,
+          "tasks": 7
+        }
+      },
+      "database_connections": 12
+    },
+    {
+      "label": "active-0",
+      "elapsed": 37169.916380624,
+      "nodes": {
+        "A": {
+          "pid": 333064,
+          "rss_kib": 54612,
+          "fds": 41,
+          "tasks": 7
+        },
+        "B": {
+          "pid": 333075,
+          "rss_kib": 35224,
+          "fds": 42,
+          "tasks": 7
+        }
+      },
+      "database_connections": 12
+    },
+    {
+      "label": "active-1",
+      "elapsed": 37169.972810468,
+      "nodes": {
+        "A": {
+          "pid": 333064,
+          "rss_kib": 54736,
+          "fds": 41,
+          "tasks": 7
+        },
+        "B": {
+          "pid": 333075,
+          "rss_kib": 35336,
+          "fds": 43,
+          "tasks": 7
+        }
+      },
+      "database_connections": 12
+    },
+    {
+      "label": "active-2",
+      "elapsed": 37170.031215834,
+      "nodes": {
+        "A": {
+          "pid": 333064,
+          "rss_kib": 54784,
+          "fds": 42,
+          "tasks": 7
+        },
+        "B": {
+          "pid": 333075,
+          "rss_kib": 35388,
+          "fds": 42,
+          "tasks": 7
+        }
+      },
+      "database_connections": 12
+    },
+    {
+      "label": "active-3",
+      "elapsed": 37170.086430162,
+      "nodes": {
+        "A": {
+          "pid": 333064,
+          "rss_kib": 54796,
+          "fds": 40,
+          "tasks": 7
+        },
+        "B": {
+          "pid": 333120,
+          "rss_kib": 31192,
+          "fds": 15,
+          "tasks": 1
+        }
+      },
+      "database_connections": 8
+    },
+    {
+      "label": "active-4",
+      "elapsed": 37170.142090048,
+      "nodes": {
+        "A": {
+          "pid": 333064,
+          "rss_kib": 54796,
+          "fds": 40,
+          "tasks": 7
+        },
+        "B": {
+          "pid": 333120,
+          "rss_kib": 50972,
+          "fds": 15,
+          "tasks": 1
+        }
+      },
+      "database_connections": 8
+    },
+    {
+      "label": "active-5",
+      "elapsed": 37170.197489761,
+      "nodes": {
+        "A": {
+          "pid": 333064,
+          "rss_kib": 54796,
+          "fds": 40,
+          "tasks": 7
+        },
+        "B": {
+          "pid": 333120,
+          "rss_kib": 50972,
+          "fds": 15,
+          "tasks": 1
+        }
+      },
+      "database_connections": 8
+    },
+    {
+      "label": "active-6",
+      "elapsed": 37170.253291858,
+      "nodes": {
+        "A": {
+          "pid": 333064,
+          "rss_kib": 54796,
+          "fds": 40,
+          "tasks": 7
+        },
+        "B": {
+          "pid": 333120,
+          "rss_kib": 50972,
+          "fds": 15,
+          "tasks": 1
+        }
+      },
+      "database_connections": 8
+    },
+    {
+      "label": "active-7",
+      "elapsed": 37170.308377875,
+      "nodes": {
+        "A": {
+          "pid": 333064,
+          "rss_kib": 54796,
+          "fds": 40,
+          "tasks": 7
+        },
+        "B": {
+          "pid": 333120,
+          "rss_kib": 34260,
+          "fds": 31,
+          "tasks": 5
+        }
+      },
+      "database_connections": 10
+    },
+    {
+      "label": "active-8",
+      "elapsed": 37170.363898102,
+      "nodes": {
+        "A": {
+          "pid": 333064,
+          "rss_kib": 54808,
+          "fds": 40,
+          "tasks": 7
+        },
+        "B": {
+          "pid": 333120,
+          "rss_kib": 34864,
+          "fds": 39,
+          "tasks": 6
+        }
+      },
+      "database_connections": 11
+    },
+    {
+      "label": "active-9",
+      "elapsed": 37170.419343195,
+      "nodes": {
+        "A": {
+          "pid": 333064,
+          "rss_kib": 54836,
+          "fds": 41,
+          "tasks": 7
+        },
+        "B": {
+          "pid": 333120,
+          "rss_kib": 35352,
+          "fds": 42,
+          "tasks": 7
+        }
+      },
+      "database_connections": 12
+    },
+    {
+      "label": "active-10",
+      "elapsed": 37170.475222743,
+      "nodes": {
+        "A": {
+          "pid": 333064,
+          "rss_kib": 54836,
+          "fds": 41,
+          "tasks": 7
+        },
+        "B": {
+          "pid": 333120,
+          "rss_kib": 35428,
+          "fds": 42,
+          "tasks": 7
+        }
+      },
+      "database_connections": 12
+    },
+    {
+      "label": "settled-after",
+      "elapsed": 37170.927748847,
+      "nodes": {
+        "A": {
+          "pid": 333064,
+          "rss_kib": 54840,
+          "fds": 40,
+          "tasks": 7
+        },
+        "B": {
+          "pid": 333120,
+          "rss_kib": 35496,
+          "fds": 40,
+          "tasks": 7
+        }
+      },
+      "database_connections": 12
+    }
+  ],
+  "shutdowns": [
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "measurement_boundary": "Diamond web PIDs only; PostgreSQL is sampled separately as a dependency"
+}

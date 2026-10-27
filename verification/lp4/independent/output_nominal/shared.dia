@@ -1,0 +1,2 @@
+export type IssueId = Id<"issue">
+export type UserId = Id<"user">

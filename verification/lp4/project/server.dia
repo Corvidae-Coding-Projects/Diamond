@@ -1,0 +1,70 @@
+type MemberId = Id<"member">
+enum Role:
+  Editor
+  Reader
+type Member:
+  id: MemberId
+  workspace: WorkspaceId
+  user: UserId
+  role: Role
+resource Members: Member
+resource Issues: Issue
+
+type IssueChange:
+  title: Text<length: 1..120>
+  revision: Int
+  note: Text<length: 1..80>
+
+policy Members:
+  read(row, by principal):
+    principal.is_user(row.user)
+
+policy Issues:
+  read(row, by principal):
+    principal.is_related("Membership", row.workspace)
+  update(before, after, by principal):
+    before.workspace == after.workspace and principal.has_role_in("Membership", before.workspace, .Editor)
+
+export fn main() -> Bool:
+  valid_title("New")
+
+fn private_marker() -> Text:
+  "lp2-server-only-canary"
+
+export fn list_issues(workspace: WorkspaceId) -> Result<List<Issue>, DataError>:
+  issues.select(workspace: workspace, limit: 20)
+
+export fn load(id: IssueId) -> Result<Issue, DataError>:
+  issues.get(id)
+
+export action rename(id: IssueId, value: EditIssue) -> Result<Issue, EditError>:
+  match issues.get(id):
+    Ok(before) =>
+      match issues.update(id, IssueChange(title: value.title, revision: before.revision + 1, note: value.note)):
+        Ok(issue) =>
+          # Deliberately validate after writing to demonstrate atomic rollback.
+          match valid_title(issue.title):
+            true => Ok(issue)
+            false => Err(TitleRejected)
+        Err(problem) => Err(SaveFailed)
+    Err(problem) => Err(SaveFailed)
+
+export fn layout(reverse: Bool, extra: Bool, removed: Bool) -> Result<Layout, DataError>:
+  let a = issues.get(IssueId("alpha-a"))?
+  let b = issues.get(IssueId("alpha-b"))?
+  let c = issues.get(IssueId("alpha-c"))?
+  let d = issues.get(IssueId("alpha-d"))?
+  let rows = match removed:
+    true => [a, d, c]
+    false =>
+      match reverse:
+        true => [d, c, a, b]
+        false =>
+          match extra:
+            true => [d, a, b, c]
+            false => [a, b, c]
+  Ok(Layout(rows: rows, pulse: "Live layout delivered"))
+export fn publish(reverse: Bool, extra: Bool, removed: Bool) -> Result<Text, DataError>:
+  let value = layout(reverse, extra, removed)?
+  let event = host.event_emit<Layout>("layout", "alpha-b", value)?
+  Ok("Published")

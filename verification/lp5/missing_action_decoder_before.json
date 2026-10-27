@@ -1,0 +1,113 @@
+{
+  "status": "FAIL",
+  "error": "AssertionError({'name': 'concurrent-single-mutation', 'pass': False, 'observed': [(200, {'value': {'fields': [], 'tag': 'ActionCorrupt'}}), (200, {'value': {'fields': [{'id': {'tag': 'issue', 'value': 'alpha-b'}, 'note': 'LP5 note', 'revision': '1', 'title': 'LP5 saved B', 'workspace': {'tag': 'workspace', 'value': 'alpha'}}], 'tag': 'ActionSucceeded'}})], 'rows': [{'id': 'alpha-a', 'workspace': 'alpha', 'title': 'Issue A', 'note': 'Original note', 'revision': 0}, {'id': 'alpha-b', 'workspace': 'alpha', 'title': 'LP5 saved B', 'note': 'LP5 note', 'revision': 1}, {'id': 'alpha-c', 'workspace': 'alpha', 'title': 'Issue C', 'note': 'Original note', 'revision': 0}, {'id': 'alpha-d', 'workspace': 'alpha', 'title': 'Issue D', 'note': 'Original note', 'revision': 0}]})",
+  "binary_sha256": "7ca9a34931108f817cac764ab15810374e3e5151f0faeec921d4f8354018224b",
+  "driver_sha256": "63145d87a69192cd2cf7d18e1964d7f09ac1121f6586c6018b25ee8952aec85c",
+  "observations": [
+    {
+      "name": "prepare",
+      "pass": true,
+      "observed": [
+        200,
+        {
+          "invocation": "a920c12cde53042fbeeb5eecc9ce83884413c0c35ecb365dd3328ffa3c276ba3"
+        }
+      ]
+    },
+    {
+      "name": "same-principal-concurrent-intent",
+      "pass": true,
+      "observed": [
+        200,
+        {
+          "invocation": "a920c12cde53042fbeeb5eecc9ce83884413c0c35ecb365dd3328ffa3c276ba3"
+        }
+      ]
+    },
+    {
+      "name": "concurrent-single-mutation",
+      "pass": false,
+      "observed": [
+        [
+          200,
+          {
+            "value": {
+              "fields": [],
+              "tag": "ActionCorrupt"
+            }
+          }
+        ],
+        [
+          200,
+          {
+            "value": {
+              "fields": [
+                {
+                  "id": {
+                    "tag": "issue",
+                    "value": "alpha-b"
+                  },
+                  "note": "LP5 note",
+                  "revision": "1",
+                  "title": "LP5 saved B",
+                  "workspace": {
+                    "tag": "workspace",
+                    "value": "alpha"
+                  }
+                }
+              ],
+              "tag": "ActionSucceeded"
+            }
+          }
+        ]
+      ],
+      "rows": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Issue A",
+          "note": "Original note",
+          "revision": 0
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "LP5 saved B",
+          "note": "LP5 note",
+          "revision": 1
+        },
+        {
+          "id": "alpha-c",
+          "workspace": "alpha",
+          "title": "Issue C",
+          "note": "Original note",
+          "revision": 0
+        },
+        {
+          "id": "alpha-d",
+          "workspace": "alpha",
+          "title": "Issue D",
+          "note": "Original note",
+          "revision": 0
+        }
+      ]
+    }
+  ],
+  "shutdowns": [
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": []
+}

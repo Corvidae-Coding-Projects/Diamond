@@ -168,6 +168,20 @@ pub(super) fn symbols(modules: &mut BTreeMap<String, Module>) -> Result<()> {
                 server_declaration(declaration, &visible, module.line_base)?;
             }
         }
+        for route in &mut module.parsed.navigation {
+            route.name = visible[&route.name].clone();
+            route.location.line += module.line_base;
+        }
+        for (name, location) in &mut module.parsed.forms {
+            *name = visible[name].clone();
+            location.line += module.line_base;
+        }
+        module.parsed.actions = module
+            .parsed
+            .actions
+            .iter()
+            .map(|n| own[name][n].clone())
+            .collect();
         components(module, &visible)?;
         for component in &mut module.parsed.components {
             component.name = own[name][&component.name].clone();
@@ -291,18 +305,58 @@ fn components(module: &mut Module, visible: &BTreeMap<String, String>) -> Result
         let events: BTreeSet<_> = component
             .events
             .iter()
-            .map(|(name, _)| name.clone())
+            .map(|event| event.name.clone())
             .collect();
         if events.len() != component.events.len() || !events.is_disjoint(&locals) {
             return Err(input("duplicate state/event name"));
         }
-        for (event, assignments) in &mut component.events {
-            local(event)?;
-            for (state, value) in assignments {
-                local(state)?;
-                expression(value, visible, &locals, module.line_base)?;
+        let mut outputs = BTreeSet::new();
+        for output in &mut component.outputs {
+            local(&output.name)?;
+            output.location.line += module.line_base;
+            if !outputs.insert(output.name.clone())
+                || locals.contains(&output.name)
+                || events.contains(&output.name)
+            {
+                return Err(input("duplicate component output name"));
+            }
+            let mut names = BTreeSet::new();
+            for (name, ty) in &mut output.parameters {
+                local(name)?;
+                if !names.insert(name.clone()) {
+                    return Err(input("duplicate output parameter"));
+                }
+                resolve_type_name(ty, visible)?;
             }
         }
+        for event in &mut component.events {
+            local(&event.name)?;
+            event.location.line += module.line_base;
+            let mut scope = locals.clone();
+            for (name, ty) in &mut event.parameters {
+                local(name)?;
+                if !scope.insert(name.clone()) {
+                    return Err(input("event parameters must be fresh local names"));
+                }
+                resolve_type_name(ty, visible)?;
+            }
+            for step in &mut event.body {
+                match step {
+                    crate::syntax::EventStep::Assign(state, value) => {
+                        local(state)?;
+                        expression(value, visible, &scope, module.line_base)?;
+                    }
+                    crate::syntax::EventStep::Emit(name, arguments, location) => {
+                        local(name)?;
+                        location.line += module.line_base;
+                        for value in arguments {
+                            expression(value, visible, &scope, module.line_base)?;
+                        }
+                    }
+                }
+            }
+        }
+        locals.extend(events);
         html(&mut component.template, visible, &locals, module.line_base)?;
     }
     Ok(())
@@ -437,9 +491,9 @@ fn html(
             HtmlNode::Text(_) => {}
             HtmlNode::Expression(value) => expression(value, symbols, locals, base)?,
             HtmlNode::Element {
+                tag,
                 attributes,
                 children,
-                ..
             } => {
                 let mut nested = locals.clone();
                 for (name, attribute) in attributes.iter() {
@@ -451,7 +505,7 @@ fn html(
                     }
                 }
                 for (name, attribute) in attributes {
-                    if name == "component"
+                    if (name == "component" || name == "schema" || tag == "route" && name == "name")
                         && let HtmlAttribute::Literal(n) = attribute
                     {
                         if n.starts_with("__diamond_") {
@@ -462,9 +516,7 @@ fn html(
                         }
                     }
                     if let HtmlAttribute::Expression(value) = attribute {
-                        if ["on-click", "on-submit", "bind-value", "bind-checked"]
-                            .contains(&name.as_str())
-                        {
+                        if ["bind-value", "bind-checked"].contains(&name.as_str()) {
                             value.location.line += base;
                         } else {
                             expression(value, symbols, &nested, base)?;

@@ -1,0 +1,214 @@
+{
+  "status": "PASS",
+  "binary_sha256": "28a8f27b6db02a04301ffa458f03df38e6c37fad16aaa6b6929adcd448a51e30",
+  "driver_sha256": "2d42e8d5fa591cafea81362a837667dd24dfa6d44a31e64ea8dee43bc80cf9f4",
+  "observations": [
+    {
+      "name": "optional-bounded-literal-reference-regression",
+      "pass": true,
+      "stdout": "\u96ea\ud83d\ude00\n",
+      "stderr": ""
+    },
+    {
+      "name": "route-unbounded-text",
+      "pass": true,
+      "expected": "route requires",
+      "stderr": "error[D331]: route requires distinct supported scalar fields, a literal namespace prefix, and a canonical local path/query template\n --> /tmp/diamond-lp3-compiler-oprv4mj0/route-unbounded-text/shared.dia:25:1\n   |\n25 | export route IssuePage(id: IssueId, page: Text = \"x\", search: Option<Text<length: 0..80>>) = \"/issues/{id}?page={page}&s\u2026\n   | ^"
+    },
+    {
+      "name": "route-list",
+      "pass": true,
+      "expected": "default",
+      "stderr": "error[D102]: field default does not satisfy its declared type\n --> /tmp/diamond-lp3-compiler-oprv4mj0/route-list/shared.dia:25:37\n   |\n25 | export route IssuePage(id: IssueId, page: List<Int> = 1, search: Option<Text<length: 0..80>>) = \"/issues/{id}?page={page\u2026\n   |                                     ^\n help: Use a unique field name and keep server-derived fields out of client forms."
+    },
+    {
+      "name": "route-optional-path",
+      "pass": true,
+      "expected": "route requires",
+      "stderr": "error[D331]: route requires distinct supported scalar fields, a literal namespace prefix, and a canonical local path/query template\n --> /tmp/diamond-lp3-compiler-oprv4mj0/route-optional-path/shared.dia:25:1\n   |\n25 | export route IssuePage(id: Option<IssueId>, page: Int = 1, search: Option<Text<length: 0..80>>) = \"/issues/{id}?page={pa\u2026\n   | ^"
+    },
+    {
+      "name": "route-path-default",
+      "pass": true,
+      "expected": "route requires",
+      "stderr": "error[D331]: route requires distinct supported scalar fields, a literal namespace prefix, and a canonical local path/query template\n --> /tmp/diamond-lp3-compiler-oprv4mj0/route-path-default/shared.dia:28:1\n   |\n28 | export route ValuePage(count: Int = 1, enabled: Bool, label: Text<length: 1..40>, status: Status, scope: WorkspaceId, ex\u2026\n   | ^"
+    },
+    {
+      "name": "route-unknown-query",
+      "pass": true,
+      "expected": "route requires",
+      "stderr": "error[D331]: route requires distinct supported scalar fields, a literal namespace prefix, and a canonical local path/query template\n --> /tmp/diamond-lp3-compiler-oprv4mj0/route-unknown-query/shared.dia:25:1\n   |\n25 | export route IssuePage(id: IssueId, page: Int = 1, search: Option<Text<length: 0..80>>) = \"/issues/{id}?unknown={page}&s\u2026\n   | ^"
+    },
+    {
+      "name": "route-duplicate-query",
+      "pass": true,
+      "expected": "route requires",
+      "stderr": "error[D331]: route requires distinct supported scalar fields, a literal namespace prefix, and a canonical local path/query template\n --> /tmp/diamond-lp3-compiler-oprv4mj0/route-duplicate-query/shared.dia:25:1\n   |\n25 | export route IssuePage(id: IssueId, page: Int = 1, search: Option<Text<length: 0..80>>) = \"/issues/{id}?page={page}&page\u2026\n   | ^"
+    },
+    {
+      "name": "route-unused-field",
+      "pass": true,
+      "expected": "route requires",
+      "stderr": "error[D331]: route requires distinct supported scalar fields, a literal namespace prefix, and a canonical local path/query template\n --> /tmp/diamond-lp3-compiler-oprv4mj0/route-unused-field/shared.dia:25:1\n   |\n25 | export route IssuePage(id: IssueId, page: Int = 1, search: Option<Text<length: 0..80>>) = \"/issues/{id}?page={page}\"\n   | ^"
+    },
+    {
+      "name": "route-reserved",
+      "pass": true,
+      "expected": "route requires",
+      "stderr": "error[D331]: route requires distinct supported scalar fields, a literal namespace prefix, and a canonical local path/query template\n --> /tmp/diamond-lp3-compiler-oprv4mj0/route-reserved/shared.dia:25:1\n   |\n25 | export route IssuePage(id: IssueId, page: Int = 1, search: Option<Text<length: 0..80>>) = \"/_diamond/{id}?page={page}&se\u2026\n   | ^"
+    },
+    {
+      "name": "route-overlap",
+      "pass": true,
+      "expected": "ambiguous",
+      "stderr": "error[D331]: ambiguous named route patterns\n --> /tmp/diamond-lp3-compiler-oprv4mj0/route-overlap/shared.dia:26:1\n   |\n26 | export route Ambiguous(id: IssueId) = \"/issues/{id}\"\n   | ^"
+    },
+    {
+      "name": "route-wrong-id",
+      "pass": true,
+      "expected": "expected Id<\"issue\">",
+      "stderr": "error[D110]: expected Id<\"issue\">, found Id<\"user\">\n --> /tmp/diamond-lp3-compiler-oprv4mj0/route-wrong-id/ui.dia:125:130\n    |\n125 | \u2026e=\"button\" on-click={open(row.id)}>Edit {row.id}</button><a href={IssuePage(id: UserId(\"alice\"), page: 2, search: Some(\"\u2026\n    |                                                                                  ^\n help: Use an expression supported by the declared type and current scope."
+    },
+    {
+      "name": "dynamic-url-text",
+      "pass": true,
+      "expected": "typed route",
+      "stderr": "error[D330]: dynamic href requires a declared typed route value\n --> /tmp/diamond-lp3-compiler-oprv4mj0/dynamic-url-text/ui.dia:132:18\n    |\n132 |         <a href={\"//outside.invalid/\"}>Default view</a><a href={IssuePage(id: detail.id, page: 2, search: Some(\"\u96ea\ud83d\ude00\"))}>P\u2026\n    |                  ^\n help: Use typed scalar state, a declared click event, and pure imported functions in the W1 component subset."
+    },
+    {
+      "name": "form-password",
+      "pass": true,
+      "expected": "password",
+      "stderr": "error: D330 at 0:0: schema controls must match their scalar kind; password/file/hidden fields are forbidden"
+    },
+    {
+      "name": "form-hidden",
+      "pass": true,
+      "expected": "inputs require",
+      "stderr": "error: D330 at 0:0: inputs require a binding and a static text/password/checkbox type"
+    },
+    {
+      "name": "form-extra",
+      "pass": true,
+      "expected": "undeclared schema",
+      "stderr": "error: D330 at 0:0: undeclared schema form field"
+    },
+    {
+      "name": "form-duplicate",
+      "pass": true,
+      "expected": "duplicate schema",
+      "stderr": "error: D330 at 0:0: duplicate schema form field"
+    },
+    {
+      "name": "form-wrong-checkbox",
+      "pass": true,
+      "expected": "duplicate schema",
+      "stderr": "error: D330 at 0:0: duplicate schema form field"
+    },
+    {
+      "name": "form-constraints-owned",
+      "pass": true,
+      "expected": "owned by the compiler",
+      "stderr": "error: D330 at 0:0: schema field constraints are owned by the compiler"
+    },
+    {
+      "name": "form-method-owned",
+      "pass": true,
+      "expected": "transport is owned",
+      "stderr": "error: D330 at 0:0: schema form transport is owned by the runtime"
+    },
+    {
+      "name": "form-select-extra-option",
+      "pass": true,
+      "expected": "exactly match",
+      "stderr": "error: D330 at 0:0: schema select options must exactly match its allowed values"
+    },
+    {
+      "name": "form-restricted-type",
+      "pass": true,
+      "expected": "restricted fields",
+      "stderr": "error: invalid input: input fields require Text, Int, Bool, nominal Id, unit enum, or one-level Option; server-derived/restricted fields are forbidden"
+    },
+    {
+      "name": "form-nested-option",
+      "pass": true,
+      "expected": "one-level Option",
+      "stderr": "error: invalid input: input fields require Text, Int, Bool, nominal Id, unit enum, or one-level Option; server-derived/restricted fields are forbidden"
+    },
+    {
+      "name": "form-record-type",
+      "pass": true,
+      "expected": "one-level Option",
+      "stderr": "error: invalid input: input fields require Text, Int, Bool, nominal Id, unit enum, or one-level Option; server-derived/restricted fields are forbidden"
+    },
+    {
+      "name": "valid-build",
+      "pass": true,
+      "stderr": ""
+    },
+    {
+      "name": "versions",
+      "pass": true,
+      "observed": [
+        "0.20.0",
+        5,
+        7
+      ]
+    },
+    {
+      "name": "exact-original-sources",
+      "pass": true
+    },
+    {
+      "name": "rechecked-artifact",
+      "pass": true,
+      "stderr": ""
+    },
+    {
+      "name": "old-artifact-rejected",
+      "pass": true,
+      "stderr": "error: invalid input: incompatible server artifact format/language version\n"
+    },
+    {
+      "name": "native-consumer-build",
+      "pass": true,
+      "stderr": ""
+    },
+    {
+      "name": "native-render-/issues/alpha-a",
+      "pass": true,
+      "exit": 0,
+      "expected_accept": true
+    },
+    {
+      "name": "native-render-/issues/alpha-a?page=2&search=%E9%9B%AA%F0%9F%98%80",
+      "pass": true,
+      "exit": 0,
+      "expected_accept": true
+    },
+    {
+      "name": "native-render-/issues/alpha-a?page=1",
+      "pass": true,
+      "exit": 2,
+      "expected_accept": false
+    },
+    {
+      "name": "native-render-/issues/alpha-a?search=%2f",
+      "pass": true,
+      "exit": 2,
+      "expected_accept": false
+    },
+    {
+      "name": "native-render-/issues/alpha-a?page=2#fragment",
+      "pass": true,
+      "exit": 2,
+      "expected_accept": false
+    },
+    {
+      "name": "native-render-/values/-9223372036854775808/false/%E9%9B%AA/Closed/alpha",
+      "pass": true,
+      "exit": 0,
+      "expected_accept": true
+    }
+  ]
+}

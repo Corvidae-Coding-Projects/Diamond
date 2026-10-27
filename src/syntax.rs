@@ -9,6 +9,37 @@ pub(crate) struct ProjectModule {
     pub program: Program,
     pub components: Vec<Component>,
     pub exports: BTreeSet<String>,
+    pub navigation: Vec<ReactiveRoute>,
+    pub forms: Vec<(String, Location)>,
+    pub actions: BTreeSet<String>,
+}
+
+#[derive(Serialize, Clone, Debug)]
+pub(crate) struct ReactiveRoute {
+    pub name: String,
+    pub path: String,
+    pub location: Location,
+}
+
+#[derive(Serialize, Clone, Debug)]
+pub(crate) struct Event {
+    pub name: String,
+    pub parameters: Vec<(String, TypeName)>,
+    pub body: Vec<EventStep>,
+    pub location: Location,
+}
+
+#[derive(Serialize, Clone, Debug)]
+pub(crate) enum EventStep {
+    Assign(String, Expr),
+    Emit(String, Vec<Expr>, Location),
+}
+
+#[derive(Serialize, Clone, Debug)]
+pub(crate) struct Output {
+    pub name: String,
+    pub parameters: Vec<(String, TypeName)>,
+    pub location: Location,
 }
 
 #[derive(Serialize, Clone, Debug)]
@@ -17,7 +48,8 @@ pub(crate) struct Component {
     pub properties: Vec<(String, TypeName)>,
     pub derived: Vec<(String, TypeName, Expr)>,
     pub states: Vec<(String, TypeName, Expr)>,
-    pub events: Vec<(String, Vec<(String, Expr)>)>,
+    pub events: Vec<Event>,
+    pub outputs: Vec<Output>,
     pub template: Vec<HtmlNode>,
     pub location: Location,
 }

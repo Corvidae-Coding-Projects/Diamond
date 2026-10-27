@@ -1,0 +1,2046 @@
+{
+  "status": "PASS",
+  "error": null,
+  "binary_sha256": "278b10f6d64d966279e7ddaea9964d43904426c7478c20aafdd0f9228ce722e1",
+  "driver_sha256": "56de059bdcc46140209dfa260c81ea9e735b6ef07f3502d9d6a33385f19773fe",
+  "seed": 3517054978,
+  "observations": [
+    {
+      "name": "versions",
+      "pass": true,
+      "observed": [
+        "0.20.0",
+        5,
+        7
+      ],
+      "expected": [
+        "0.20.0",
+        5,
+        7
+      ]
+    },
+    {
+      "name": "seed",
+      "pass": true,
+      "observed": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Old A",
+          "revision": 0
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "Old B",
+          "revision": 0
+        },
+        {
+          "id": "beta-c",
+          "workspace": "beta",
+          "title": "Private C",
+          "revision": 0
+        }
+      ],
+      "expected": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Old A",
+          "revision": 0
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "Old B",
+          "revision": 0
+        },
+        {
+          "id": "beta-c",
+          "workspace": "beta",
+          "title": "Private C",
+          "revision": 0
+        }
+      ]
+    },
+    {
+      "name": "authorized-action",
+      "pass": true,
+      "observed": [
+        200,
+        {
+          "value": {
+            "fields": [
+              {
+                "id": {
+                  "tag": "issue",
+                  "value": "alpha-b"
+                },
+                "revision": "1",
+                "title": "New",
+                "workspace": {
+                  "tag": "workspace",
+                  "value": "alpha"
+                }
+              }
+            ],
+            "tag": "ActionSucceeded"
+          }
+        }
+      ],
+      "expected": "typed ActionSucceeded(New)"
+    },
+    {
+      "name": "independent-saved-rows",
+      "pass": true,
+      "observed": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Old A",
+          "revision": 0
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "New",
+          "revision": 1
+        },
+        {
+          "id": "beta-c",
+          "workspace": "beta",
+          "title": "Private C",
+          "revision": 0
+        }
+      ],
+      "expected": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Old A",
+          "revision": 0
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "New",
+          "revision": 1
+        },
+        {
+          "id": "beta-c",
+          "workspace": "beta",
+          "title": "Private C",
+          "revision": 0
+        }
+      ]
+    },
+    {
+      "name": "bob-denied",
+      "pass": true,
+      "observed": [
+        200,
+        {
+          "value": {
+            "fields": [],
+            "tag": "ActionDenied"
+          }
+        }
+      ],
+      "expected": "ActionDenied; all rows unchanged"
+    },
+    {
+      "name": "reader-denied",
+      "pass": true,
+      "observed": [
+        200,
+        {
+          "value": {
+            "fields": [],
+            "tag": "ActionDenied"
+          }
+        }
+      ],
+      "expected": "ActionDenied; all rows unchanged"
+    },
+    {
+      "name": "anonymous-denied",
+      "pass": true,
+      "observed": [
+        401,
+        {
+          "error": "authentication_required"
+        }
+      ],
+      "expected": "authentication/policy rejection; no write"
+    },
+    {
+      "name": "declared-error-rolls-back",
+      "pass": true,
+      "observed": [
+        200,
+        {
+          "value": {
+            "fields": [
+              {
+                "fields": [],
+                "tag": "TitleRejected"
+              }
+            ],
+            "tag": "ActionRejected"
+          }
+        },
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "Old A",
+            "revision": 0
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "New",
+            "revision": 1
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      ],
+      "expected": "declared rejection after attempted write; saved title remains New"
+    },
+    {
+      "name": "wrong-nominal",
+      "pass": true,
+      "observed": [
+        400,
+        {
+          "error": "invalid_input"
+        }
+      ],
+      "expected": "strict authoritative rejection; no write"
+    },
+    {
+      "name": "extra-field",
+      "pass": true,
+      "observed": [
+        400,
+        {
+          "error": "invalid_input"
+        }
+      ],
+      "expected": "strict authoritative rejection; no write"
+    },
+    {
+      "name": "empty-title",
+      "pass": true,
+      "observed": [
+        400,
+        {
+          "error": "invalid_input"
+        }
+      ],
+      "expected": "strict authoritative rejection; no write"
+    },
+    {
+      "name": "overlong-scalars",
+      "pass": true,
+      "observed": [
+        400,
+        {
+          "error": "invalid_input"
+        }
+      ],
+      "expected": "strict authoritative rejection; no write"
+    },
+    {
+      "name": "raw-rpc-bypass",
+      "pass": true,
+      "observed": [
+        404,
+        {
+          "error": "not_found"
+        }
+      ],
+      "expected": "explicit rejection; no write"
+    },
+    {
+      "name": "wrong-contract",
+      "pass": true,
+      "observed": [
+        409,
+        {
+          "error": "contract_mismatch"
+        }
+      ],
+      "expected": "explicit rejection; no write"
+    },
+    {
+      "name": "unsupported-replay",
+      "pass": true,
+      "observed": [
+        400,
+        {
+          "error": "invalid_input"
+        }
+      ],
+      "expected": "explicit rejection; no write"
+    },
+    {
+      "name": "fresh-client-readback",
+      "pass": true,
+      "observed": [
+        200,
+        {
+          "value": {
+            "id": {
+              "tag": "issue",
+              "value": "alpha-b"
+            },
+            "revision": "1",
+            "title": "New",
+            "workspace": {
+              "tag": "workspace",
+              "value": "alpha"
+            }
+          }
+        }
+      ],
+      "expected": "New through a fresh client and second application server"
+    },
+    {
+      "name": "reader-can-read",
+      "pass": true,
+      "observed": [
+        200,
+        {
+          "value": {
+            "id": {
+              "tag": "issue",
+              "value": "alpha-b"
+            },
+            "revision": "1",
+            "title": "New",
+            "workspace": {
+              "tag": "workspace",
+              "value": "alpha"
+            }
+          }
+        }
+      ],
+      "expected": "reader may read while writes stay denied"
+    },
+    {
+      "name": "external-document-navigation-/",
+      "pass": true,
+      "observed": 200,
+      "expected": "public document navigation works"
+    },
+    {
+      "name": "external-document-navigation-/issues/alpha-b",
+      "pass": true,
+      "observed": 200,
+      "expected": "public document navigation works"
+    },
+    {
+      "name": "cross-site-subresource-denied",
+      "pass": true,
+      "observed": 400,
+      "expected": "cross-site subresource remains denied"
+    },
+    {
+      "name": "cross-site-mutation-denied",
+      "pass": true,
+      "observed": [
+        400,
+        {
+          "error": "invalid_request"
+        }
+      ],
+      "expected": "cross-site action denied even with valid cookie/CSRF; no write"
+    },
+    {
+      "name": "api-shares-action-outcome",
+      "pass": true,
+      "observed": [
+        200,
+        {
+          "api_version": 1,
+          "value": {
+            "fields": [
+              {
+                "id": {
+                  "tag": "issue",
+                  "value": "alpha-b"
+                },
+                "revision": "2",
+                "title": "New",
+                "workspace": {
+                  "tag": "workspace",
+                  "value": "alpha"
+                }
+              }
+            ],
+            "tag": "ActionSucceeded"
+          }
+        }
+      ],
+      "expected": "same typed action dispatcher via attenuated bearer API"
+    },
+    {
+      "name": "api-scope-denied",
+      "pass": true,
+      "observed": [
+        200,
+        {
+          "api_version": 1,
+          "value": {
+            "fields": [],
+            "tag": "ActionDenied"
+          }
+        }
+      ],
+      "expected": "attenuated token cannot write another workspace"
+    },
+    {
+      "name": "generated-valid-title-0",
+      "pass": true,
+      "observed": [
+        200,
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "Old A",
+            "revision": 0
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "Case-0:<<😀ZZ&<&&",
+            "revision": 3
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      ],
+      "expected": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Old A",
+          "revision": 0
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "Case-0:<<😀ZZ&<&&",
+          "revision": 3
+        },
+        {
+          "id": "beta-c",
+          "workspace": "beta",
+          "title": "Private C",
+          "revision": 0
+        }
+      ]
+    },
+    {
+      "name": "generated-valid-title-1",
+      "pass": true,
+      "observed": [
+        200,
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "Old A",
+            "revision": 0
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "Case-1:<&éZ😀aé&&",
+            "revision": 4
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      ],
+      "expected": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Old A",
+          "revision": 0
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "Case-1:<&éZ😀aé&&",
+          "revision": 4
+        },
+        {
+          "id": "beta-c",
+          "workspace": "beta",
+          "title": "Private C",
+          "revision": 0
+        }
+      ]
+    },
+    {
+      "name": "generated-valid-title-2",
+      "pass": true,
+      "observed": [
+        200,
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "Old A",
+            "revision": 0
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "Case-2:&Z😀Zé😀éé😀",
+            "revision": 5
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      ],
+      "expected": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Old A",
+          "revision": 0
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "Case-2:&Z😀Zé😀éé😀",
+          "revision": 5
+        },
+        {
+          "id": "beta-c",
+          "workspace": "beta",
+          "title": "Private C",
+          "revision": 0
+        }
+      ]
+    },
+    {
+      "name": "generated-valid-title-3",
+      "pass": true,
+      "observed": [
+        200,
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "Old A",
+            "revision": 0
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "Case-3:Z<&雪a雪雪😀a",
+            "revision": 6
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      ],
+      "expected": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Old A",
+          "revision": 0
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "Case-3:Z<&雪a雪雪😀a",
+          "revision": 6
+        },
+        {
+          "id": "beta-c",
+          "workspace": "beta",
+          "title": "Private C",
+          "revision": 0
+        }
+      ]
+    },
+    {
+      "name": "generated-valid-title-4",
+      "pass": true,
+      "observed": [
+        200,
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "Old A",
+            "revision": 0
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "Case-4:雪<Z&雪😀雪é😀",
+            "revision": 7
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      ],
+      "expected": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Old A",
+          "revision": 0
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "Case-4:雪<Z&雪😀雪é😀",
+          "revision": 7
+        },
+        {
+          "id": "beta-c",
+          "workspace": "beta",
+          "title": "Private C",
+          "revision": 0
+        }
+      ]
+    },
+    {
+      "name": "generated-valid-title-5",
+      "pass": true,
+      "observed": [
+        200,
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "Old A",
+            "revision": 0
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "Case-5:ZZéaZ雪é&😀",
+            "revision": 8
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      ],
+      "expected": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Old A",
+          "revision": 0
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "Case-5:ZZéaZ雪é&😀",
+          "revision": 8
+        },
+        {
+          "id": "beta-c",
+          "workspace": "beta",
+          "title": "Private C",
+          "revision": 0
+        }
+      ]
+    },
+    {
+      "name": "generated-valid-title-6",
+      "pass": true,
+      "observed": [
+        200,
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "Old A",
+            "revision": 0
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "Case-6:é😀é&<<😀aa",
+            "revision": 9
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      ],
+      "expected": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Old A",
+          "revision": 0
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "Case-6:é😀é&<<😀aa",
+          "revision": 9
+        },
+        {
+          "id": "beta-c",
+          "workspace": "beta",
+          "title": "Private C",
+          "revision": 0
+        }
+      ]
+    },
+    {
+      "name": "generated-valid-title-7",
+      "pass": true,
+      "observed": [
+        200,
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "Old A",
+            "revision": 0
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "Case-7:éZ&é<Z雪雪😀",
+            "revision": 10
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      ],
+      "expected": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Old A",
+          "revision": 0
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "Case-7:éZ&é<Z雪雪😀",
+          "revision": 10
+        },
+        {
+          "id": "beta-c",
+          "workspace": "beta",
+          "title": "Private C",
+          "revision": 0
+        }
+      ]
+    },
+    {
+      "name": "generated-valid-title-8",
+      "pass": true,
+      "observed": [
+        200,
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "Old A",
+            "revision": 0
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "Case-8:雪&😀&😀😀aa<",
+            "revision": 11
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      ],
+      "expected": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Old A",
+          "revision": 0
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "Case-8:雪&😀&😀😀aa<",
+          "revision": 11
+        },
+        {
+          "id": "beta-c",
+          "workspace": "beta",
+          "title": "Private C",
+          "revision": 0
+        }
+      ]
+    },
+    {
+      "name": "generated-valid-title-9",
+      "pass": true,
+      "observed": [
+        200,
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "Old A",
+            "revision": 0
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "Case-9:Z<Zé&aé&<",
+            "revision": 12
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      ],
+      "expected": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Old A",
+          "revision": 0
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "Case-9:Z<Zé&aé&<",
+          "revision": 12
+        },
+        {
+          "id": "beta-c",
+          "workspace": "beta",
+          "title": "Private C",
+          "revision": 0
+        }
+      ]
+    },
+    {
+      "name": "generated-valid-title-10",
+      "pass": true,
+      "observed": [
+        200,
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "Old A",
+            "revision": 0
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "Case-10:😀😀😀雪éZ雪😀雪",
+            "revision": 13
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      ],
+      "expected": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Old A",
+          "revision": 0
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "Case-10:😀😀😀雪éZ雪😀雪",
+          "revision": 13
+        },
+        {
+          "id": "beta-c",
+          "workspace": "beta",
+          "title": "Private C",
+          "revision": 0
+        }
+      ]
+    },
+    {
+      "name": "generated-valid-title-11",
+      "pass": true,
+      "observed": [
+        200,
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "Old A",
+            "revision": 0
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "Case-11:<雪<a<😀a&雪",
+            "revision": 14
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      ],
+      "expected": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Old A",
+          "revision": 0
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "Case-11:<雪<a<😀a&雪",
+          "revision": 14
+        },
+        {
+          "id": "beta-c",
+          "workspace": "beta",
+          "title": "Private C",
+          "revision": 0
+        }
+      ]
+    },
+    {
+      "name": "direct-route-/issues/alpha-b",
+      "pass": true,
+      "observed": 200,
+      "expected": 200
+    },
+    {
+      "name": "direct-route-/issues/alpha-b?extra=1",
+      "pass": true,
+      "observed": 400,
+      "expected": 400
+    },
+    {
+      "name": "direct-route-/issues/a%2fb",
+      "pass": true,
+      "observed": 400,
+      "expected": 400
+    },
+    {
+      "name": "direct-route-/issues/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "pass": true,
+      "observed": 404,
+      "expected": 404
+    },
+    {
+      "name": "proof-campaign-start",
+      "pass": true,
+      "observed": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Old A",
+          "revision": 0
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "Case-11:<雪<a<😀a&雪",
+          "revision": 14
+        },
+        {
+          "id": "beta-c",
+          "workspace": "beta",
+          "title": "Private C",
+          "revision": 0
+        }
+      ],
+      "expected": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Old A",
+          "revision": 0
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "Case-11:<雪<a<😀a&雪",
+          "revision": 14
+        },
+        {
+          "id": "beta-c",
+          "workspace": "beta",
+          "title": "Private C",
+          "revision": 0
+        }
+      ]
+    },
+    {
+      "name": "single-proof-first-attempt",
+      "pass": true,
+      "observed": [
+        [
+          200,
+          {
+            "value": {
+              "fields": [
+                {
+                  "id": {
+                    "tag": "issue",
+                    "value": "alpha-a"
+                  },
+                  "revision": "1",
+                  "title": "One attempt",
+                  "workspace": {
+                    "tag": "workspace",
+                    "value": "alpha"
+                  }
+                }
+              ],
+              "tag": "ActionSucceeded"
+            }
+          }
+        ],
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "One attempt",
+            "revision": 1
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "Case-11:<雪<a<😀a&雪",
+            "revision": 14
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      ],
+      "expected": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "One attempt",
+          "revision": 1
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "Case-11:<雪<a<😀a&雪",
+          "revision": 14
+        },
+        {
+          "id": "beta-c",
+          "workspace": "beta",
+          "title": "Private C",
+          "revision": 0
+        }
+      ]
+    },
+    {
+      "name": "single-proof-reuse-other-node",
+      "pass": true,
+      "observed": [
+        [
+          200,
+          {
+            "value": {
+              "fields": [],
+              "tag": "ActionUnknown"
+            }
+          }
+        ],
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "One attempt",
+            "revision": 1
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "Case-11:<雪<a<😀a&雪",
+            "revision": 14
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      ],
+      "expected": "one saved revision; no recovered result or second execution"
+    },
+    {
+      "name": "concurrent-proof-two-servers",
+      "pass": true,
+      "observed": [
+        [
+          "ActionUnknown",
+          "ActionSucceeded"
+        ],
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "Concurrent once",
+            "revision": 2
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "Case-11:<雪<a<😀a&雪",
+            "revision": 14
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      ],
+      "expected": "exactly one revision increment across two real servers"
+    },
+    {
+      "name": "proof-binds-canonical-input-and-id",
+      "pass": true,
+      "observed": [
+        [
+          200,
+          {
+            "value": {
+              "fields": [],
+              "tag": "ActionUnknown"
+            }
+          }
+        ],
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "Concurrent once",
+            "revision": 2
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "Case-11:<雪<a<😀a&雪",
+            "revision": 14
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      ],
+      "expected": "changed payload cannot execute"
+    },
+    {
+      "name": "original-bound-input-still-usable",
+      "pass": true,
+      "observed": [
+        [
+          200,
+          {
+            "value": {
+              "fields": [
+                {
+                  "id": {
+                    "tag": "issue",
+                    "value": "alpha-a"
+                  },
+                  "revision": "3",
+                  "title": "Bound input",
+                  "workspace": {
+                    "tag": "workspace",
+                    "value": "alpha"
+                  }
+                }
+              ],
+              "tag": "ActionSucceeded"
+            }
+          }
+        ],
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "Bound input",
+            "revision": 3
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "Case-11:<雪<a<😀a&雪",
+            "revision": 14
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      ],
+      "expected": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Bound input",
+          "revision": 3
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "Case-11:<雪<a<😀a&雪",
+          "revision": 14
+        },
+        {
+          "id": "beta-c",
+          "workspace": "beta",
+          "title": "Private C",
+          "revision": 0
+        }
+      ]
+    },
+    {
+      "name": "proof-different-account",
+      "pass": true,
+      "observed": [
+        [
+          200,
+          {
+            "value": {
+              "fields": [],
+              "tag": "ActionUnknown"
+            }
+          }
+        ],
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "Bound input",
+            "revision": 3
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "Case-11:<雪<a<😀a&雪",
+            "revision": 14
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      ],
+      "expected": "proof is not transferable between current identities/sessions"
+    },
+    {
+      "name": "subject-owner-different-account",
+      "pass": true,
+      "observed": [
+        [
+          200,
+          {
+            "value": {
+              "fields": [
+                {
+                  "id": {
+                    "tag": "issue",
+                    "value": "alpha-a"
+                  },
+                  "revision": "4",
+                  "title": "Subject bound different-account",
+                  "workspace": {
+                    "tag": "workspace",
+                    "value": "alpha"
+                  }
+                }
+              ],
+              "tag": "ActionSucceeded"
+            }
+          }
+        ],
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "Subject bound different-account",
+            "revision": 4
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "Case-11:<雪<a<😀a&雪",
+            "revision": 14
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      ],
+      "expected": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Subject bound different-account",
+          "revision": 4
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "Case-11:<雪<a<😀a&雪",
+          "revision": 14
+        },
+        {
+          "id": "beta-c",
+          "workspace": "beta",
+          "title": "Private C",
+          "revision": 0
+        }
+      ]
+    },
+    {
+      "name": "proof-different-session-same-account",
+      "pass": true,
+      "observed": [
+        [
+          200,
+          {
+            "value": {
+              "fields": [],
+              "tag": "ActionUnknown"
+            }
+          }
+        ],
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "Subject bound different-account",
+            "revision": 4
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "Case-11:<雪<a<😀a&雪",
+            "revision": 14
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      ],
+      "expected": "proof is not transferable between current identities/sessions"
+    },
+    {
+      "name": "subject-owner-different-session-same-account",
+      "pass": true,
+      "observed": [
+        [
+          200,
+          {
+            "value": {
+              "fields": [
+                {
+                  "id": {
+                    "tag": "issue",
+                    "value": "alpha-a"
+                  },
+                  "revision": "5",
+                  "title": "Subject bound different-session-same-account",
+                  "workspace": {
+                    "tag": "workspace",
+                    "value": "alpha"
+                  }
+                }
+              ],
+              "tag": "ActionSucceeded"
+            }
+          }
+        ],
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "Subject bound different-session-same-account",
+            "revision": 5
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "Case-11:<雪<a<😀a&雪",
+            "revision": 14
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      ],
+      "expected": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Subject bound different-session-same-account",
+          "revision": 5
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "Case-11:<雪<a<😀a&雪",
+          "revision": 14
+        },
+        {
+          "id": "beta-c",
+          "workspace": "beta",
+          "title": "Private C",
+          "revision": 0
+        }
+      ]
+    },
+    {
+      "name": "expired-proof-never-becomes-fresh",
+      "pass": true,
+      "observed": [
+        [
+          200,
+          {
+            "value": {
+              "fields": [],
+              "tag": "ActionUnknown"
+            }
+          }
+        ],
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "Subject bound different-session-same-account",
+            "revision": 5
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "Case-11:<雪<a<😀a&雪",
+            "revision": 14
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      ],
+      "expected": "expired identity cannot execute"
+    },
+    {
+      "name": "revocation-after-preparation",
+      "pass": true,
+      "observed": [
+        [
+          200,
+          {
+            "value": {
+              "fields": [],
+              "tag": "ActionDenied"
+            }
+          }
+        ],
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "Subject bound different-session-same-account",
+            "revision": 5
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "Case-11:<雪<a<😀a&雪",
+            "revision": 14
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      ],
+      "expected": "fresh resource policy denies after preparation; no write"
+    },
+    {
+      "name": "api-proof-first-attempt",
+      "pass": true,
+      "observed": [
+        [
+          200,
+          {
+            "api_version": 1,
+            "value": {
+              "fields": [
+                {
+                  "id": {
+                    "tag": "issue",
+                    "value": "alpha-a"
+                  },
+                  "revision": "6",
+                  "title": "API proof once",
+                  "workspace": {
+                    "tag": "workspace",
+                    "value": "alpha"
+                  }
+                }
+              ],
+              "tag": "ActionSucceeded"
+            }
+          }
+        ],
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "API proof once",
+            "revision": 6
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "Case-11:<雪<a<😀a&雪",
+            "revision": 14
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      ],
+      "expected": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "API proof once",
+          "revision": 6
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "Case-11:<雪<a<😀a&雪",
+          "revision": 14
+        },
+        {
+          "id": "beta-c",
+          "workspace": "beta",
+          "title": "Private C",
+          "revision": 0
+        }
+      ]
+    },
+    {
+      "name": "api-proof-duplicate-envelope",
+      "pass": true,
+      "observed": [
+        [
+          200,
+          {
+            "api_version": 1,
+            "value": {
+              "fields": [],
+              "tag": "ActionUnknown"
+            }
+          }
+        ],
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "API proof once",
+            "revision": 6
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "Case-11:<雪<a<😀a&雪",
+            "revision": 14
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      ],
+      "expected": "versioned API envelope; no second revision"
+    },
+    {
+      "name": "cookie-proof-not-api-proof",
+      "pass": true,
+      "observed": [
+        [
+          200,
+          {
+            "api_version": 1,
+            "value": {
+              "fields": [],
+              "tag": "ActionUnknown"
+            }
+          }
+        ],
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "API proof once",
+            "revision": 6
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "Case-11:<雪<a<😀a&雪",
+            "revision": 14
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      ],
+      "expected": "cookie/API realms and subjects remain distinct"
+    },
+    {
+      "name": "cookie-realm-owner-can-execute",
+      "pass": true,
+      "observed": [
+        [
+          200,
+          {
+            "value": {
+              "fields": [
+                {
+                  "id": {
+                    "tag": "issue",
+                    "value": "alpha-a"
+                  },
+                  "revision": "7",
+                  "title": "Cookie realm",
+                  "workspace": {
+                    "tag": "workspace",
+                    "value": "alpha"
+                  }
+                }
+              ],
+              "tag": "ActionSucceeded"
+            }
+          }
+        ],
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "Cookie realm",
+            "revision": 7
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "Case-11:<雪<a<😀a&雪",
+            "revision": 14
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      ],
+      "expected": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Cookie realm",
+          "revision": 7
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "Case-11:<雪<a<😀a&雪",
+          "revision": 14
+        },
+        {
+          "id": "beta-c",
+          "workspace": "beta",
+          "title": "Private C",
+          "revision": 0
+        }
+      ]
+    },
+    {
+      "name": "credential-revoked-after-preparation",
+      "pass": true,
+      "observed": [
+        [
+          401,
+          {
+            "error": "authentication_required"
+          }
+        ],
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "Cookie realm",
+            "revision": 7
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "Case-11:<雪<a<😀a&雪",
+            "revision": 14
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      ],
+      "expected": "current credential grant rechecked before consuming/executing"
+    },
+    {
+      "name": "shared-pending-proof-quota",
+      "pass": true,
+      "observed": [
+        429,
+        {
+          "error": "rate_limited"
+        },
+        "16"
+      ],
+      "expected": "sixteen live unused proofs per user across nodes; next preparation rejected"
+    },
+    {
+      "name": "quota-following-valid-execution",
+      "pass": true,
+      "observed": [
+        [
+          200,
+          {
+            "value": {
+              "fields": [
+                {
+                  "id": {
+                    "tag": "issue",
+                    "value": "alpha-a"
+                  },
+                  "revision": "8",
+                  "title": "Pending 0",
+                  "workspace": {
+                    "tag": "workspace",
+                    "value": "alpha"
+                  }
+                }
+              ],
+              "tag": "ActionSucceeded"
+            }
+          }
+        ],
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "Pending 0",
+            "revision": 8
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "Case-11:<雪<a<😀a&雪",
+            "revision": 14
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      ],
+      "expected": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Pending 0",
+          "revision": 8
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "Case-11:<雪<a<😀a&雪",
+          "revision": 14
+        },
+        {
+          "id": "beta-c",
+          "workspace": "beta",
+          "title": "Private C",
+          "revision": 0
+        }
+      ]
+    },
+    {
+      "name": "consumption-releases-pending-slot",
+      "pass": true,
+      "observed": [
+        200,
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "Pending 0",
+            "revision": 8
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "Case-11:<雪<a<😀a&雪",
+            "revision": 14
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      ],
+      "expected": "a consumed proof releases its pending-user slot"
+    },
+    {
+      "name": "confirmed-lock-timeout-abort",
+      "pass": true,
+      "observed": [
+        [
+          200,
+          {
+            "value": {
+              "fields": [],
+              "tag": "ActionAborted"
+            }
+          }
+        ],
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "Pending 0",
+            "revision": 8
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "Case-11:<雪<a<😀a&雪",
+            "revision": 14
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      ],
+      "expected": "confirmed abort; no saved revision and no private SQL text"
+    },
+    {
+      "name": "owned-blocker-shutdown",
+      "pass": true,
+      "observed": 0,
+      "expected": 0
+    },
+    {
+      "name": "valid-action-after-abort",
+      "pass": true,
+      "observed": [
+        [
+          200,
+          {
+            "value": {
+              "fields": [
+                {
+                  "id": {
+                    "tag": "issue",
+                    "value": "alpha-a"
+                  },
+                  "revision": "9",
+                  "title": "Recovery after abort",
+                  "workspace": {
+                    "tag": "workspace",
+                    "value": "alpha"
+                  }
+                }
+              ],
+              "tag": "ActionSucceeded"
+            }
+          }
+        ],
+        [
+          {
+            "id": "alpha-a",
+            "workspace": "alpha",
+            "title": "Recovery after abort",
+            "revision": 9
+          },
+          {
+            "id": "alpha-b",
+            "workspace": "alpha",
+            "title": "Case-11:<雪<a<😀a&雪",
+            "revision": 14
+          },
+          {
+            "id": "beta-c",
+            "workspace": "beta",
+            "title": "Private C",
+            "revision": 0
+          }
+        ]
+      ],
+      "expected": [
+        {
+          "id": "alpha-a",
+          "workspace": "alpha",
+          "title": "Recovery after abort",
+          "revision": 9
+        },
+        {
+          "id": "alpha-b",
+          "workspace": "alpha",
+          "title": "Case-11:<雪<a<😀a&雪",
+          "revision": 14
+        },
+        {
+          "id": "beta-c",
+          "workspace": "beta",
+          "title": "Private C",
+          "revision": 0
+        }
+      ]
+    }
+  ],
+  "shutdowns": [
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "source_files": {
+    "examples/language-spine/README.md": "22080069588e8235c516116c61373fc74f2660e5b9aef842b59f6615ea17875b",
+    "examples/language-spine/diamond.toml": "dbc27d0c01ae5ef077a38bab2bffb32272bc72b8b2945bcb4e271cb8ff640bd5",
+    "examples/language-spine/server.dia": "a9fb54f1358c9a9d026cd667948920c2123dda2226e278384e55263e0bf8063c",
+    "examples/language-spine/shared.dia": "8ba4b634450189ef33db8747e3de342291643150e81222b6192a0ff5372d49ae",
+    "examples/language-spine/ui.dia": "8e87330fbf228fea3d9e623c2c2a710e08a1d9b5472a4df1a4b89873c5e22b01"
+  }
+}

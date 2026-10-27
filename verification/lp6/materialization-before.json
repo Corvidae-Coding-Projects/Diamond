@@ -1,0 +1,16 @@
+{
+  "status": "FAIL",
+  "method": "Source-backed minimized pre-fix boundary inspection",
+  "binary_sha256": "4ce83ca2bfb10b8371f0005b9cc46fb0da81a2347bb3210e2a2b6af030acc0ad",
+  "runtime_source_sha256": "e0cd75d767d0426e39b6ff7d4655a034968882457e625d1a85e3a7281ad69f52",
+  "observations": [
+    {
+      "name": "direct-remote-root-contributes-to-event-work",
+      "pass": false,
+      "observed": "__unwire returned __validate(result, type, depth) for the root value",
+      "expected": "the fully materialized root also passes through __check",
+      "impact": "A sequence of individually bounded direct remote assignments did not contribute those returned roots to the event-wide 64 MiB managed-value work budget."
+    }
+  ],
+  "reproduction_boundary": "The failure is established from the exact pre-fix generated-runtime source. No hostile remote service was used to allocate the full 64 MiB in Chrome."
+}

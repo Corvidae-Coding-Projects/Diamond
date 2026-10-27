@@ -106,6 +106,15 @@ export fn read_issue(id: Text) -> Result<Text, DataError>:
 export fn update_issue(id: Text, title: Text<length: 1..120>, details: Text<length: 0..4000>) -> Result<Text, DataError>:
   let row = issues.update(IssueId(id), EditIssue(title: title, details: details))?
   Ok(row.title + "\n" + row.details)
+
+export fn load_editor(id: CardId) -> Result<WorkspaceEditorData, DataError>:
+  let row = issues.get(id)?
+  Ok(WorkspaceEditorData(id: row.id, title: row.title, details: row.details))
+
+export action save_editor(id: CardId, value: WorkspaceEdit) -> Result<WorkspaceEditorData, WorkspaceEditError>:
+  match issues.update(id, EditIssue(title: value.title, details: value.details)):
+    Ok(row) => Ok(WorkspaceEditorData(id: row.id, title: row.title, details: row.details))
+    Err(problem) => Err(SaveFailed)
 export fn delete_issue(id: Text) -> Result<Text, DataError>:
   issues.delete(IssueId(id))?
   Ok("Issue deleted.")

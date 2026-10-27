@@ -1,0 +1,4 @@
+export component App:
+  state identity: Text = "diamond-control-author"
+  html:
+    <p id={identity}>Author</p>

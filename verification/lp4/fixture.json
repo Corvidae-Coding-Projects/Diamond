@@ -1,0 +1,38 @@
+{
+  "status": "PASS",
+  "error": null,
+  "binary_sha256": "68f2bc4630ec6f2d5c38d9755a63c0d4ae24e1ff12caa8ced71efbdd5114dc9e",
+  "driver_sha256": "a7280bd83ca6d7d413ed25f920c726cb1bfea3a7fedd1e9984421d9c6245a84e",
+  "observations": [
+    {
+      "name": "independent-bob-denial",
+      "pass": true,
+      "observed": [
+        200,
+        {
+          "value": {
+            "fields": [],
+            "tag": "ActionDenied"
+          }
+        }
+      ]
+    }
+  ],
+  "shutdowns": [
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": []
+}

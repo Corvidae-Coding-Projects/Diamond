@@ -30,6 +30,9 @@ export component GitForge:
   state issue_body: Text = ""
   state issue: Text = ""
   state issue_detail: IssueDetail = IssueDetail(id: "", title: "", body: "", state: "", author: "")
+  state opened_issues: List<IssueKey> = []
+  state editor_repository: Text = ""
+  state editor_organization: Text = ""
   state issues: IssuePage = IssuePage(cards: [], after: "", total: 0)
   state issue_comments: List<CommentCard> = []
   state comment_body: Text = ""
@@ -152,6 +155,7 @@ export component GitForge:
     organizations = rpc.organizations_list()
     output = "Organization list refreshed."
   on choose_organization:
+    opened_issues = []
     repository = ""
     issue = ""
     merge_request = ""
@@ -180,11 +184,28 @@ export component GitForge:
   on next_repositories:
     repositories = rpc.repository_page(organization, repositories.after)
   on open_repository:
+    opened_issues = []
     issues = rpc.issue_page(organization, repository, "")
     merge_requests = rpc.merge_request_page(organization, repository, "")
     dashboard = rpc.collaboration_dashboard(organization, repository)
     pipelines = rpc.delivery_pipelines(repository)
     output = "Repository workspace loaded."
+  on open_repository_card(id: RepositoryKey):
+    repository = id_text(id)
+    opened_issues = []
+    issues = rpc.issue_page(organization, repository, "")
+    merge_requests = rpc.merge_request_page(organization, repository, "")
+    dashboard = rpc.collaboration_dashboard(organization, repository)
+    pipelines = rpc.delivery_pipelines(repository)
+    output = "Repository workspace loaded."
+  on open_issue_card(id: IssueKey):
+    issue = id_text(id)
+    opened_issues = [id]
+    editor_repository = repository
+    editor_organization = organization
+  on editor_saved(value: Action<IssueEditorData, IssueEditorError>):
+    output = editor_message(value)
+    issues = rpc.issue_page(organization, repository, "")
   on create_credential:
     credential = session.create_token("Git client", ["git:repos:read", "git:repos:write"], "{\"repository\":[\"" + repository + "\"]}", 3600)
     output = "Copy this one-hour credential now."
@@ -438,7 +459,7 @@ export component GitForge:
           <section class="panel" aria-labelledby="organization-heading"><div class="section-heading"><div><h2 id="organization-heading">Organizations</h2><p>Organizations own repositories and team access.</p></div><span class="count">{len(organizations)}</span></div><form class="inline-form" on-submit={create_organization}><div><label for="organization-name">New organization name</label><input id="organization-name" minlength="1" maxlength="80" required="true" bind-value={organization_name}></div><button type="submit" disabled={pending}>Create organization</button></form><when test={len(organizations) == 0}><p class="empty-state">No organizations yet. Create your first one above.</p></when><ul class="cards"><each items={organizations} as="organization_card" key={organization_card.id}><li><strong>{organization_card.name}</strong><p class="resource-id">Organization ID <code>{organization_card.id}</code></p></li></each></ul></section>
           <section class="panel" aria-labelledby="repository-heading"><div class="section-heading"><div><h2 id="repository-heading">New repository</h2><p>Create metadata first, then initialize its Git storage.</p></div></div><when test={organization == ""}><p class="empty-state">Choose an organization before creating a repository.</p></when><form class="stack" on-submit={create_repository}><label for="repository-name">Repository name</label><input id="repository-name" minlength="1" maxlength="80" required="true" bind-value={repository_name}><label for="repository-description">Description</label><textarea id="repository-description" maxlength="500" bind-value={repository_description}></textarea><label class="check"><input id="repository-public" type="checkbox" bind-checked={repository_public}> Anyone can view this repository</label><button type="submit" disabled={organization == "" or pending}>Create repository metadata</button></form><when test={repository != ""}><div class="next-step"><strong>Next step</strong><p>Initialize Git storage before the first push. This safe second step can be retried.</p><button type="button" on-click={initialize_repository}>Initialize Git storage</button></div></when></section>
         </div>
-        <section class="panel" aria-labelledby="repository-list-heading"><div class="section-heading"><div><h2 id="repository-list-heading">Available repositories</h2><p>Choose a repository in the workspace bar to use it across every page.</p></div><span class="count">{repository_total}</span></div><div class="actions"><button class="quiet" type="button" on-click={load_repositories} disabled={organization == ""}>Refresh list</button><button class="quiet" type="button" on-click={next_repositories} disabled={repositories.after == ""}>Next page</button></div><when test={organization != "" and len(repositories.cards) == 0}><p class="empty-state">No visible repositories in this organization.</p></when><ul class="cards repository-cards"><each items={repositories.cards} as="repository_card" key={repository_card.id}><li><div class="card-title"><strong>{repository_card.name}</strong><span class="badge">{repository_card.visibility}</span></div><p>{repository_card.description}</p><p class="resource-id">Repository ID <code>{repository_card.id}</code></p></li></each></ul></section>
+        <section class="panel" aria-labelledby="repository-list-heading"><div class="section-heading"><div><h2 id="repository-list-heading">Available repositories</h2><p>Choose a repository in the workspace bar to use it across every page.</p></div><span class="count">{repository_total}</span></div><div class="actions"><button class="quiet" type="button" on-click={load_repositories} disabled={organization == ""}>Refresh list</button><button class="quiet" type="button" on-click={next_repositories} disabled={repositories.after == ""}>Next page</button></div><when test={organization != "" and len(repositories.cards) == 0}><p class="empty-state">No visible repositories in this organization.</p></when><ul class="cards repository-cards"><each items={repositories.cards} as="repository_card" key={repository_card.id}><li><div class="card-title"><button type="button" on-click={open_repository_card(repository_card.key)}>Open {repository_card.name}</button><span class="badge">{repository_card.visibility}</span></div><p>{repository_card.description}</p><p class="resource-id">Repository ID <code>{repository_card.id}</code></p></li></each></ul></section>
         <when test={repository != ""}>
           <section class="panel" aria-labelledby="clone-heading"><div class="section-heading"><div><h2 id="clone-heading">Clone this repository</h2><p>Create a short-lived credential for stock Git over HTTPS.</p></div></div><pre>git clone https://forge.example.test/_diamond/git/repos/{repository}.git</pre><button type="button" on-click={create_credential}>Create one-hour Git credential</button><when test={credential != ""}><div class="secret-box" role="status"><strong>Copy this credential now</strong><p>It is shown once and limited to this repository.</p><pre class="secret">{credential}</pre></div></when></section>
           <section class="panel" aria-labelledby="browse-heading"><div class="section-heading"><div><h2 id="browse-heading">Browse code</h2><p>Use a branch, tag, or commit. Leave path empty for the repository root.</p></div></div><div class="grid"><div><label for="revision">Branch, tag, or commit</label><input id="revision" placeholder="refs/heads/main" bind-value={revision}></div><div><label for="path">File or folder path <span class="optional">optional</span></label><input id="path" placeholder="src/main.rs" bind-value={path}></div><div><label for="old-revision">Compare from</label><input id="old-revision" placeholder="refs/heads/main~1" bind-value={old_revision}></div></div><div class="actions"><button type="button" on-click={load_tree}>View files</button><button class="quiet" type="button" on-click={load_blob}>Open file</button><button class="quiet" type="button" on-click={load_history}>View commits</button><button class="quiet" type="button" on-click={load_diff}>Compare changes</button><button class="quiet" type="button" on-click={load_head}>Show default branch</button></div><when test={head.reference != ""}><p class="context-ready">Default branch <code>{head.reference}</code></p></when><ul class="tree"><each items={tree.entries} as="entry" key={entry.object + entry.name}><li><span class="badge">{entry.kind}</span><code>{entry.name}</code></li></each></ul><when test={blob.path != ""}><article class="result-block"><h3>{blob.path}</h3><p>{blob.size} bytes</p><pre>{blob.text}</pre></article></when><when test={len(history.commits) != 0}><article class="result-block"><h3>Commit history</h3><ol class="commits"><each items={history.commits} as="commit" key={commit.object}><li><strong>{commit.subject}</strong><p>{commit.author_name} · {commit.authored_at}</p><code>{commit.object}</code></li></each></ol></article></when><when test={diff.text != ""}><article class="result-block"><h3>Changes</h3><pre>{diff.text}</pre></article></when></section>
@@ -463,7 +484,8 @@ export component GitForge:
         <header class="page-heading"><div><p class="eyebrow">PLAN</p><h1>Issues and board</h1><p>Track work, discuss changes, and organize delivery without leaving the repository.</p></div><button class="quiet" type="button" on-click={load_issues} disabled={repository == ""}>Refresh issues</button></header>
         <section class="panel" aria-labelledby="issues-heading"><div class="section-heading"><div><h2 id="issues-heading">Issues</h2><p>Open new work or choose an existing issue to read and edit.</p></div><span class="count">{issue_total}</span></div>
           <div class="content-grid"><form class="stack" on-submit={create_issue}><label for="issue-title">New issue title</label><input id="issue-title" minlength="1" maxlength="160" required="true" bind-value={issue_title}><label for="issue-body">Description</label><textarea id="issue-body" maxlength="16000" bind-value={issue_body}></textarea><button type="submit" disabled={repository == ""}>Open issue</button></form><div><label for="issue-id">Selected issue</label><select id="issue-id" bind-value={issue}><option value="">Choose an issue</option><each items={issues.cards} as="issue_choice" key={issue_choice.id}><option value={issue_choice.id}>{issue_choice.title} · {issue_choice.state}</option></each></select><div class="actions"><button type="button" on-click={read_issue} disabled={issue == ""}>Open selected issue</button><button class="quiet" type="button" on-click={next_issues} disabled={issues.after == ""}>Next page</button></div></div></div>
-          <p>{issue_total}</p><ul class="cards"><each items={issues.cards} as="issue_card" key={issue_card.id}><li><span class="badge">{issue_card.state}</span><strong>{issue_card.title}</strong><p>by {issue_card.author}</p><code>{issue_card.id}</code></li></each></ul>
+          <p>{issue_total}</p><ul class="cards"><each items={issues.cards} as="issue_card" key={issue_card.id}><li><span class="badge">{issue_card.state}</span><button type="button" on-click={open_issue_card(issue_card.key)}>Edit {issue_card.title}</button><p>by {issue_card.author}</p><code>{issue_card.id}</code></li></each></ul>
+          <when test={editor_repository == repository and editor_organization == organization}><each items={opened_issues} as="opened" key={opened}><use component="IssueEditor" issue={opened} on-changed={editor_saved}></use></each></when>
           <when test={issue_detail.id != "" and issue_detail.id == issue}><article class="detail"><div class="section-heading"><div><h3>{issue_detail.title}</h3><p>{issue_detail.state} · opened by {issue_detail.author}</p></div><button class="danger" type="button" on-click={close_issue}>Close issue</button></div><p>{issue_detail.body}</p><form class="stack" on-submit={edit_issue}><label for="selected-issue-title">Edit title</label><input id="selected-issue-title" minlength="1" maxlength="160" required="true" bind-value={issue_title}><label for="selected-issue-body">Edit description</label><textarea id="selected-issue-body" maxlength="16000" bind-value={issue_body}></textarea><div class="actions"><button type="submit">Save changes</button><button class="quiet" type="button" on-click={reopen_issue}>Reopen issue</button></div></form></article>
           <h3>Discussion</h3><form class="stack" on-submit={add_comment}><label for="comment-body">Add a comment</label><textarea id="comment-body" maxlength="16000" required="true" bind-value={comment_body}></textarea><button type="submit">Comment</button></form><button class="quiet" type="button" on-click={load_comments}>Refresh comments</button><ol class="comments"><each items={issue_comments} as="comment" key={comment.id}><li><p>{comment.body}</p><p class="byline">{comment.author}</p></li></each></ol>
           <h3>Attachments</h3><label for="issue_attachment">Choose a file up to 8 MiB</label><input id="issue_attachment" type="file"><div class="actions"><button type="button" on-click={upload_attachment}>Upload file</button><button class="quiet" type="button" on-click={download_attachment}>Download current file</button><button class="danger" type="button" on-click={delete_attachment}>Delete current file</button></div><p role="status">{attachment_status}</p></when>
@@ -540,3 +562,27 @@ export component GitForge:
         <when test={repository != ""}><div class="activity" aria-live="polite"><div><span class="status-dot"></span><strong>Live repository activity</strong></div><p>{activity}</p></div></when>
       </when>
     </main>
+
+export component IssueEditor(issue: IssueKey):
+  output changed(value: Action<IssueEditorData, IssueEditorError>)
+  state loaded: IssueEditorData = IssueEditorData(key: issue, title: "Loading", body: "")
+  state draft_title: Text = ""
+  state draft_body: Text = ""
+  state result: Action<IssueEditorData, IssueEditorError> = ActionIdle
+  on mount:
+    loaded = rpc.load_issue_editor(issue)
+    draft_title = loaded.title
+    draft_body = loaded.body
+  on save(value: IssueEditorForm):
+    result = action.save_issue_editor(issue, value)
+    emit changed(result)
+  html:
+    <section class="panel" aria-label={"Edit issue " + id_text(issue)}>
+      <h3>Edit issue</h3>
+      <form schema="IssueEditorForm" as="value" on-submit={save(value)}>
+        <field name="title" label="Issue title" description="Describe the work in a short title." bind-value={draft_title}></field>
+        <field name="body" label="Issue description" description="Add context for the people doing this work." bind-value={draft_body} multiline="true"></field>
+        <submit label="Save issue"></submit>
+      </form>
+      <status value={editor_message(result)}></status>
+    </section>

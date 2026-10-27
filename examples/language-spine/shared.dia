@@ -1,0 +1,43 @@
+# The same nominal schemas and business validation are checked for both targets.
+export type IssueId = Id<"issue">
+export type WorkspaceId = Id<"workspace">
+export type UserId = Id<"user">
+
+export type Issue:
+  id: IssueId
+  workspace: WorkspaceId
+  title: Text<length: 1..120>
+  revision: Int
+
+export enum EditError:
+  TitleRejected
+  SaveFailed
+
+export route IssuePage(id: IssueId) = "/issues/{id}"
+export form EditIssue(title: Text<length: 1..120>)
+
+export fn valid_title(title: Text) -> Bool:
+  len(text_trim(title)) > 0 and title != "reject"
+
+export fn outcome_text(value: Action<Issue, EditError>) -> Text:
+  match value:
+    ActionIdle => "Ready"
+    ActionSubmitting => "Saving"
+    ActionSucceeded(issue) => "Saved " + id_text(issue.id) + ": " + issue.title
+    ActionRejected(problem) => "Title rejected; changes rolled back"
+    ActionInvalid => "Invalid input"
+    ActionDenied => "Access denied"
+    ActionAborted => "Changes aborted"
+    ActionExpired => "Recovery expired. Check the record before submitting again."
+    ActionConflict => "The request or application changed. Check the record before submitting again."
+    ActionCorrupt => "Recovery unavailable. Check the record before submitting again."
+    ActionUnknown => "Completion unknown; refresh before retrying"
+
+export fn replace_issue(rows: List<Issue>, value: Action<Issue, EditError>) -> List<Issue>:
+  match value:
+    ActionSucceeded(updated) =>
+      for row in rows:
+        match row.id == updated.id:
+          true => updated
+          false => row
+    _ => rows

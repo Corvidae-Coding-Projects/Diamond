@@ -1,5 +1,10 @@
 # Diamond examples
 
+For reusable components, typed child outputs, and native fields with generated
+labels/errors, run [components](components/diamond.toml) and follow the
+[component guide](../docs/components.md). The Forge and live workspace examples
+also demonstrate clicking an exact issue card and saving in a child editor.
+
 Use this directory as a learning path and as copyable application code. Every
 `.dia` file is checked by the real Diamond compiler; runnable examples are also
 executed by `verification/examples.py`.
@@ -9,6 +14,18 @@ Build Diamond once from the repository root:
 ```sh
 cargo build --locked
 ```
+
+Check examples without changing them, or make an editable copy and format it:
+
+```sh
+target/debug/diamond check examples/hello.dia
+cp examples/hello.dia .diamond/hello.dia
+target/debug/diamond fmt .diamond/hello.dia
+```
+
+The [tooling guide](../docs/tooling.md) explains `fmt --check`, stable diagnostic
+codes, and `diamond lsp`. Project modules should be checked through their
+`diamond.toml` so imports and target boundaries are resolved together.
 
 Then choose the shortest path for what you want to learn.
 
@@ -61,6 +78,12 @@ The SQLite gallery includes exact setup commands in
 
 ## Learn multi-file projects
 
+- [`typed-inputs/`](typed-inputs/) — current typed path/query URLs, query defaults,
+  scalar and optional forms, generated errors, draft preservation, and a protected
+  save. Its [guide](../docs/typed-inputs.md) defines canonical input rules.
+- [`language-spine/`](language-spine/) — named typed routes, schema forms,
+  parameterized events, component outputs, and protected database actions in one
+  small app. Start with its README and [syntax guide](../docs/language-spine.md).
 - [`foundations/`](foundations/) — the smallest shared/server/browser module
   graph and reactive component.
 - [`workspace/`](workspace/) — generated RPC, shared PostgreSQL sessions,

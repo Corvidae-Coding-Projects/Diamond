@@ -1,0 +1,111 @@
+{
+  "status": "PASS",
+  "binary_sha256": "4ce83ca2bfb10b8371f0005b9cc46fb0da81a2347bb3210e2a2b6af030acc0ad",
+  "observations": [
+    {
+      "name": "query-control",
+      "expected_accept": true,
+      "exit": 0,
+      "pass": true,
+      "diagnostic": ""
+    },
+    {
+      "name": "same-named-rpc-required",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: query document requires a same-named RPC operation"
+    },
+    {
+      "name": "selection-exact",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: query selection or depth/node/row/cost/query/time/response budget is invalid"
+    },
+    {
+      "name": "selection-no-extra-field",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: query selection or depth/node/row/cost/query/time/response budget is invalid"
+    },
+    {
+      "name": "resource-effects-exact",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: query must be an exported, same-named, single repository page/join wrapper with exact read resources"
+    },
+    {
+      "name": "arbitrary-resolver-body-denied",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: query must be an exported, same-named, single repository page/join wrapper with exact read resources"
+    },
+    {
+      "name": "cursor-type-bound",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: query must be an exported, same-named, single repository page/join wrapper with exact read resources"
+    },
+    {
+      "name": "limit-type-bound",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: query must be an exported, same-named, single repository page/join wrapper with exact read resources"
+    },
+    {
+      "name": "depth-budget",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: query selection or depth/node/row/cost/query/time/response budget is invalid"
+    },
+    {
+      "name": "node-budget",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: query selection or depth/node/row/cost/query/time/response budget is invalid"
+    },
+    {
+      "name": "row-budget",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: query selection or depth/node/row/cost/query/time/response budget is invalid"
+    },
+    {
+      "name": "cost-budget",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: query selection or depth/node/row/cost/query/time/response budget is invalid"
+    },
+    {
+      "name": "database-query-budget",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: query selection or depth/node/row/cost/query/time/response budget is invalid"
+    },
+    {
+      "name": "timeout-budget",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: query selection or depth/node/row/cost/query/time/response budget is invalid"
+    },
+    {
+      "name": "response-budget",
+      "expected_accept": false,
+      "exit": 1,
+      "pass": true,
+      "diagnostic": "error: invalid input: query selection or depth/node/row/cost/query/time/response budget is invalid"
+    }
+  ]
+}

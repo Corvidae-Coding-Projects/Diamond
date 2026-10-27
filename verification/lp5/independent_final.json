@@ -1,0 +1,27 @@
+{
+  "status": "PASS",
+  "oracle": "LP5 AC6-8 and SCENARIOS independently specified before execution.",
+  "binary_sha256": "9ed5bfe28ebff433262582bc78121fe4a651f27b5afadad0739abc325701bc70",
+  "driver_sha256": "994c4416bad195f22bca3e70bd198cb8c10b2075c8c4743f732166ca26f397d8",
+  "versions": {"language_version": "0.20.0", "format_version": 5, "wire_version": 7},
+  "observations": [
+    {"name": "prepared-status-fences-late-execution", "pass": true},
+    {"name": "protected-scalar-source-revocation", "pass": true},
+    {"name": "protected-scalar-restored-authority", "pass": true},
+    {"name": "protected-scalar-current-row-parent", "pass": true},
+    {"name": "corrupt-receipt-no-replay", "pass": true},
+    {"name": "expired-and-pruned-identity-no-replay", "pass": true},
+    {"name": "oversize-terminal-output-rollback-recoverable", "pass": true},
+    {"name": "crud-footprint-boundary-61", "pass": true},
+    {"name": "crud-footprint-boundary-62", "pass": true},
+    {"name": "crud-footprint-boundary-63", "pass": true},
+    {"name": "crud-footprint-boundary-64", "pass": true},
+    {"name": "crud-footprint-boundary-65", "pass": true},
+    {"name": "crud-footprint-boundary-70", "pass": true},
+    {"name": "delete-declared-parent-terminal-recovery", "pass": true},
+    {"name": "recreated-parent-current-policy-denied", "pass": true},
+    {"name": "recreated-authorized-parent-not-deleted-again", "pass": true},
+    {"name": "deleted-parent-revocation-denied", "pass": true}
+  ],
+  "cleanup_errors": []
+}

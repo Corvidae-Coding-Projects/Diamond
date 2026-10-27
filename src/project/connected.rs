@@ -40,6 +40,7 @@ pub(super) struct Server {
     pub(super) project: CheckedProject,
     pub(super) files: BTreeMap<String, String>,
     pub(super) pages: BTreeMap<String, String>,
+    shell: artifact::PageShell,
     pub(super) authority: String,
     pub(super) origin: String,
     pub(super) contract: String,
@@ -58,11 +59,25 @@ pub(super) struct Server {
     pub(super) node_id: Option<String>,
 }
 
+impl Server {
+    fn application_store(&self) -> Result<PostgresStore> {
+        PostgresStore::open_with(
+            &self.project,
+            &self.secrets.configuration,
+            false,
+            self.pool.as_ref(),
+        )
+    }
+}
+
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
 struct RpcBody {
     contract: String,
-    arguments: Vec<Json>,
+    arguments: Option<Vec<Json>>,
+    #[serde(default)]
+    ticket: Option<String>,
+    invocation: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -143,7 +158,13 @@ pub(super) fn serve_runtime(
             &crate::authority::random_hex()?,
         )?),
     });
+    let files: BTreeMap<_, _> = artifact::files(project)?
+        .into_iter()
+        .filter(|(p, _)| p == "index.html" || p.starts_with("assets/") || p.starts_with("pages/"))
+        .collect();
+    let shell = artifact::PageShell::from_files(project, &files)?;
     let state = Arc::new(Server {
+        shell,
         runtime,
         objects,
         sockets: Arc::new(Semaphore::new(32)),
@@ -152,12 +173,7 @@ pub(super) fn serve_runtime(
         node_id,
         mailbox,
         project: project.clone(),
-        files: artifact::files(project)?
-            .into_iter()
-            .filter(|(p, _)| {
-                p == "index.html" || p.starts_with("assets/") || p.starts_with("pages/")
-            })
-            .collect(),
+        files,
         pages: project
             .browser
             .routes
@@ -428,8 +444,28 @@ async fn request_body(
     permit: tokio::sync::OwnedSemaphorePermit,
 ) -> Response {
     let path = request.uri().path().to_owned();
+    let target = request
+        .uri()
+        .path_and_query()
+        .map_or("/", |target| target.as_str())
+        .to_owned();
     if request.method() == "GET" || request.method() == "HEAD" {
         if path != "/_diamond/session" {
+            if server.project.browser.schemas.match_path(&target).is_some() {
+                let head = request.method() == "HEAD";
+                return match tokio::task::spawn_blocking(move || {
+                    let _permit = permit;
+                    server.shell.render(&server.project, &target)
+                })
+                .await
+                {
+                    Ok(Ok(page)) => {
+                        response(StatusCode::OK, "text/html; charset=utf-8", &page, head)
+                    }
+                    Ok(Err(error)) => failure(&error),
+                    Err(_) => failure(&Error::Limit("page rendering")),
+                };
+            }
             let key = server
                 .pages
                 .get(&path)
@@ -457,9 +493,8 @@ async fn request_body(
     }
     let known = ["/_diamond/session", "/_diamond/login", "/_diamond/logout"]
         .contains(&path.as_str())
-        || path
-            .strip_prefix("/_diamond/rpc/")
-            .is_some_and(|name| server.project.rpc.contains_key(name))
+        || path == "/_diamond/recovery" && !server.project.manifest.actions.is_empty()
+        || super::actions::path(&path, &server.project.rpc).is_some()
         || (server.project.manifest.identity.is_some() && super::accounts::route(&path));
     if !known {
         return json_response(StatusCode::NOT_FOUND, &json!({"error":"not_found"}));
@@ -555,24 +590,33 @@ fn work(
     {
         return profiles::account_work(server, path, token, csrf, body);
     }
+    if path == "/_diamond/recovery" {
+        return profiles::cookie_recovery(server, token, csrf, body);
+    }
     // Decode public input/contract before opening an application transaction.
-    let decoded = if let Some(name) = path.strip_prefix("/_diamond/rpc/") {
-        let op = &server.project.rpc[name];
-        let envelope: RpcBody =
-            super::wire::strict_from_slice(body).map_err(|_| input("invalid RPC envelope"))?;
-        if envelope.contract != server.contract {
-            return Err(input_error_contract());
-        }
-        Some(profiles::decode(op, &envelope.arguments, &server.project)?)
-    } else {
-        None
-    };
-    let mut store = PostgresStore::open_with(
-        &server.project,
-        &server.secrets.configuration,
-        false,
-        server.pool.as_ref(),
-    )?;
+    let DecodedOperation {
+        arguments: decoded,
+        ticket,
+        invocation,
+    } = decode_operation(server, path, body)?;
+    if let Some(endpoint) = super::actions::endpoint(path, &server.project.rpc)
+        && server.project.rpc[endpoint.name].action
+        && let Some(reply) = profiles::cookie_action_control(
+            server,
+            endpoint.name,
+            token,
+            csrf,
+            profiles::ActionCall {
+                ticket: ticket.as_deref(),
+                control: endpoint.control,
+                arguments: decoded.as_deref(),
+                invocation: invocation.as_deref(),
+            },
+        )?
+    {
+        return Ok((reply, None));
+    }
+    let mut store = server.application_store()?;
     if path == "/_diamond/session" {
         if !body.is_empty() {
             return Err(input("session bootstrap has no body"));
@@ -623,30 +667,71 @@ fn work(
         ));
     }
     let principal = store.principal(token, csrf)?;
-    let name = path.strip_prefix("/_diamond/rpc/").ok_or(Error::Denied)?;
-    if principal.id().is_none() && !server.project.manifest.public_rpc.contains(name) {
-        return Err(Error::Denied);
-    }
-    let op = &server.project.rpc[name];
-    let query = server.project.queries.get(name);
-    let requested = query
-        .map(|plan| plan.check_arguments(decoded.as_deref().ok_or(Error::Denied)?))
-        .transpose()?;
-    let grants = &server.project.server.functions[&op.function].effects;
-    let scope = Scope::new(&principal, grants);
-    let value = profiles::invoke(
-        &server.project,
-        op,
-        &decoded.ok_or(Error::Denied)?,
-        &scope,
+    let name = super::actions::path(path, &server.project.rpc).ok_or(Error::Denied)?;
+    profiles::cookie_rpc(
+        server,
         &mut store,
-        &server.runtime,
-        query.map(super::queries::Plan::max_queries),
-    )?;
-    if let (Some(plan), Some(requested)) = (query, requested) {
-        plan.check_result(&value, requested)?;
+        &principal,
+        name,
+        &decoded.ok_or(Error::Denied)?,
+    )
+}
+
+#[derive(Default)]
+struct DecodedOperation {
+    arguments: Option<Vec<crate::Value>>,
+    ticket: Option<String>,
+    invocation: Option<String>,
+}
+
+impl fmt::Debug for DecodedOperation {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        formatter
+            .debug_struct("DecodedOperation")
+            .field("argument_count", &self.arguments.as_ref().map(Vec::len))
+            .field("has_submission_proof", &self.ticket.is_some())
+            .field("has_invocation", &self.invocation.is_some())
+            .finish()
     }
-    Ok((json!({"value":value}), None))
+}
+
+fn decode_operation(server: &Server, path: &str, body: &[u8]) -> Result<DecodedOperation> {
+    let Some(name) = super::actions::path(path, &server.project.rpc) else {
+        return Ok(DecodedOperation::default());
+    };
+    let op = &server.project.rpc[name];
+    let envelope: RpcBody =
+        super::wire::strict_from_slice(body).map_err(|_| input("invalid RPC envelope"))?;
+    if envelope.contract != server.contract {
+        return Err(input_error_contract());
+    }
+    if !op.action && (envelope.ticket.is_some() || envelope.invocation.is_some()) {
+        return Err(input("ordinary RPC does not accept action proofs"));
+    }
+    Ok(DecodedOperation {
+        arguments: if super::actions::endpoint(path, &server.project.rpc).is_some_and(|endpoint| {
+            matches!(
+                endpoint.control,
+                super::actions::durable::Control::Status | super::actions::durable::Control::Ack
+            )
+        }) {
+            if envelope.arguments.is_some() {
+                return Err(input("status/ack accepts no action arguments"));
+            }
+            None
+        } else {
+            Some(profiles::decode(
+                op,
+                envelope
+                    .arguments
+                    .as_deref()
+                    .ok_or_else(|| input("operation arguments are required"))?,
+                &server.project,
+            )?)
+        },
+        ticket: envelope.ticket,
+        invocation: envelope.invocation,
+    })
 }
 
 fn charge_request(
@@ -656,7 +741,8 @@ fn charge_request(
     body: &[u8],
     peer: &str,
 ) -> Result<bool> {
-    let rpc = path.starts_with("/_diamond/rpc/");
+    let rpc =
+        path == "/_diamond/recovery" || super::actions::path(path, &server.project.rpc).is_some();
     let (class, subject) = if rpc {
         ("api", token.unwrap_or("public").to_owned())
     } else {
@@ -693,9 +779,13 @@ fn valid_request(server: &Server, request: &Request) -> bool {
             .headers()
             .keys()
             .any(|k| k == "forwarded" || k.as_str().starts_with("x-forwarded-"))
-        && (request.uri().query().is_none() || git || oauth_callback)
+        && (request.uri().query().is_none()
+            || git
+            || oauth_callback
+            || public_navigation_target(server, request))
         && request.uri().authority().is_none()
-        && !request.uri().path().contains(['%', '\\'])
+        && (!request.uri().path().contains(['%', '\\'])
+            || public_navigation_target(server, request))
         && !request.uri().path().starts_with("//")
         && (!request.headers().contains_key(header::TRANSFER_ENCODING)
             || (git
@@ -705,7 +795,9 @@ fn valid_request(server: &Server, request: &Request) -> bool {
             || request.uri().path().starts_with("/_diamond/events/"))
         && (!request.headers().contains_key(header::ORIGIN)
             || one_header(request, "origin") == Some(server.origin.as_str()))
-        && (one_header(request, "sec-fetch-site") != Some("cross-site") || oauth_callback)
+        && (one_header(request, "sec-fetch-site") != Some("cross-site")
+            || oauth_callback
+            || public_navigation(server, request))
         && (!request.headers().contains_key(header::CONTENT_LENGTH)
             || one_header(request, "content-length")
                 .and_then(|v| v.parse::<u64>().ok())
@@ -720,6 +812,41 @@ fn valid_request(server: &Server, request: &Request) -> bool {
                         16_384
                     }
                 }))
+}
+
+fn public_navigation_target(server: &Server, request: &Request) -> bool {
+    matches!(request.method().as_str(), "GET" | "HEAD")
+        && server
+            .project
+            .browser
+            .schemas
+            .match_path(
+                request
+                    .uri()
+                    .path_and_query()
+                    .map_or("/", |target| target.as_str()),
+            )
+            .is_some()
+}
+
+fn public_navigation(server: &Server, request: &Request) -> bool {
+    // Only pure public page shells may be opened from an external link. This
+    // does not admit cross-site RPC, account changes, API calls, or subresources.
+    matches!(request.method().as_str(), "GET" | "HEAD")
+        && one_header(request, "sec-fetch-mode") == Some("navigate")
+        && one_header(request, "sec-fetch-dest") == Some("document")
+        && (server.project.browser.routes.contains(request.uri().path())
+            || server
+                .project
+                .browser
+                .schemas
+                .match_path(
+                    request
+                        .uri()
+                        .path_and_query()
+                        .map_or("/", |target| target.as_str()),
+                )
+                .is_some())
 }
 
 pub(super) fn cookie(request: &Request, name: &str) -> Result<Option<Zeroizing<String>>> {
@@ -789,9 +916,13 @@ pub(super) fn failure(error: &Error) -> Response {
             (StatusCode::SERVICE_UNAVAILABLE, "unavailable")
         }
         Error::Input(_) => (StatusCode::BAD_REQUEST, "invalid_input"),
-        Error::Limit("shared login rate" | "identity rate" | "shared operations rate") => {
-            (StatusCode::TOO_MANY_REQUESTS, "rate_limited")
-        }
+        Error::Limit(
+            "shared login rate"
+            | "identity rate"
+            | "shared operations rate"
+            | "action submission capacity"
+            | "action invocation capacity",
+        ) => (StatusCode::TOO_MANY_REQUESTS, "rate_limited"),
         _ => (StatusCode::SERVICE_UNAVAILABLE, "unavailable"),
     };
     let mut response = json_response(status, &json!({"error":code}));

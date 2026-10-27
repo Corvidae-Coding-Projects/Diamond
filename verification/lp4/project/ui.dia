@@ -1,0 +1,134 @@
+export component Editor(issue: IssueId):
+  output changed(value: Action<Issue, EditError>)
+  state draft: Text = ""
+  state result: Action<Issue, EditError> = ActionIdle
+  state loaded: Issue = Issue(id: issue, workspace: WorkspaceId("alpha"), title: "Loading", revision: 0, note: "Loading")
+  state note: Text = ""
+  state mounts: Int = 0
+  on mount:
+    mounts = mounts + 1
+    loaded = rpc.load(issue)
+    draft = loaded.title
+    note = loaded.note
+  on save(value: EditIssue):
+    result = action.rename(issue, value)
+    emit changed(result)
+  on burst:
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+    emit changed(result)
+  on report:
+    emit changed(result)
+  html:
+    <section aria-label={"Editor " + id_text(issue)}>
+      <p>Mounts {mounts}</p>
+      <form schema="EditIssue" as="value" on-submit={save(value)}>
+        <field name="title" label="Title" description="Choose a title for this issue." bind-value={draft}></field>
+        <field name="note" label="Note" description="Add a note." bind-value={note} multiline="true"></field>
+        <submit label="Save issue"></submit>
+      </form>
+      <status value={outcome_text(result)}></status>
+      <button type="button" on-click={burst}>Emit 65 messages</button><button type="button" on-click={report}>Emit one message</button>
+    </section>
+
+export component Workspace:
+  state username: Text = "alice"
+  state password: Text = ""
+  state user: Text = ""
+  state layout: Layout = Layout(rows: [], pulse: "")
+  state cursor: Text = "0"
+  state completions: Int = 0
+  state notification: Text = "No completion"
+  state alternate: Bool = false
+  state duplicate: Bool = false
+  on mount:
+    user = session.user()
+  on login:
+    user = session.login(username, password)
+    password = ""
+    layout = rpc.layout(false, false, false)
+  on logout:
+    user = session.logout()
+  on replace:
+    alternate = not alternate
+  on duplicate_keys:
+    duplicate = true
+  on recover:
+    duplicate = false
+  on saved(value: Action<Issue, EditError>):
+    notification = outcome_text(value)
+    completions = completions + 1
+  html:
+    <main>
+      <h1>Component laboratory</h1>
+      <form on-submit={login}><label for="username">Username</label><input id="username" bind-value={username}><label for="password">Password</label><input id="password" type="password" bind-value={password}><button type="submit">Sign in</button></form>
+      <button type="button" on-click={logout}>Sign out</button>
+      <button type="button" on-click={replace}>Replace editors</button><button type="button" on-click={duplicate_keys}>Duplicate keys</button><button type="button" on-click={recover}>Recover rendering</button>
+      <p id="user">{user}</p><p id="notification">{notification}</p><p id="completions">{completions}</p><p id="pulse">{layout.pulse}</p>
+      <when test={user != ""}>
+        <watch stream={stream("layout", "alpha-b")} into="layout" cursor="cursor"></watch>
+        <each items={layout.rows} as="row" key={checked_key(row.id, duplicate)}><article aria-label={"Card " + id_text(row.id)}><h2>{row.title}</h2><when test={not alternate}><use component="Editor" issue={row.id} on-changed={saved}></use></when><when test={alternate}><use component="Editor" issue={row.id} on-changed={saved}></use></when></article></each>
+      </when>
+    </main>

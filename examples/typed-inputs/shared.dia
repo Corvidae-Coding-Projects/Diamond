@@ -1,0 +1,88 @@
+# The same nominal schemas and business validation are checked for both targets.
+export type IssueId = Id<"issue">
+export type WorkspaceId = Id<"workspace">
+export type UserId = Id<"user">
+
+export type Issue:
+  id: IssueId
+  workspace: WorkspaceId
+  title: Text<length: 1..120>
+  revision: Int
+  estimate: Int
+  published: Bool
+  parent: WorkspaceId
+  status: Status
+  note: Option<Text<length: 0..80>>
+
+export enum Status:
+  Open
+  Closed
+
+export enum EditError:
+  TitleRejected
+  SaveFailed
+
+export route IssuePage(id: IssueId, page: Int = 1, search: Option<Text<length: 0..80>>) = "/issues/{id}?page={page}&search={search}"
+export form EditIssue(title: Text<length: 1..120>, estimate: Int, published: Bool, parent: WorkspaceId, status: Status, note: Option<Text<length: 0..80>>)
+
+export route ValuePage(count: Int, enabled: Bool, label: Text<length: 1..40>, status: Status, scope: WorkspaceId, extra: Option<Int>, flag: Option<Bool>, owner: Option<WorkspaceId>, mode: Option<Status>) = "/values/{count}/{enabled}/{label}/{status}/{scope}?extra={extra}&flag={flag}&owner={owner}&mode={mode}"
+export form OptionalFields(count: Option<Int>, flag: Option<Bool>, owner: Option<WorkspaceId>, mode: Option<Status>)
+
+export fn optional_int(value: Option<Int>) -> Text:
+  match value:
+    Some(number) => int_text(number)
+    None => "absent"
+
+export fn optional_bool(value: Option<Bool>) -> Text:
+  match value:
+    Some(flag) =>
+      match flag:
+        true => "true"
+        false => "false"
+    None => "absent"
+
+export fn optional_id(value: Option<WorkspaceId>) -> Text:
+  match value:
+    Some(id) => id_text(id)
+    None => "absent"
+
+export fn optional_status(value: Option<Status>) -> Text:
+  match value:
+    Some(status) => status_text(status)
+    None => "absent"
+
+export fn valid_title(title: Text) -> Bool:
+  len(text_trim(title)) > 0 and title != "reject"
+
+export fn outcome_text(value: Action<Issue, EditError>) -> Text:
+  match value:
+    ActionIdle => "Ready"
+    ActionSubmitting => "Saving"
+    ActionSucceeded(issue) => "Saved " + id_text(issue.id) + ": " + issue.title
+    ActionRejected(problem) => "Title rejected; changes rolled back"
+    ActionInvalid => "Invalid input"
+    ActionDenied => "Access denied"
+    ActionAborted => "Changes aborted"
+    ActionExpired => "Recovery expired. Check the record before submitting again."
+    ActionConflict => "The request or application changed. Check the record before submitting again."
+    ActionCorrupt => "Recovery unavailable. Check the record before submitting again."
+    ActionUnknown => "Completion unknown; refresh before retrying"
+
+export fn replace_issue(rows: List<Issue>, value: Action<Issue, EditError>) -> List<Issue>:
+  match value:
+    ActionSucceeded(updated) =>
+      for row in rows:
+        match row.id == updated.id:
+          true => updated
+          false => row
+    _ => rows
+
+export fn note_text(value: Option<Text<length: 0..80>>) -> Text:
+  match value:
+    Some(note) => note
+    None => ""
+
+export fn status_text(value: Status) -> Text:
+  match value:
+    Open => "Open"
+    Closed => "Closed"

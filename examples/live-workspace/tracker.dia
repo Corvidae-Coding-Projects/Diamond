@@ -30,6 +30,9 @@ export component Tracker:
   state title: Text = ""
   state details: Text = ""
   state selected: Text = ""
+  state opened: List<CardId> = []
+  state editor_workspace: Text = ""
+  state editor_project: Text = ""
   state output: Text = "Sign in, create a workspace, then create a project."
   state joined: Text = ""
   state page: IssuePage = IssuePage(cards: [], after: "", total: 0)
@@ -113,6 +116,7 @@ export component Tracker:
     page = IssuePage(cards: [], after: "", total: 0)
     output = "Signed out."
   on make_workspace:
+    opened = []
     workspace = rpc.create_workspace(label)
     project = ""
     selected = ""
@@ -120,6 +124,7 @@ export component Tracker:
     page = IssuePage(cards: [], after: "", total: 0)
     output = "Workspace created."
   on make_project:
+    opened = []
     project = rpc.create_project(workspace, label)
     output = "Project created."
   on grant:
@@ -137,6 +142,14 @@ export component Tracker:
     page = rpc.issue_page(workspace, page.after)
   on read:
     output = rpc.read_issue(selected)
+  on open_card(id: CardId):
+    selected = id_text(id)
+    opened = [id]
+    editor_workspace = workspace
+    editor_project = project
+  on editor_saved(value: Action<WorkspaceEditorData, WorkspaceEditError>):
+    output = workspace_edit_message(value)
+    page = rpc.issue_page(workspace, "")
   on update:
     output = rpc.update_issue(selected, title, details)
     page = rpc.issue_page(workspace, "")
@@ -354,7 +367,8 @@ export component Tracker:
         <button on-click={read}>Read</button><button on-click={update}>Save changes</button><button on-click={delete}>Delete</button>
         <pre id="issue-output" role="status" aria-live="polite">{output}</pre>
         <button on-click={refresh}>First page</button><button on-click={next}>Next page</button><p id="total">{total}</p>
-        <each items={page.cards} as="card" key={card.id}><use component="Card" issue={card}></use></each>
+        <each items={page.cards} as="card" key={card.id}><use component="Card" issue={card} on-selected={open_card}></use></each>
+        <when test={editor_workspace == workspace and editor_project == project}><each items={opened} as="id" key={id}><use component="WorkspaceEditor" issue={id} on-changed={editor_saved}></use></each></when>
         <button on-click={join}>Show projects</button><pre id="joined">{joined}</pre>
       </section>
     </main>

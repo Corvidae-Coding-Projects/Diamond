@@ -65,15 +65,19 @@ impl Parser {
             }
             let keyword = self.name()?;
             let name = match keyword.as_str() {
-                "fn" => {
+                "fn" | "action" => {
                     let function = self.function(location)?;
                     let name = function.name.clone();
+                    if keyword == "action" {
+                        module.actions.insert(name.clone());
+                    }
                     module
                         .program
                         .declarations
                         .push(Declaration::Function(function));
                     name
                 }
+                "route" | "form" => self.reactive_schema(&mut module, &keyword, location)?,
                 "component" => {
                     let component = self.component(location)?;
                     let name = component.name.clone();
@@ -145,6 +149,7 @@ impl Parser {
             derived: Vec::new(),
             states: Vec::new(),
             events: Vec::new(),
+            outputs: Vec::new(),
             template: Vec::new(),
             location,
         };
@@ -190,25 +195,21 @@ impl Parser {
                 } else {
                     component.states.push((name, ty, value));
                 }
-            } else if self.is_name("on") {
-                self.take();
+            } else if self.is_name("output") {
+                let location = self.take().location;
                 let name = self.name()?;
-                self.block_start()?;
-                let mut assignments = Vec::new();
-                while !self.at(&Kind::Dedent) && !self.at(&Kind::End) {
-                    let state = self.name()?;
-                    self.symbol("=")?;
-                    assignments.push((state, self.expr(0)?));
-                    self.statement_end()?;
-                    if assignments.len() > 256 {
-                        return Err(Error::Limit("event assignments"));
-                    }
+                let parameters = self.parameters()?;
+                self.newline()?;
+                component.outputs.push(crate::syntax::Output {
+                    name,
+                    parameters,
+                    location,
+                });
+                if component.outputs.len() > 128 {
+                    return Err(Error::Limit("component outputs"));
                 }
-                self.expect(&Kind::Dedent)?;
-                if assignments.is_empty() {
-                    return Err(self.error("event handler must update state"));
-                }
-                component.events.push((name, assignments));
+            } else if self.is_name("on") {
+                component.events.push(self.component_event()?);
             } else {
                 return Err(self.error("expected state, on event, or html in component"));
             }
@@ -225,8 +226,151 @@ impl Parser {
         Ok(component)
     }
 
+    fn reactive_schema(
+        &mut self,
+        module: &mut crate::syntax::ProjectModule,
+        keyword: &str,
+        location: Location,
+    ) -> Result<String> {
+        let name = self.name()?;
+        self.symbol("(")?;
+        let mut fields = Vec::new();
+        while !self.is_symbol(")") {
+            let field_location = self.token().location;
+            let field = self.name()?;
+            self.symbol(":")?;
+            let ty = self.ty(0)?;
+            let default = if self.is_symbol("=") {
+                self.take();
+                Some(self.expr(0)?)
+            } else if matches!(&ty, TypeName::Generic(name, _) if name == "Option") {
+                Some(Expr {
+                    kind: ExprKind::Name("None".into()),
+                    location: field_location,
+                })
+            } else {
+                None
+            };
+            fields.push(Field {
+                name: field,
+                ty,
+                default,
+                created_by: false,
+                location: field_location,
+            });
+            if fields.len() > 32 {
+                return Err(Error::Limit("reactive schema fields"));
+            }
+            if !self.is_symbol(",") {
+                break;
+            }
+            self.take();
+        }
+        self.symbol(")")?;
+        if fields.is_empty() {
+            return Err(self.error("reactive schemas require at least one field"));
+        }
+        if keyword == "route" {
+            self.symbol("=")?;
+            let Kind::Text(path) = self.take().kind else {
+                return Err(self.error("named routes require a literal path"));
+            };
+            module.navigation.push(crate::syntax::ReactiveRoute {
+                name: name.clone(),
+                path,
+                location,
+            });
+        } else {
+            module.forms.push((name.clone(), location));
+        }
+        self.newline()?;
+        module
+            .program
+            .declarations
+            .push(Declaration::Record(Record {
+                name: name.clone(),
+                fields,
+                location,
+            }));
+        Ok(name)
+    }
+
+    fn component_event(&mut self) -> Result<crate::syntax::Event> {
+        let location = self.token().location;
+        self.take();
+        let name = self.name()?;
+        let parameters = self.parameters()?;
+        self.block_start()?;
+        let mut assignments = Vec::new();
+        while !self.at(&Kind::Dedent) && !self.at(&Kind::End) {
+            let step = if self.is_name("emit") {
+                let location = self.take().location;
+                let expression = self.expr(0)?;
+                let ExprKind::Call {
+                    callee,
+                    arguments,
+                    types,
+                } = expression.kind
+                else {
+                    return Err(self.error("emit requires a declared output call"));
+                };
+                let ExprKind::Name(name) = callee.kind else {
+                    return Err(self.error("emit requires a named output"));
+                };
+                if !types.is_empty() || arguments.iter().any(|(name, _)| name.is_some()) {
+                    return Err(self.error("output arguments are positional"));
+                }
+                crate::syntax::EventStep::Emit(
+                    name,
+                    arguments.into_iter().map(|(_, e)| e).collect(),
+                    location,
+                )
+            } else {
+                let state = self.name()?;
+                self.symbol("=")?;
+                crate::syntax::EventStep::Assign(state, self.expr(0)?)
+            };
+            assignments.push(step);
+            self.statement_end()?;
+            if assignments.len() > 256 {
+                return Err(Error::Limit("event assignments"));
+            }
+        }
+        self.expect(&Kind::Dedent)?;
+        if assignments.is_empty() {
+            return Err(self.error("event handler requires an assignment or emission"));
+        }
+        Ok(crate::syntax::Event {
+            name,
+            parameters,
+            body: assignments,
+            location,
+        })
+    }
+
     fn token(&self) -> &Token {
         &self.tokens[self.cursor.min(self.tokens.len() - 1)]
+    }
+
+    fn parameters(&mut self) -> Result<Vec<(String, TypeName)>> {
+        let mut parameters = Vec::new();
+        if self.is_symbol("(") {
+            self.take();
+            while !self.is_symbol(")") {
+                let name = self.name()?;
+                self.symbol(":")?;
+                parameters.push((name, self.ty(0)?));
+                if parameters.len() > 128 {
+                    return Err(Error::Limit("parameter count"));
+                }
+                if !self.is_symbol(",") {
+                    break;
+                }
+                self.take();
+            }
+            self.symbol(")")?;
+        }
+        Ok(parameters)
     }
     fn at(&self, kind: &Kind) -> bool {
         &self.token().kind == kind

@@ -1,0 +1,12 @@
+export component Child:
+  output changed(id: IssueId)
+  on clicked:
+    emit changed(IssueId("alpha-b"))
+  html:
+    <button on-click={clicked}>Choose</button>
+export component App:
+  state value: Text = ""
+  on received(id: UserId):
+    value = id_text(id)
+  html:
+    <use component="Child" on-changed={received}></use>

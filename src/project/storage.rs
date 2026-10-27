@@ -25,6 +25,13 @@ enum TransactionFailure {
     Conflict,
 }
 
+#[derive(Clone, Copy, Debug)]
+enum ActionFailure {
+    Denied,
+    Invalid,
+    Aborted,
+}
+
 #[derive(Debug)]
 pub(crate) struct PostgresStore {
     pub(super) connection: crate::relational::Connection,
@@ -45,8 +52,11 @@ pub(crate) struct PostgresStore {
     pub(super) workflow_operations:
         std::collections::BTreeMap<String, super::workflows::Operations>,
     active: bool,
+    action_lock: Option<String>,
     nested: bool,
     failure: TransactionFailure,
+    action_failure: Option<ActionFailure>,
+    pub(super) action_access: Option<Vec<super::actions::footprint::Access>>,
     pub(super) operation_id: String,
 }
 
@@ -64,14 +74,22 @@ impl PostgresStore {
         initialize: bool,
         pool: Option<&std::sync::Arc<crate::relational::Pool>>,
     ) -> Result<Self> {
-        Self::open_mode(project, configuration, initialize, pool, true)
+        Self::open_mode(project, configuration, initialize, pool, true, None)
     }
     pub(super) fn open_control(
         project: &CheckedProject,
         configuration: &str,
         pool: Option<&std::sync::Arc<crate::relational::Pool>>,
     ) -> Result<Self> {
-        Self::open_mode(project, configuration, false, pool, false)
+        Self::open_mode(project, configuration, false, pool, false, None)
+    }
+    pub(super) fn open_action(
+        project: &CheckedProject,
+        configuration: &str,
+        pool: Option<&std::sync::Arc<crate::relational::Pool>>,
+        key: &str,
+    ) -> Result<Self> {
+        Self::open_mode(project, configuration, false, pool, true, Some(key))
     }
     fn connect(
         project: &CheckedProject,
@@ -116,10 +134,26 @@ impl PostgresStore {
             workflow_operations: project.workflows.clone(),
             workflow_version: super::workflows::version(project)?,
             active: false,
+            action_lock: None,
             nested: false,
             failure: TransactionFailure::Clean,
+            action_failure: None,
+            action_access: None,
             operation_id: random_hex()?,
         })
+    }
+    fn lock_action(&mut self, action_lock: Option<&str>) -> Result<()> {
+        // Acquire before BEGIN: a duplicate must take a fresh serializable
+        // snapshot after the previous invocation commits, not before its wait.
+        if let Some(key) = action_lock {
+            let key = format!("{}:actions:{key}", self.app);
+            self.connection.query(
+                "SELECT pg_catalog.pg_advisory_lock(pg_catalog.hashtextextended($1,0))",
+                &[&key],
+            )?;
+            self.action_lock = Some(key);
+        }
+        Ok(())
     }
     fn open_mode(
         project: &CheckedProject,
@@ -127,8 +161,10 @@ impl PostgresStore {
         initialize: bool,
         pool: Option<&std::sync::Arc<crate::relational::Pool>>,
         serializable: bool,
+        action_lock: Option<&str>,
     ) -> Result<Self> {
         let mut store = Self::connect(project, configuration, pool)?;
+        store.lock_action(action_lock)?;
         if store.program.storage.is_some() {
             store.connection.runtime()?.enable_relational();
             store
@@ -163,6 +199,9 @@ impl PostgresStore {
                 } else {
                     super::accounts::validate(store.connection.runtime()?, &store.app)?;
                 }
+            }
+            if !project.manifest.actions.is_empty() {
+                super::actions::schema(&mut store, initialize)?;
             }
             if let Some(config) = &project.manifest.files {
                 super::files::schema(&mut store, config, initialize)?;
@@ -271,11 +310,43 @@ impl PostgresStore {
     }
 
     pub(crate) fn mark_failed(&mut self, error: &Error) {
+        if self.action_failure.is_none() {
+            self.action_failure = Some(match error {
+                Error::Denied | Error::Unauthenticated => ActionFailure::Denied,
+                Error::Input(_) => ActionFailure::Invalid,
+                _ => ActionFailure::Aborted,
+            });
+        }
         if matches!(error, Error::Conflict) {
             self.failure = TransactionFailure::Conflict;
         } else if self.failure == TransactionFailure::Clean {
             self.failure = TransactionFailure::Failed;
         }
+    }
+
+    pub(super) fn action_failure(&self) -> Option<Error> {
+        self.action_failure.map(|kind| match kind {
+            ActionFailure::Denied => Error::Denied,
+            ActionFailure::Invalid => input("invalid action input"),
+            ActionFailure::Aborted => Error::Aborted,
+        })
+    }
+
+    pub(super) fn action_savepoint(&mut self) -> Result<()> {
+        if !self.active || self.nested {
+            return Err(Error::Denied);
+        }
+        self.connection
+            .relational_batch("SAVEPOINT diamond_action_body")
+    }
+
+    pub(super) fn rollback_action_body(&mut self) -> Result<()> {
+        self.connection
+            .relational_batch("ROLLBACK TO SAVEPOINT diamond_action_body")?;
+        self.nested = false;
+        self.failure = TransactionFailure::Clean;
+        self.action_failure = None;
+        Ok(())
     }
 
     pub(super) fn finish_request<T>(&mut self, result: Result<T>) -> Result<T> {
@@ -328,6 +399,9 @@ impl PostgresStore {
             return Err(Error::Aborted);
         }
         if self.program.storage.is_some() {
+            if self.action_access.is_some() {
+                return self.tracked_operation(scope, resource, method, arguments, values, budget);
+            }
             return crate::relational::Context {
                 connection: self.connection.runtime()?,
                 program: &self.program,
@@ -539,6 +613,17 @@ impl Drop for PostgresStore {
         // The owned driver is aborted/joined even if a rollback cannot finish.
         if self.active {
             let _rollback = self.connection.batch("ROLLBACK");
+        }
+        if let Some(key) = self.action_lock.take()
+            && self
+                .connection
+                .query(
+                    "SELECT pg_catalog.pg_advisory_unlock(pg_catalog.hashtextextended($1,0))",
+                    &[&key],
+                )
+                .is_err()
+        {
+            self.connection.close();
         }
     }
 }

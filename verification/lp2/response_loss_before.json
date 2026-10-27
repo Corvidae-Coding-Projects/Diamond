@@ -1,0 +1,10 @@
+{
+  "status": "REPRODUCED_BEFORE_FIX",
+  "binary_sha256": "93239f861cc8b42b6fb404b2296fdcce632ce2e867fdecaca4705ac4396107d7",
+  "interface": "Actual Chrome, real Diamond action endpoint, transparent response gate, independent PostgreSQL readback",
+  "steps": ["Open alpha-a editor as synthetic alice", "Enter Lost response", "Arm the gate and submit once", "Observe a real completed 200 action response and committed title while holding its delivery", "Close the client-facing connection without delivering any response bytes"],
+  "expected": "Completion unknown and no second execution of that submission",
+  "observed": {"forwarded_action_requests_before_submission": 3, "after_first_committed_response": 4, "after_drop": 5, "browser_status": "Saved alpha-a: Lost response", "parent_completions_before": 1, "parent_completions_after": 2, "saved_title": "Lost response"},
+  "interpretation": "Chrome transparently repeated the POST; the initial LP2 dispatcher accepted the repeated request. Diamond had no application retry loop. This receipt does not infer two distinct business-state increments from an idempotent title overwrite.",
+  "required_fix": "Runtime-owned single-use submission proof; a repeated dispatch must not execute, and must not fabricate a recovered success or confirmed abort. LP5 durable result recovery remains unavailable."
+}

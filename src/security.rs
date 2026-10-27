@@ -3,6 +3,12 @@
 use crate::hir::CheckedProgram;
 use crate::value::Type;
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum MessageSafety {
+    Allowed,
+    Forbidden,
+}
+
 /// Security properties needed by compiler and runtime sinks.
 ///
 /// These properties are derived from the complete type rather than annotations
@@ -13,6 +19,7 @@ pub(crate) struct TypeSecurity {
     pub(crate) contains_secret: bool,
     pub(crate) browser_managed: bool,
     pub(crate) client_wire_safe: bool,
+    component_messages: MessageSafety,
 }
 
 impl TypeSecurity {
@@ -21,6 +28,7 @@ impl TypeSecurity {
             contains_secret: false,
             browser_managed: true,
             client_wire_safe: true,
+            component_messages: MessageSafety::Allowed,
         }
     }
 
@@ -29,6 +37,7 @@ impl TypeSecurity {
             contains_secret: false,
             browser_managed: false,
             client_wire_safe: false,
+            component_messages: MessageSafety::Forbidden,
         }
     }
 
@@ -37,6 +46,7 @@ impl TypeSecurity {
             contains_secret: true,
             browser_managed: false,
             client_wire_safe: false,
+            component_messages: MessageSafety::Forbidden,
         }
     }
 
@@ -45,6 +55,7 @@ impl TypeSecurity {
             contains_secret: false,
             browser_managed: true,
             client_wire_safe: false,
+            component_messages: MessageSafety::Forbidden,
         }
     }
 
@@ -53,7 +64,16 @@ impl TypeSecurity {
             contains_secret: self.contains_secret || other.contains_secret,
             browser_managed: self.browser_managed && other.browser_managed,
             client_wire_safe: self.client_wire_safe && other.client_wire_safe,
+            component_messages: if self.component_message_safe() && other.component_message_safe() {
+                MessageSafety::Allowed
+            } else {
+                MessageSafety::Forbidden
+            },
         }
+    }
+
+    pub(crate) const fn component_message_safe(self) -> bool {
+        matches!(self.component_messages, MessageSafety::Allowed)
     }
 }
 
@@ -84,6 +104,13 @@ fn analyze(ty: &Type, program: &CheckedProgram, depth: usize) -> TypeSecurity {
         }
         Type::AppResult(value, error) => {
             analyze(value, program, depth + 1).combine(analyze(error, program, depth + 1))
+        }
+        Type::Action(value, error) => {
+            let mut security =
+                analyze(value, program, depth + 1).combine(analyze(error, program, depth + 1));
+            // Actions use their dedicated dispatcher; no generic wire/storage escape.
+            security.client_wire_safe = false;
+            security
         }
         Type::Record(name) => {
             program

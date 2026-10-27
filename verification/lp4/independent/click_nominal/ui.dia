@@ -1,0 +1,6 @@
+export component App:
+  state value: Text = ""
+  on clicked(id: UserId):
+    value = id_text(id)
+  html:
+    <each items={[IssueId("alpha-b")]} as="issue" key={issue}><button on-click={clicked(issue)}>Open</button></each>

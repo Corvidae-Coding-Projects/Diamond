@@ -47,15 +47,30 @@ pub(super) fn operations(
         .iter()
         .map(|(k, v)| (k.clone(), v.function.clone()))
         .collect();
-    rpc::operations(&proxy, modules, p)?
+    rpc::api_operations(&proxy, modules, p)?
         .into_iter()
         .map(|(name, rpc)| {
             if name == "_contract" {
                 return Err(input("_contract is reserved for API metadata"));
             }
             let binding = &config.operations[&name];
+            if rpc.action && binding.auth != Auth::Token {
+                return Err(input("API actions require token authentication"));
+            }
             let mut tags = BTreeSet::new();
-            for effect in &p.functions[&rpc.function].effects {
+            let mut effects = p.functions[&rpc.function].effects.clone();
+            if let Some(binding) = m.actions.values().find(|binding| {
+                binding.durable()
+                    && binding
+                        .function
+                        .split_once('.')
+                        .and_then(|(module, name)| modules.get(module)?.symbols.get(name))
+                        == Some(&rpc.function)
+            }) && let Some(resource) = &binding.resource
+            {
+                effects.insert(Effect::Read(resource.clone()));
+            }
+            for effect in &effects {
                 if binding.auth == Auth::Public && !matches!(effect, Effect::Read(_)) {
                     return Err(input("public API operations must be read-only"));
                 }
@@ -64,9 +79,21 @@ pub(super) fn operations(
                         .storage
                         .as_ref()
                         .ok_or_else(|| input("API requires relational storage"))?;
-                    if let Some(field) = &storage.resources[r].scope {
-                        let crate::value::Type::Id(tag) =
-                            &p.records[&p.resources[r]].fields[field].ty
+                    let resource = storage
+                        .resources
+                        .get(r)
+                        .ok_or_else(|| input("API resource is unknown"))?;
+                    if let Some(field) = &resource.scope {
+                        let record = p
+                            .resources
+                            .get(r)
+                            .and_then(|name| p.records.get(name))
+                            .ok_or_else(|| input("API resource record is unknown"))?;
+                        let crate::value::Type::Id(tag) = &record
+                            .fields
+                            .get(field)
+                            .ok_or_else(|| input("API resource scope field is unknown"))?
+                            .ty
                         else {
                             return Err(input("API resource scope must be a nominal Id"));
                         };
@@ -91,7 +118,7 @@ pub(super) fn operations(
         .collect()
 }
 pub(super) fn contract(ops: &BTreeMap<String, Operation>, p: &CheckedProgram) -> serde_json::Value {
-    let operations=ops.iter().map(|(name,op)|(name,serde_json::json!({"arguments":op.rpc.arguments.iter().map(ToString::to_string).collect::<Vec<_>>(),"result":op.rpc.result.to_string(),"argument_types":op.rpc.arguments,"result_type":op.rpc.result,"auth":op.auth,"scope_tags":op.scope_tags,"allow_unscoped":op.allow_unscoped}))).collect::<BTreeMap<_,_>>();
+    let operations=ops.iter().map(|(name,op)|(name,serde_json::json!({"arguments":op.rpc.arguments.iter().map(ToString::to_string).collect::<Vec<_>>(),"result":op.rpc.client_result.to_string(),"argument_types":op.rpc.arguments,"result_type":op.rpc.client_result,"action":op.rpc.action,"auth":op.auth,"scope_tags":op.scope_tags,"allow_unscoped":op.allow_unscoped}))).collect::<BTreeMap<_,_>>();
     let mut records = BTreeMap::new();
     let mut enums = BTreeMap::new();
     for op in ops.values() {
@@ -104,7 +131,7 @@ pub(super) fn contract(ops: &BTreeMap<String, Operation>, p: &CheckedProgram) ->
             definitions(ty, p, &mut records, &mut enums);
         }
     }
-    serde_json::json!({"wire_version":3,"records":records,"enums":enums,"api_version":1,"operations":operations,"codecs":{"Int":"canonical signed decimal string, i64 range","Decimal":"{tag:Decimal,value:canonical scaled signed integer string}; scale 6","Timestamp":"{tag:Timestamp,value:canonical signed milliseconds since Unix epoch string}","Duration":"{tag:Duration,value:canonical signed milliseconds string}","Id":"{tag:declared nominal tag,value:ASCII string}","Option":"{tag:None} or {tag:Some,value:payload}","enum":"{tag:public variant name,fields:[payloads]}"},"errors":["authentication_required","denied","invalid_input","aborted","rate_limited","unavailable","outcome_unknown"],"replay":"never automatic"})
+    serde_json::json!({"wire_version":super::WIRE_VERSION,"records":records,"enums":enums,"api_version":1,"operations":operations,"codecs":{"Int":"canonical signed decimal string, i64 range","Decimal":"{tag:Decimal,value:canonical scaled signed integer string}; scale 6","Timestamp":"{tag:Timestamp,value:canonical signed milliseconds since Unix epoch string}","Duration":"{tag:Duration,value:canonical signed milliseconds string}","Id":"{tag:declared nominal tag,value:ASCII string}","Option":"{tag:None} or {tag:Some,value:payload}","enum":"{tag:public variant name,fields:[payloads]}","Action":"{tag:ActionSucceeded|ActionRejected|ActionInvalid|ActionDenied|ActionAborted|ActionUnknown|ActionExpired|ActionConflict|ActionCorrupt,fields:[typed payload if applicable]}"},"errors":["authentication_required","denied","invalid_input","aborted","rate_limited","unavailable","outcome_unknown"],"replay":"operations marked durable use explicit prepare/execute/status/ack reconciliation; no automatic mutation replay"})
 }
 
 fn definitions(

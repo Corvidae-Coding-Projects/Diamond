@@ -5,10 +5,22 @@ logic, policies, server-rendered pages, and reactive browser components are
 written in `.dia` files. The Rust runtime provides the controlled boundaries to
 PostgreSQL, HTTP, files, accounts, jobs, and WebSockets.
 
-This repository contains Diamond 0.16.0. It is a working language prototype with
-two complete reference applications and retained real-interface qualification.
-Its documented Linux profile is release-qualified; it is not a hosted service or
-a claim that every production environment is secure.
+This repository contains Diamond 0.20.0. It is a working language prototype with
+two complete reference applications and current assembled-language qualification.
+The LP1–LP8 language-production plan is complete for the documented profile.
+Earlier runtime release qualification remains historical evidence. This repository
+is not a hosted service, an infrastructure certification, or a claim that every
+production environment is secure.
+
+The [language contract](docs/language-specification.md) is the authoritative
+reference for current semantics. The [profile and security matrix](docs/language-profiles.md)
+separates single-file, project/server, shared, and browser behavior, with current
+limits and unsupported features. The [reliable action guide](docs/actions.md) and
+[LP5 evidence](verification/lp5/) record the current mutation-recovery contract and
+real-interface qualification. The [LP8 ledger](verification/lp8/README.md) records
+the final candidate hashes, retained-failure replays, application journeys, actual
+Chromium/Firefox/WebKit runs, and explicit remaining boundaries. Earlier checkpoint
+ledgers retain their historical observations.
 
 ## What you can build
 
@@ -20,6 +32,10 @@ Diamond currently supports:
   development accounts, SQLite, and authorization policies;
 - multi-file applications with shared, server, and browser modules;
 - reactive browser components compiled from Diamond to JavaScript;
+- canonical typed path/query routes, scalar forms with generated labels and errors,
+  row-specific events, child outputs,
+  and protected database actions with typed completion states, encrypted durable
+  receipts, current-policy reconciliation, and reload recovery;
 - PostgreSQL records, relationships, policies, indexed queries, pagination,
   migrations, and backfills;
 - shared accounts and sessions, scoped API credentials, private uploads,
@@ -42,6 +58,12 @@ Diamond currently supports:
 
 The best places to see the whole system are:
 
+- [`examples/typed-inputs/`](examples/typed-inputs/) — checked URLs, query defaults,
+  scalar/optional fields, editable invalid drafts, and a protected save; see the
+  [typed input guide](docs/typed-inputs.md);
+- [`examples/language-spine/`](examples/language-spine/) — a small connected
+  example of the new route/form/event/output/action syntax, explained in the
+  [language spine guide](docs/language-spine.md);
 - [`examples/live-workspace/`](examples/live-workspace/) — memberships, projects,
   issues, comments, files, jobs, live updates, and account management;
 - [`examples/catalog/`](examples/catalog/) — private drafts, public publishing,
@@ -77,6 +99,23 @@ For work inside this checkout, you can build once and use
 cargo build --locked
 target/debug/diamond --version
 ```
+
+## Format and edit Diamond source
+
+The formatter accepts only valid Diamond source and never rewrites a malformed
+file. It preserves comments, string contents, and checked HTML whitespace.
+
+```sh
+diamond fmt app.dia
+diamond fmt --check app.dia shared.dia
+```
+
+`diamond lsp` is the bounded compiler-backed language server. It provides
+current-document diagnostics, definitions, references, hover types, and
+completion over stdio. Editor setup and the exact protocol limits are in the
+[tooling guide](docs/tooling.md). CLI diagnostics use stable codes, Unicode-scalar
+locations, source excerpts, and a suggested correction; use `diamond explain
+D110` for the longer category help.
 
 ## Your first Diamond program
 

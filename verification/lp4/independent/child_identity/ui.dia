@@ -1,0 +1,9 @@
+export component Child:
+  state user: Text = ""
+  on login:
+    user = session.login("alice", "synthetic")
+  html:
+    <button on-click={login}>Login</button>
+export component App:
+  html:
+    <use component="Child"></use>

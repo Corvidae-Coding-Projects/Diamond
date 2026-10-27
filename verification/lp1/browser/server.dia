@@ -1,0 +1,5 @@
+fn private_marker() -> Text:
+  "lp1-server-only-canary"
+
+export fn main() -> Text:
+  contract_summary()

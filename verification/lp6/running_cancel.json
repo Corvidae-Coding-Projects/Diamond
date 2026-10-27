@@ -1,0 +1,122 @@
+{
+  "status": "PASS",
+  "binary_sha256": "4ce83ca2bfb10b8371f0005b9cc46fb0da81a2347bb3210e2a2b6af030acc0ad",
+  "error": null,
+  "results": [
+    {
+      "name": "running-job-cancellation-fences-current-attempt",
+      "status": "PASS",
+      "observed": {
+        "cancel_status": 200,
+        "cancel_body": {
+          "value": "{\"attempts\":1,\"outcome\":\"cancelled\",\"state\":\"cancelled\"}"
+        },
+        "elapsed_seconds": 0.010514171000977512,
+        "before": {
+          "id": "18ad929b74414f13b9dad886095a32e5d96a908904c7dc755638b529c88b8beb",
+          "state": "running",
+          "attempts": 1,
+          "fence": 1,
+          "lease": "2026-10-27 17:31:16.647764-05",
+          "outcome": ""
+        },
+        "after": {
+          "id": "18ad929b74414f13b9dad886095a32e5d96a908904c7dc755638b529c88b8beb",
+          "state": "cancelled",
+          "attempts": 1,
+          "fence": 2,
+          "lease": "2026-10-27 17:31:16.647764-05",
+          "outcome": "cancelled"
+        },
+        "receiver": {
+          "attempts": [
+            {
+              "path": "/v1/dedup/18ad929b74414f13b9dad886095a32e5d96a908904c7dc755638b529c88b8beb",
+              "key": "18ad929b74414f13b9dad886095a32e5d96a908904c7dc755638b529c88b8beb",
+              "body_sha256": "fa2092976626de1336e9b9fab00fd79e4e7d6748a33c1572a1fccb069bcd85d0",
+              "bytes": 21
+            }
+          ],
+          "effect_keys": [
+            "18ad929b74414f13b9dad886095a32e5d96a908904c7dc755638b529c88b8beb"
+          ],
+          "effects": 1,
+          "counts": {
+            "/v1/dedup/18ad929b74414f13b9dad886095a32e5d96a908904c7dc755638b529c88b8beb": 1
+          }
+        }
+      },
+      "expected": "a current owner can cancel an in-flight job; the cancellation transaction commits a higher fence and cancelled state"
+    },
+    {
+      "name": "failed-or-successful-cancel-has-coherent-terminal-effect",
+      "status": "PASS",
+      "observed": {
+        "cancel_status": 200,
+        "state_after_cancel": {
+          "id": "18ad929b74414f13b9dad886095a32e5d96a908904c7dc755638b529c88b8beb",
+          "state": "cancelled",
+          "attempts": 1,
+          "fence": 2,
+          "lease": "2026-10-27 17:31:16.647764-05",
+          "outcome": "cancelled"
+        },
+        "final": {
+          "id": "18ad929b74414f13b9dad886095a32e5d96a908904c7dc755638b529c88b8beb",
+          "state": "cancelled",
+          "attempts": 1,
+          "fence": 2,
+          "lease": "2026-10-27 17:31:16.647764-05",
+          "outcome": "cancelled"
+        },
+        "receiver": {
+          "attempts": [
+            {
+              "path": "/v1/dedup/18ad929b74414f13b9dad886095a32e5d96a908904c7dc755638b529c88b8beb",
+              "key": "18ad929b74414f13b9dad886095a32e5d96a908904c7dc755638b529c88b8beb",
+              "body_sha256": "fa2092976626de1336e9b9fab00fd79e4e7d6748a33c1572a1fccb069bcd85d0",
+              "bytes": 21
+            }
+          ],
+          "effect_keys": [
+            "18ad929b74414f13b9dad886095a32e5d96a908904c7dc755638b529c88b8beb"
+          ],
+          "effects": 1,
+          "counts": {
+            "/v1/dedup/18ad929b74414f13b9dad886095a32e5d96a908904c7dc755638b529c88b8beb": 1
+          }
+        }
+      },
+      "expected": "a committed cancellation remains inert; if cancellation itself was rejected, the original at-least-once attempt may continue"
+    }
+  ],
+  "shutdowns": [
+    {
+      "worker": "held",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "B",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "http_requests": 6,
+  "elapsed_seconds": 2.6451154360038345,
+  "command": "python3 verification/w9_independent/running_cancel.py --binary target/debug/diamond",
+  "oracle": "ORACLES.md J2",
+  "temporary_root_removed": true
+}

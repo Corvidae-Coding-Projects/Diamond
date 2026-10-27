@@ -1,0 +1,137 @@
+type MemberId = Id<"member">
+enum Role:
+  Editor
+  Reader
+type Member:
+  id: MemberId
+  workspace: WorkspaceId
+  user: UserId
+  role: Role
+resource Members: Member
+resource Issues: Issue
+
+type IssueChange:
+  title: Text<length: 1..120>
+  revision: Int
+  note: Text<length: 1..80>
+
+type NewIssue:
+  workspace: WorkspaceId
+  title: Text<length: 1..120>
+  revision: Int
+  note: Text<length: 1..80>
+
+policy Members:
+  read(row, by principal):
+    principal.is_user(row.user)
+
+policy Issues:
+  create(row, by principal):
+    principal.has_role_in("Membership", row.workspace, .Editor)
+  read(row, by principal):
+    principal.is_related("Membership", row.workspace)
+  update(before, after, by principal):
+    before.workspace == after.workspace and principal.has_role_in("Membership", before.workspace, .Editor)
+  delete(row, by principal):
+    principal.has_role_in("Membership", row.workspace, .Editor)
+
+export fn main() -> Bool:
+  valid_title("New")
+
+fn private_marker() -> Text:
+  "lp2-server-only-canary"
+
+export fn list_issues(workspace: WorkspaceId) -> Result<List<Issue>, DataError>:
+  issues.select(workspace: workspace, limit: 20)
+
+export fn load(id: IssueId) -> Result<Issue, DataError>:
+  issues.get(id)
+
+export action rename(id: IssueId, value: EditIssue) -> Result<Issue, EditError>:
+  match issues.get(id):
+    Ok(before) =>
+      match issues.update(id, IssueChange(title: value.title, revision: before.revision + 1, note: value.note)):
+        Ok(issue) =>
+          # Deliberately validate after writing to demonstrate atomic rollback.
+          match valid_title(issue.title):
+            true => Ok(issue)
+            false => Err(TitleRejected)
+        Err(problem) => Err(SaveFailed)
+    Err(problem) => Err(SaveFailed)
+
+export fn layout(reverse: Bool, extra: Bool, removed: Bool) -> Result<Layout, DataError>:
+  let a = issues.get(IssueId("alpha-a"))?
+  let b = issues.get(IssueId("alpha-b"))?
+  let c = issues.get(IssueId("alpha-c"))?
+  let d = issues.get(IssueId("alpha-d"))?
+  let rows = match removed:
+    true => [a, d, c]
+    false =>
+      match reverse:
+        true => [d, c, a, b]
+        false =>
+          match extra:
+            true => [d, a, b, c]
+            false => [a, b, c]
+  Ok(Layout(rows: rows, pulse: "Live layout delivered"))
+export fn publish(reverse: Bool, extra: Bool, removed: Bool) -> Result<Text, DataError>:
+  let value = layout(reverse, extra, removed)?
+  let event = host.event_emit<Layout>("layout", "alpha-b", value)?
+  Ok("Published")
+
+export action protected_scalar(id: IssueId, source: IssueId) -> Result<Text, EditError>:
+  match issues.get(source):
+    Ok(protected) =>
+      match issues.get(id):
+        Ok(before) =>
+          match issues.update(id, IssueChange(title: before.title, revision: before.revision + 1, note: before.note)):
+            Ok(changed) => Ok(protected.title + ": " + protected.note)
+            Err(problem) => Err(SaveFailed)
+        Err(problem) => Err(SaveFailed)
+    Err(problem) => Err(SaveFailed)
+
+export action create_child(parent: IssueId, value: EditIssue) -> Result<Issue, EditError>:
+  match issues.get(parent):
+    Ok(row) =>
+      match issues.create(NewIssue(workspace: row.workspace, title: value.title, revision: 0, note: value.note)):
+        Ok(created) => Ok(created)
+        Err(problem) => Err(SaveFailed)
+    Err(problem) => Err(SaveFailed)
+
+export action delete_child(parent: IssueId, target: IssueId) -> Result<Text, EditError>:
+  match issues.get(target):
+    Ok(row) =>
+      match issues.delete(target):
+        Ok(unit) => Ok("Deleted " + row.title)
+        Err(problem) => Err(SaveFailed)
+    Err(problem) => Err(SaveFailed)
+
+fn large_text(value: Text) -> Text:
+  let a = value + value
+  let b = a + a
+  let c = b + b
+  let d = c + c
+  let e = d + d
+  let f = e + e
+  f + f
+
+export action large_receipt(id: IssueId, value: Text<length: 1..4000>) -> Result<Text, EditError>:
+  match issues.get(id):
+    Ok(before) =>
+      match issues.update(id, IssueChange(title: "Large attempt", revision: before.revision + 1, note: before.note)):
+        Ok(row) => Ok(large_text(value))
+        Err(problem) => Err(SaveFailed)
+    Err(problem) => Err(SaveFailed)
+
+export action bulk_read(id: IssueId, targets: List<IssueId>) -> Result<Text, EditError>:
+  match issues.get(id):
+    Ok(before) =>
+      match issues.update(id, IssueChange(title: "Bulk attempt", revision: before.revision + 1, note: before.note)):
+        Ok(updated) =>
+          let found = for target in targets:
+            match issues.get(target):
+              Ok(row) => true
+              Err(problem) => false
+          Ok("Read " + int_text(len(found)))
+        Err(problem) => Err(SaveFailed)
+    Err(problem) => Err(SaveFailed)

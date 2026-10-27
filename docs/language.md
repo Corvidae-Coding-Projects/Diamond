@@ -1,10 +1,11 @@
 # Diamond language guide
 
-This guide describes the Diamond 0.16.0 single-file compatibility profile. The
-[project guide](projects.md) describes modules and the project/browser profile.
-The repository's [architectural design](../design.md) has a broader long-term
-surface, while the [README boundaries](../README.md#boundaries) define the current
-implemented release.
+This tutorial describes the Diamond 0.20.0 single-file profile. The
+[canonical language contract](language-specification.md) and
+[execution-profile matrix](language-profiles.md) define current semantics and
+limits. The [project guide](projects.md) introduces modules through its historical
+W1 snapshot; later checkpoint guides extend that foundation. The repository's
+[architectural design](../design.md) includes proposed long-term behavior.
 
 ## Source structure
 
@@ -37,12 +38,16 @@ fn main() -> Text:
 Function result annotations are required. Local `let` bindings are immutable.
 Decimal integers are signed 64-bit values; one underscore may separate adjacent
 digits, as in `1_000`. Arithmetic is checked.
+Unary minus is separate from the integer token: the direct minimum-Int literal
+`-9223372036854775808` currently rejects. Use `-9223372036854775807 - 1` to
+construct that value.
 
 ## Values and control flow
 
-The implemented scalar types are `Int`, `Bool`, `Text`, nominal `Id`, `Url`, and
-typed `Html`. Records, nominal enums, `Option`, `Result`, and immutable lists
-compose them within the documented depth and value-work budgets.
+The implemented scalar types include `Int`, `Bool`, `Text`, nominal `Id`,
+`Decimal`, `Timestamp`, and `Duration`. `Url`, typed `Html`, and `Response` belong
+to server output boundaries. Records, nominal enums, `Option`, `Result`, and
+immutable lists compose supported types within their profile and value budgets.
 
 `match` must cover each enum, Boolean, Option, or Result case once. An arm can be
 one expression or an indented block. `for item in values:` maps a bounded list to
@@ -51,8 +56,10 @@ database, authority, or resource-limit failures.
 
 Operators, from lower to higher precedence, are `or`, `and`, equality,
 comparisons, addition/subtraction, and multiplication/division. Parentheses can
-group expressions. Function and record calls use checked positional or named
-arguments according to their declarations.
+group expressions. Function calls and enum payloads use positional arguments;
+record constructors use named fields. Arguments evaluate left to right.
+An explicit `return` must be the final function-level statement; nested returns
+inside match/iteration/transaction blocks are unsupported.
 
 See [language.dia](../examples/language.dia) for exhaustive matching, payload
 bindings, Option/Result recovery, lists, and iteration. The
@@ -98,8 +105,9 @@ public route GET "/notes/{id:NoteId}" as Details:
 the allowlisted tags and attributes implemented by the template parser. Text
 interpolation is escaped; values are never reinterpreted as markup. Static links
 and redirects must be absolute internal paths without percent encoding. Static
-links may also use a simple same-page fragment such as `#main-content`;
-fragments stay in the current application route.
+links and redirects may also use a simple same-page fragment such as
+`#main-content`, as accepted by the shared internal-URL validator. This is separate
+from reactive route declarations, which accept literal pathnames only.
 
 `request.form<Record>()` decodes strict URL-encoded scalar form fields. Server
 derived IDs, CSRF names, unknown fields, duplicates, malformed encodings, and

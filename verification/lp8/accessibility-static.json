@@ -1,0 +1,116 @@
+{
+  "status": "PASS",
+  "binary_sha256": "28a8f27b6db02a04301ffa458f03df38e6c37fad16aaa6b6929adcd448a51e30",
+  "applications": [
+    {
+      "template": "workspace",
+      "checks": {
+        "one_main": true,
+        "one_h1": true,
+        "unique_ids": true,
+        "all_controls_labeled": true,
+        "sections_named": true,
+        "aria_relationships_resolve": true,
+        "status_feedback": true,
+        "one_hashed_stylesheet": true,
+        "visible_focus_rule": true,
+        "small_screen_rule": true
+      },
+      "tags": {
+        "html": 1,
+        "head": 1,
+        "meta": 2,
+        "title": 1,
+        "link": 1,
+        "body": 1,
+        "div": 2,
+        "diamond-component": 1,
+        "main": 1,
+        "header": 1,
+        "img": 1,
+        "p": 10,
+        "h1": 1,
+        "section": 8,
+        "h2": 8,
+        "label": 21,
+        "input": 19,
+        "button": 34,
+        "textarea": 2,
+        "pre": 6,
+        "form": 1,
+        "aside": 1,
+        "script": 1
+      },
+      "control_count": 21,
+      "status_regions": 8,
+      "duplicate_ids": [],
+      "unlabeled_controls": [],
+      "unresolved_relationships": [],
+      "index_sha256": "d83739a713e5f25a10d9fec224ace3e9213436b4b6d10a9e1c89cde75c8efb1c",
+      "stylesheet": "assets/2cc8b89fe02c517ce755676a36b20e686d715bb1e6c0900c9ff637c777c61db3.css",
+      "stylesheet_sha256": "2cc8b89fe02c517ce755676a36b20e686d715bb1e6c0900c9ff637c777c61db3"
+    },
+    {
+      "template": "catalog",
+      "checks": {
+        "one_main": true,
+        "one_h1": true,
+        "unique_ids": true,
+        "all_controls_labeled": true,
+        "sections_named": true,
+        "aria_relationships_resolve": true,
+        "status_feedback": true,
+        "one_hashed_stylesheet": true,
+        "visible_focus_rule": true,
+        "small_screen_rule": true
+      },
+      "tags": {
+        "html": 1,
+        "head": 1,
+        "meta": 2,
+        "title": 1,
+        "link": 1,
+        "body": 1,
+        "div": 1,
+        "diamond-component": 1,
+        "main": 1,
+        "header": 1,
+        "h1": 1,
+        "p": 5,
+        "section": 3,
+        "h2": 3,
+        "label": 7,
+        "input": 6,
+        "button": 8,
+        "pre": 1,
+        "textarea": 1,
+        "aside": 1,
+        "script": 1
+      },
+      "control_count": 7,
+      "status_regions": 5,
+      "duplicate_ids": [],
+      "unlabeled_controls": [],
+      "unresolved_relationships": [],
+      "index_sha256": "5a67536e7749b68994b7c200f51560d095b9f9e63144d4bb0bfc03615abcea47",
+      "stylesheet": "assets/75df3ba1c5c64859dec1a5ec7b77f18997c602ae3ca6ba2bd988d3bab69789ca.css",
+      "stylesheet_sha256": "75df3ba1c5c64859dec1a5ec7b77f18997c602ae3ca6ba2bd988d3bab69789ca"
+    }
+  ],
+  "primitive_cases": [
+    {
+      "name": "declared semantic primitives",
+      "accepted": true,
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "name": "undeclared ARIA attribute rejected",
+      "accepted": true,
+      "exit": 1,
+      "stderr": "error[D900]: unsupported feature: HTML attribute aria-bogus\n --> /tmp/diamond-w10-accessibility-gq2penv0/primitives/counter.dia:6:346\n  |\n6 | \u2026us\" aria-live=\"polite\">Required profile name</p><button type=\"submit\" aria-bogus=\"help\">Save</button></fieldset></form><\u2026\n  |                                                                                  ^\n help: Use the documented MVP subset or remove the unsupported operation.\n"
+    }
+  ],
+  "failures": [],
+  "browser_boundary": "Static final-artifact checks; real Chrome focus, validation, layout and live feedback are retained separately."
+}

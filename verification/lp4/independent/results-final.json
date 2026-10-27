@@ -1,0 +1,252 @@
+{
+  "binary_sha256": "6f5c7e0427abfc9483ce165ef78effbf0cdccbd8643176d2e05675f6dff5fbd7",
+  "observations": [
+    {
+      "case": "positive",
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "build",
+        "/home/doll/diamond/verification/lp4/independent/positive/diamond.toml",
+        "--out",
+        "/tmp/diamond-lp4-independent-tin71159/positive"
+      ],
+      "expected_accepted": true,
+      "exit": 0,
+      "pass": true,
+      "stderr": ""
+    },
+    {
+      "case": "empty_status",
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "build",
+        "/home/doll/diamond/verification/lp4/independent/empty_status/diamond.toml",
+        "--out",
+        "/tmp/diamond-lp4-independent-tin71159/empty_status"
+      ],
+      "expected_accepted": true,
+      "exit": 0,
+      "pass": true,
+      "stderr": ""
+    },
+    {
+      "case": "mixed_scalar_controls",
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "build",
+        "/home/doll/diamond/verification/lp4/independent/mixed_scalar_controls/diamond.toml",
+        "--out",
+        "/tmp/diamond-lp4-independent-tin71159/mixed_scalar_controls"
+      ],
+      "expected_accepted": true,
+      "exit": 0,
+      "pass": true,
+      "stderr": "",
+      "markup": {
+        "ids": 26,
+        "labels": 12,
+        "unique_ids": true,
+        "labels_resolve_once": true,
+        "selects": 4,
+        "checkboxes": 2,
+        "has_unicode": true
+      }
+    },
+    {
+      "case": "missing_label",
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/home/doll/diamond/verification/lp4/independent/missing_label/diamond.toml"
+      ],
+      "expected_accepted": false,
+      "exit": 1,
+      "pass": true,
+      "stderr": "error: D330 at 0:0: accessible label/value is required\n",
+      "expected_diagnostic": "accessible label/value is required"
+    },
+    {
+      "case": "blank_label",
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/home/doll/diamond/verification/lp4/independent/blank_label/diamond.toml"
+      ],
+      "expected_accepted": false,
+      "exit": 1,
+      "pass": true,
+      "stderr": "error: D330 at 0:0: accessible names require nonempty Text; status/description values require Text\n",
+      "expected_diagnostic": "accessible names require nonempty Text"
+    },
+    {
+      "case": "submit_outside_schema",
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/home/doll/diamond/verification/lp4/independent/submit_outside_schema/diamond.toml"
+      ],
+      "expected_accepted": false,
+      "exit": 1,
+      "pass": true,
+      "stderr": "error: D330 at 0:0: submit belongs inside its own schema form\n",
+      "expected_diagnostic": "submit belongs inside"
+    },
+    {
+      "case": "missing_alt",
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/home/doll/diamond/verification/lp4/independent/missing_alt/diamond.toml"
+      ],
+      "expected_accepted": false,
+      "exit": 1,
+      "pass": true,
+      "stderr": "error: D330 at 0:0: images require an author-supplied alt description; empty alt explicitly marks decoration\n",
+      "expected_diagnostic": "images require an author-supplied alt"
+    },
+    {
+      "case": "raw_id_collision",
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "build",
+        "/home/doll/diamond/verification/lp4/independent/raw_id_collision/diamond.toml",
+        "--out",
+        "/tmp/diamond-lp4-independent-tin71159/raw_id_collision"
+      ],
+      "expected_accepted": false,
+      "exit": 1,
+      "pass": true,
+      "stderr": "error: build project: invalid input: component id is reserved by the runtime\n",
+      "expected_diagnostic": "reserved by the runtime",
+      "artifact_absent": true
+    },
+    {
+      "case": "large_choice_forms",
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "build",
+        "/home/doll/diamond/verification/lp4/independent/large_choice_forms/diamond.toml",
+        "--out",
+        "/tmp/diamond-lp4-independent-tin71159/large_choice_forms"
+      ],
+      "expected_accepted": false,
+      "exit": 1,
+      "pass": true,
+      "stderr": "error: build project: resource limit exceeded: render node capacity\n",
+      "expected_diagnostic": "render node capacity",
+      "artifact_absent": true
+    },
+    {
+      "case": "large_status_list",
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "build",
+        "/home/doll/diamond/verification/lp4/independent/large_status_list/diamond.toml",
+        "--out",
+        "/tmp/diamond-lp4-independent-tin71159/large_status_list"
+      ],
+      "expected_accepted": false,
+      "exit": 1,
+      "pass": true,
+      "stderr": "error: build project: resource limit exceeded: render node capacity\n",
+      "expected_diagnostic": "render node capacity",
+      "artifact_absent": true
+    },
+    {
+      "case": "click_nominal",
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/home/doll/diamond/verification/lp4/independent/click_nominal/diamond.toml"
+      ],
+      "expected_accepted": false,
+      "exit": 1,
+      "pass": true,
+      "stderr": "error: ui.dia: D330 at 6:89: handler/output argument type mismatch\n",
+      "expected_diagnostic": "argument type mismatch"
+    },
+    {
+      "case": "output_nominal",
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/home/doll/diamond/verification/lp4/independent/output_nominal/diamond.toml"
+      ],
+      "expected_accepted": false,
+      "exit": 1,
+      "pass": true,
+      "stderr": "error: ui.dia: D330 at 12:40: component output handler signature mismatch\n",
+      "expected_diagnostic": "output handler signature mismatch"
+    },
+    {
+      "case": "nested_secret_output",
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/home/doll/diamond/verification/lp4/independent/nested_secret_output/diamond.toml"
+      ],
+      "expected_accepted": false,
+      "exit": 1,
+      "pass": true,
+      "stderr": "error: ui.dia: D330 at 2:3: component messages require recursively safe managed data\n",
+      "expected_diagnostic": "recursively safe managed data"
+    },
+    {
+      "case": "child_identity",
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/home/doll/diamond/verification/lp4/independent/child_identity/diamond.toml"
+      ],
+      "expected_accepted": false,
+      "exit": 1,
+      "pass": true,
+      "stderr": "error: ui.dia: D330 at 3:3: identity changes require a direct root-component assignment before other remote work\n",
+      "expected_diagnostic": "direct root-component assignment"
+    },
+    {
+      "case": "recursive_components",
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "check",
+        "/home/doll/diamond/verification/lp4/independent/recursive_components/diamond.toml"
+      ],
+      "expected_accepted": false,
+      "exit": 1,
+      "pass": true,
+      "stderr": "error: D330 at 0:0: component cycle\n",
+      "expected_diagnostic": "component cycle"
+    },
+    {
+      "case": "root_identity",
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "build",
+        "/home/doll/diamond/verification/lp4/independent/root_identity/diamond.toml",
+        "--out",
+        "/tmp/diamond-lp4-independent-tin71159/root_identity"
+      ],
+      "expected_accepted": true,
+      "exit": 0,
+      "pass": true,
+      "stderr": ""
+    },
+    {
+      "case": "dynamic_reserved_id",
+      "command": [
+        "/home/doll/diamond/target/debug/diamond",
+        "build",
+        "/home/doll/diamond/verification/lp4/independent/dynamic_reserved_id/diamond.toml",
+        "--out",
+        "/tmp/diamond-lp4-independent-tin71159/dynamic_reserved_id"
+      ],
+      "expected_accepted": false,
+      "exit": 1,
+      "pass": true,
+      "stderr": "error: build project: invalid input: component id is reserved by the runtime\n",
+      "expected_diagnostic": "reserved by the runtime",
+      "artifact_absent": true
+    }
+  ],
+  "pass": true
+}

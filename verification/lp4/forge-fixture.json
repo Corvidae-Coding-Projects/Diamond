@@ -1,0 +1,47 @@
+{
+  "status": "PASS",
+  "error": null,
+  "binary_sha256": "28a8f27b6db02a04301ffa458f03df38e6c37fad16aaa6b6929adcd448a51e30",
+  "driver_sha256": "2e32696475201548a59a5a228af16aefe0f87b8f2165c37b258b68aefce75aef",
+  "source_hashes": {
+    "examples/git-browser/shared.dia": "a15619841c47107109091715063301c7a57f40e417e7492b4694a0764d23c3f3",
+    "examples/git-browser/server.dia": "c2fcd93cd486eebcb1591286c96aeb38e3ced4f76e71611da1035cadbcae3b8d",
+    "examples/git-browser/ui.dia": "8952b3735ecb4c4f71ccb17395a4f453c91de12e7e50c8e350d5fcddf23ccef6",
+    "examples/git-browser/README.md": "e33a7ebaaf15a878ee9b76ea0d15df2a5bbd11a09e22b7be2e43af2cb7613d29",
+    "examples/git-browser/operations.dia": "f76cd663fbff8df4c74824e1a48c53a0fabd8a746c7afd9ac50d89a9ea2378e2",
+    "examples/git-browser/diamond.toml": "bbc6b7408e7a4eec6512641cf96fdd0497d40cc7b298c9822777322a26035167",
+    "examples/git-browser/git-v2.css": "eee65b23001affca31887f4785a782cd6ea7779340277afb433b203cc399536d"
+  },
+  "observations": [
+    {
+      "name": "independent-sql-readback",
+      "rows": [
+        {
+          "id": "68933a1947104a15470d8b33c0675b9b121f534f091773194a21bb71c6e05abb",
+          "title": "LP8 final Forge issue updated",
+          "body": "Updated through the final-candidate real UI."
+        },
+        {
+          "id": "a19f9f468b892422a74efafdd0ca6ee794a08013017c6299cb9085a7d16b2731",
+          "title": "Forge target",
+          "body": "Second issue"
+        },
+        {
+          "id": "fc0223dc414e8c485d6998348f2e2a7417da5de395b7db8e0f1fdb64a5eabcf3",
+          "title": "Forge alpha",
+          "body": "First issue"
+        }
+      ]
+    }
+  ],
+  "shutdowns": [
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": []
+}
