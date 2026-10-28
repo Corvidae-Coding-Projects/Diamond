@@ -156,7 +156,8 @@ The server polls durable state every 500 ms, revalidating session expiry and cur
 parent permissions. A batch is no older than three seconds when a delivery starts;
 individual sends have a two-second deadline. The configured authorization bound is
 five seconds; already transmitted bytes cannot be recalled. There are 32 socket
-permits separate from the 16 ordinary request permits, 32 events per fetch, 16 KiB
+permits separate from the ordinary request budget (16 by default, configurable
+under `[runtime]`), 32 events per fetch, 16 KiB
 encoded event/job payloads, 10,000 retained events and 10,000 job rows per application.
 Slow consumers are disconnected. Terminal jobs require explicit operator archiving
 before exhausting the queue quota; no retention daemon removes deduplication keys.

@@ -9,6 +9,7 @@ mod action;
 mod auth;
 mod authority;
 mod browser_auth;
+mod budget;
 mod checker;
 mod data;
 mod editor;

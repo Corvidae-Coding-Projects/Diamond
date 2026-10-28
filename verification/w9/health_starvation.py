@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Hold every ordinary request permit and verify deployment probes stay bounded."""
+"""Saturate ordinary admission with slow bodies and verify deployment probes."""
 from __future__ import annotations
 
 import argparse
@@ -84,6 +84,7 @@ def main() -> int:
             held.append(stream)
         time.sleep(0.15)
         probes = {}
+        occupied = {}
         for path in ["live", "metrics", "ready"]:
             before = time.monotonic()
             status, _, raw = service.request("A", "/_diamond/health/" + path)
@@ -92,18 +93,25 @@ def main() -> int:
                 "elapsed_ms": round((time.monotonic() - before) * 1000, 3),
                 "body_sha256": hashlib.sha256(raw).hexdigest(),
             }
+            if path == "metrics" and status == 200:
+                value = json.loads(raw)
+                occupied = {key: value[key] for key in ("active_requests", "queued_requests")}
         record(
             "deployment-probes-have-separate-bounded-admission",
-            all(value["status"] == 200 and value["elapsed_ms"] < 2000 for value in probes.values()),
-            probes,
-            "live, metrics and ready stay responsive while all 16 ordinary permits await bounded request bodies",
+            all(value["status"] == 200 and value["elapsed_ms"] < 2000 for value in probes.values())
+            and occupied.get("active_requests", 0) > 0 and occupied.get("queued_requests", 0) > 0,
+            {"probes": probes, "occupied": occupied},
+            "live, metrics and ready stay responsive while incomplete bodies fill the applicable ordinary quotas and queue",
         )
         time.sleep(3.2)
         recovered = {path: service.request("A", "/_diamond/health/" + path)[0] for path in ["live", "metrics", "ready"]}
+        _, _, raw = service.request("A", "/_diamond/health/metrics")
+        empty = json.loads(raw)
         record(
             "ordinary-body-timeout-releases-capacity",
-            recovered == {"live": 200, "metrics": 200, "ready": 200},
-            recovered,
+            recovered == {"live": 200, "metrics": 200, "ready": 200}
+            and empty["active_requests"] == 0 and empty["queued_requests"] == 0,
+            {"probes": recovered, "active_requests": empty["active_requests"], "queued_requests": empty["queued_requests"]},
             "after the three-second body deadline all deployment probes are healthy",
         )
     except Exception as failure:

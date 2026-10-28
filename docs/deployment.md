@@ -199,6 +199,69 @@ backpressure therefore does not make a live node appear dead, while health traff
 itself remains bounded; excess simultaneous probes receive the normal capacity
 response.
 
+### Bounded runtime capacity
+
+Projects may set deployment limits in `diamond.toml`. Omitted fields use these
+defaults:
+
+```toml
+[runtime]
+request_limit = 16
+queue_limit = 128
+queue_timeout_ms = 1000
+worker_threads = 2
+blocking_threads = 4
+database_connections = 4
+```
+
+Workload reservations, peer/verified-account fairness, one absolute request
+deadline, and the shared retry budget also have finite defaults. See the
+[complete runtime configuration guide](runtime-scheduling.md) for every setting,
+range, automatic value, and an optional account-to-tenant mapping.
+
+The request budget covers executing work and work admitted to the blocking
+executor. Once it fills, a FIFO queue retains at most `queue_limit` additional
+requests for at most `queue_timeout_ms`. A full or expired queue returns HTTP 503
+with `{"error":"overloaded","retry_safe":true}`, a configurable `Retry-After`
+(one second by default), and
+`X-Diamond-Retry: safe`. This response confirms that application execution never
+began. The connection closes explicitly because the request body was not read.
+Database errors, lost responses, and uncertain commits do not carry this proof.
+
+Generated browser transports automatically wait with exponential backoff and
+jitter for at most two retries by default of this explicit rejection. Cancellation, event
+deadlines, remote-call budgets, and identity replacement still apply. They never
+repeat a mutation merely because its response was lost. External API callers can
+inspect the same contract in `/api/v1/_contract`.
+
+The checker accepts requests 1..1024, waiting requests 0..4096, queue waits
+1..5000 milliseconds, async worker threads 1..16, and database/blocking workers
+1..64, with `database_connections <= blocking_threads <= request_limit`.
+Increasing a queue adds waiting time and retained connections; it does not add
+throughput. Keep limits within the database's total connection budget across
+all nodes. Add application capacity or repair a slow dependency when sustained
+queues remain full. Git transports and live sockets retain their separate
+eight/32 concurrency bounds.
+
+`/_diamond/health/metrics` includes active and queued requests, configured queue
+and admission limits, cumulative ordinary overload rejections, and confirmed
+transaction retry counts. Ordinary overloads are logged in aggregate once per
+second instead of emitting two log records for each rejected request. The same
+bounded admission component protects connected apps, the asset server, and the
+isolated Pages listener. Pages retains its admission permit with owned blocking
+work and response streams even if the requester disconnects.
+
+For ordinary relational RPC/API operations, the runtime can retry a confirmed
+PostgreSQL serialization/deadlock abort at most twice by default, with a short
+randomized delay and a two-second retry-start window. A node-wide token bucket
+starts with 32 tokens and refills at eight per second. Attempts, delay, window,
+and budget are configurable and share the original request deadline.
+Eligibility comes from the checked
+transitive effect set: only database reads/writes, with no host effects or action
+boundary. Each attempt opens a fresh transaction and rechecks credentials,
+policy, and scope. Durable actions keep their existing reconciliation protocol.
+Exhausted conflicts remain explicit 409s; unknown outcomes never retry.
+
 Servers emit redacted structured `request_complete` events with request class and
 status. Workers emit redacted failure classes. Application payloads, cookies,
 CSRF/API tokens, HTTP secrets and database strings are excluded. The supervisor

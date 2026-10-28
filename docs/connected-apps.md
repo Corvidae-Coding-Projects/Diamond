@@ -110,8 +110,9 @@ Full async expressions, forms/lifecycle/hydration and typed browser records are 
 
 Events run serially with controls disabled while work is pending. Local state is
 committed after the whole event/render succeeds. Earlier server calls may already
-have committed when a later event step fails. The runtime never automatically
-replays a mutation; delivery errors tell the user to refresh before retrying.
+have committed when a later event step fails. Transport retries apply only to
+explicit pre-execution overload responses. Lost mutation replies still require
+reconciliation before retrying; see the current [runtime retry contract](deployment.md#bounded-runtime-capacity).
 Application code must clear account-specific state on identity changes, as the
 example does. Rendering still replaces the component tree, with W1's explicit
 browser resource-accounting limitations.
@@ -169,9 +170,13 @@ W2 limits are 1,000 records per application, 16 KiB encoded record payloads
 (32 KiB maximum stored representation), 100 selected results and offset at most
 1,000. Wire request bodies are at most 16 KiB and must arrive within three seconds;
 individual bounds do not override that aggregate transport limit. There are at
-most 64 RPC exports, 16 admitted requests, four blocking workers, 4,096 shared
+most 64 RPC exports, defaults of 16 admitted requests and four blocking workers,
+4,096 shared
 sessions, 10,000 provisioned accounts, 30-minute session expiry, and shared login
 limits of ten attempts per username and 100 per application per minute.
+The managed server also defaults to 128 bounded waiting requests and a one-second
+queue deadline. See [runtime capacity](deployment.md#bounded-runtime-capacity)
+for checked configuration, safe overload backoff and database conflict handling.
 
 Each operation has a five-second database deadline and each owned connected work
 item a ten-second execution budget after connection and setup. An in-flight worker retains

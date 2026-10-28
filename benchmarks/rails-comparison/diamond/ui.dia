@@ -1,0 +1,12 @@
+export component Bench:
+  state output: Text = "Benchmark server not contacted."
+
+  on check:
+    output = rpc.health()
+
+  html:
+    <main>
+      <h1>Diamond/Rails benchmark</h1>
+      <button type="button" on-click={check}>Check server</button>
+      <status value={output}></status>
+    </main>

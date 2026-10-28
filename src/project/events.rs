@@ -210,7 +210,7 @@ pub(super) async fn request(
     let check_server = Arc::clone(&server);
     let check_token = token.clone();
     let check_parts = parts.clone();
-    let check = tokio::task::spawn_blocking(move || {
+    let check = super::admission::blocking(move || {
         read(
             &check_server,
             &check_token,
@@ -242,7 +242,9 @@ async fn stream(
         let p = parts.clone();
         let s = Arc::clone(&server);
         let t = token.clone();
-        let read = tokio::task::spawn_blocking(move || read(&s, &t, &p[0], &p[1], cursor));
+        let read = super::admission::background(Arc::clone(&server.admission), async move {
+            super::admission::blocking(move || read(&s, &t, &p[0], &p[1], cursor)).await
+        });
         let batch = match read.await {
             Ok(Ok(batch)) => batch,
             Ok(Err(Error::Unauthenticated)) => {

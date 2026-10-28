@@ -66,7 +66,7 @@ pub(super) async fn health(server: Arc<Server>, request: Request) -> Response {
                 return connected::failure(&Error::Limit("draining"));
             }
             let s = Arc::clone(&server);
-            let result = tokio::task::spawn_blocking(move || {
+            let result = super::admission::blocking(move || {
                 let _objects = super::files::Store::open(
                     &s.project,
                     &s.secrets.configuration,
@@ -92,10 +92,14 @@ pub(super) async fn health(server: Arc<Server>, request: Request) -> Response {
         }
         "/_diamond/health/metrics" => {
             // Operational counters contain no users, payloads, tokens, paths or configuration.
-            connected::json_response(
-                StatusCode::OK,
-                &serde_json::json!({"requests":server.requests.load(Ordering::Relaxed),"active_requests":16-server.permits.available_permits(),"active_git_transports":8-server.git_permits.available_permits(),"active_sockets":32-server.sockets.available_permits(),"draining":server.draining.load(Ordering::Relaxed)}),
-            )
+            let mut metrics = server.admission.metrics();
+            metrics["requests"] = server.requests.load(Ordering::Relaxed).into();
+            metrics["transaction_retries"] =
+                server.transaction_retries.load(Ordering::Relaxed).into();
+            metrics["active_git_transports"] = (8 - server.git_permits.available_permits()).into();
+            metrics["active_sockets"] = (32 - server.sockets.available_permits()).into();
+            metrics["draining"] = server.draining.load(Ordering::Relaxed).into();
+            connected::json_response(StatusCode::OK, &metrics)
         }
         _ => connected::failure(&Error::Denied),
     }

@@ -1,0 +1,63 @@
+{
+  "status": "PASS",
+  "binary_sha256": "e7d6462807b35e029d48d9522db1f60975a2b30363a0195c281238f62066cd15",
+  "receipts": {
+    "runtime-final": {
+      "sha256": "9a3ffe11959dde584ccaf247743d0d02605d3986749ab3dce3963651c20c6194",
+      "status": "PASS",
+      "observations": 20
+    },
+    "actions-final": {
+      "sha256": "47a1c949b408d01fcd51491b44d1c025c4eba021bf830dc5fe83d95a2f39332c",
+      "status": "PASS",
+      "observations": 74
+    },
+    "health-final": {
+      "sha256": "ad67fb56ed280824f3ee988021d7ad8468387efa740787a3d95bec4cbe12a188",
+      "status": "PASS",
+      "observations": 2
+    },
+    "delivery-final": {
+      "sha256": "bd58d8e776a5414d79c03c0ef4f22858183bf06fabc97fa29f1cef0785032a5c",
+      "status": "PASS",
+      "observations": 152
+    }
+  },
+  "corrected_campaign": {
+    "cells": 24,
+    "passed": 24,
+    "report": "benchmarks/rails-comparison/results/remediation-30s.json",
+    "report_sha256": "901fbac233a6c7406ec2142463f2489e253e2410da7d867985280e8665ca413e",
+    "counts": {
+      "capacity_rejections": 0,
+      "transaction_conflicts": 0,
+      "unexpected_responses": 0,
+      "transport_errors": 0
+    },
+    "benchmark_program_hashes_match_current": true,
+    "documentation_updated_after_run": [
+      "benchmarks/rails-comparison/README.md",
+      "benchmarks/rails-comparison/SCENARIOS.md"
+    ],
+    "cleanup_errors": []
+  },
+  "profile_smoke": {
+    "status": "PASS",
+    "cells": 6
+  },
+  "checks": {
+    "format": "PASS",
+    "release_and_all_features_build": "PASS",
+    "clippy_warnings_denied": "PASS",
+    "rust_1_96": "PASS",
+    "unit_tests": 15,
+    "doctests": 39,
+    "rustdoc_warnings_denied": "PASS"
+  },
+  "limits": [
+    "30-second follow-up; 120/600-second campaign not rerun",
+    "warm database caches; shared host with other verification workloads",
+    "Node exercised emitted transport helper; no new Chrome DOM journey",
+    "bounded retry exhaustion remains explicit 409"
+  ]
+}

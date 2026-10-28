@@ -55,7 +55,7 @@ pub(super) async fn request(
     server: Arc<Server>,
     request: Request,
     peer: String,
-    permit: tokio::sync::OwnedSemaphorePermit,
+    permit: crate::project::admission::Permit,
     git_permit: tokio::sync::OwnedSemaphorePermit,
 ) -> Response {
     match request_inner(server, request, peer, permit, git_permit).await {
@@ -79,7 +79,7 @@ async fn request_inner(
     server: Arc<Server>,
     request: Request,
     peer: String,
-    permit: tokio::sync::OwnedSemaphorePermit,
+    permit: crate::project::admission::Permit,
     git_permit: tokio::sync::OwnedSemaphorePermit,
 ) -> Result<Response> {
     if request.headers().contains_key(header::COOKIE)
@@ -121,7 +121,7 @@ async fn request_inner(
     let repository = route.repository.clone();
     let write = route.service.write();
     let work_peer = peer.clone();
-    let transport = tokio::task::spawn_blocking(move || {
+    let transport = crate::project::admission::blocking(move || {
         super::super::accounts::charge(
             &work_server.project,
             &work_server.secrets.configuration,
@@ -171,7 +171,7 @@ async fn backend_response(
     route: Route,
     request: Request,
     backend: BackendRequest,
-    permit: tokio::sync::OwnedSemaphorePermit,
+    permit: crate::project::admission::Permit,
     git_permit: tokio::sync::OwnedSemaphorePermit,
     configuration: &str,
 ) -> Result<Response> {
@@ -237,24 +237,28 @@ async fn backend_response(
     let input = tokio::spawn(pump_input(request.into_body(), stdin));
     let errors = tokio::spawn(drain_stderr(stderr));
     let mut stdout = BufReader::with_capacity(CHUNK, stdout);
-    let headers =
-        match tokio::time::timeout(Duration::from_secs(10), cgi_headers(&mut stdout)).await {
-            Ok(Ok(headers)) => headers,
-            Ok(Err(error)) => {
-                input.abort();
-                errors.abort();
-                let _killed = child.kill().await;
-                let _waited = child.wait().await;
-                return Err(error);
-            }
-            Err(_) => {
-                input.abort();
-                errors.abort();
-                let _killed = child.kill().await;
-                let _waited = child.wait().await;
-                return Err(Error::Limit("Git response header deadline"));
-            }
-        };
+    let headers = match tokio::time::timeout_at(
+        crate::budget::until(Duration::from_secs(10)),
+        cgi_headers(&mut stdout),
+    )
+    .await
+    {
+        Ok(Ok(headers)) => headers,
+        Ok(Err(error)) => {
+            input.abort();
+            errors.abort();
+            let _killed = child.kill().await;
+            let _waited = child.wait().await;
+            return Err(error);
+        }
+        Err(_) => {
+            input.abort();
+            errors.abort();
+            let _killed = child.kill().await;
+            let _waited = child.wait().await;
+            return Err(Error::Limit("Git response header deadline"));
+        }
+    };
 
     let receiver = spawn_stream(child, stdout, input, errors, permit, git_permit, fences);
     let stream = futures_util::stream::unfold(receiver, |mut receiver| async move {
@@ -275,17 +279,18 @@ fn spawn_stream(
     mut stdout: BufReader<tokio::process::ChildStdout>,
     mut input: tokio::task::JoinHandle<io::Result<()>>,
     mut errors: tokio::task::JoinHandle<io::Result<()>>,
-    permit: tokio::sync::OwnedSemaphorePermit,
+    permit: crate::project::admission::Permit,
     git_permit: tokio::sync::OwnedSemaphorePermit,
     fences: Vec<super::super::git::ReceiveFence>,
 ) -> mpsc::Receiver<io::Result<Bytes>> {
     let (sender, receiver) = mpsc::channel(4);
+    let deadline = crate::budget::until(TRANSPORT_DEADLINE);
     tokio::spawn(async move {
         let _permit = permit;
         let _git_permit = git_permit;
         let _fences = fences;
-        let output_ok = tokio::time::timeout(
-            TRANSPORT_DEADLINE,
+        let output_ok = tokio::time::timeout_at(
+            deadline,
             pump_output(&mut stdout, &sender, super::super::git::MAX_TRANSPORT_BYTES),
         )
         .await

@@ -299,7 +299,7 @@ impl RuntimeGrants {
             .build()?;
         let reply = runtime.block_on(async {
             tokio::time::timeout(
-                Duration::from_millis(d.timeout_ms),
+                crate::budget::remaining(Duration::from_millis(d.timeout_ms))?,
                 request(d, method, path, encoded.as_deref()),
             )
             .await

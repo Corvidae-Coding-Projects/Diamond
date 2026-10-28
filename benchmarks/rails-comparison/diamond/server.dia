@@ -1,0 +1,80 @@
+type UserId = Id<"user">
+type WorkspaceId = Id<"workspace">
+
+type Workspace:
+  id: WorkspaceId
+  owner: UserId @created_by_principal
+  label: Text<length: 1..80>
+
+type NewWorkspace:
+  label: Text<length: 1..80>
+
+type Issue:
+  id: IssueId
+  owner: UserId @created_by_principal
+  workspace: WorkspaceId
+  title: Text<length: 1..120>
+  details: Text<length: 0..4000>
+  rank: Int
+
+type NewIssue:
+  workspace: WorkspaceId
+  title: Text<length: 1..120>
+  details: Text<length: 0..4000>
+  rank: Int
+
+type EditIssue:
+  title: Text<length: 1..120>
+  details: Text<length: 0..4000>
+
+resource Workspaces: Workspace
+resource Issues: Issue
+
+policy Workspaces:
+  read(row, by principal):
+    principal.is_user(row.owner)
+  create(row, by principal):
+    principal.is_user(row.owner)
+
+policy Issues:
+  read(row, by principal):
+    principal.is_related("Ownership", row.workspace)
+  create(row, by principal):
+    principal.is_related("Ownership", row.workspace)
+  update(before, after, by principal):
+    before.workspace == after.workspace and before.owner == after.owner and principal.is_related("Ownership", before.workspace)
+
+export fn main() -> Text:
+  "Diamond/Rails benchmark"
+
+export fn health() -> Text:
+  "ready"
+
+export fn create_workspace(label: Text<length: 1..80>) -> Result<Text, DataError>:
+  let row = workspaces.create(NewWorkspace(label: label))?
+  Ok(id_text(row.id))
+
+export fn create_issue(workspace: Text, title: Text<length: 1..120>, details: Text<length: 0..4000>, rank: Int) -> Result<Text, DataError>:
+  let row = issues.create(NewIssue(workspace: WorkspaceId(workspace), title: title, details: details, rank: rank))?
+  Ok(id_text(row.id))
+
+export fn read_issue(id: Text) -> Result<Text, DataError>:
+  let row = issues.get(IssueId(id))?
+  Ok(row.title + "\n" + row.details)
+
+export fn update_issue(id: Text, title: Text<length: 1..120>, details: Text<length: 0..4000>) -> Result<Text, DataError>:
+  let row = issues.update(IssueId(id), EditIssue(title: title, details: details))?
+  Ok(row.title + "\n" + row.details)
+
+fn next_cursor(rows: List<Issue>) -> Result<Text, DataError>:
+  match list_get(rows, len(rows) - 1):
+    Some(row) => issues.cursor(row: row, order: "rank")
+    None => Ok("")
+
+export fn issue_page(workspace: Text, after: Text) -> Result<IssuePage, DataError>:
+  let rows = issues.page(workspace: WorkspaceId(workspace), order: "rank", after: after, limit: 20)?
+  let cards = for row in rows:
+    IssueCard(id: row.id, title: row.title, details: row.details, rank: row.rank)
+  let cursor = next_cursor(rows)?
+  let total = issues.count(workspace: WorkspaceId(workspace))?
+  Ok(IssuePage(cards: cards, after: cursor, total: total))

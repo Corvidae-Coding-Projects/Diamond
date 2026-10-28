@@ -1,0 +1,159 @@
+{
+  "status": "PASS",
+  "binary_sha256": "bdecf9ca6545c37272ebb763c13ba3f0ddec17cd772b765edd1f99068ccaa98a",
+  "driver_sha256": "7adc372c8c7dd05d4e2d14fb813150e75fe6c3e8564c0c58a4ec35cf027f34bc",
+  "observations": [
+    {
+      "name": "verified-tenant-fairness-and-no-header-authority",
+      "status": "PASS",
+      "other_group_seconds": 0.003
+    },
+    {
+      "name": "client-configuration-does-not-expose-tenant-membership",
+      "status": "PASS",
+      "configuration": "const __runtime={\"event_timeout_ms\":65000,\"jitter_ms\":250,\"max_backoff_ms\":4000,\"retries\":2};"
+    },
+    {
+      "name": "preflight-and-dispatch-charge-once-missing-route-skips-authentication",
+      "status": "PASS"
+    },
+    {
+      "name": "tcp-peer-fairness-and-disconnect-recovery",
+      "status": "PASS"
+    },
+    {
+      "name": "one-deadline-including-executor-wait-no-late-mutation",
+      "status": "PASS",
+      "elapsed_seconds": 0.152
+    },
+    {
+      "name": "sql-deadline-cancellation-and-independent-readback",
+      "status": "PASS",
+      "elapsed_seconds": 0.302
+    },
+    {
+      "name": "node-wide-budget-under-concurrent-conflicts",
+      "status": "PASS",
+      "statuses": [
+        200,
+        409
+      ],
+      "retries": 1
+    },
+    {
+      "name": "retry-budget-refills-at-configured-rate",
+      "status": "PASS"
+    },
+    {
+      "name": "zero-retries-or-zero-budget-disable-replay",
+      "status": "PASS"
+    },
+    {
+      "name": "generated-client-configured",
+      "status": "PASS",
+      "observed": {
+        "mode": "configured",
+        "calls": 2,
+        "elapsed_ms": 2027,
+        "status": "PASS"
+      }
+    },
+    {
+      "name": "generated-client-disabled",
+      "status": "PASS",
+      "observed": {
+        "mode": "disabled",
+        "calls": 1,
+        "elapsed_ms": 22,
+        "status": "PASS"
+      }
+    },
+    {
+      "name": "invalid-and-overflowing-configuration-rejected",
+      "status": "PASS",
+      "cases": 15
+    }
+  ],
+  "shutdowns": [
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "temporary_root": "/tmp/diamond-scheduling-c8qps4sa",
+  "temporary_root_removed": true
+}

@@ -1,0 +1,9 @@
+/.bundle/
+/vendor/bundle/
+/log/*.log
+/tmp/*
+!/tmp/.keep
+!/tmp/pids/
+!/tmp/pids/.keep
+/config/master.key
+/config/credentials*.yml.enc

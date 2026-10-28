@@ -95,6 +95,7 @@ impl HostRuntime {
     }
 
     fn connect_inner(configuration: &str, read_only: bool) -> Result<Self> {
+        crate::budget::check()?;
         if configuration.len() > 16_384 {
             return Err(Error::Limit("PostgreSQL configuration"));
         }
@@ -110,17 +111,18 @@ impl HostRuntime {
         {
             return Err(Error::Input("W1 PostgreSQL grants require one explicit local Unix socket; remote/TLS connections are not implemented".into()));
         }
-        config.connect_timeout(Duration::from_secs(5));
+        let connection_timeout = crate::budget::remaining(Duration::from_secs(5))?;
+        config.connect_timeout(connection_timeout);
         let runtime = tokio::runtime::Builder::new_current_thread()
             .enable_all()
             .build()?;
         let (postgres,driver)=runtime.block_on(async {
-            let (postgres,connection)=tokio::time::timeout(Duration::from_secs(5),config.connect(NoTls)).await
+            let (postgres,connection)=tokio::time::timeout(connection_timeout,config.connect(NoTls)).await
                 .map_err(|_|Error::Limit("PostgreSQL connection deadline"))?.map_err(|_|failure())?;
             let driver=tokio::spawn(connection);
             let settings=if read_only { "SET statement_timeout = '5s'; SET lock_timeout = '2s'; SET default_transaction_read_only = on;" }
                 else { "SET statement_timeout = '5s'; SET lock_timeout = '2s'; SET idle_in_transaction_session_timeout = '10s'; SET search_path = pg_catalog;" };
-            let setup=tokio::time::timeout(Duration::from_secs(5),postgres.batch_execute(settings)).await;
+            let setup=tokio::time::timeout(crate::budget::remaining(Duration::from_secs(5))?,postgres.batch_execute(settings)).await;
             if !matches!(setup,Ok(Ok(()))) {
                 driver.abort();
                 let _driver_result=driver.await;
@@ -134,11 +136,12 @@ impl HostRuntime {
             runtime,
             closed: false,
             relational: false,
-            deadline: Instant::now() + Duration::from_secs(10),
+            deadline: crate::budget::clamp(Instant::now() + Duration::from_secs(10)),
         })
     }
 
     pub(crate) fn check_deadline(&self) -> Result<()> {
+        crate::budget::check()?;
         if self.closed || Instant::now() >= self.deadline {
             return Err(Error::Limit("PostgreSQL request deadline"));
         }
@@ -166,7 +169,10 @@ impl HostRuntime {
         classified: bool,
     ) -> Result<Vec<tokio_postgres::Row>> {
         self.check_deadline()?;
-        let duration = (self.deadline - Instant::now()).min(Duration::from_secs(5));
+        let duration = self
+            .deadline
+            .saturating_duration_since(Instant::now())
+            .min(Duration::from_secs(5));
         if let Ok(value) = self.runtime.block_on(async {
             tokio::time::timeout(duration, self.postgres.query(sql, parameters)).await
         }) {
@@ -178,7 +184,7 @@ impl HostRuntime {
                 }
             })
         } else {
-            self.close();
+            self.cancel();
             Err(Error::Limit("PostgreSQL operation deadline"))
         }
     }
@@ -191,7 +197,10 @@ impl HostRuntime {
     }
     fn batch_inner(&mut self, sql: &str, classified: bool) -> Result<()> {
         self.check_deadline()?;
-        let duration = (self.deadline - Instant::now()).min(Duration::from_secs(5));
+        let duration = self
+            .deadline
+            .saturating_duration_since(Instant::now())
+            .min(Duration::from_secs(5));
         if let Ok(value) = self.runtime.block_on(async {
             tokio::time::timeout(duration, self.postgres.batch_execute(sql)).await
         }) {
@@ -203,7 +212,7 @@ impl HostRuntime {
                 }
             })
         } else {
-            self.close();
+            self.cancel();
             Err(Error::Limit("PostgreSQL operation deadline"))
         }
     }
@@ -228,8 +237,9 @@ impl HostRuntime {
         ) {
             return Err(Error::Limit("host operation input"));
         }
+        let timeout = crate::budget::remaining(Duration::from_secs(5))?;
         let result = self.runtime.block_on(async {
-            tokio::time::timeout(Duration::from_secs(5), async {
+            tokio::time::timeout(timeout, async {
                 match (name, arguments) {
                     ("postgres_version", []) => self
                         .postgres
@@ -249,7 +259,7 @@ impl HostRuntime {
         let row = if let Ok(result) = result {
             result?
         } else {
-            self.close();
+            self.cancel();
             return Err(Error::Limit("host operation deadline"));
         };
         let text: String = row.try_get(0).map_err(|_| failure())?;
@@ -263,10 +273,19 @@ impl HostRuntime {
         self.relational = true;
     }
     pub(crate) fn reset_deadline(&mut self) {
-        self.deadline = Instant::now() + Duration::from_secs(10);
+        self.deadline = crate::budget::clamp(Instant::now() + Duration::from_secs(10));
     }
     pub(crate) fn healthy(&self) -> bool {
         !self.closed && !self.postgres.is_closed()
+    }
+    fn cancel(&mut self) {
+        // Cancellation is cleanup, not a new request attempt. Keep the lease
+        // owned until cancellation has been attempted and its driver is joined.
+        let token = self.postgres.cancel_token();
+        let _canceled = self.runtime.block_on(async {
+            tokio::time::timeout(crate::budget::cleanup_timeout(), token.cancel_query(NoTls)).await
+        });
+        self.close();
     }
     pub(crate) fn close(&mut self) {
         if !self.closed {

@@ -1,0 +1,58 @@
+{
+  "status": "FAIL",
+  "binary_sha256": "e3ccec55ef5d736f16a7b62efa0c032123951768ed11c32f113acba54a8010e2",
+  "driver_sha256": "7adc372c8c7dd05d4e2d14fb813150e75fe6c3e8564c0c58a4ec35cf027f34bc",
+  "observations": [
+    {
+      "name": "verified-tenant-fairness-and-no-header-authority",
+      "status": "PASS",
+      "other_group_seconds": 0.004
+    },
+    {
+      "name": "client-configuration-does-not-expose-tenant-membership",
+      "status": "PASS",
+      "configuration": "const __runtime={\"event_timeout_ms\":65000,\"jitter_ms\":250,\"max_backoff_ms\":4000,\"retries\":2};"
+    },
+    {
+      "name": "preflight-and-dispatch-charge-once-missing-route-skips-authentication",
+      "status": "PASS"
+    },
+    {
+      "name": "tcp-peer-fairness-and-disconnect-recovery",
+      "status": "PASS"
+    }
+  ],
+  "error": "RemoteDisconnected('Remote end closed connection without response')",
+  "shutdowns": [
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "temporary_root": "/tmp/diamond-scheduling-_lm86oan"
+}

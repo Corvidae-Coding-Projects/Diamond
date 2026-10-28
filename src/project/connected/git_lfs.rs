@@ -126,7 +126,7 @@ pub(super) async fn request(
     server: Arc<Server>,
     request: Request,
     peer: String,
-    permit: tokio::sync::OwnedSemaphorePermit,
+    permit: crate::project::admission::Permit,
 ) -> Response {
     match dispatch(server, request, peer, permit).await {
         Ok(response) => response,
@@ -138,7 +138,7 @@ async fn dispatch(
     server: Arc<Server>,
     request: Request,
     peer: String,
-    permit: tokio::sync::OwnedSemaphorePermit,
+    permit: crate::project::admission::Permit,
 ) -> Result<Response> {
     if request.headers().contains_key(header::COOKIE) || request.uri().query().is_some() {
         return Err(Error::Denied);
@@ -172,8 +172,8 @@ async fn dispatch(
 
 async fn read_batch(request: Request) -> Result<BatchRequest> {
     require_json(&request)?;
-    let body = tokio::time::timeout(
-        Duration::from_secs(3),
+    let body = tokio::time::timeout_at(
+        crate::budget::until(Duration::from_secs(3)),
         to_bytes(request.into_body(), 1024 * 1024),
     )
     .await
@@ -267,7 +267,7 @@ async fn batch(
     server: Arc<Server>,
     request: Request,
     peer: String,
-    permit: tokio::sync::OwnedSemaphorePermit,
+    permit: crate::project::admission::Permit,
     route: Route,
     token: Option<zeroize::Zeroizing<String>>,
 ) -> Result<Response> {
@@ -281,7 +281,7 @@ async fn batch(
     let repository = route.repository.clone();
     let work_token = token.clone();
     let objects = batch.objects.clone();
-    let existing = tokio::task::spawn_blocking(move || {
+    let existing = crate::project::admission::blocking(move || {
         let _permit = permit;
         charge_and_authorize(
             &work,
@@ -313,7 +313,7 @@ async fn upload(
     server: Arc<Server>,
     request: Request,
     peer: String,
-    permit: tokio::sync::OwnedSemaphorePermit,
+    permit: crate::project::admission::Permit,
     route: Route,
     token: Option<zeroize::Zeroizing<String>>,
     oid: String,
@@ -368,7 +368,7 @@ async fn upload(
         file.sync_all().await?;
         Ok(())
     };
-    if let Err(error) = tokio::time::timeout(TRANSFER_DEADLINE, transfer)
+    if let Err(error) = tokio::time::timeout_at(crate::budget::until(TRANSFER_DEADLINE), transfer)
         .await
         .map_err(|_| Error::Limit("LFS upload deadline"))?
     {
@@ -383,7 +383,7 @@ async fn upload(
     let work = Arc::clone(&server);
     let binding = route.binding.clone();
     let repository = route.repository.clone();
-    let committed = tokio::task::spawn_blocking(move || {
+    let committed = crate::project::admission::blocking(move || {
         let _permit = permit;
         let created = publish_object(&temporary, &final_path, length)?;
         let result = record_object(&work, &binding, &repository, &oid, length);
@@ -402,7 +402,7 @@ async fn download(
     server: Arc<Server>,
     request: Request,
     peer: String,
-    permit: tokio::sync::OwnedSemaphorePermit,
+    permit: crate::project::admission::Permit,
     route: Route,
     token: Option<zeroize::Zeroizing<String>>,
     oid: String,
@@ -424,7 +424,7 @@ async fn download(
     let work = Arc::clone(&server);
     let binding = route.binding;
     let repository = route.repository;
-    let (file, length) = tokio::task::spawn_blocking(move || {
+    let (file, length) = crate::project::admission::blocking(move || {
         let expected = object_size(&work, &binding, &repository, &oid)?.ok_or(Error::Denied)?;
         let mut options = OpenOptions::new();
         options.read(true);
@@ -444,7 +444,7 @@ async fn download(
     .map_err(|_| Error::Denied)??;
     let stream =
         tokio_util::io::ReaderStream::with_capacity(tokio::fs::File::from_std(file), 65_536);
-    let deadline = tokio::time::Instant::now() + TRANSFER_DEADLINE;
+    let deadline = crate::budget::until(TRANSFER_DEADLINE);
     let stream = futures_util::stream::unfold(
         (stream, deadline, permit),
         |(mut stream, deadline, permit)| async move {
@@ -468,13 +468,13 @@ async fn locks(
     server: Arc<Server>,
     request: Request,
     peer: String,
-    permit: tokio::sync::OwnedSemaphorePermit,
+    permit: crate::project::admission::Permit,
     route: Route,
     token: Option<zeroize::Zeroizing<String>>,
 ) -> Result<Response> {
     require_json(&request)?;
-    let body = tokio::time::timeout(
-        Duration::from_secs(3),
+    let body = tokio::time::timeout_at(
+        crate::budget::until(Duration::from_secs(3)),
         to_bytes(request.into_body(), 16_384),
     )
     .await
@@ -493,7 +493,7 @@ async fn locks(
     let binding = route.binding;
     let repository = route.repository;
     let action = route.action;
-    let value = tokio::task::spawn_blocking(move || {
+    let value = crate::project::admission::blocking(move || {
         let _permit = permit;
         match action {
             Action::Locks => {
@@ -560,7 +560,7 @@ async fn authorize(
     let token = token.map(str::to_owned);
     let binding = route.binding.clone();
     let repository = route.repository.clone();
-    tokio::task::spawn_blocking(move || {
+    crate::project::admission::blocking(move || {
         charge_and_authorize(&work, &peer, token.as_deref(), &binding, &repository, write)
     })
     .await

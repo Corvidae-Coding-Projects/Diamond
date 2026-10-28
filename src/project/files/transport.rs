@@ -34,7 +34,7 @@ struct Job {
     csrf: String,
     upload: Zeroizing<String>,
     write: bool,
-    permit: Arc<tokio::sync::OwnedSemaphorePermit>,
+    permit: Arc<crate::project::admission::Permit>,
 }
 impl Job {
     fn access(&self) -> Access<'_> {
@@ -51,7 +51,7 @@ impl Job {
 pub(in crate::project) async fn request(
     server: Arc<Server>,
     request: Request,
-    permit: tokio::sync::OwnedSemaphorePermit,
+    permit: crate::project::admission::Permit,
 ) -> Response {
     match dispatch(server, request, Arc::new(permit)).await {
         Ok(v) => v,
@@ -61,7 +61,7 @@ pub(in crate::project) async fn request(
 async fn dispatch(
     server: Arc<Server>,
     request: Request,
-    permit: Arc<tokio::sync::OwnedSemaphorePermit>,
+    permit: Arc<crate::project::admission::Permit>,
 ) -> Result<Response> {
     let path = request
         .uri()
@@ -126,11 +126,14 @@ async fn dispatch(
     {
         return Err(Error::Denied);
     }
-    let bytes = tokio::time::timeout(Duration::from_secs(3), to_bytes(request.into_body(), 16384))
-        .await
-        .map_err(|_| Error::Limit("file request body"))?
-        .map_err(|_| Error::Limit("file request body"))?;
-    let result = tokio::task::spawn_blocking(move || {
+    let bytes = tokio::time::timeout_at(
+        crate::budget::until(Duration::from_secs(3)),
+        to_bytes(request.into_body(), 16384),
+    )
+    .await
+    .map_err(|_| Error::Limit("file request body"))?
+    .map_err(|_| Error::Limit("file request body"))?;
+    let result = crate::project::admission::blocking(move || {
         let _permit = &job.permit;
         let access = job.access();
         if job.id == "begin" {
@@ -160,7 +163,7 @@ async fn dispatch(
 async fn upload(job: Job, body: Body, length: i64) -> Result<Response> {
     let job = Arc::new(job);
     let work = Arc::clone(&job);
-    let (file, path) = tokio::task::spawn_blocking(move || {
+    let (file, path) = crate::project::admission::blocking(move || {
         let _permit = &work.permit;
         work.access().claim(&work.id, length)?;
         let store: &Store = work.server.objects.as_ref().ok_or(Error::Denied)?;
@@ -175,7 +178,7 @@ async fn upload(job: Job, body: Body, length: i64) -> Result<Response> {
     let mut stream = body.into_data_stream();
     let mut sha = Sha256::new();
     let mut received = 0i64;
-    tokio::time::timeout(Duration::from_secs(30), async {
+    tokio::time::timeout_at(crate::budget::until(Duration::from_mins(10)), async {
         while let Some(chunk) = stream.next().await {
             let chunk = chunk.map_err(|_| Error::Input("interrupted upload".into()))?;
             received =
@@ -197,7 +200,7 @@ async fn upload(job: Job, body: Body, length: i64) -> Result<Response> {
     drop(file);
     let hash = super::hex(&sha.finalize());
     let work = Arc::clone(&job);
-    tokio::task::spawn_blocking(move || work.access().staged(&work.id, &hash))
+    crate::project::admission::blocking(move || work.access().staged(&work.id, &hash))
         .await
         .map_err(|_| Error::OutcomeUnknown(String::new()))??;
     partial.keep = true;
@@ -208,13 +211,13 @@ async fn upload(job: Job, body: Body, length: i64) -> Result<Response> {
 }
 
 async fn download(job: Job) -> Result<Response> {
-    let (file, length, permit) = tokio::task::spawn_blocking(move || {
+    let (file, length, permit) = crate::project::admission::blocking(move || {
         let result = job.access().download(&job.id)?;
         Ok::<_, Error>((result.0, result.1, job.permit))
     })
     .await
     .map_err(|_| Error::Denied)??;
-    let deadline = tokio::time::Instant::now() + Duration::from_secs(30);
+    let deadline = crate::budget::until(Duration::from_mins(10));
     let stream =
         tokio_util::io::ReaderStream::with_capacity(tokio::fs::File::from_std(file), 65536);
     let stream = futures_util::stream::unfold(

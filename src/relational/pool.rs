@@ -12,11 +12,12 @@ pub(crate) struct Pool {
     configuration: Zeroizing<String>,
     state: Mutex<State>,
     available: Condvar,
+    maximum: usize,
 }
 impl std::fmt::Debug for Pool {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("Pool")
-            .field("maximum_connections", &4)
+            .field("maximum_connections", &self.maximum)
             .finish_non_exhaustive()
     }
 }
@@ -26,17 +27,19 @@ struct State {
     total: usize,
 }
 impl Pool {
-    pub(crate) fn new(configuration: &str) -> Arc<Self> {
+    pub(crate) fn with_limit(configuration: &str, maximum: usize) -> Arc<Self> {
         Arc::new(Self {
             configuration: Zeroizing::new(configuration.into()),
             state: Mutex::new(State::default()),
             available: Condvar::new(),
+            maximum,
         })
     }
     pub(crate) fn acquire(self: &Arc<Self>) -> Result<Connection> {
-        let until = Instant::now() + Duration::from_secs(5);
+        let until = crate::budget::clamp(Instant::now() + Duration::from_secs(5));
         let mut state = self.state.lock().map_err(|_| Error::Postgres)?;
         loop {
+            crate::budget::check()?;
             if let Some(mut connection) = state.idle.pop() {
                 connection.reset_deadline();
                 return Ok(Connection::Pooled(Lease {
@@ -44,7 +47,7 @@ impl Pool {
                     connection: Some(connection),
                 }));
             }
-            if state.total < 4 {
+            if state.total < self.maximum {
                 state.total += 1;
                 drop(state);
                 let result = HostRuntime::connect_worker(&self.configuration);

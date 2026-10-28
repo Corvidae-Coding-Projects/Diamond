@@ -1874,7 +1874,7 @@ struct PagesState {
     configuration: String,
     grant: crate::integrations::DeliveryGrant,
     binding: String,
-    permits: std::sync::Arc<tokio::sync::Semaphore>,
+    admission: std::sync::Arc<super::admission::Admission>,
 }
 
 pub(super) fn serve_pages(
@@ -1902,11 +1902,11 @@ pub(super) fn serve_pages(
         configuration: configuration.into(),
         grant,
         binding: binding.into(),
-        permits: std::sync::Arc::new(tokio::sync::Semaphore::new(32)),
+        admission: super::admission::Admission::new(project.manifest.runtime.clone()),
     });
     let runtime = tokio::runtime::Builder::new_multi_thread()
-        .worker_threads(2)
-        .max_blocking_threads(4)
+        .worker_threads(project.manifest.runtime.worker_threads)
+        .max_blocking_threads(project.manifest.runtime.blocking_threads)
         .enable_all()
         .build()?;
     let result = runtime.block_on(async move {
@@ -1914,7 +1914,12 @@ pub(super) fn serve_pages(
         let app = axum::Router::new()
             .fallback(pages_request)
             .with_state(state);
-        axum::serve(listener, app).await.map_err(Error::Io)
+        axum::serve(
+            listener,
+            app.into_make_service_with_connect_info::<std::net::SocketAddr>(),
+        )
+        .await
+        .map_err(Error::Io)
     });
     drop(runtime);
     result
@@ -1922,6 +1927,19 @@ pub(super) fn serve_pages(
 
 async fn pages_request(
     axum::extract::State(state): axum::extract::State<std::sync::Arc<PagesState>>,
+    axum::extract::ConnectInfo(peer): axum::extract::ConnectInfo<std::net::SocketAddr>,
+    request: axum::extract::Request,
+) -> axum::response::Response {
+    super::admission::scope(
+        std::sync::Arc::clone(&state.admission),
+        super::admission::Class::Transfer,
+        peer.ip().to_string(),
+        pages_request_inner(state, request),
+    )
+    .await
+}
+async fn pages_request_inner(
+    state: std::sync::Arc<PagesState>,
     request: axum::extract::Request,
 ) -> axum::response::Response {
     use axum::http::{StatusCode, header};
@@ -1940,14 +1958,16 @@ async fn pages_request(
     if !allowed || !no_body || !cookie_free || request.uri().query().is_some() {
         return pages_text_response(StatusCode::BAD_REQUEST, b"bad request", head);
     }
-    let Ok(permit) = std::sync::Arc::clone(&state.permits).try_acquire_owned() else {
-        return pages_text_response(StatusCode::SERVICE_UNAVAILABLE, b"unavailable", head);
+    let Ok(permit) = state.admission.acquire().await else {
+        return super::admission::overload();
     };
     let state_for_work = std::sync::Arc::clone(&state);
-    let fetched =
-        tokio::task::spawn_blocking(move || page(&state_for_work, &path, host.as_deref())).await;
+    let fetched = super::admission::blocking(move || {
+        page(&state_for_work, &path, host.as_deref()).map(|fetch| (fetch, permit))
+    })
+    .await;
     match fetched {
-        Ok(Ok(fetch)) => pages_response(StatusCode::OK, fetch, head, permit),
+        Ok(Ok((fetch, permit))) => pages_response(StatusCode::OK, fetch, head, permit),
         Ok(Err(Error::Denied | Error::Input(_))) => {
             pages_text_response(StatusCode::NOT_FOUND, b"not found", head)
         }
@@ -2031,7 +2051,7 @@ fn pages_response(
     status: axum::http::StatusCode,
     fetch: Fetch,
     head: bool,
-    permit: tokio::sync::OwnedSemaphorePermit,
+    permit: crate::project::admission::Permit,
 ) -> axum::response::Response {
     use axum::{body::Body, http::header};
     use futures_util::StreamExt as _;
@@ -2049,7 +2069,7 @@ fn pages_response(
                     tokio::fs::File::from_std(file),
                     65_536,
                 );
-                let deadline = tokio::time::Instant::now() + Duration::from_secs(30);
+                let deadline = crate::budget::until(Duration::from_mins(10));
                 let stream = futures_util::stream::unfold(
                     (stream, deadline, permit),
                     |(mut stream, deadline, permit)| async move {

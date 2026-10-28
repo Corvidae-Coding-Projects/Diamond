@@ -117,7 +117,7 @@ pub(super) async fn request(
     server: Arc<Server>,
     request: Request,
     peer: String,
-    permit: tokio::sync::OwnedSemaphorePermit,
+    permit: crate::project::admission::Permit,
 ) -> Response {
     let _permit = permit;
     match request_inner(server, request, peer).await {
@@ -175,17 +175,20 @@ async fn start(
         .ok_or(Error::Denied)?
         .to_owned();
     let token = cookie(&request, &server.cookie)?.ok_or(Error::Unauthenticated)?;
-    let body = tokio::time::timeout(Duration::from_secs(3), to_bytes(request.into_body(), 1024))
-        .await
-        .map_err(|_| Error::Limit("OAuth start body"))?
-        .map_err(|_| Error::Limit("OAuth start body"))?;
+    let body = tokio::time::timeout_at(
+        crate::budget::until(Duration::from_secs(3)),
+        to_bytes(request.into_body(), 1024),
+    )
+    .await
+    .map_err(|_| Error::Limit("OAuth start body"))?
+    .map_err(|_| Error::Limit("OAuth start body"))?;
     let body: Start = super::super::wire::strict_from_slice(&body)
         .map_err(|_| input("invalid OAuth start request"))?;
     let work_server = Arc::clone(&server);
     let work_provider = provider.name().to_owned();
     let key = Zeroizing::new(*oauth.transaction_key);
     let work_token = token.clone();
-    let (state, secrets) = tokio::task::spawn_blocking(move || {
+    let (state, secrets) = crate::project::admission::blocking(move || {
         super::super::accounts::charge(
             &work_server.project,
             &work_server.secrets.configuration,
@@ -324,7 +327,7 @@ async fn callback(
     let work_server = Arc::clone(&server);
     let work_token = token.clone();
     let invite = secrets.invite.clone();
-    let session = tokio::task::spawn_blocking(move || {
+    let session = crate::project::admission::blocking(move || {
         let mut store = PostgresStore::open_control(
             &work_server.project,
             &work_server.secrets.configuration,
@@ -371,7 +374,7 @@ async fn consume_transaction(
     let token = Zeroizing::new(token.to_owned());
     let state = state.to_owned();
     let key = Zeroizing::new(*oauth.transaction_key);
-    tokio::task::spawn_blocking(move || {
+    crate::project::admission::blocking(move || {
         super::super::accounts::charge(
             &server.project,
             &server.secrets.configuration,
@@ -652,8 +655,8 @@ fn provider_client() -> Result<reqwest::Client> {
         .no_brotli()
         .no_deflate()
         .no_zstd()
-        .connect_timeout(Duration::from_secs(5))
-        .timeout(Duration::from_secs(10))
+        .connect_timeout(crate::budget::remaining(Duration::from_secs(5))?)
+        .timeout(crate::budget::remaining(Duration::from_secs(10))?)
         .user_agent("Diamond OAuth")
         .build()
         .map_err(|_| provider_failure())

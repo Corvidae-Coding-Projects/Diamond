@@ -190,12 +190,20 @@ when transported as a typed DataError, HTTP 409 when propagated). Other delibera
 rollbacks are aborted/denied/input failures. Loss of the COMMIT acknowledgment is
 `OutcomeUnknown`; it carries an operation identifier and is never automatically
 replayed. HTTP delivery loss can also leave a committed mutation whose reply was
-not received. Reconcile current data before deciding to retry. W4 never retries
-a mutation automatically.
+not received. Reconcile current data before deciding to retry. The managed web
+runtime now retries only confirmed conflicts for ordinary operations whose
+checked effects are entirely database reads/writes, at most twice by default with fresh
+authorization. Actions and host effects retain their existing protocols;
+exhausted conflicts remain explicit. See [runtime capacity](deployment.md#bounded-runtime-capacity).
 
-Each server admits at most 16 owned requests and four blocking workers. W4 owns
-at most four reusable PostgreSQL connections per server; admission waits at most
-five seconds. Connection setup and individual statements have five-second
+Each server defaults to 16 admitted requests, four blocking workers and four
+reusable PostgreSQL connections, with another 128 requests waiting at most one
+second for admission. The checked `[runtime]` configuration can change those
+limits. Workload reservations and verified-account fairness protect shared
+capacity. The [runtime guide](runtime-scheduling.md) documents all controls.
+Admission, execution, pool waits, retries, and streams consume one original
+request deadline (ten seconds for ordinary requests by default).
+Database pool acquisition waits at most five seconds. Connection setup and individual statements have five-second
 limits, lock waits two seconds, and transaction idle/request deadlines ten
 seconds. Only confirmed rollback cleanup returns a healthy connection to the
 pool; uncertain/broken drivers are destroyed and joined. Graceful shutdown joins

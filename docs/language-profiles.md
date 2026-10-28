@@ -114,7 +114,7 @@ value does not imply a 1 MiB ordinary RPC body is accepted.
 | Private file streaming | At most 8 MiB/file, or lower declared binding; 30-second stream deadline | files/connected transport |
 | Relational operation page | Limit 1–100; offset at most 1,000; declared indexed paths | [relational configuration/query](../src/relational/config.rs) |
 | Legacy SQLite selection | Limit 1–100; offset at most 10,000 | checker/policy |
-| Relational pool / connected execution | 4 connections per pool; 16 admitted requests; 4 blocking execution slots | [pool](../src/relational/pool.rs), connected server |
+| Relational pool / connected execution | Defaults: 4 connections; 16 admitted + 128 waiting requests; 4 blocking slots; checked `[runtime]` overrides | [runtime capacity](deployment.md#bounded-runtime-capacity), [pool](../src/relational/pool.rs) |
 | Relational timing | Acquire 5s; statement 5s; lock 2s; request connection lifetime 10s | pool/[host runtime](../src/host.rs) |
 
 Fuel counts and accounting reset points differ across evaluators; browser render

@@ -28,6 +28,41 @@ pub(super) struct Config {
     pub enrollment: Enrollment,
     #[serde(default)]
     pub oauth: Option<OAuthConfig>,
+    #[serde(default)]
+    api_requests_per_minute: ApiRequestsPerMinute,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Serialize, PartialEq, Eq)]
+#[serde(deny_unknown_fields)]
+struct ApiRequestsPerMinute {
+    #[serde(default = "api_global_default")]
+    global: i64,
+    #[serde(default = "api_peer_default")]
+    peer: i64,
+    #[serde(default = "api_credential_default")]
+    credential: i64,
+}
+
+const fn api_global_default() -> i64 {
+    600
+}
+
+const fn api_peer_default() -> i64 {
+    300
+}
+
+const fn api_credential_default() -> i64 {
+    120
+}
+
+impl Default for ApiRequestsPerMinute {
+    fn default() -> Self {
+        Self {
+            global: api_global_default(),
+            peer: api_peer_default(),
+            credential: api_credential_default(),
+        }
+    }
 }
 #[derive(Clone, Copy, Debug, Deserialize, Serialize, PartialEq, Eq)]
 #[serde(rename_all = "lowercase")]
@@ -92,6 +127,17 @@ impl Config {
         if self.profile != "accounts-v1" {
             return Err(input("unsupported identity profile"));
         }
+        let limits = self.api_requests_per_minute.values();
+        if limits
+            .iter()
+            .any(|limit| !(10..=10_000_000).contains(limit))
+            || limits[0] < limits[1]
+            || limits[1] < limits[2]
+        {
+            return Err(input(
+                "API rate limits require 10..10000000 requests per minute and global >= peer >= credential",
+            ));
+        }
         if let Some(oauth) = &self.oauth {
             if oauth.providers.is_empty()
                 || oauth.providers.len() > 2
@@ -135,6 +181,16 @@ impl Config {
             }
         }
         Ok(())
+    }
+
+    pub(super) const fn api_rate_limits(&self) -> [i64; 3] {
+        self.api_requests_per_minute.values()
+    }
+}
+
+impl ApiRequestsPerMinute {
+    const fn values(self) -> [i64; 3] {
+        [self.global, self.peer, self.credential]
     }
 }
 
@@ -206,4 +262,51 @@ fn password(s: &str) -> Result<()> {
 }
 fn stored<T>(v: std::result::Result<T, tokio_postgres::Error>) -> Result<T> {
     v.map_err(|_| Error::Postgres)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn config(api_requests_per_minute: ApiRequestsPerMinute) -> Config {
+        Config {
+            profile: "accounts-v1".to_owned(),
+            enrollment: Enrollment::Invite,
+            oauth: None,
+            api_requests_per_minute,
+        }
+    }
+
+    #[test]
+    fn api_rate_limits_keep_secure_defaults() {
+        let limits = ApiRequestsPerMinute::default();
+        assert_eq!(limits.values(), [600, 300, 120]);
+        assert!(config(limits).checked().is_ok());
+    }
+
+    #[test]
+    fn api_rate_limits_accept_bounded_ordered_capacity() {
+        let limits = ApiRequestsPerMinute {
+            global: 1_000_000,
+            peer: 900_000,
+            credential: 800_000,
+        };
+        assert!(config(limits).checked().is_ok());
+    }
+
+    #[test]
+    fn api_rate_limits_reject_inversion_and_unbounded_values() {
+        let inverted = ApiRequestsPerMinute {
+            global: 100,
+            peer: 101,
+            credential: 10,
+        };
+        assert!(config(inverted).checked().is_err());
+        let unbounded = ApiRequestsPerMinute {
+            global: 10_000_001,
+            peer: 10,
+            credential: 10,
+        };
+        assert!(config(unbounded).checked().is_err());
+    }
 }

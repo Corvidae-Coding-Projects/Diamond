@@ -1,0 +1,44 @@
+{
+  "profile": "diamond-forge-g3-g5-g6-delivery",
+  "passed": 9,
+  "total": 9,
+  "metrics": {},
+  "results": [
+    {
+      "name": "initialize PostgreSQL cluster",
+      "pass": true
+    },
+    {
+      "name": "start PostgreSQL",
+      "pass": true
+    },
+    {
+      "name": "initialize application schema",
+      "pass": true
+    },
+    {
+      "name": "initialize attachment store",
+      "pass": true
+    },
+    {
+      "name": "initialize Git store",
+      "pass": true
+    },
+    {
+      "name": "initialize delivery store",
+      "pass": true
+    },
+    {
+      "name": "initialize operations store",
+      "pass": true
+    },
+    {
+      "name": "provision administrator",
+      "pass": true
+    },
+    {
+      "name": "provision ordinary user",
+      "pass": true
+    }
+  ]
+}

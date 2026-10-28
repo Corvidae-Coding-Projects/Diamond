@@ -102,10 +102,24 @@ function __unwire(v,t,d=0){if(d>32)throw Error('wire depth');const name=typeof t
  return d===0?__check(__validate(result,t,d)):__validate(result,t,d);
 }
 let __csrf='',__bootstrap=null,__bootstrapController=null,__authEpoch=0,__authBusy=false;
+function __backoff(ms,signal){return new Promise((resolve,reject)=>{if(signal.aborted){reject(signal.reason);return;}const stop=()=>{clearTimeout(timer);signal.removeEventListener('abort',stop);reject(signal.reason);};const timer=setTimeout(()=>{signal.removeEventListener('abort',stop);resolve();},ms);signal.addEventListener('abort',stop,{once:true});});}
+async function __fetch(path,options,ctx){
+ for(let retry=0;;retry++){
+  if(ctx&&(ctx.epoch!==__authEpoch||ctx.controller.signal.aborted))throw Error('stale request');
+  const response=await fetch(path,options);
+  // Only this server's explicit pre-execution rejection permits replay. A lost
+  // reply, generic 503, or unknown commit never takes this branch.
+  const seconds=response.headers.get('Retry-After');
+  if(retry>=__runtime.retries||response.status!==503||response.headers.get('X-Diamond-Retry')!=='safe'||!seconds||!/^\d+$/.test(seconds)||Number(seconds)<1||Number(seconds)>30)return response;
+  if(ctx&&++ctx.calls>32)return response;
+  await response.arrayBuffer();
+  await __backoff(Math.max(Number(seconds)*1000,Math.min(__runtime.max_backoff_ms,Number(seconds)*1000*2**retry))+Math.floor(Math.random()*__runtime.jitter_ms),options.signal);
+ }
+}
 async function __remote(name,args,types,result,ctx){let response,identity=false;try{if(ctx.epoch!==__authEpoch||ctx.controller.signal.aborted)throw Error('stale event');if(++ctx.calls>32)throw Error('event remote-call budget');
  if(['login','logout','verify','reset','change_password','logout_all','disable'].some(n=>name==='session/'+n)){if(__authBusy)throw Error('identity update pending');__authBusy=true;identity=true;ctx.identity=true;ctx.epoch=++__authEpoch;__beginIdentity(ctx);}
  if(!__csrf||name==='session/user'){
-  if(!__bootstrap){__bootstrapController=new AbortController();__bootstrap=fetch('/_diamond/session',{signal:__bootstrapController.signal,credentials:'same-origin',cache:'no-store',headers:{'X-Diamond-Session':'1'}}).then(async r=>{if(!r.ok)throw Error('session unavailable');return r.json();}).finally(()=>{__bootstrap=null;__bootstrapController=null;});}
+  if(!__bootstrap){__bootstrapController=new AbortController();__bootstrap=__fetch('/_diamond/session',{signal:__bootstrapController.signal,credentials:'same-origin',cache:'no-store',headers:{'X-Diamond-Session':'1'}}).then(async r=>{if(!r.ok)throw Error('session unavailable');return r.json();}).finally(()=>{__bootstrap=null;__bootstrapController=null;});}
   const session=await __bootstrap;if(ctx.epoch!==__authEpoch)throw Error('identity changed');__csrf=session.csrf;if(name==='session/user')return session.user||'';
  }
  if(name.startsWith('action/'))return await __actionRemote(name.slice(7),args,types,result,ctx);
@@ -115,15 +129,15 @@ async function __remote(name,args,types,result,ctx){let response,identity=false;
  else if(name==='session/logout'){path='/_diamond/logout';body={};}
  else if(name.startsWith('session/')){const n=name.slice(8),fields={register:['username','email','password','invite'],verify:['token'],resend:['email'],recover:['email'],reset:['token','password'],change_password:['current_password','password'],logout_all:[],invite:['email'],disable:['username','disabled'],create_token:['label','operations','scopes','lifetime_seconds'],list_tokens:[],revoke_token:['id'],add_ssh_key:['label','public_key'],list_ssh_keys:[],revoke_ssh_key:['id']}[n];if(!fields)throw Error('unknown account operation');path='/_diamond/accounts/'+n;body=Object.fromEntries(fields.map((f,i)=>[f,f==='scopes'?JSON.parse(args[i]):f==='lifetime_seconds'?args[i].toString():args[i]]));}
  else{path='/_diamond/'+name;body={contract:__contract,arguments:args.map((v,i)=>{__validate(v,types[i]);return __wireAny(v);})};}
- response=await fetch(path,{method:'POST',credentials:'same-origin',signal:ctx.controller.signal,headers:{'Content-Type':'application/json','X-Diamond-CSRF':__csrf},body:JSON.stringify(body)});
- const value=await response.json();if(!response.ok){const error=Error(value.error==='outcome_unknown'||response.status>=500?'Request failed; a mutation may have committed. Refresh before retrying.':value.error==='contract_mismatch'?'Application version changed. Reload this page.':'Request rejected. Check your session, input, and permissions. Earlier server calls may already have committed.');error.status=response.status;error.code=value.error;error.diamondRemote=true;error.uncertain=response.status>=500;error.lostIdentity=response.status===401;throw error;}
+ response=await __fetch(path,{method:'POST',credentials:'same-origin',signal:ctx.controller.signal,headers:{'Content-Type':'application/json','X-Diamond-CSRF':__csrf},body:JSON.stringify(body)},ctx);
+ const value=await response.json();if(!response.ok){const safe=response.status===503&&response.headers.get('X-Diamond-Retry')==='safe';const error=Error(safe?'Server busy. This request was not executed. Try again shortly.':value.error==='outcome_unknown'||response.status>=500?'Request failed; a mutation may have committed. Refresh before retrying.':value.error==='contract_mismatch'?'Application version changed. Reload this page.':'Request rejected. Check your session, input, and permissions. Earlier server calls may already have committed.');error.status=response.status;error.code=value.error;error.diamondRemote=true;error.uncertain=response.status>=500&&!safe;error.lostIdentity=response.status===401;throw error;}
  if(ctx.epoch!==__authEpoch)throw Error('identity changed');if(name==='session/oauth_login'){const target=new URL(value.authorization_url),expected=args[0]==='google'?['https://accounts.google.com','/o/oauth2/v2/auth']:['https://github.com','/login/oauth/authorize'];if(target.origin!==expected[0]||target.pathname!==expected[1]||target.username||target.password||target.hash)throw Error('invalid OAuth destination');location.assign(target.href);return '';}if(value.csrf)__csrf=value.csrf;if(['logout','reset','change_password','logout_all','disable'].some(n=>name==='session/'+n))__csrf='';return __unwire(value.value,result);
  }catch(error){const failure=error.diamondRemote?error:Error('Request interrupted; a mutation may have committed. Refresh before retrying.');if(!error.diamondRemote){failure.diamondRemote=true;failure.uncertain=true;}if(ctx.epoch===__authEpoch&&(identity&&failure.uncertain||failure.lostIdentity))__forgetIdentity(failure);throw failure;}finally{if(identity){__authBusy=false;queueMicrotask(()=>__discoverRecovery());}}}
 async function __files(operation,args,ctx){
  const[binding,subject,selector]=args;if(!/^[A-Za-z_][A-Za-z0-9_]*$/.test(binding))throw Error('file binding');
  const base='/_diamond/files/'+binding;
  const active=()=>{if(ctx.epoch!==__authEpoch||ctx.controller.signal.aborted)throw Error('stale upload');};
- const call=async(path,method,body,upload)=>{active();const response=await fetch(path,{method,credentials:'same-origin',cache:'no-store',signal:ctx.controller.signal,headers:{...(method==='GET'?{}:{'Content-Type':body instanceof File?'application/octet-stream':'application/json','X-Diamond-CSRF':__csrf}),...(upload?{'X-Diamond-Upload':upload}:{})},...(method==='GET'?{}:{body:body instanceof File?body:JSON.stringify(body)})});const value=await response.json();if(!response.ok){const error=Error('File request rejected. Refresh before retrying.');error.diamondRemote=true;error.uncertain=response.status>=500;error.lostIdentity=response.status===401;throw error;}active();return value;};
+ const call=async(path,method,body,upload)=>{active();const response=await __fetch(path,{method,credentials:'same-origin',cache:'no-store',signal:ctx.controller.signal,headers:{...(method==='GET'?{}:{'Content-Type':body instanceof File?'application/octet-stream':'application/json','X-Diamond-CSRF':__csrf}),...(upload?{'X-Diamond-Upload':upload}:{})},...(method==='GET'?{}:{body:body instanceof File?body:JSON.stringify(body)})},ctx);const value=await response.json();if(!response.ok){const error=Error('File request rejected. Refresh before retrying.');error.diamondRemote=true;error.uncertain=response.status>=500&&response.headers.get('X-Diamond-Retry')!=='safe';error.lostIdentity=response.status===401;throw error;}active();return value;};
  if(operation==='upload'){
   const input=document.getElementById(selector);if(!(input instanceof HTMLInputElement)||input.type!=='file'||input.files.length!==1)throw Error('Select one file first.');
   const file=input.files[0];if(file.size>8388608)throw Error('File exceeds 8 MiB.');
@@ -203,7 +217,7 @@ async function __evalAsync(expr,env,remotes,ctx){__step();const k=expr.kind;let 
  else return __eval(expr,env);return __check(v);
 }
 
-async function __dispatch(frame,name,args=[],chain={remaining:64,deadline:Date.now()+30000}){
+async function __dispatch(frame,name,args=[],chain={remaining:64,deadline:Date.now()+__runtime.event_timeout_ms}){
  if(!frame.active||__authBusy)return;const def=__program.components[frame.name],handler=def.events[name];if(!handler)return;if(frame.pending&&frame.actionEvent===name)return;frame.actionEvent=handler.body.some(step=>step.Assign&&__hasAction(step.Assign[1]))?name:null;
  __cancelActions(frame);const generation=++frame.generation,binding=frame.bindingGeneration;frame.controller?.abort();
  const ctx={controller:new AbortController(),epoch:__authEpoch,identity:false,calls:0,frame,settled:[]};frame.controller=ctx.controller;

@@ -2,6 +2,7 @@
 """G3 delivery and G5 product real-interface qualification replay."""
 
 import base64
+import argparse
 import hashlib
 import http.client as http_client
 import json
@@ -20,7 +21,12 @@ import urllib.parse
 from concurrent.futures import ThreadPoolExecutor
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
-BIN = ROOT / "target/debug/diamond"
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--binary', type=pathlib.Path, default=ROOT / 'target/debug/diamond')
+parser.add_argument('--report', type=pathlib.Path, default=ROOT / 'verification/git_delivery_redteam_results.json')
+parser.add_argument('--serve-fixture', action='store_true')
+options = parser.parse_args()
+BIN = options.binary.resolve()
 PROJECT = "examples/git-browser/diamond.toml"
 TMP_PARENT = ROOT / "target" / "verification-tmp"
 TMP_PARENT.mkdir(parents=True, exist_ok=True)
@@ -69,6 +75,7 @@ runtime = {
             "network": "loopback",
             "paths": ["/hooks/"],
             "methods": ["POST"],
+            "credential_env": "DIA_WEBHOOK_SECRET",
             "timeout_ms": 100,
             "max_response_bytes": 1024,
             "max_redirects": 0,
@@ -82,6 +89,7 @@ env.update(
     DIA_OAUTH_KEY="K" * 48,
     DIA_GOOGLE_SECRET="synthetic-google-secret",
     DIA_GITHUB_SECRET="synthetic-github-secret",
+    DIA_WEBHOOK_SECRET="synthetic-webhook-secret",
     GIT_TERMINAL_PROMPT="0",
     GIT_CONFIG_COUNT="1",
     GIT_CONFIG_KEY_0="credential.helper",
@@ -300,7 +308,8 @@ try:
     )
     _, page = wait_http(webport)
     text = page.decode() if isinstance(page, bytes) else str(page)
-    check("delivery UI is rendered", "delivery" in text.lower() and "/delivery" in text, text[:500])
+    # The current UX shows the sign-in shell before private delivery navigation.
+    check("Forge sign-in shell is rendered", "DiamondForge" in text and 'data-contract=' in text and 'data-diamond-component=' in text, text[:500])
     contract = re.search(r'data-contract="([0-9a-f]{64})"', text).group(1)
     alice = login("alice", password)
     bob = login("bob", bob_password)
@@ -633,6 +642,30 @@ try:
     check("Pages deployment is publicly served", status == 200 and b"Published from Diamond" in page_body, str((status, page_body)))
     status, headers, _ = http(pageport, "GET", "/docs/")
     check("Pages listener sets isolation headers and no cookie", status == 200 and "content-security-policy" in headers and "set-cookie" not in headers, str(headers))
+    slow_streams=[]
+    try:
+        for _ in range(2):
+            stream=socket.create_connection(("127.0.0.1",webport),timeout=5)
+            stream.setsockopt(socket.SOL_SOCKET,socket.SO_RCVBUF,4096)
+            stream.sendall((f"GET /_diamond/delivery/builds/{repository}/artifacts/{artifact['id']} HTTP/1.1\r\n"
+                f"Host: 127.0.0.1:{webport}\r\nAuthorization: {authorization}\r\nConnection: close\r\n\r\n").encode())
+            headers=b""
+            while b"\r\n\r\n" not in headers:headers+=stream.recv(4096)
+            check("held transfer receives authorized headers",headers.startswith(b"HTTP/1.1 200"))
+            slow_streams.append(stream)
+        status,_,observation=http(webport,"GET","/_diamond/health/metrics")
+        check("held streams consume transfer-class capacity",status==200 and observation['workloads']['transfer']['occupied_requests']>=2)
+        started=time.monotonic()
+        status,_,reply=rpc(alice,contract,"notification_preferences",[repository])
+        check("interactive same-account RPC proceeds during slow transfers",status==200 and time.monotonic()-started<2,str((status,reply)))
+    finally:
+        for stream in slow_streams:stream.close()
+    until=time.monotonic()+3
+    while time.monotonic()<until:
+        status,_,observation=http(webport,"GET","/_diamond/health/metrics")
+        if status==200 and observation['workloads']['transfer']['occupied_requests']==0:break
+        time.sleep(.02)
+    check("disconnected transfers release workload capacity",observation['workloads']['transfer']['occupied_requests']==0)
     stream_targets = []
     zero_digest = hashlib.sha256(bytes(large_bytes)).hexdigest()
     for _ in range(4):
@@ -927,11 +960,14 @@ finally:
         subprocess.run(["pg_ctl", "-D", str(PG), "-m", "immediate", "stop"], env=env, capture_output=True)
     receipt = {
         "profile": "diamond-forge-g3-g5-g6-delivery",
+        "binary_sha256": hashlib.sha256(BIN.read_bytes()).hexdigest(),
+        "driver_sha256": hashlib.sha256(pathlib.Path(__file__).read_bytes()).hexdigest(),
         "passed": sum(1 for result in results if result["pass"]),
         "total": len(results),
         "metrics": metrics,
         "results": results,
     }
-    (ROOT / "verification/git_delivery_redteam_results.json").write_text(json.dumps(receipt, indent=2) + "\n")
+    options.report.parent.mkdir(parents=True, exist_ok=True)
+    options.report.write_text(json.dumps(receipt, indent=2) + "\n")
     print(json.dumps(receipt, indent=2))
     shutil.rmtree(TMP, ignore_errors=True)

@@ -2,7 +2,11 @@
 use super::lower::BrowserProgram;
 use crate::error::{Error, Result};
 use std::fmt::Write;
-pub(super) fn emit(program: &BrowserProgram, contract: &str) -> Result<String> {
+pub(super) fn emit(
+    program: &BrowserProgram,
+    contract: &str,
+    runtime: &super::admission::Config,
+) -> Result<String> {
     let data = serde_json::to_string(program)
         .map_err(|_| Error::Input("browser IR serialization".into()))?;
     let quote = |s: &str| {
@@ -13,6 +17,8 @@ pub(super) fn emit(program: &BrowserProgram, contract: &str) -> Result<String> {
         quote(contract)?,
         quote(&data)?
     );
+    writeln!(output, "const __runtime={};", runtime.client())
+        .map_err(|_| Error::Limit("browser formatting"))?;
     for (name, function) in &program.functions {
         writeln!(
             output,

@@ -13,6 +13,11 @@ pub(in crate::project) fn charge(
     peer: &str,
     subject: &str,
 ) -> Result<()> {
+    // Preflight and dispatch are one HTTP attempt. Only this native request-local
+    // receipt can skip a duplicate charge; no client header supplies it.
+    if super::super::admission::was_charged(&project.manifest.name, class, peer, subject)? {
+        return Ok(());
+    }
     let mut store = PostgresStore::open_control(project, configuration, pool)?;
     let app = store.app.clone();
     let result = (|| {
@@ -29,7 +34,11 @@ pub(in crate::project) fn charge(
             return Err(Error::Limit("identity rate"));
         }
         let limits = match class {
-            "api" => [600, 300, 120],
+            "api" => project
+                .manifest
+                .identity
+                .as_ref()
+                .map_or([600, 300, 120], super::Config::api_rate_limits),
             "git" => [2_000, 1_000, 300],
             "delivery" => [1_000, 600, 120],
             _ => [120, 100, 12],
@@ -62,6 +71,12 @@ pub(in crate::project) fn charge(
         Ok(allowed) => {
             store.finish_request(Ok(()))?;
             if allowed {
+                super::super::admission::record_charge(
+                    &project.manifest.name,
+                    class,
+                    peer,
+                    subject,
+                )?;
                 Ok(())
             } else {
                 Err(Error::Limit("identity rate"))

@@ -106,7 +106,9 @@ pub enum Error {
     /// The runtime established that the transaction did not commit.
     #[error("transaction aborted")]
     Aborted,
-    /// `PostgreSQL` confirmed a serialization failure or deadlock abort. No automatic retry occurs.
+    /// `PostgreSQL` confirmed a serialization failure or deadlock abort.
+    /// The web runtime can retry eligible database-only ordinary operations within
+    /// checked request, attempt, and node-wide budgets (two retries by default).
     ///
     /// ```
     /// assert!(diamond::Error::Conflict.to_string().contains("retry"));

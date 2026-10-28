@@ -59,7 +59,11 @@ struct ModuleContract<'a> {
 }
 
 pub(super) fn files(project: &CheckedProject) -> Result<BTreeMap<String, String>> {
-    let mut js = super::browser::emit(&project.browser, &contract_id(project)?)?;
+    let mut js = super::browser::emit(
+        &project.browser,
+        &contract_id(project)?,
+        &project.manifest.runtime,
+    )?;
     let source_map = super::browser::source_map(project, &js)?;
     let map_asset = format!("assets/{}.js.map", hash(source_map.as_bytes()));
     write!(js, "\n//# sourceMappingURL=/{map_asset}\n").map_err(|_| input("browser formatting"))?;

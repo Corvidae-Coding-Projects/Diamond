@@ -1,0 +1,616 @@
+{
+  "root": "/tmp/diamond-perf-remediation-60ifp8tk",
+  "status": "PASS",
+  "scenarios": [
+    {
+      "name": "mixed",
+      "concurrency": 1,
+      "repeat": 1,
+      "aggregate": {
+        "completed_requests": 1069,
+        "http_status_counts": {
+          "200": 963,
+          "403": 106
+        },
+        "successful_requests": 1069,
+        "capacity_rejections": 0,
+        "transaction_conflicts": 0,
+        "unexpected_responses": 0,
+        "transport_errors": 0,
+        "success_rate": 1.0,
+        "completed_throughput_requests_per_second": 533.5426982159363,
+        "successful_throughput_requests_per_second": 533.5426982159363,
+        "all_response_latency_ms": {
+          "count": 1069,
+          "mean": 1.8394749148737146,
+          "p50": 1.76,
+          "p95": 2.77,
+          "p99": 3.71,
+          "max": 5.872572,
+          "quantization": "10us<=10ms,100us<=100ms,1ms<=1s,10ms<=20s,100ms above"
+        },
+        "successful_response_latency_ms": {
+          "count": 1069,
+          "mean": 1.8394749148737146,
+          "p50": 1.76,
+          "p95": 2.77,
+          "p99": 3.71,
+          "max": 5.872572,
+          "quantization": "10us<=10ms,100us<=100ms,1ms<=1s,10ms<=20s,100ms above"
+        },
+        "successful_creates": 106,
+        "representative_errors": []
+      },
+      "oracle": {
+        "count": 206,
+        "updated": 20,
+        "created": 106,
+        "expected_count": 206,
+        "count_matches": true,
+        "create_count_matches": true,
+        "update_observed": true
+      }
+    },
+    {
+      "name": "mixed",
+      "concurrency": 1,
+      "repeat": 2,
+      "aggregate": {
+        "completed_requests": 1128,
+        "http_status_counts": {
+          "200": 1016,
+          "403": 112
+        },
+        "successful_requests": 1128,
+        "capacity_rejections": 0,
+        "transaction_conflicts": 0,
+        "unexpected_responses": 0,
+        "transport_errors": 0,
+        "success_rate": 1.0,
+        "completed_throughput_requests_per_second": 562.3193057571207,
+        "successful_throughput_requests_per_second": 562.3193057571207,
+        "all_response_latency_ms": {
+          "count": 1128,
+          "mean": 1.744156742907802,
+          "p50": 1.66,
+          "p95": 2.67,
+          "p99": 3.41,
+          "max": 6.847346,
+          "quantization": "10us<=10ms,100us<=100ms,1ms<=1s,10ms<=20s,100ms above"
+        },
+        "successful_response_latency_ms": {
+          "count": 1128,
+          "mean": 1.744156742907802,
+          "p50": 1.66,
+          "p95": 2.67,
+          "p99": 3.41,
+          "max": 6.847346,
+          "quantization": "10us<=10ms,100us<=100ms,1ms<=1s,10ms<=20s,100ms above"
+        },
+        "successful_creates": 112,
+        "representative_errors": []
+      },
+      "oracle": {
+        "count": 212,
+        "updated": 20,
+        "created": 112,
+        "expected_count": 212,
+        "count_matches": true,
+        "create_count_matches": true,
+        "update_observed": true
+      }
+    },
+    {
+      "name": "mixed",
+      "concurrency": 8,
+      "repeat": 1,
+      "aggregate": {
+        "completed_requests": 3263,
+        "http_status_counts": {
+          "200": 2937,
+          "403": 326
+        },
+        "successful_requests": 3263,
+        "capacity_rejections": 0,
+        "transaction_conflicts": 0,
+        "unexpected_responses": 0,
+        "transport_errors": 0,
+        "success_rate": 1.0,
+        "completed_throughput_requests_per_second": 1622.1611759404248,
+        "successful_throughput_requests_per_second": 1622.1611759404248,
+        "all_response_latency_ms": {
+          "count": 3263,
+          "mean": 4.876537550107263,
+          "p50": 4.66,
+          "p95": 7.4,
+          "p99": 9.34,
+          "max": 13.88772,
+          "quantization": "10us<=10ms,100us<=100ms,1ms<=1s,10ms<=20s,100ms above"
+        },
+        "successful_response_latency_ms": {
+          "count": 3263,
+          "mean": 4.876537550107263,
+          "p50": 4.66,
+          "p95": 7.4,
+          "p99": 9.34,
+          "max": 13.88772,
+          "quantization": "10us<=10ms,100us<=100ms,1ms<=1s,10ms<=20s,100ms above"
+        },
+        "successful_creates": 326,
+        "representative_errors": []
+      },
+      "oracle": {
+        "count": 426,
+        "updated": 20,
+        "created": 326,
+        "expected_count": 426,
+        "count_matches": true,
+        "create_count_matches": true,
+        "update_observed": true
+      }
+    },
+    {
+      "name": "mixed",
+      "concurrency": 8,
+      "repeat": 2,
+      "aggregate": {
+        "completed_requests": 2995,
+        "http_status_counts": {
+          "200": 2697,
+          "403": 298
+        },
+        "successful_requests": 2995,
+        "capacity_rejections": 0,
+        "transaction_conflicts": 0,
+        "unexpected_responses": 0,
+        "transport_errors": 0,
+        "success_rate": 1.0,
+        "completed_throughput_requests_per_second": 1490.492276911101,
+        "successful_throughput_requests_per_second": 1490.492276911101,
+        "all_response_latency_ms": {
+          "count": 2995,
+          "mean": 5.312530868113522,
+          "p50": 5.05,
+          "p95": 8.01,
+          "p99": 10.7,
+          "max": 17.975712,
+          "quantization": "10us<=10ms,100us<=100ms,1ms<=1s,10ms<=20s,100ms above"
+        },
+        "successful_response_latency_ms": {
+          "count": 2995,
+          "mean": 5.312530868113522,
+          "p50": 5.05,
+          "p95": 8.01,
+          "p99": 10.7,
+          "max": 17.975712,
+          "quantization": "10us<=10ms,100us<=100ms,1ms<=1s,10ms<=20s,100ms above"
+        },
+        "successful_creates": 298,
+        "representative_errors": []
+      },
+      "oracle": {
+        "count": 398,
+        "updated": 20,
+        "created": 298,
+        "expected_count": 398,
+        "count_matches": true,
+        "create_count_matches": true,
+        "update_observed": true
+      }
+    },
+    {
+      "name": "mixed",
+      "concurrency": 32,
+      "repeat": 1,
+      "aggregate": {
+        "completed_requests": 3120,
+        "http_status_counts": {
+          "200": 2808,
+          "403": 312
+        },
+        "successful_requests": 3120,
+        "capacity_rejections": 0,
+        "transaction_conflicts": 0,
+        "unexpected_responses": 0,
+        "transport_errors": 0,
+        "success_rate": 1.0,
+        "completed_throughput_requests_per_second": 1542.5403948189692,
+        "successful_throughput_requests_per_second": 1542.5403948189692,
+        "all_response_latency_ms": {
+          "count": 3120,
+          "mean": 20.550780450961533,
+          "p50": 20.1,
+          "p95": 26.7,
+          "p99": 30.7,
+          "max": 47.360737,
+          "quantization": "10us<=10ms,100us<=100ms,1ms<=1s,10ms<=20s,100ms above"
+        },
+        "successful_response_latency_ms": {
+          "count": 3120,
+          "mean": 20.550780450961533,
+          "p50": 20.1,
+          "p95": 26.7,
+          "p99": 30.7,
+          "max": 47.360737,
+          "quantization": "10us<=10ms,100us<=100ms,1ms<=1s,10ms<=20s,100ms above"
+        },
+        "successful_creates": 312,
+        "representative_errors": []
+      },
+      "oracle": {
+        "count": 412,
+        "updated": 20,
+        "created": 312,
+        "expected_count": 412,
+        "count_matches": true,
+        "create_count_matches": true,
+        "update_observed": true
+      }
+    },
+    {
+      "name": "mixed",
+      "concurrency": 32,
+      "repeat": 2,
+      "aggregate": {
+        "completed_requests": 3026,
+        "http_status_counts": {
+          "200": 2724,
+          "403": 302
+        },
+        "successful_requests": 3026,
+        "capacity_rejections": 0,
+        "transaction_conflicts": 0,
+        "unexpected_responses": 0,
+        "transport_errors": 0,
+        "success_rate": 1.0,
+        "completed_throughput_requests_per_second": 1500.0745335262138,
+        "successful_throughput_requests_per_second": 1500.0745335262138,
+        "all_response_latency_ms": {
+          "count": 3026,
+          "mean": 21.16250201652346,
+          "p50": 20.6,
+          "p95": 27.3,
+          "p99": 31.6,
+          "max": 40.808071,
+          "quantization": "10us<=10ms,100us<=100ms,1ms<=1s,10ms<=20s,100ms above"
+        },
+        "successful_response_latency_ms": {
+          "count": 3026,
+          "mean": 21.16250201652346,
+          "p50": 20.6,
+          "p95": 27.3,
+          "p99": 31.6,
+          "max": 40.808071,
+          "quantization": "10us<=10ms,100us<=100ms,1ms<=1s,10ms<=20s,100ms above"
+        },
+        "successful_creates": 302,
+        "representative_errors": []
+      },
+      "oracle": {
+        "count": 402,
+        "updated": 20,
+        "created": 302,
+        "expected_count": 402,
+        "count_matches": true,
+        "create_count_matches": true,
+        "update_observed": true
+      }
+    },
+    {
+      "name": "mixed",
+      "concurrency": 128,
+      "repeat": 1,
+      "aggregate": {
+        "completed_requests": 2973,
+        "http_status_counts": {
+          "200": 2677,
+          "403": 296
+        },
+        "successful_requests": 2973,
+        "capacity_rejections": 0,
+        "transaction_conflicts": 0,
+        "unexpected_responses": 0,
+        "transport_errors": 0,
+        "success_rate": 1.0,
+        "completed_throughput_requests_per_second": 1432.4586882207805,
+        "successful_throughput_requests_per_second": 1432.4586882207805,
+        "all_response_latency_ms": {
+          "count": 2973,
+          "mean": 87.19818436495122,
+          "p50": 87.1,
+          "p95": 101.0,
+          "p99": 115.0,
+          "max": 133.260229,
+          "quantization": "10us<=10ms,100us<=100ms,1ms<=1s,10ms<=20s,100ms above"
+        },
+        "successful_response_latency_ms": {
+          "count": 2973,
+          "mean": 87.19818436495122,
+          "p50": 87.1,
+          "p95": 101.0,
+          "p99": 115.0,
+          "max": 133.260229,
+          "quantization": "10us<=10ms,100us<=100ms,1ms<=1s,10ms<=20s,100ms above"
+        },
+        "successful_creates": 296,
+        "representative_errors": []
+      },
+      "oracle": {
+        "count": 396,
+        "updated": 20,
+        "created": 296,
+        "expected_count": 396,
+        "count_matches": true,
+        "create_count_matches": true,
+        "update_observed": true
+      }
+    },
+    {
+      "name": "mixed",
+      "concurrency": 128,
+      "repeat": 2,
+      "aggregate": {
+        "completed_requests": 3109,
+        "http_status_counts": {
+          "200": 2799,
+          "403": 310
+        },
+        "successful_requests": 3109,
+        "capacity_rejections": 0,
+        "transaction_conflicts": 0,
+        "unexpected_responses": 0,
+        "transport_errors": 0,
+        "success_rate": 1.0,
+        "completed_throughput_requests_per_second": 1499.8391669792823,
+        "successful_throughput_requests_per_second": 1499.8391669792823,
+        "all_response_latency_ms": {
+          "count": 3109,
+          "mean": 83.30637845577354,
+          "p50": 82.6,
+          "p95": 96.5,
+          "p99": 118.0,
+          "max": 137.077018,
+          "quantization": "10us<=10ms,100us<=100ms,1ms<=1s,10ms<=20s,100ms above"
+        },
+        "successful_response_latency_ms": {
+          "count": 3109,
+          "mean": 83.30637845577354,
+          "p50": 82.6,
+          "p95": 96.5,
+          "p99": 118.0,
+          "max": 137.077018,
+          "quantization": "10us<=10ms,100us<=100ms,1ms<=1s,10ms<=20s,100ms above"
+        },
+        "successful_creates": 310,
+        "representative_errors": []
+      },
+      "oracle": {
+        "count": 410,
+        "updated": 20,
+        "created": 310,
+        "expected_count": 410,
+        "count_matches": true,
+        "create_count_matches": true,
+        "update_observed": true
+      }
+    },
+    {
+      "name": "confirmed-conflict-retry",
+      "retries": 1
+    },
+    {
+      "name": "conflict-retry-revoked",
+      "retries": 1
+    },
+    {
+      "name": "bounded-overload-and-recovery",
+      "rejected": 3,
+      "committed": 1,
+      "metrics": {
+        "active_git_transports": 0,
+        "active_requests": 0,
+        "active_sockets": 0,
+        "draining": false,
+        "executing_requests": 0,
+        "overload_rejections": 3,
+        "queue_limit": 2,
+        "queue_timeout_ms": 150,
+        "queued_requests": 0,
+        "request_deadlines": 0,
+        "request_limit": 1,
+        "request_timeout_ms": 10000,
+        "requests": 12,
+        "retry_budget_capacity": 32,
+        "retry_budget_denied": 0,
+        "retry_budget_refill_per_second": 8,
+        "stream_timeout_ms": 60000,
+        "transaction_retries": 0,
+        "workloads": {
+          "background": {
+            "limits": {
+              "execution_limit": 1,
+              "request_limit": 0,
+              "reserved_execution": 0,
+              "reserved_requests": 0,
+              "timeout_ms": 3000
+            },
+            "occupied_execution": 0,
+            "occupied_requests": 0
+          },
+          "control": {
+            "limits": {
+              "execution_limit": 1,
+              "request_limit": 1,
+              "reserved_execution": 0,
+              "reserved_requests": 0,
+              "timeout_ms": 10000
+            },
+            "occupied_execution": 0,
+            "occupied_requests": 0
+          },
+          "interactive": {
+            "limits": {
+              "execution_limit": 1,
+              "request_limit": 1,
+              "reserved_execution": 0,
+              "reserved_requests": 0,
+              "timeout_ms": 10000
+            },
+            "occupied_execution": 0,
+            "occupied_requests": 0
+          },
+          "transfer": {
+            "limits": {
+              "execution_limit": 1,
+              "request_limit": 1,
+              "reserved_execution": 0,
+              "reserved_requests": 0,
+              "timeout_ms": 60000
+            },
+            "occupied_execution": 0,
+            "occupied_requests": 0
+          }
+        }
+      }
+    },
+    {
+      "name": "queued-disconnect-releases-capacity"
+    },
+    {
+      "name": "generated-client-cancel",
+      "observations": [
+        "{\"status\":503,\"attempt\":1}",
+        "{\"mode\":\"cancel\",\"calls\":1,\"elapsed_ms\":204,\"status\":\"PASS\"}"
+      ]
+    },
+    {
+      "name": "generated-client-epoch",
+      "observations": [
+        "{\"status\":503,\"attempt\":1}",
+        "{\"mode\":\"epoch\",\"calls\":1,\"elapsed_ms\":1179,\"status\":\"PASS\"}"
+      ]
+    },
+    {
+      "name": "generated-client-overload",
+      "observations": [
+        "{\"status\":503,\"attempt\":1}",
+        "{\"status\":200,\"attempt\":2}",
+        "{\"mode\":\"overload\",\"calls\":2,\"elapsed_ms\":1311,\"status\":\"PASS\"}"
+      ]
+    },
+    {
+      "name": "aggregate-overload-logging",
+      "summaries": 2,
+      "metrics": {
+        "active_git_transports": 0,
+        "active_requests": 0,
+        "active_sockets": 0,
+        "draining": false,
+        "executing_requests": 0,
+        "overload_rejections": 6,
+        "queue_limit": 2,
+        "queue_timeout_ms": 150,
+        "queued_requests": 0,
+        "request_deadlines": 0,
+        "request_limit": 1,
+        "request_timeout_ms": 10000,
+        "requests": 35,
+        "retry_budget_capacity": 32,
+        "retry_budget_denied": 0,
+        "retry_budget_refill_per_second": 8,
+        "stream_timeout_ms": 60000,
+        "transaction_retries": 0,
+        "workloads": {
+          "background": {
+            "limits": {
+              "execution_limit": 1,
+              "request_limit": 0,
+              "reserved_execution": 0,
+              "reserved_requests": 0,
+              "timeout_ms": 3000
+            },
+            "occupied_execution": 0,
+            "occupied_requests": 0
+          },
+          "control": {
+            "limits": {
+              "execution_limit": 1,
+              "request_limit": 1,
+              "reserved_execution": 0,
+              "reserved_requests": 0,
+              "timeout_ms": 10000
+            },
+            "occupied_execution": 0,
+            "occupied_requests": 0
+          },
+          "interactive": {
+            "limits": {
+              "execution_limit": 1,
+              "request_limit": 1,
+              "reserved_execution": 0,
+              "reserved_requests": 0,
+              "timeout_ms": 10000
+            },
+            "occupied_execution": 0,
+            "occupied_requests": 0
+          },
+          "transfer": {
+            "limits": {
+              "execution_limit": 1,
+              "request_limit": 1,
+              "reserved_execution": 0,
+              "reserved_requests": 0,
+              "timeout_ms": 60000
+            },
+            "occupied_execution": 0,
+            "occupied_requests": 0
+          }
+        }
+      }
+    },
+    {
+      "name": "generated-client-retry-budget",
+      "observations": [
+        "{\"status\":503,\"attempt\":1}",
+        "{\"status\":503,\"attempt\":2}",
+        "{\"status\":503,\"attempt\":3}",
+        "{\"mode\":\"budget\",\"calls\":3,\"elapsed_ms\":3736,\"status\":\"PASS\"}"
+      ]
+    },
+    {
+      "name": "persistent-connection",
+      "same_socket": true
+    },
+    {
+      "name": "generated-client-generic-failure",
+      "observations": [
+        "{\"status\":503,\"attempt\":1}",
+        "{\"mode\":\"generic\",\"calls\":1,\"elapsed_ms\":23,\"status\":\"PASS\"}"
+      ]
+    },
+    {
+      "name": "configuration-rejection",
+      "invalid_cases": 6
+    }
+  ],
+  "binary_sha256": "bdecf9ca6545c37272ebb763c13ba3f0ddec17cd772b765edd1f99068ccaa98a",
+  "driver_sha256": "ada24fee21297245fdd18d6a86217d76425f97488eff708443884f974dbbc4d4",
+  "shutdowns": [
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    },
+    {
+      "node": "A",
+      "exit": 0,
+      "expected_exit": 0,
+      "forced_kill": false,
+      "panic": false
+    }
+  ],
+  "cleanup_errors": [],
+  "temporary_root_removed": true
+}

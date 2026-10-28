@@ -2,6 +2,7 @@
 
 mod accounts;
 mod actions;
+mod admission;
 mod api;
 pub(crate) mod artifact;
 mod assets;
@@ -20,6 +21,7 @@ pub(crate) mod operations;
 mod queries;
 mod render;
 pub(crate) mod resolve;
+mod retry;
 mod rpc;
 mod schemas;
 mod secrets;
@@ -73,6 +75,8 @@ struct Manifest {
     server: String,
     browser: String,
     component: String,
+    #[serde(default)]
+    runtime: admission::Config,
     #[serde(default)]
     provides: BTreeSet<String>,
     modules: BTreeMap<String, ModuleConfig>,
@@ -772,6 +776,7 @@ fn synchronous_context() -> Result<()> {
 fn manifest(source: &str) -> Result<Manifest> {
     let manifest: Manifest = toml::from_str(source)
         .map_err(|error| input(&format!("invalid project manifest: {error}")))?;
+    manifest.runtime.checked()?;
     if manifest.schema_version != MANIFEST_VERSION {
         return Err(input("unsupported project manifest version"));
     }

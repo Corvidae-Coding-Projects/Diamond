@@ -1,0 +1,75 @@
+schema_version = 1
+name = "DiamondRailsBench"
+server = "server"
+browser = "ui"
+component = "Bench"
+provides = ["DbRead<Workspaces>", "DbWrite<Workspaces>", "DbRead<Issues>", "DbWrite<Issues>"]
+
+[modules.shared]
+path = "shared.dia"
+target = "shared"
+
+[modules.server]
+path = "server.dia"
+target = "server"
+imports = ["shared"]
+provides = ["DbRead<Workspaces>", "DbWrite<Workspaces>", "DbRead<Issues>", "DbWrite<Issues>"]
+
+[modules.ui]
+path = "ui.dia"
+target = "browser"
+imports = ["shared"]
+
+[rpc]
+health = "server.health"
+create_workspace = "server.create_workspace"
+create_issue = "server.create_issue"
+
+[http_api]
+version = 1
+
+[http_api.operations.page]
+function = "server.issue_page"
+auth = "token"
+
+[http_api.operations.read]
+function = "server.read_issue"
+auth = "token"
+
+[http_api.operations.create]
+function = "server.create_issue"
+auth = "token"
+
+[http_api.operations.update]
+function = "server.update_issue"
+auth = "token"
+
+[storage]
+profile = "relational-v1"
+version = 1
+
+[storage.resources.Workspaces]
+scope = "id"
+
+[storage.resources.Issues]
+scope = "workspace"
+indexes = [["workspace", "rank"]]
+
+[storage.resources.Issues.references.workspace]
+resource = "Workspaces"
+fields = { workspace = "id" }
+
+[storage.lookups.Ownership]
+resource = "Workspaces"
+scope = "id"
+principal = "owner"
+purpose = "Benchmark owners control their own workspace."
+
+[identity]
+profile = "accounts-v1"
+enrollment = "invite"
+
+[identity.api_requests_per_minute]
+global = 10000000
+peer = 10000000
+credential = 10000000

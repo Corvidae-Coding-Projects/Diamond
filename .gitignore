@@ -8,6 +8,11 @@ target/
 node_modules/
 /dist/
 /.cache/
+/benchmarks/rails-comparison/rails/.bundle/
+/benchmarks/rails-comparison/rails/vendor/bundle/
+/benchmarks/rails-comparison/results/*.json
+/benchmarks/rails-comparison/results/*.md
+!/benchmarks/rails-comparison/results/README.md
 
 # Local runtime data, uploads, logs, backups, and temporary work.
 .diamond/

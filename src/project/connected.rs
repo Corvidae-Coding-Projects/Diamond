@@ -46,7 +46,7 @@ pub(super) struct Server {
     pub(super) contract: String,
     pub(super) cookie: String,
     pub(super) secrets: Arc<Secrets>,
-    pub(super) permits: Arc<Semaphore>,
+    pub(super) admission: Arc<super::admission::Admission>,
     pub(super) git_permits: Arc<Semaphore>,
     pub(super) health_permits: Arc<Semaphore>,
     pub(super) pool: Option<Arc<crate::relational::Pool>>,
@@ -56,6 +56,7 @@ pub(super) struct Server {
     pub(super) sockets: Arc<Semaphore>,
     pub(super) draining: std::sync::atomic::AtomicBool,
     pub(super) requests: std::sync::atomic::AtomicU64,
+    pub(super) transaction_retries: std::sync::atomic::AtomicU64,
     pub(super) node_id: Option<String>,
 }
 
@@ -170,6 +171,7 @@ pub(super) fn serve_runtime(
         sockets: Arc::new(Semaphore::new(32)),
         draining: std::sync::atomic::AtomicBool::new(false),
         requests: std::sync::atomic::AtomicU64::new(0),
+        transaction_retries: std::sync::atomic::AtomicU64::new(0),
         node_id,
         mailbox,
         project: project.clone(),
@@ -188,14 +190,15 @@ pub(super) fn serve_runtime(
             &artifact::hash(project.manifest.name.as_bytes())[..16]
         ),
         secrets,
-        permits: Arc::new(Semaphore::new(16)),
+        admission: super::admission::Admission::new(project.manifest.runtime.clone()),
         git_permits: Arc::new(Semaphore::new(8)),
         health_permits: Arc::new(Semaphore::new(2)),
-        pool: project
-            .server
-            .storage
-            .as_ref()
-            .map(|_| crate::relational::Pool::new(configuration)),
+        pool: project.server.storage.as_ref().map(|_| {
+            crate::relational::Pool::with_limit(
+                configuration,
+                project.manifest.runtime.database_connections,
+            )
+        }),
     });
     run(state, address)
 }
@@ -223,7 +226,8 @@ fn register_web_node(project: &CheckedProject, configuration: &str) -> Result<Op
                 id,
                 "web",
                 env!("CARGO_PKG_VERSION"),
-                16,
+                i32::try_from(project.manifest.runtime.request_limit)
+                    .map_err(|_| input("request limit"))?,
             )?;
         }
     }
@@ -232,8 +236,11 @@ fn register_web_node(project: &CheckedProject, configuration: &str) -> Result<Op
 
 fn run(state: Arc<Server>, address: SocketAddr) -> Result<()> {
     let runtime = tokio::runtime::Builder::new_multi_thread()
-        .worker_threads(2)
-        .max_blocking_threads(4)
+        .worker_threads(state.project.manifest.runtime.worker_threads)
+        .max_blocking_threads(
+            state.project.manifest.runtime.blocking_threads
+                + state.project.manifest.runtime.maintenance_threads,
+        )
         .enable_all()
         .build()?;
     let result = runtime.block_on(async {
@@ -246,10 +253,14 @@ fn run(state: Arc<Server>, address: SocketAddr) -> Result<()> {
         let (heartbeat_stop, mut heartbeat_stopped) = tokio::sync::watch::channel(false);
         let heartbeat_state = Arc::clone(&state);
         let heartbeat = tokio::spawn(async move {
-            let mut interval = tokio::time::interval(Duration::from_secs(10));
+            let mut interval = tokio::time::interval(Duration::from_secs(1));
+            let mut ticks = 0_u8;
             loop {
                 tokio::select! {
                     _ = interval.tick() => {
+                        heartbeat_state.admission.report();
+                        ticks = (ticks + 1) % 10;
+                        if ticks != 1 { continue; }
                         let current = Arc::clone(&heartbeat_state);
                         let _joined = tokio::task::spawn_blocking(move || heartbeat_all(&current)).await;
                     }
@@ -315,6 +326,12 @@ fn run(state: Arc<Server>, address: SocketAddr) -> Result<()> {
 
 fn heartbeat_all(server: &Server) {
     let Some(node) = &server.node_id else { return };
+    let Ok(capacity) = i32::try_from(server.project.manifest.runtime.request_limit) else {
+        server
+            .draining
+            .store(true, std::sync::atomic::Ordering::Relaxed);
+        return;
+    };
     let mut active = true;
     for binding in server
         .project
@@ -331,7 +348,7 @@ fn heartbeat_all(server: &Server) {
             node,
             "web",
             env!("CARGO_PKG_VERSION"),
-            16,
+            capacity,
         ) {
             Ok(true) => {}
             Ok(false) | Err(_) => active = false,
@@ -368,7 +385,17 @@ async fn handler(
     } else {
         "asset"
     };
-    let response = handler_inner(state, peer, request).await;
+    let class_kind = super::admission::classify(request.uri().path());
+    let response = super::admission::scope(
+        Arc::clone(&state.0.admission),
+        class_kind,
+        peer.0.ip().to_string(),
+        handler_inner(state, peer, request),
+    )
+    .await;
+    if response.headers().get("x-diamond-retry").is_some() {
+        return response;
+    }
     eprintln!(
         "{}",
         serde_json::json!({"event":"request_complete","class":class,"status":response.status().as_u16()})
@@ -393,8 +420,32 @@ async fn handler_inner(
         };
         return super::deployment::health(server, request).await;
     }
-    let Ok(permit) = Arc::clone(&server.permits).try_acquire_owned() else {
+    if server.draining.load(std::sync::atomic::Ordering::Relaxed) {
+        return failure(&Error::Limit("server draining"));
+    }
+    let Ok(preflight) = server.admission.acquire().await else {
         return failure(&Error::Limit("request capacity"));
+    };
+    let identity = match scheduling_credentials(&server, &request) {
+        Ok((Some(token), api)) => {
+            let rate = scheduling_rate(&server, request.uri().path(), &token);
+            match scheduling_identity(Arc::clone(&server), token, api, rate, peer.ip().to_string())
+                .await
+            {
+                Ok(identity) => identity,
+                Err(error) => return failure(&error),
+            }
+        }
+        Ok((None, _)) => None,
+        Err(error) => return failure(&error),
+    };
+    drop(preflight);
+    if let Err(error) = super::admission::identity(identity.as_deref()).await {
+        return failure(&error);
+    }
+    let permit = match server.admission.acquire().await {
+        Ok(permit) => permit,
+        Err(error) => return failure(&error),
     };
     if server.draining.load(std::sync::atomic::Ordering::Relaxed) {
         return failure(&Error::Limit("server draining"));
@@ -437,11 +488,186 @@ async fn handler_inner(
     request_body(server, request, peer, permit).await
 }
 
+fn scheduling_credentials(
+    server: &Server,
+    request: &Request,
+) -> Result<(Option<Zeroizing<String>>, bool)> {
+    use base64::Engine as _;
+    let path = request.uri().path();
+    if !(path.starts_with("/_diamond/") || path.starts_with("/api/") || path.starts_with("/v2/")) {
+        return Ok((None, false));
+    }
+    if path.starts_with("/api/") {
+        let name = path.strip_prefix("/api/v1/").unwrap_or_default();
+        let (name, _) = super::actions::split(name);
+        if !server.project.api.contains_key(name)
+            || request.method() != "POST"
+            || request.headers().contains_key(header::COOKIE)
+            || one_header(request, "x-diamond-api-version") != Some("1")
+            || one_header(request, "content-type") != Some("application/json")
+        {
+            return Ok((None, false));
+        }
+    } else if path.starts_with("/_diamond/rpc/")
+        || path.starts_with("/_diamond/actions/")
+        || path == "/_diamond/recovery"
+    {
+        if (path != "/_diamond/recovery"
+            && super::actions::path(path, &server.project.rpc).is_none())
+            || request.method() != "POST"
+            || one_header(request, "origin") != Some(server.origin.as_str())
+            || one_header(request, "content-type") != Some("application/json")
+        {
+            return Ok((None, false));
+        }
+    } else if path.starts_with("/_diamond/accounts/") && !super::accounts::route(path)
+        || path.starts_with("/_diamond/git/") && server.project.manifest.git.is_none()
+        || (path.starts_with("/v2/") || path.starts_with("/_diamond/delivery/"))
+            && server.project.manifest.delivery.is_none()
+        || path.starts_with("/_diamond/files/") && server.project.manifest.files.is_none()
+    {
+        return Ok((None, false));
+    }
+    let authorization = one_header(request, "authorization");
+    let api = authorization.is_some();
+    let token = if let Some(value) = authorization {
+        if let Some(token) = value.strip_prefix("Bearer ") {
+            Some(Zeroizing::new(token.to_owned()))
+        } else if let Some(value) = value
+            .strip_prefix("Basic ")
+            .filter(|value| value.len() <= 4096)
+        {
+            base64::engine::general_purpose::STANDARD
+                .decode(value)
+                .ok()
+                .and_then(|bytes| {
+                    let bytes = Zeroizing::new(bytes);
+                    std::str::from_utf8(&bytes)
+                        .ok()?
+                        .split_once(':')
+                        .map(|(_, token)| Zeroizing::new(token.to_owned()))
+                })
+        } else {
+            None
+        }
+    } else {
+        cookie(request, &server.cookie)?
+    };
+    Ok((token, api))
+}
+type SchedulingRate = Option<(&'static str, Zeroizing<String>)>;
+fn scheduling_rate(server: &Server, path: &str, token: &str) -> SchedulingRate {
+    if path.starts_with("/api/")
+        || super::actions::path(path, &server.project.rpc).is_some()
+        || path == "/_diamond/recovery"
+    {
+        return Some(("api", Zeroizing::new(token.to_owned())));
+    }
+    if let Some(rest) = path.strip_prefix("/_diamond/git/") {
+        let (binding, rest) = rest.split_once('/')?;
+        let (repository, _) = rest.split_once(".git/")?;
+        if server
+            .project
+            .manifest
+            .git
+            .as_ref()?
+            .bindings
+            .contains_key(binding)
+            && crate::auth::valid_id(repository)
+        {
+            return Some((
+                if path.contains(".git/info/lfs/") {
+                    "git_lfs"
+                } else {
+                    "git"
+                },
+                Zeroizing::new(format!("{binding}:{repository}")),
+            ));
+        }
+    }
+    if let Some(rest) = path
+        .strip_prefix("/_diamond/delivery/")
+        .or_else(|| path.strip_prefix("/v2/"))
+    {
+        let mut parts = rest.split('/');
+        let binding = parts.next()?;
+        let repository = parts.next()?;
+        if server
+            .project
+            .manifest
+            .delivery
+            .as_ref()?
+            .bindings
+            .contains_key(binding)
+            && crate::auth::valid_id(repository)
+        {
+            return Some((
+                "delivery",
+                Zeroizing::new(format!("{binding}:{repository}")),
+            ));
+        }
+    }
+    if let Some(rest) = path.strip_prefix("/_diamond/oauth/") {
+        let provider = rest.split('/').next()?;
+        if server
+            .project
+            .manifest
+            .identity
+            .as_ref()?
+            .oauth
+            .as_ref()?
+            .providers
+            .iter()
+            .any(|enabled| enabled.name() == provider)
+        {
+            return Some(("oauth", Zeroizing::new(provider.to_owned())));
+        }
+    }
+    None
+}
+async fn scheduling_identity(
+    server: Arc<Server>,
+    token: Zeroizing<String>,
+    api: bool,
+    rate: SchedulingRate,
+    peer: String,
+) -> Result<Option<String>> {
+    super::admission::blocking(move || {
+        if let Some((class, subject)) = &rate {
+            super::accounts::charge(
+                &server.project,
+                &server.secrets.configuration,
+                server.pool.as_ref(),
+                class,
+                &peer,
+                subject,
+            )?;
+        }
+        let mut store = PostgresStore::open_control(
+            &server.project,
+            &server.secrets.configuration,
+            server.pool.as_ref(),
+        )?;
+        let principal = if api {
+            store.credential_principal(&token, &server.project)
+        } else {
+            let csrf = super::identity::csrf(&store.app, &token);
+            store.principal(Some(&token), &csrf)
+        };
+        match store.finish_request(principal) {
+            Ok(principal) => Ok(principal.id().map(str::to_owned)),
+            Err(Error::Unauthenticated | Error::Denied) => Ok(None),
+            Err(error) => Err(error),
+        }
+    })
+    .await?
+}
+
 async fn request_body(
     server: Arc<Server>,
     request: Request,
     peer: String,
-    permit: tokio::sync::OwnedSemaphorePermit,
+    permit: crate::project::admission::Permit,
 ) -> Response {
     let path = request.uri().path().to_owned();
     let target = request
@@ -453,7 +679,7 @@ async fn request_body(
         if path != "/_diamond/session" {
             if server.project.browser.schemas.match_path(&target).is_some() {
                 let head = request.method() == "HEAD";
-                return match tokio::task::spawn_blocking(move || {
+                return match super::admission::blocking(move || {
                     let _permit = permit;
                     server.shell.render(&server.project, &target)
                 })
@@ -519,8 +745,8 @@ async fn request_body(
         Ok(v) => v,
         Err(e) => return failure(&e),
     };
-    let body = match tokio::time::timeout(
-        Duration::from_secs(3),
+    let body = match tokio::time::timeout_at(
+        crate::budget::until(Duration::from_secs(3)),
         to_bytes(request.into_body(), 16_384),
     )
     .await
@@ -543,12 +769,12 @@ async fn dispatch(
     csrf: String,
     body: Zeroizing<Vec<u8>>,
     peer: String,
-    permit: tokio::sync::OwnedSemaphorePermit,
+    permit: crate::project::admission::Permit,
 ) -> Response {
     let work_server = Arc::clone(&server);
     // The owned permit stays with the blocking work if delivery is canceled.
     // Its private connection driver is aborted/joined before the worker exits.
-    let job = tokio::task::spawn_blocking(move || {
+    let job = super::admission::blocking(move || {
         let _permit = permit;
         work(
             &work_server,
@@ -578,6 +804,23 @@ async fn dispatch(
 }
 
 fn work(
+    server: &Server,
+    path: &str,
+    token: Option<&str>,
+    csrf: &str,
+    body: &[u8],
+    peer: &str,
+) -> Result<(Json, Option<String>)> {
+    let eligible = super::actions::path(path, &server.project.rpc)
+        .is_some_and(|name| super::retry::eligible(&server.project, &server.project.rpc[name]));
+    super::retry::run(
+        eligible,
+        &server.admission.retries,
+        &server.transaction_retries,
+        || work_attempt(server, path, token, csrf, body, peer),
+    )
+}
+fn work_attempt(
     server: &Server,
     path: &str,
     token: Option<&str>,
@@ -904,6 +1147,20 @@ fn response(status: StatusCode, kind: &'static str, text: &str, head: bool) -> R
 }
 
 pub(super) fn failure(error: &Error) -> Response {
+    if matches!(
+        error,
+        Error::Limit(
+            "request deadline"
+                | "PostgreSQL request deadline"
+                | "PostgreSQL operation deadline"
+                | "PostgreSQL connection deadline"
+        )
+    ) {
+        return super::admission::expired_response();
+    }
+    if super::admission::retryable(error) {
+        return super::admission::overload();
+    }
     let (status, code) = match error {
         Error::Unauthenticated => (StatusCode::UNAUTHORIZED, "authentication_required"),
         Error::Denied => (StatusCode::FORBIDDEN, "denied"),

@@ -75,7 +75,7 @@ impl PostgresStore {
         name: &str,
         project: &CheckedProject,
     ) -> Result<Grant> {
-        self.credential_grant(token, name, project)
+        self.credential_grant(token, Some(name), project)
     }
 
     pub(in crate::project) fn git_grant(
@@ -86,13 +86,13 @@ impl PostgresStore {
         project: &CheckedProject,
     ) -> Result<Grant> {
         let operation = super::super::git::credential_operation(binding, write);
-        self.credential_grant(token, &operation, project)
+        self.credential_grant(token, Some(&operation), project)
     }
 
     fn credential_grant(
         &mut self,
         token: &str,
-        operation: &str,
+        operation: Option<&str>,
         project: &CheckedProject,
     ) -> Result<Grant> {
         if !token.strip_prefix("dia_").is_some_and(valid_secret) {
@@ -110,7 +110,7 @@ impl PostgresStore {
             return Err(Error::Unauthenticated);
         }
         validate_grant(&operations, &scopes, project)?;
-        if !operations.iter().any(|op| op == operation) {
+        if operation.is_some_and(|operation| !operations.iter().any(|op| op == operation)) {
             return Err(Error::Denied);
         }
         let principal = Principal::User {
@@ -134,6 +134,17 @@ impl PostgresStore {
             ),
             restrictions: scopes,
         })
+    }
+
+    // Native QoS preflight only. Dispatchers still recheck operation, scope,
+    // current epoch and resource policy in their own authoritative transaction.
+    pub(in crate::project) fn credential_principal(
+        &mut self,
+        token: &str,
+        project: &CheckedProject,
+    ) -> Result<Principal> {
+        self.credential_grant(token, None, project)
+            .map(|grant| grant.principal)
     }
 }
 fn validate_grant(

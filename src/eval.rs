@@ -175,6 +175,7 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
     }
 
     fn step(&mut self) -> Result<()> {
+        crate::budget::check()?;
         if let Some(store) = self.postgres.as_deref() {
             store.check_deadline()?;
         }

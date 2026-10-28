@@ -1,0 +1,156 @@
+{
+  "status": "PASS",
+  "binary_sha256": "bdecf9ca6545c37272ebb763c13ba3f0ddec17cd772b765edd1f99068ccaa98a",
+  "source_fingerprint": "c310f04c45010b1aab82664f54f2ef246ccc4e663fbe45984df2321ae5b8271a",
+  "receipts": {
+    "scheduling-final": {
+      "sha256": "4f0f058429304711fde919ef9761dc73e0ae31f343b021bb97f58a6d0a1545cb",
+      "status": "PASS",
+      "observations": 12
+    },
+    "scheduling-repeat": {
+      "sha256": "58f89ac7e4012d84e96202734a859b15801de7973a01054c009f0e8059ef1a12",
+      "status": "PASS",
+      "observations": 12
+    },
+    "runtime-scheduling": {
+      "sha256": "6a3a0f077faf0cc76a6f6521a803baae0274a5f06f198208a694d31ab119f98f",
+      "status": "PASS",
+      "observations": 20
+    },
+    "actions-scheduling": {
+      "sha256": "996df1fe1f216135fb75cc2c252bb7a53a24db6aa57818367e8e475eeead523f",
+      "status": "PASS",
+      "observations": 74
+    },
+    "health-scheduling": {
+      "sha256": "454f6ea9ee22a3ecdf991948c794097e407823324185cf7454b50a3e5e5119b1",
+      "status": "PASS",
+      "observations": 2
+    },
+    "files-scheduling": {
+      "sha256": "b03001cf468194c88c5de50bfabfd7c35f71266f65fe0e84f5a5b796311c2eef",
+      "status": "PASS",
+      "observations": 65
+    },
+    "websocket-scheduling": {
+      "sha256": "54cda6ee6040fae2e3233dfcb31969fd23f7a73869d85552ca2ae9324da92017",
+      "status": "PASS",
+      "observations": 3
+    },
+    "delivery-scheduling": {
+      "sha256": "dd87f910bd5c43eb6b1b6d8965a8906e80d2fc354bf8ec3f415cf95e76cfbc2d",
+      "status": "PASS",
+      "observations": 157
+    },
+    "assets-scheduling": {
+      "sha256": "bc2cd7b916693d3ef5d12c133082e73bf816dd45e63e01a0c844e2cdc9c421ed",
+      "status": "PASS",
+      "observations": 128
+    }
+  },
+  "native_observations_excluding_repeat": 333,
+  "short_campaign": {
+    "report": "benchmarks/rails-comparison/results/scheduling-smoke.json",
+    "sha256": "d17e23f9d564c7dfe5a8a882cfa900acb81f0ad46a88da24d77fcedcced27759",
+    "cells": 24,
+    "configuration": {
+      "dataset": 100,
+      "durations_seconds": [
+        1.0
+      ],
+      "concurrency": [
+        1,
+        8,
+        32,
+        128
+      ],
+      "repeats": 2,
+      "warmup_seconds": 0.25,
+      "mix_percent": {
+        "read": 35,
+        "page": 25,
+        "update": 20,
+        "create": 10,
+        "denied": 10
+      },
+      "variants": [
+        "diamond",
+        "rails-no-yjit",
+        "rails-yjit"
+      ],
+      "keep_alive": true,
+      "backoff": true,
+      "rails_workers": 0,
+      "rails_threads": 4,
+      "diamond_runtime": null,
+      "cpu_affinity": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23
+      ]
+    },
+    "counts": {
+      "completed_requests": 12315,
+      "capacity_rejections": 0,
+      "transaction_conflicts": 0,
+      "unexpected_responses": 0,
+      "transport_errors": 0
+    },
+    "cleanup_errors": []
+  },
+  "checks": {
+    "format": "PASS",
+    "release_and_all_features_build": "PASS",
+    "clippy_warnings_denied": "PASS",
+    "rust_1_96": "PASS",
+    "unit_tests": 20,
+    "doctests": 39,
+    "rustdoc_warnings_denied": "PASS"
+  },
+  "drivers": {
+    "verification/performance-remediation/scheduling.py": "7adc372c8c7dd05d4e2d14fb813150e75fe6c3e8564c0c58a4ec35cf027f34bc",
+    "verification/performance-remediation/replay.py": "ada24fee21297245fdd18d6a86217d76425f97488eff708443884f974dbbc4d4",
+    "verification/performance-remediation/client.cjs": "f537c8b75c4fa1a5eb696781f9a820be580d8d4c70d732f5007aadb0f7b1c053",
+    "verification/performance-remediation/assets.py": "1eb45a74d87d73f2347aa338c8582d9cf0fc0eb66ece5bda8109a351e03c37a9",
+    "verification/lp5_actions.py": "14fd02781c9c53dfd5d2a78443b651f6d49fba0597de71e4f41a87ab55385493",
+    "verification/w9/health_starvation.py": "372ac646db1dc27567d317d8a26b0caccfdfe63cf69e3fa3dddf4807de81bb2f",
+    "verification/w9_independent/websocket_malformed.py": "c62ed57fce5d4469cdbb63a40166e4743e684e142b154267e8970f3405b2fcfe",
+    "verification/w6_independent/files.py": "5730ad4a69109cf3ad21a573141888ee6a41740f4d33baa4306acbceceef0f91",
+    "verification/git_delivery_redteam.py": "9952d244e3fa95bfce2981764bac813ec9499a6903e9308d062dd26d6b0442be",
+    "benchmarks/rails-comparison/campaign.py": "110678186df09a9e32d5b962a8dfc1bd7d18df3d2885ead96e4c201c9268c83e"
+  },
+  "fixed_failure_receipt": {
+    "path": "verification/performance-remediation/scheduling-before-timeout-report.json",
+    "sha256": "8b1d21ecc52e7e7b924ddf95bc8c15cc5f5e0802f7b6da68b079c44528efa3f7"
+  },
+  "limits": [
+    "one-second acceptance matrix; longer benchmark not rerun",
+    "shared host and concurrent qualification workloads",
+    "runtime quotas and retry token bucket are per node",
+    "Node transport helper; no new Chrome DOM journey",
+    "outbound/OAuth deadline propagation source reviewed; no live-provider replay",
+    "no universal rollback guarantee for deadlines/unknown external outcomes"
+  ]
+}

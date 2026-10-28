@@ -18,7 +18,7 @@ async function __actionRemote(name,args,types,result,ctx){
  const active=()=>{if(ctx.epoch!==__authEpoch||ctx.controller.signal.aborted)throw Error('stale action');};
  const post=async(path,body)=>{
   active();const encoded=JSON.stringify(body);if(new TextEncoder().encode(encoded).length>16384){const error=Error('Action input exceeds the request limit.');error.status=400;error.diamondRemote=true;throw error;}
-  const response=await fetch(path,{method:'POST',credentials:'same-origin',cache:'no-store',signal:ctx.controller.signal,headers:{'Content-Type':'application/json','X-Diamond-CSRF':__csrf},body:encoded});
+  const response=await __fetch(path,{method:'POST',credentials:'same-origin',cache:'no-store',signal:ctx.controller.signal,headers:{'Content-Type':'application/json','X-Diamond-CSRF':__csrf},body:encoded},ctx);
   const value=await response.json();active();if(!response.ok){const error=Error(value.error==='contract_mismatch'?'Application version changed. Reload this page.':'Action request rejected.');error.status=response.status;error.code=value.error;error.diamondRemote=true;error.lostIdentity=response.status===401;throw error;}return value;
  };
  try{
@@ -34,6 +34,7 @@ async function __actionRemote(name,args,types,result,ctx){
   if(error.status===403)return __action('ActionDenied');
   if([400,413,415,422].includes(error.status))return __action('ActionInvalid');
   if(error.status===409&&error.code==='aborted')return __action('ActionAborted');
+  if(error.status===503&&error.code==='overloaded')return __action('ActionAborted');
   return __action('ActionUnknown');
  }
 }

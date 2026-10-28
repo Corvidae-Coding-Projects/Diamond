@@ -14,7 +14,7 @@ function __recoveryAdd(name,id,frame,pending){if(!Object.hasOwn(__program.action
 function __cancelRecovery(frame){for(const meta of __recoveries.values())if(meta.frame===frame){meta.frame=null;meta.pending=false;meta.tag='ActionUnknown';}__paintRecovery();}
 async function __actionPost(path,body,ctx){
  if(ctx.epoch!==__authEpoch||ctx.controller.signal.aborted)throw Error('stale action');if(++ctx.calls>32)throw Error('event remote-call budget');const encoded=JSON.stringify(body);if(new TextEncoder().encode(encoded).length>16384)throw Error('action request limit');
- const response=await fetch(path,{method:'POST',credentials:'same-origin',cache:'no-store',signal:ctx.controller.signal,headers:{'Content-Type':'application/json','X-Diamond-CSRF':__csrf},body:encoded});const value=await response.json();if(ctx.epoch!==__authEpoch||ctx.controller.signal.aborted)throw Error('stale action');
+ const response=await __fetch(path,{method:'POST',credentials:'same-origin',cache:'no-store',signal:ctx.controller.signal,headers:{'Content-Type':'application/json','X-Diamond-CSRF':__csrf},body:encoded},ctx);const value=await response.json();if(ctx.epoch!==__authEpoch||ctx.controller.signal.aborted)throw Error('stale action');
  if(!response.ok){const error=Error('Action request rejected.');error.status=response.status;error.code=value.error;error.diamondRemote=true;throw error;}return value;
 }
 async function __durableAction(name,args,types,result,ctx){
@@ -37,7 +37,7 @@ async function __durableAction(name,args,types,result,ctx){
  }
 }
 async function __recoveryTask(work){
- if(__authBusy||!__alive)return;const ctx={controller:new AbortController(),epoch:__authEpoch,calls:0};__recoveryRequests.add(ctx.controller);const timer=setTimeout(()=>ctx.controller.abort(),10000);
+ if(__authBusy||!__alive)return;const ctx={controller:new AbortController(),epoch:__authEpoch,calls:0};__recoveryRequests.add(ctx.controller);const timer=setTimeout(()=>ctx.controller.abort(),__runtime.event_timeout_ms);
  try{await work(ctx);}catch(error){if(ctx.epoch===__authEpoch&&!ctx.controller.signal.aborted&&error.status===401)__forgetIdentity(error);}finally{clearTimeout(timer);__recoveryRequests.delete(ctx.controller);}
 }
 async function __discoverRecovery(){

@@ -1,0 +1,12 @@
+export type IssueId = Id<"issue">
+
+export type IssueCard:
+  id: IssueId
+  title: Text
+  details: Text
+  rank: Int
+
+export type IssuePage:
+  cards: List<IssueCard>
+  after: Text
+  total: Int

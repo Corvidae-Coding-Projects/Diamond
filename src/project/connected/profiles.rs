@@ -21,7 +21,7 @@ pub(super) async fn api_request(
     server: Arc<Server>,
     request: Request,
     peer: String,
-    permit: tokio::sync::OwnedSemaphorePermit,
+    permit: crate::project::admission::Permit,
 ) -> Response {
     if server.project.manifest.http_api.is_none() {
         return json_response(StatusCode::NOT_FOUND, &json!({"error":"not_found"}));
@@ -87,7 +87,7 @@ pub(super) async fn api_request(
             Ok(Ok(v)) => Zeroizing::new(v.to_vec()),
             _ => return failure(&input("API body limit")),
         };
-    let job = tokio::task::spawn_blocking(move || {
+    let job = crate::project::admission::blocking(move || {
         let _permit = permit;
         api_work(
             &server,
@@ -120,6 +120,21 @@ fn api_work(
         peer,
         token.unwrap_or("public"),
     )?;
+    let eligible = super::super::retry::eligible(&server.project, &server.project.api[name].rpc);
+    super::super::retry::run(
+        eligible,
+        &server.admission.retries,
+        &server.transaction_retries,
+        || api_attempt(server, name, token, body, control),
+    )
+}
+fn api_attempt(
+    server: &Server,
+    name: &str,
+    token: Option<&str>,
+    body: &[u8],
+    control: Control,
+) -> Result<Json> {
     let envelope: ApiBody =
         wire::strict_from_slice(body).map_err(|_| input("invalid API envelope"))?;
     let op = &server.project.api[name];

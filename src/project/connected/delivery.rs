@@ -60,7 +60,7 @@ pub(super) async fn request(
     server: Arc<Server>,
     request: Request,
     peer: String,
-    permit: tokio::sync::OwnedSemaphorePermit,
+    permit: crate::project::admission::Permit,
 ) -> Response<Body> {
     match request_inner(server, request, peer, permit).await {
         Ok(response) => response,
@@ -81,7 +81,7 @@ async fn request_inner(
     server: Arc<Server>,
     request: Request,
     peer: String,
-    permit: tokio::sync::OwnedSemaphorePermit,
+    permit: crate::project::admission::Permit,
 ) -> Result<Response<Body>> {
     if request.headers().contains_key(header::COOKIE)
         || request.headers().contains_key(header::TRANSFER_ENCODING)
@@ -109,7 +109,7 @@ async fn request_inner(
     let if_range = optional_header(&request, header::IF_RANGE.as_str())?;
     let work_server = Arc::clone(&server);
     let work_token = token.clone();
-    let (result, permit) = tokio::task::spawn_blocking(move || {
+    let (result, permit) = crate::project::admission::blocking(move || {
         super::super::accounts::charge(
             &work_server.project,
             &work_server.secrets.configuration,
@@ -170,7 +170,7 @@ fn fetch_response(
     range: Option<&str>,
     if_none_match: Option<&str>,
     if_range: Option<&str>,
-    permit: tokio::sync::OwnedSemaphorePermit,
+    permit: crate::project::admission::Permit,
 ) -> Result<Response<Body>> {
     let etag = result.digest.as_ref().map(|digest| format!("\"{digest}\""));
     if if_none_match.is_some_and(|candidate| {
@@ -217,7 +217,7 @@ fn fetch_response(
                 file.seek(SeekFrom::Start(start))?;
                 let file = tokio::fs::File::from_std(file).take(response_size);
                 let stream = tokio_util::io::ReaderStream::with_capacity(file, 65_536);
-                let deadline = tokio::time::Instant::now() + Duration::from_secs(30);
+                let deadline = crate::budget::until(Duration::from_mins(10));
                 let stream = futures_util::stream::unfold(
                     (stream, deadline, permit),
                     |(mut stream, deadline, permit)| async move {
@@ -275,7 +275,7 @@ fn fetch_response(
 
 fn not_modified_response(
     etag: Option<&str>,
-    permit: tokio::sync::OwnedSemaphorePermit,
+    permit: crate::project::admission::Permit,
 ) -> Result<Response<Body>> {
     drop(permit);
     let mut response = Response::builder()
@@ -293,7 +293,7 @@ fn not_modified_response(
 
 fn range_not_satisfiable(
     size: u64,
-    permit: tokio::sync::OwnedSemaphorePermit,
+    permit: crate::project::admission::Permit,
 ) -> Result<Response<Body>> {
     drop(permit);
     Response::builder()

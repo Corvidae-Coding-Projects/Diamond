@@ -58,7 +58,20 @@ credentials. PostgreSQL stores their app/purpose-bound digests.
 [identity]
 profile = "accounts-v1"
 enrollment = "invite" # open or closed are also supported
+
+# Optional. Omitting this table retains the secure 600/300/120 API defaults.
+[identity.api_requests_per_minute]
+global = 20000
+peer = 10000
+credential = 2000
 ```
+
+API capacity overrides are declarative so an application cannot forget to
+enforce admission control in one handler. Each value must be between 10 and
+10,000,000 requests per database-clock minute, and the limits must be ordered
+`global >= peer >= credential`. Raising them is an operational decision; keep
+the defaults until measured traffic, edge controls, and database capacity
+justify a reviewed override.
 
 Registration creates a pending, nonadministrator account. Only successful
 verification permits authentication. `closed` disables registration; trusted CLI
@@ -104,7 +117,8 @@ revocation does not cancel an already running operation in real time.
 
 Issuance commits before writing delivery files. Delivery failure after commit or
 lost commit acknowledgment returns `outcome_unknown`; a database rollback must
-not be inferred. The Diamond client contains no application retry loop. Browser/proxy transport
+not be inferred. The Diamond client retries only explicit pre-execution overload
+rejections, with bounded backoff; unknown outcomes never enter that loop. Browser/proxy transport
 can repeat an HTTP request after connection loss; qualification observed Chrome
 repeat a zero-byte logout delivery and receive401 for the consumed session.
 There is no general exactly-once HTTP guarantee. Explicitly request a new
@@ -138,7 +152,7 @@ Host, body/path/header limits and forwarded-header rejection still apply. There
 is no CORS expansion or cookie fallback.
 
 `GET /api/v1/_contract` and build `contract.json.http_api` describe declared
-operations, reachable record/enum definitions, types and wire version 3. Int uses
+operations, reachable record/enum definitions, types and wire version 7. Int uses
 a canonical signed decimal string in the i64 range. Decimal uses
 `{"tag":"Decimal","value":"1000000"}` for 1.000000; Timestamp/Duration use their
 own tags and signed millisecond strings. IDs use `{"tag":"workspace","value":"red"}`;
@@ -174,7 +188,8 @@ identity loss reset client component state before fresh sign-in. Unknown outcome
 
 Shared one-minute database-clock counters commit in a separate short transaction
 before fallible identity/API work. Auth global/peer/subject caps are 120/100/12;
-API caps are 600/300/120. Login uses username and email operations use canonical
+API caps default to 600/300/120 and can use the bounded declarative override
+shown above. Login uses username and email operations use canonical
 email as subject. Requests without an identity subject use global/peer limits.
 API subjects are each bearer secret's digest, or one shared `public` bucket for
 all anonymous operations. The peer is the actual TCP address, never a forwarded
@@ -184,8 +199,11 @@ production abuse-control configuration.
 Per app bounds include 10,000 accounts, 4,096 live sessions, 20,000 retained
 challenges and 4,096 rate buckets; active credentials are capped at 64 per user.
 The request body is at most 16 KiB with a three-second read deadline. Each server
-admits 16 requests, four blocking workers and four pooled database connections;
-query/request deadlines and cleanup remain W4's bounded adapter behavior.
+defaults to 16 admitted requests, four blocking workers and four pooled database
+connections, plus 128 waiting requests with a one-second admission deadline.
+Checked `[runtime]` limits and automatic overload backoff are documented in
+[deployment](deployment.md#bounded-runtime-capacity); database deadlines and
+cleanup retain the relational adapter's bounded behavior.
 
 Native consumers use `add_postgres_administrator` and `serve_accounts` with
 explicit connection and mailbox grants. Applications without `[identity]` retain

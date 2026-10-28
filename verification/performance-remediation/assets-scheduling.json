@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "binary_sha256": "bdecf9ca6545c37272ebb763c13ba3f0ddec17cd772b765edd1f99068ccaa98a",
+  "driver_sha256": "1eb45a74d87d73f2347aa338c8582d9cf0fc0eb66ece5bda8109a351e03c37a9",
+  "documentation_configurations_checked": 3,
+  "requests": 128,
+  "concurrency": 32,
+  "identical_html": true,
+  "shutdown_returncode": 0
+}

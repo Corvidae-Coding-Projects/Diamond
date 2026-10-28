@@ -4,13 +4,12 @@ use super::{CheckedProject, artifact, input};
 use crate::error::{Error, Result};
 use axum::Router;
 use axum::body::Body;
-use axum::extract::{Request, State};
+use axum::extract::{ConnectInfo, Request, State};
 use axum::http::{Method, StatusCode, header};
 use axum::response::Response;
 use std::collections::BTreeMap;
 use std::net::SocketAddr;
 use std::sync::Arc;
-use tokio::sync::Semaphore;
 
 #[derive(Debug)]
 struct Server {
@@ -19,7 +18,7 @@ struct Server {
     address: SocketAddr,
     files: BTreeMap<String, String>,
     pages: BTreeMap<String, String>,
-    permits: Arc<Semaphore>,
+    admission: Arc<super::admission::Admission>,
 }
 
 pub(super) fn serve(project: &CheckedProject, address: SocketAddr) -> Result<()> {
@@ -47,8 +46,8 @@ pub(super) fn serve(project: &CheckedProject, address: SocketAddr) -> Result<()>
         .collect();
     let shell = artifact::PageShell::from_files(project, &files)?;
     let runtime = tokio::runtime::Builder::new_multi_thread()
-        .worker_threads(2)
-        .max_blocking_threads(4)
+        .worker_threads(project.manifest.runtime.worker_threads)
+        .max_blocking_threads(project.manifest.runtime.blocking_threads)
         .enable_all()
         .build()?;
     runtime.block_on(async {
@@ -60,27 +59,38 @@ pub(super) fn serve(project: &CheckedProject, address: SocketAddr) -> Result<()>
             address,
             files,
             pages,
-            permits: Arc::new(Semaphore::new(16)),
+            admission: super::admission::Admission::new(project.manifest.runtime.clone()),
         });
         let application = Router::new().fallback(handler).with_state(state);
         eprintln!("Diamond W1 project server: http://{address}");
-        axum::serve(listener, application)
-            .with_graceful_shutdown(async {
-                let _signal_result = tokio::signal::ctrl_c().await;
-            })
-            .await
-            .map_err(Error::Io)
+        axum::serve(
+            listener,
+            application.into_make_service_with_connect_info::<SocketAddr>(),
+        )
+        .with_graceful_shutdown(async {
+            let _signal_result = tokio::signal::ctrl_c().await;
+        })
+        .await
+        .map_err(Error::Io)
     })
 }
 
-async fn handler(State(server): State<Arc<Server>>, request: Request) -> Response {
-    let Ok(permit) = Arc::clone(&server.permits).try_acquire_owned() else {
-        return response(
-            StatusCode::SERVICE_UNAVAILABLE,
-            "text/plain; charset=utf-8",
-            "Request capacity exhausted",
-            false,
-        );
+async fn handler(
+    State(server): State<Arc<Server>>,
+    ConnectInfo(peer): ConnectInfo<SocketAddr>,
+    request: Request,
+) -> Response {
+    super::admission::scope(
+        Arc::clone(&server.admission),
+        super::admission::Class::Interactive,
+        peer.ip().to_string(),
+        handler_inner(server, request),
+    )
+    .await
+}
+async fn handler_inner(server: Arc<Server>, request: Request) -> Response {
+    let Ok(permit) = server.admission.acquire().await else {
+        return super::admission::overload();
     };
     if request.method() != Method::GET && request.method() != Method::HEAD {
         return response(
@@ -187,11 +197,11 @@ fn named_target(server: &Server, request: &Request) -> bool {
 
 async fn dynamic_page(
     server: Arc<Server>,
-    permit: tokio::sync::OwnedSemaphorePermit,
+    permit: crate::project::admission::Permit,
     path: String,
     head: bool,
 ) -> Response {
-    match tokio::task::spawn_blocking(move || {
+    match crate::project::admission::blocking(move || {
         let _permit = permit;
         server.shell.render(&server.project, &path)
     })
