@@ -1,0 +1,34 @@
+schema_version = 1
+name = "ComputeLab"
+server = "server"
+browser = "counter"
+component = "Counter"
+provides = ["Compute<sim.tick>", "Compute<sim.plan>"]
+
+[modules.server]
+path = "server.dia"
+target = "server"
+provides = ["Compute<sim.tick>", "Compute<sim.plan>"]
+
+[modules.counter]
+path = "counter.dia"
+target = "browser"
+
+[compute.sim]
+kind = "host"
+
+[compute.sim.exports.tick]
+arguments = ["Text", "Int"]
+result = "Text"
+deterministic = true
+max_input_bytes = 4096
+max_output_bytes = 65536
+max_duration_ms = 500
+
+[compute.sim.exports.plan]
+arguments = ["Int", "Int"]
+result = "List<Int>"
+deterministic = true
+max_input_bytes = 512
+max_output_bytes = 65536
+max_duration_ms = 250

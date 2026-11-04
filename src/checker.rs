@@ -4,7 +4,7 @@ mod integrations;
 
 use crate::authority::{Effect, Effects};
 use crate::error::{Error, Location, Result};
-use crate::hir::{self, CheckedProgram, Segment};
+use crate::hir::{self, CheckedProgram, ComputeBinding, Segment};
 use crate::policy::Action;
 use crate::syntax::{
     self, Binary, Declaration, Expr, ExprKind, HtmlAttribute, HtmlNode, MatchArm, Pattern,
@@ -14,7 +14,14 @@ use crate::value::{Type, Value, ValueKind};
 use std::collections::{BTreeMap, BTreeSet, VecDeque};
 
 pub(crate) fn check(source: &syntax::Program) -> Result<CheckedProgram> {
-    check_inner(source, Effects::new(), false, None, &BTreeMap::new())
+    check_inner(
+        source,
+        Effects::new(),
+        false,
+        None,
+        &BTreeMap::new(),
+        &BTreeMap::new(),
+    )
 }
 
 pub(crate) fn check_project(
@@ -22,8 +29,9 @@ pub(crate) fn check_project(
     grants: Effects,
     storage: Option<&crate::relational::Storage>,
     durable: &BTreeMap<String, (String, String)>,
+    compute: &BTreeMap<(String, String), ComputeBinding>,
 ) -> Result<CheckedProgram> {
-    check_inner(source, grants, true, storage, durable)
+    check_inner(source, grants, true, storage, durable, compute)
 }
 
 fn check_inner(
@@ -32,10 +40,12 @@ fn check_inner(
     host_operations: bool,
     storage: Option<&crate::relational::Storage>,
     durable: &BTreeMap<String, (String, String)>,
+    compute: &BTreeMap<(String, String), ComputeBinding>,
 ) -> Result<CheckedProgram> {
     let mut program = CheckedProgram {
         host_operations,
         durable: BTreeMap::new(),
+        compute: compute.clone(),
         storage: storage.cloned(),
         app: None,
         aliases: BTreeMap::new(),
@@ -886,6 +896,20 @@ fn check_routes(program: &mut CheckedProgram) -> Result<()> {
     Ok(())
 }
 
+/// Extract a static text literal from one call argument.
+fn static_name(argument: Option<&(Option<String>, Expr)>) -> Option<&str> {
+    match argument? {
+        (
+            None,
+            Expr {
+                kind: ExprKind::Text(text),
+                ..
+            },
+        ) => Some(text),
+        _ => None,
+    }
+}
+
 fn mismatch(location: Location, expected: &Type, actual: &Type) -> Error {
     Error::diagnostic(
         "D110",
@@ -966,6 +990,7 @@ enum TransactionContext {
 
 struct Checker<'a> {
     program: &'a CheckedProgram,
+    compute: &'a BTreeMap<(String, String), ComputeBinding>,
     locals: BTreeMap<String, Type>,
     effects: Effects,
     calls: BTreeSet<String>,
@@ -981,6 +1006,7 @@ impl<'a> Checker<'a> {
     fn new(program: &'a CheckedProgram, route: bool, fallible: bool) -> Self {
         Self {
             program,
+            compute: &program.compute,
             locals: BTreeMap::new(),
             effects: Effects::new(),
             calls: BTreeSet::new(),
@@ -1531,6 +1557,9 @@ impl<'a> Checker<'a> {
         if ["mail_submit", "mail_status", "mail_cancel", "mail_suppress"].contains(&method) {
             return self.mail_call(method, args, types, location);
         }
+        if method == "compute" {
+            return self.compute_call(args, types, location);
+        }
         let operation = crate::host::operation(method).ok_or_else(|| {
             Error::diagnostic("D310", location, "unknown registered host operation")
         })?;
@@ -1559,6 +1588,74 @@ impl<'a> Checker<'a> {
         self.effects
             .insert(Effect::Host(operation.capability.into()));
         Ok(operation.result)
+    }
+
+    /// Check one `host.compute(module, export, ...)` call against the
+    /// manifest-declared export table. Capabilities are export-specific:
+    /// `Compute<module.export>`. Compute is pure, so unlike external HTTP and
+    /// Git writes it may run inside a database transaction.
+    fn compute_call(
+        &mut self,
+        args: &[(Option<String>, Expr)],
+        types: &[TypeName],
+        location: Location,
+    ) -> Result<Type> {
+        if types.len() != 1 {
+            return Err(Error::diagnostic(
+                "D310",
+                location,
+                "compute requires exactly one result type parameter",
+            ));
+        }
+        let Some(module) = static_name(args.first()) else {
+            return Err(Error::diagnostic(
+                "D310",
+                location,
+                "compute requires a static module name",
+            ));
+        };
+        let Some(export) = static_name(args.get(1)) else {
+            return Err(Error::diagnostic(
+                "D310",
+                location,
+                "compute requires a static export name",
+            ));
+        };
+        if !crate::project::resolve::identifier(module)
+            || !crate::project::resolve::identifier(export)
+        {
+            return Err(Error::Denied);
+        }
+        let Some(binding) = self.compute.get(&(module.to_string(), export.to_string())) else {
+            return Err(Error::diagnostic(
+                "D310",
+                location,
+                "compute export is not declared in the project manifest",
+            ));
+        };
+        let arguments = &args[2..];
+        if arguments.len() != binding.arguments.len()
+            || arguments.iter().any(|(name, _)| name.is_some())
+        {
+            return Err(Error::diagnostic(
+                "D310",
+                location,
+                "compute arguments must match the declared positional signature",
+            ));
+        }
+        let reply = resolve_type(&types[0], self.program, location)?;
+        if reply != binding.result {
+            return Err(mismatch(location, &binding.result, &reply));
+        }
+        for ((_, expression), expected) in arguments.iter().zip(&binding.arguments) {
+            let actual = self.expr(expression)?;
+            if !expected.accepts(&actual) {
+                return Err(mismatch(expression.location, expected, &actual));
+            }
+        }
+        self.effects
+            .insert(Effect::Host(binding.capability.clone()));
+        Ok(Type::Result(Box::new(binding.result.clone())))
     }
 
     fn project_intrinsic(

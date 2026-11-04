@@ -7,6 +7,7 @@ mod api;
 pub(crate) mod artifact;
 mod assets;
 mod browser;
+mod compute;
 mod connected;
 pub(crate) mod delivery;
 mod deployment;
@@ -116,6 +117,8 @@ struct Manifest {
     secrets: BTreeMap<String, secrets::SecretUse>,
     #[serde(default)]
     queries: BTreeMap<String, queries::Config>,
+    #[serde(default)]
+    compute: BTreeMap<String, compute::ModuleConfig>,
 }
 
 #[derive(Clone, Debug)]
@@ -1128,8 +1131,10 @@ fn check_server(manifest: &Manifest, modules: &BTreeMap<String, Module>) -> Resu
         }
     }
     let durable = durable_bindings(manifest, modules)?;
-    let server = crate::checker::check_project(&source, grants, storage.as_ref(), &durable)
-        .map_err(|error| locate(modules, error))?;
+    let compute = compute::bindings(manifest)?;
+    let server =
+        crate::checker::check_project(&source, grants, storage.as_ref(), &durable, &compute)
+            .map_err(|error| locate(modules, error))?;
     if server.grants.iter().any(|effect| match effect {
         Effect::Read(name) | Effect::Write(name) => !server.resources.contains_key(name),
         Effect::Host(_) => false,
@@ -1307,6 +1312,15 @@ fn capability_effect(name: &str) -> Result<Effect> {
         .strip_prefix("Http<")
         .and_then(|s| s.strip_suffix('>'))
         .is_some_and(resolve::identifier)
+    {
+        return Ok(Effect::Host(name.into()));
+    }
+    if let Some(inner) = name
+        .strip_prefix("Compute<")
+        .and_then(|value| value.strip_suffix('>'))
+        && let Some((module, export)) = inner.split_once('.')
+        && resolve::identifier(module)
+        && resolve::identifier(export)
     {
         return Ok(Effect::Host(name.into()));
     }

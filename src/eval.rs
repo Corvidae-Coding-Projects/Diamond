@@ -630,6 +630,62 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
         ))
     }
 
+    /// Dispatch one `host.compute(module, export, ...)` call to the registered
+    /// kernel. Static names were enforced by the checker; the scope still
+    /// proves the export-specific capability at run time.
+    fn compute_call(
+        &mut self,
+        arguments: &[(Option<String>, Expr)],
+        types: &[crate::syntax::TypeName],
+        locals: &BTreeMap<String, Value>,
+        location: crate::error::Location,
+    ) -> Result<Value> {
+        if types.len() != 1 {
+            return Err(Error::Denied);
+        }
+        let values = arguments
+            .iter()
+            .map(|(_, value)| self.expr(value, locals))
+            .collect::<Result<Vec<_>>>()?;
+        let Some(Value(ValueKind::Text(module))) = values.first() else {
+            return Err(Error::Denied);
+        };
+        let Some(Value(ValueKind::Text(export))) = values.get(1) else {
+            return Err(Error::Denied);
+        };
+        let module = module.clone();
+        let export = export.clone();
+        self.scope.require(&crate::authority::Effect::Host(format!(
+            "Compute<{module}.{export}>"
+        )))?;
+        let binding = self
+            .program
+            .compute
+            .get(&(module.clone(), export.clone()))
+            .ok_or(Error::Denied)?;
+        let kernel_arguments = values.get(2..).unwrap_or_default();
+        if kernel_arguments.len() != binding.arguments.len() {
+            return Err(Error::Denied);
+        }
+        for (value, expected) in kernel_arguments.iter().zip(&binding.arguments) {
+            if !value.fits(expected) {
+                return Err(Error::Denied);
+            }
+        }
+        let reply = crate::checker::resolve_type(&types[0], self.program, location)?;
+        if reply != binding.result {
+            return Err(Error::Denied);
+        }
+        let grants = self.integrations.ok_or(Error::Denied)?;
+        Value::operation(grants.call_compute(
+            &module,
+            &export,
+            kernel_arguments,
+            binding,
+            self.program,
+        ))
+    }
+
     fn git_policy_admin_call(&mut self, method: &str, values: &[Value]) -> Result<String> {
         let text = |index: usize| match values.get(index).map(|value| &value.0) {
             Some(ValueKind::Text(value)) => Ok(value.as_str()),
@@ -1200,6 +1256,9 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
                         locals,
                         callee.location,
                     );
+                }
+                if method == "compute" {
+                    return self.compute_call(arguments, types, locals, callee.location);
                 }
                 if let Some(result) =
                     self.project_adapter_call(method, arguments, types, locals, callee.location)

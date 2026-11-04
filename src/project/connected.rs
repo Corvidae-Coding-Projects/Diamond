@@ -138,6 +138,7 @@ pub(super) fn serve_runtime(
     super::git::validate(project, configuration, &runtime)?;
     super::delivery::validate(project, configuration, &runtime)?;
     super::operations::validate(project, configuration, &runtime)?;
+    runtime.validate_compute(&super::compute::bindings(&project.manifest)?)?;
     super::secrets::validate_runtime(project, &runtime)?;
     oauth::validate_runtime(project, &runtime)?;
     let authority = check_origin(origin)?;

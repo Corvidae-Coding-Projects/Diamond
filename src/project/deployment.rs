@@ -140,6 +140,7 @@ impl CheckedProject {
         let _objects = super::files::Store::open(self, configuration, runtime, false)?;
         super::mail::validate(self, configuration, runtime)?;
         super::secrets::validate_runtime(self, runtime)?;
+        runtime.validate_compute(&super::compute::bindings(&self.manifest)?)?;
         let mut db = PostgresStore::open_control(self, configuration, None)?;
         db.finish_request(Ok(()))?;
         Ok(serde_json::json!({"valid":true,"origin":public_origin,"authority":authority,"contract":super::artifact::contract_id(self)?,"capabilities":self.manifest.provides,"servers":2,"workers":if self.jobs.is_empty()&&self.manifest.mail.is_none()&&self.workflows.is_empty(){0}else{2},"proxy":"loopback only; preserve Host; strip Forwarded and X-Forwarded-*; TLS at edge","migration":"stop all instances; current version only","backup":"quiesced encrypted snapshots; isolated restore; jobs, workflows, and mail paused"}).to_string())

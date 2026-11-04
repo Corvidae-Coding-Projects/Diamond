@@ -220,8 +220,13 @@ def main() -> int:
             if result.stdout != "Updated title | selected 1\n":
                 raise AssertionError(f"unexpected storage output: {result.stdout!r}")
 
-        for name in ["relational", "authority"]:
-            manifest = f"examples/functions/{name}/diamond.toml"
+        manifests = [
+            "examples/functions/relational/diamond.toml",
+            "examples/functions/authority/diamond.toml",
+            "examples/compute-lab/diamond.toml",
+        ]
+        for manifest in manifests:
+            name = Path(manifest).parent.name
             output = root / f"{name}-build"
             run(binary, ["check", manifest])
             run(binary, ["build", manifest, "--out", str(output)])

@@ -1,0 +1,13 @@
+export component Counter:
+  state label: Text = "compute lab"
+  state passes: Int = 0
+
+  on advance:
+    passes = passes + 1
+
+  html:
+    <main>
+      <h1>{label}</h1>
+      <p>Declared exports: <strong id="passes">{passes}</strong></p>
+      <button id="advance" type="button" on-click={advance}>Count declarations</button>
+    </main>

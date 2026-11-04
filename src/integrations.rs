@@ -130,6 +130,7 @@ pub struct RuntimeGrants {
     pub(crate) operations: BTreeMap<String, OperationsGrant>,
     pub(crate) mail: BTreeMap<String, MailGrant>,
     pub(crate) oauth: Option<OAuthRuntime>,
+    pub(crate) compute: crate::compute::ComputeRegistry,
     destinations: BTreeMap<String, Destination>,
 }
 impl fmt::Debug for RuntimeGrants {
@@ -235,9 +236,123 @@ impl RuntimeGrants {
             operations: config.operations,
             mail: config.mail,
             oauth,
+            compute: crate::compute::ComputeRegistry::default(),
             destinations: config.http,
         })
     }
+    /// Register one trusted, pure compute kernel under `module.export`.
+    ///
+    /// The kernel is compiled into the embedding host; Diamond source can only
+    /// call it after the project manifest declares the export and grants the
+    /// matching `Compute<module.export>` capability. Registered signatures must
+    /// match the manifest at deployment time. Limits stay advisory for this
+    /// tier: they are cooperative defenses, not isolation.
+    ///
+    /// Type names use the bounded compute subset: `Int`, `Bool`, `Text`,
+    /// `Decimal`, and nested `List<T>` / `Option<T>`.
+    ///
+    /// # Errors
+    /// Rejects invalid names, unsupported type names, duplicate registrations,
+    /// and excessive registrations.
+    pub fn register_compute(
+        &mut self,
+        module: &str,
+        export: &str,
+        arguments: &[&str],
+        result: &str,
+        kernel: impl crate::compute::Compute + 'static,
+    ) -> Result<()> {
+        if !crate::project::resolve::identifier(module)
+            || !crate::project::resolve::identifier(export)
+        {
+            return Err(Error::Input(
+                "compute module and export names must be identifiers".into(),
+            ));
+        }
+        if arguments.len() > 16 {
+            return Err(Error::Limit("compute arguments"));
+        }
+        let mut parsed = Vec::with_capacity(arguments.len());
+        for name in arguments {
+            parsed.push(crate::compute::parse_compute_type(name)?);
+        }
+        let result_type = crate::compute::parse_compute_type(result)?;
+        self.compute
+            .register(module, export, parsed, result_type, Box::new(kernel))
+    }
+    /// Verify every manifest-declared compute export against this runtime's
+    /// registered kernels. Signature mismatches and missing registrations fail
+    /// deployment instead of first use.
+    ///
+    /// # Errors
+    /// Rejects undeclared, unregistered, or signature-mismatched exports.
+    pub(crate) fn validate_compute(
+        &self,
+        declared: &BTreeMap<(String, String), crate::hir::ComputeBinding>,
+    ) -> Result<()> {
+        for ((module, export), binding) in declared {
+            let Some(entry) = self.compute.get(module, export) else {
+                return Err(Error::Input(format!(
+                    "compute export {module}.{export} is declared but not registered"
+                )));
+            };
+            if entry.arguments != binding.arguments || entry.result != binding.result {
+                return Err(Error::Input(format!(
+                    "compute export {module}.{export} does not match its registered signature"
+                )));
+            }
+        }
+        Ok(())
+    }
+    /// Run one registered compute kernel over wire-encoded arguments.
+    ///
+    /// Manifest limits are cooperative for this tier; panics and overruns fail
+    /// the call explicitly instead of degrading.
+    pub(crate) fn call_compute(
+        &self,
+        module: &str,
+        export: &str,
+        arguments: &[Value],
+        binding: &crate::hir::ComputeBinding,
+        program: &crate::hir::CheckedProgram,
+    ) -> Result<Value> {
+        let entry = self.compute.get(module, export).ok_or(Error::Denied)?;
+        if entry.arguments != binding.arguments || entry.result != binding.result {
+            return Err(Error::Denied);
+        }
+        if arguments.len() != entry.arguments.len() {
+            return Err(Error::Denied);
+        }
+        let mut encoded = Vec::with_capacity(arguments.len());
+        let mut input_bytes = 0usize;
+        for (value, expected) in arguments.iter().zip(&entry.arguments) {
+            if !value.fits(expected) {
+                return Err(Error::Denied);
+            }
+            let json = crate::project::wire::encode(value)?;
+            input_bytes = input_bytes.saturating_add(crate::compute::encoded_size(&json)?);
+            encoded.push(json);
+        }
+        if input_bytes > binding.max_input_bytes {
+            return Err(Error::Limit("compute input bytes"));
+        }
+        crate::budget::check()?;
+        let started = std::time::Instant::now();
+        let reply = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            entry.function.call(&encoded)
+        }))
+        .unwrap_or_else(|_| Err("compute kernel failed".into()));
+        if started.elapsed() > std::time::Duration::from_millis(binding.max_duration_ms) {
+            return Err(Error::Limit("compute duration"));
+        }
+        let reply = reply.map_err(Error::Input)?;
+        if crate::compute::encoded_size(&reply)? > binding.max_output_bytes {
+            return Err(Error::Limit("compute output bytes"));
+        }
+        crate::budget::check()?;
+        crate::project::wire::decode(&binding.result, &reply, program)
+    }
+
     pub(crate) fn require(&self, name: &str) -> Result<()> {
         if self.destinations.contains_key(name) {
             Ok(())

@@ -122,7 +122,7 @@ fn bindings(
             if checked
                 .effects
                 .iter()
-                    .any(|effect| matches!(effect, crate::authority::Effect::Host(name) if !name.starts_with("Http<") && !name.starts_with("GitRead<") && !name.starts_with("GitWrite<") && !name.starts_with("GitReview<") && !name.starts_with("GitAdmin<") && !name.starts_with("DeliveryRead<") && !name.starts_with("DeliveryWrite<") && !name.starts_with("OpsRead<") && !name.starts_with("OpsAdmin<") && !name.starts_with("Mail<") && !["Jobs","Events","JobKey","Workflows"].contains(&name.as_str())))
+                    .any(|effect| matches!(effect, crate::authority::Effect::Host(name) if !name.starts_with("Http<") && !name.starts_with("GitRead<") && !name.starts_with("GitWrite<") && !name.starts_with("GitReview<") && !name.starts_with("GitAdmin<") && !name.starts_with("DeliveryRead<") && !name.starts_with("DeliveryWrite<") && !name.starts_with("OpsRead<") && !name.starts_with("OpsAdmin<") && !name.starts_with("Mail<") && !name.starts_with("Compute<") && !["Jobs","Events","JobKey","Workflows"].contains(&name.as_str())))
             {
                 return Err(input("RPC does not dispatch this native host operation"));
             }
