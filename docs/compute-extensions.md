@@ -136,7 +136,7 @@ change when an export moves from host to WASM.
 
 ```diamond
 export fn tick(state: Text, days: Int) -> Result<Text, DataError>:
-  host.compute("sim", "tick", state, days)
+  host.compute<Text>("sim", "tick", state, days)
 ```
 
 `host.compute` is a single checked call:
@@ -179,6 +179,17 @@ max_output_bytes = 1048576
 max_duration_ms = 2000
 ```
 
+Export signatures use a bounded, deterministic wire-safe subset: `Int`, `Bool`,
+`Text`, `Decimal`, and nested `List<T>` / `Option<T>` up to four levels.
+Records, identifiers, secrets, HTML, and floating-point values are excluded, so
+authoritative results stay fixed-point and platform-independent.
+
+`deterministic` defaults to `true`; declaring `false` is rejected. Limits
+default to `max_input_bytes = 65536`, `max_output_bytes = 262144`, and
+`max_duration_ms = 2000`, and must stay within `1..=1048576` bytes and
+`1..=10000` ms. A project declares at most 16 compute modules with 1..32
+exports each (512 exports in total), matching the registry bound.
+
 For the WASM tier, the module also declares its artifact identity and sandbox
 limits:
 
@@ -216,43 +227,78 @@ cover unknown future exports are not permitted.
 
 ## 7. Tier 1: host-registered operations
 
-### 7.1 Rust API (proposal)
+### 7.1 Rust API
 
 ```rust
-pub struct ComputeExport {
-    pub module: &'static str,
-    pub export: &'static str,
-    pub arguments: Vec<Type>,
-    pub result: Type,
-    pub capability: &'static str, // "Compute<module.export>"
-}
-
 pub trait Compute: Send + Sync {
-    fn call(&self, args: &[Value]) -> Result<Value>;
+    fn call(
+        &self,
+        context: &ComputeContext<'_>,
+        arguments: &[serde_json::Value],
+    ) -> Result<serde_json::Value, ComputeError>;
 }
 
-pub struct ComputeRegistry { /* ... */ }
+pub struct ComputeContext<'a> { /* module, export, request deadline */ }
 
-impl ComputeRegistry {
-    pub fn register(&mut self, spec: ComputeExport, f: impl Compute + 'static);
-    pub fn get(&self, module: &str, export: &str) -> Option<&ComputeExport>;
+impl ComputeContext<'_> {
+    pub fn module(&self) -> &str;
+    pub fn export(&self) -> &str;
+    pub fn remaining(&self) -> Option<Duration>;
+    pub fn checkpoint(&self) -> Result<(), ComputeError>;
+}
+
+pub enum ComputeError { Denied, InvalidInput, Aborted, Conflict, Message(String) }
+
+impl RuntimeGrants {
+    pub fn register_compute(
+        &mut self,
+        module: &str,
+        export: &str,
+        arguments: &[&str],
+        result: &str,
+        kernel: impl Compute + 'static,
+    ) -> Result<()>;
+}
+
+impl CheckedProject {
+    pub fn validate_compute(&self, runtime: &RuntimeGrants) -> Result<()>;
+    pub fn evaluate_with(&self, runtime: &RuntimeGrants) -> Result<Value>;
 }
 ```
 
-The registry is supplied by the embedding host and passed into
-`compile_project` / `serve_with_auth` (or a builder). The default registry is
-empty, so the feature is inert unless an embedder opts in.
+Kernels exchange Diamond's canonical wire encoding for each declared type:
+`Int` is a canonical decimal string (`"-7"`), `Bool` is a JSON boolean, `Text`
+is a string, `Decimal` is `{"tag":"Decimal","value":"<fixed-scale units>"}`,
+`List<T>` is an array, and `Option<T>` is `{"tag":"None"}` or
+`{"tag":"Some","value":<T>}`. Kernels should call `context.checkpoint()` inside
+long loops; the runtime itself cannot interrupt them.
+
+The registry lives on `RuntimeGrants` and is empty by default, so the feature is
+inert unless an embedder registers kernels. `register_compute` rejects invalid
+names, unsupported types, duplicates (without replacing the first kernel), and
+more than 512 registrations. `validate_compute` verifies the manifest against
+the registry before serving, and `evaluate_with` runs the checked server entry
+in-process for embedding and tests.
 
 ### 7.2 Execution
 
 - The checker/runtime boundary already runs RPC interpretation on the bounded
   blocking pool; a host op runs inline there (no nested blocking, no second
   runtime).
-- The caller supplies the request deadline; the op checks
-  `budget::remaining()` at entry and at coarse checkpoints.
-- Panics are caught (`catch_unwind`) and mapped to `Error::Internal`.
-- Inputs are validated against the declared types and byte limits; outputs are
-  size-checked and charged.
+- The runtime passes the request deadline into `ComputeContext`; kernels can
+  observe it with `remaining()` and `checkpoint()`. Limits stay cooperative: the
+  runtime cannot interrupt a kernel, and `max_duration_ms` is checked after the
+  call returns.
+- Input encodings are validated against the declared types and byte limits
+  before execution; replies are size-checked, charged to the managed value
+  budget, and decoded into the declared type. The effective output ceiling is
+  therefore the smaller of `max_output_bytes` and the managed value limit.
+- Panics are caught (`catch_unwind`) and mapped to a `Message` failure that
+  carries no panic text. The process panic hook still logs the kernel's panic
+  payload to stderr, so kernels must not panic with payload data.
+- Limit breaches (`max_input_bytes`, `max_output_bytes`, `max_duration_ms`) are
+  hard `Error::Limit` failures rather than `DataError` values, so application
+  code cannot catch them; kernel failures are catchable `DataError` classes.
 - These are **cooperative** controls. A blocking loop or unbounded allocation
   in trusted host code is outside what this tier can enforce.
 
@@ -346,6 +392,7 @@ and the project artifact.
 | Capability validation | Add `Compute<module.export>` to `capability_effect`; keep host capabilities server-module-only |
 | Runtime grants | Carry the `ComputeRegistry` and the verified/compiled WASM modules |
 | Interpreter | Dispatch `host.compute` to the registry or sandbox |
+| Embedding | `RuntimeGrants::register_compute`, `CheckedProject::validate_compute`, and `CheckedProject::evaluate_with` |
 | Artifact | Publish compute contracts (module, export, signature, limits, determinism, digest, sandbox version) |
 | Deployment | Verify declared host exports exist; load and digest-verify WASM bytes; validate modules before serving |
 
@@ -356,24 +403,38 @@ browser modules cannot call it.
 
 ## 10. Resource and security model
 
-- **Inputs:** declared per-export byte/count limits; rejected before execution.
-- **Outputs:** declared byte limit and value-budget charging.
-- **CPU:** the request deadline plus per-export `max_duration_ms`; cooperative
-  checks in host code; fuel/epoch enforcement in WASM.
+- **Inputs:** declared per-export byte and argument-count limits; rejected
+  before execution.
+- **Outputs:** declared byte limit, the managed value ceiling, and value-budget
+  charging.
+- **CPU:** the request deadline plus per-export `max_duration_ms`. Host kernels
+  observe the deadline through `ComputeContext::checkpoint`, and the bound is
+  checked after the call: the runtime cannot interrupt them. WASM uses
+  fuel/epoch enforcement.
+- **Limits:** a host-tier breach is a hard `Error::Limit`, not a `DataError`;
+  applications that must complete size their calls within the declared limits.
 - **Memory:** declared `max_memory_bytes`; bounded host buffers; no allocation
   sized from untrusted lengths without a cap.
 - **Concurrency:** a dedicated compute admission allowance (permits and queue)
   separate from ordinary request capacity, so long kernels cannot starve
-  normal requests. The allowance is configurable and observable.
+  normal requests. The allowance is configurable and observable. *This gate
+  belongs to the sandboxed tier; the host tier runs inside the existing
+  admission classes and request deadlines.*
 - **Isolation:** host ops share the process (trusted, advisory); WASM ops are
   sandboxed (enforced).
 - **No I/O:** neither tier receives host handles. Stateful work uses the
   existing database/action surfaces.
-- **Panics/traps:** caught and mapped to explicit errors.
+- **Panics/traps:** caught and mapped to an explicit `Message` failure on the
+  host tier. The process panic hook still logs the kernel's panic payload, so
+  kernels must not panic with payload data.
+- **Public exposure:** a public RPC or API operation may call compute. Admission
+  bounds the work, but operators should treat unauthenticated reachable kernels
+  as a CPU surface.
 - **Observability:** module, export, input/output bytes, duration, fuel/memory
   use, sandbox version, artifact digest, and failure class; never payloads.
+  *Host-tier metrics belong to the sandboxed tier.*
 - **Kill switch:** a deployment can disable a compute module or the whole
-  surface.
+  surface. *Deferred with the sandboxed tier.*
 
 ---
 
@@ -395,6 +456,10 @@ browser modules cannot call it.
   during migration.
 - **Example:** a small pure module in `examples/` (for example a deterministic
   hash or a tiny path search) exercised by `verification/examples.py`.
+
+The host tier covers the checker, runtime, determinism, artifact, and example
+items above, plus an in-process embedding example. WASM, sandbox, and
+differential items belong to the sandboxed tier.
 
 ---
 
