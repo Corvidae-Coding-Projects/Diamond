@@ -30,6 +30,7 @@ struct Contract<'a> {
     browser: &'a super::lower::BrowserProgram,
     host_operations: Vec<crate::host::OperationContract>,
     integration_operations: serde_json::Value,
+    #[serde(skip_serializing_if = "BTreeMap::is_empty")]
     compute: &'a BTreeMap<String, super::compute::ModuleConfig>,
     file_operations: serde_json::Value,
     private_files: Option<&'a super::files::Config>,

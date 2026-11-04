@@ -286,20 +286,19 @@ impl RuntimeGrants {
     ///
     /// # Errors
     /// Rejects undeclared, unregistered, or signature-mismatched exports.
-    pub(crate) fn validate_compute(
-        &self,
-        declared: &BTreeMap<(String, String), crate::hir::ComputeBinding>,
-    ) -> Result<()> {
-        for ((module, export), binding) in declared {
-            let Some(entry) = self.compute.get(module, export) else {
-                return Err(Error::Input(format!(
-                    "compute export {module}.{export} is declared but not registered"
-                )));
-            };
-            if entry.arguments != binding.arguments || entry.result != binding.result {
-                return Err(Error::Input(format!(
-                    "compute export {module}.{export} does not match its registered signature"
-                )));
+    pub(crate) fn validate_compute(&self, declared: &crate::hir::ComputeBindings) -> Result<()> {
+        for (module, exports) in declared {
+            for (export, binding) in exports {
+                let Some(entry) = self.compute.get(module, export) else {
+                    return Err(Error::Input(format!(
+                        "compute export {module}.{export} is declared but not registered"
+                    )));
+                };
+                if entry.arguments != binding.arguments || entry.result != binding.result {
+                    return Err(Error::Input(format!(
+                        "compute export {module}.{export} does not match its registered signature"
+                    )));
+                }
             }
         }
         Ok(())
@@ -337,15 +336,19 @@ impl RuntimeGrants {
             return Err(Error::Limit("compute input bytes"));
         }
         crate::budget::check()?;
+        let context = crate::compute::ComputeContext::new(module, export, crate::budget::current());
         let started = std::time::Instant::now();
         let reply = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-            entry.function.call(&encoded)
-        }))
-        .unwrap_or_else(|_| Err("compute kernel failed".into()));
-        if started.elapsed() > std::time::Duration::from_millis(binding.max_duration_ms) {
+            entry.function.call(&context, &encoded)
+        }));
+        let elapsed = started.elapsed();
+        let Ok(reply) = reply else {
+            return Err(Error::Propagation("compute kernel failed".into()));
+        };
+        if elapsed > std::time::Duration::from_millis(binding.max_duration_ms) {
             return Err(Error::Limit("compute duration"));
         }
-        let reply = reply.map_err(Error::Input)?;
+        let reply = reply.map_err(crate::compute::ComputeError::into_error)?;
         if crate::compute::encoded_size(&reply)? > binding.max_output_bytes {
             return Err(Error::Limit("compute output bytes"));
         }

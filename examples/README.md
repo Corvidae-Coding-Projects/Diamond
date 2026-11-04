@@ -147,6 +147,8 @@ The newer `live-workspace` combines all three layers and adds jobs/events.
   CSRF binding, revocation, and expiry.
 - [`project_embedding.rs`](project_embedding.rs) — project checking, build/load,
   and explicit host grants.
+- [`compute_embedding.rs`](compute_embedding.rs) — registering host-tier compute
+  kernels, validating exported signatures, and evaluating a checked project.
 - [`connected_embedding.rs`](connected_embedding.rs) — PostgreSQL initialization
   and account provisioning through the public Rust API.
 

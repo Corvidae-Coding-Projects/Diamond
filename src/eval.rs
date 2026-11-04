@@ -653,16 +653,14 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
         let Some(Value(ValueKind::Text(export))) = values.get(1) else {
             return Err(Error::Denied);
         };
-        let module = module.clone();
-        let export = export.clone();
-        self.scope.require(&crate::authority::Effect::Host(format!(
-            "Compute<{module}.{export}>"
-        )))?;
-        let binding = self
-            .program
+        let program = self.program;
+        let binding = program
             .compute
-            .get(&(module.clone(), export.clone()))
+            .get(module.as_str())
+            .and_then(|exports| exports.get(export.as_str()))
             .ok_or(Error::Denied)?;
+        self.scope
+            .require(&crate::authority::Effect::Host(binding.capability.clone()))?;
         let kernel_arguments = values.get(2..).unwrap_or_default();
         if kernel_arguments.len() != binding.arguments.len() {
             return Err(Error::Denied);
@@ -678,8 +676,8 @@ impl<'a, 'scope> Interpreter<'a, 'scope> {
         }
         let grants = self.integrations.ok_or(Error::Denied)?;
         Value::operation(grants.call_compute(
-            &module,
-            &export,
+            module,
+            export,
             kernel_arguments,
             binding,
             self.program,

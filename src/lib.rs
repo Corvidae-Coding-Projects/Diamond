@@ -37,7 +37,7 @@ mod value;
 mod web;
 
 pub use auth::{SessionStore, SessionToken};
-pub use compute::Compute;
+pub use compute::{Compute, ComputeContext, ComputeError};
 pub use error::{Error, Location};
 pub use hir::CheckedProgram;
 pub use integrations::RuntimeGrants;

@@ -269,6 +269,53 @@ impl CheckedProject {
         }
     }
 
+    /// Evaluate the checked server entry with explicit runtime grants.
+    ///
+    /// The scope carries the entry's checked effects, so an undeclared or
+    /// unregistered capability still fails with the matching `DataError`. This
+    /// is the embedding counterpart to serving: it opens no listener and no
+    /// storage.
+    ///
+    /// # Errors
+    /// Rejects missing server entries, runtime authority, and runtime failures.
+    ///
+    /// ```
+    /// let project = diamond::compile_project(std::path::Path::new("examples/compute-lab/diamond.toml"))?;
+    /// let value = project.evaluate_with(&diamond::RuntimeGrants::default())?;
+    /// assert!(matches!(value.into_result(), Err(diamond::Error::Denied)));
+    /// # Ok::<(), diamond::Error>(())
+    /// ```
+    pub fn evaluate_with(&self, runtime: &crate::RuntimeGrants) -> Result<Value> {
+        let principal = Principal::Anonymous;
+        let effects = &self
+            .server
+            .functions
+            .get("main")
+            .ok_or(Error::Denied)?
+            .effects;
+        let scope = Scope::new(&principal, effects);
+        crate::eval::Interpreter::new(&self.server, &scope, None, None)
+            .with_integrations(runtime)
+            .main()
+    }
+
+    /// Verify that every declared compute export is registered with a matching
+    /// signature. Serving and worker entry points call this before accepting
+    /// work, so a declaration/registration mismatch is a deployment error
+    /// rather than a first-use failure.
+    ///
+    /// # Errors
+    /// Rejects undeclared, unregistered, or signature-mismatched exports.
+    ///
+    /// ```
+    /// let project = diamond::compile_project(std::path::Path::new("examples/compute-lab/diamond.toml"))?;
+    /// assert!(project.validate_compute(&diamond::RuntimeGrants::default()).is_err());
+    /// # Ok::<(), diamond::Error>(())
+    /// ```
+    pub fn validate_compute(&self, runtime: &crate::RuntimeGrants) -> Result<()> {
+        runtime.validate_compute(&compute::bindings(&self.manifest)?)
+    }
+
     /// Render a declared route's public initial component content without host authority.
     ///
     /// # Errors

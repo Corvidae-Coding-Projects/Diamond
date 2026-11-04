@@ -143,19 +143,18 @@ fn validate_export(
 ///
 /// # Errors
 /// Rejects declarations that fail manifest validation or type parsing.
-pub(super) fn bindings(
-    manifest: &Manifest,
-) -> Result<BTreeMap<(String, String), crate::hir::ComputeBinding>> {
+pub(super) fn bindings(manifest: &Manifest) -> Result<crate::hir::ComputeBindings> {
     validate(manifest)?;
     let mut bindings = BTreeMap::new();
     for (name, module) in &manifest.compute {
+        let mut exports = BTreeMap::new();
         for (export, config) in &module.exports {
             let mut arguments = Vec::with_capacity(config.arguments.len());
             for argument in &config.arguments {
                 arguments.push(crate::compute::parse_compute_type(argument)?);
             }
-            bindings.insert(
-                (name.clone(), export.clone()),
+            exports.insert(
+                export.clone(),
                 crate::hir::ComputeBinding {
                     arguments,
                     result: crate::compute::parse_compute_type(&config.result)?,
@@ -166,6 +165,7 @@ pub(super) fn bindings(
                 },
             );
         }
+        bindings.insert(name.clone(), exports);
     }
     Ok(bindings)
 }
@@ -174,19 +174,17 @@ pub(super) fn bindings(
 mod tests {
     use super::*;
     use crate::authority::{Effect, Effects, Principal, Scope};
-    use crate::value::{Value, ValueKind};
+    use crate::compute::{Compute, ComputeContext, ComputeError};
+    use crate::value::{Failure, Value, ValueKind};
+    use serde_json::{Value as Json, json};
     use std::sync::atomic::{AtomicUsize, Ordering};
+    use std::time::Duration;
 
     static CALLS: AtomicUsize = AtomicUsize::new(0);
 
     /// One test project: a server module with `main` plus a minimal browser root.
     fn project(manifest: &str, server: &str) -> Result<crate::CheckedProject> {
         project_with(manifest, server, &default_browser())
-    }
-
-    fn default_browser() -> String {
-        "export component Counter:\n  state label: Text = \"lab\"\n\n  html:\n    <p>{label}</p>\n"
-            .to_string()
     }
 
     fn project_with(manifest: &str, server: &str, browser: &str) -> Result<crate::CheckedProject> {
@@ -197,18 +195,46 @@ mod tests {
         crate::project::compile_sources(manifest.to_string(), sources)
     }
 
-    fn manifest(provides: &str, exports: &str) -> String {
+    fn default_browser() -> String {
+        "export component Counter:\n  state label: Text = \"lab\"\n\n  html:\n    <p>{label}</p>\n"
+            .to_string()
+    }
+
+    fn manifest_with_kind(kind: &str, provides: &str, exports: &str) -> String {
         format!(
             "schema_version = 1\nname = \"ComputeLab\"\nserver = \"server\"\n\
              browser = \"counter\"\ncomponent = \"Counter\"\nprovides = [{provides}]\n\
              [modules.server]\npath = \"server.dia\"\ntarget = \"server\"\nprovides = [{provides}]\n\
              [modules.counter]\npath = \"counter.dia\"\ntarget = \"browser\"\n\
-             [compute.demo]\nkind = \"host\"\n{exports}"
+             [compute.demo]\nkind = \"{kind}\"\n{exports}"
         )
+    }
+
+    fn manifest(provides: &str, exports: &str) -> String {
+        manifest_with_kind("host", provides, exports)
+    }
+
+    fn manifest_with_rpc() -> String {
+        format!(
+            "{}[rpc]\ntick = \"server.tick\"\n",
+            manifest("\"Compute<demo.echo>\"", &echo_export())
+        )
+    }
+
+    fn plain_manifest() -> String {
+        "schema_version = 1\nname = \"Plain\"\nserver = \"server\"\nbrowser = \"counter\"\n\
+         component = \"Counter\"\nprovides = []\n\
+         [modules.server]\npath = \"server.dia\"\ntarget = \"server\"\n\
+         [modules.counter]\npath = \"counter.dia\"\ntarget = \"browser\"\n"
+            .to_string()
     }
 
     fn echo_export() -> String {
         "[compute.demo.exports.echo]\narguments = [\"Text\"]\nresult = \"Text\"\ndeterministic = true\n".to_string()
+    }
+
+    fn echo_export_with(extra: &str) -> String {
+        format!("{}{extra}\n", echo_export())
     }
 
     fn echo_call() -> &'static str {
@@ -231,42 +257,127 @@ mod tests {
             .main()
     }
 
+    fn ok_text(value: &Value) -> Option<&str> {
+        match &value.0 {
+            ValueKind::Ok(inner) => match &inner.0 {
+                ValueKind::Text(text) => Some(text),
+                _ => None,
+            },
+            _ => None,
+        }
+    }
+
     struct Echo;
 
-    impl crate::Compute for Echo {
+    impl Compute for Echo {
         fn call(
             &self,
-            arguments: &[serde_json::Value],
-        ) -> std::result::Result<serde_json::Value, String> {
-            arguments
-                .first()
-                .cloned()
-                .ok_or_else(|| "missing argument".to_string())
+            _: &ComputeContext<'_>,
+            arguments: &[Json],
+        ) -> std::result::Result<Json, ComputeError> {
+            arguments.first().cloned().ok_or(ComputeError::InvalidInput)
+        }
+    }
+
+    struct Fixed(&'static str);
+
+    impl Compute for Fixed {
+        fn call(
+            &self,
+            _: &ComputeContext<'_>,
+            _: &[Json],
+        ) -> std::result::Result<Json, ComputeError> {
+            Ok(Json::String(self.0.into()))
         }
     }
 
     struct Oversized;
 
-    impl crate::Compute for Oversized {
-        fn call(&self, _: &[serde_json::Value]) -> std::result::Result<serde_json::Value, String> {
-            Ok(serde_json::Value::String("x".repeat(300_000)))
+    impl Compute for Oversized {
+        fn call(
+            &self,
+            _: &ComputeContext<'_>,
+            _: &[Json],
+        ) -> std::result::Result<Json, ComputeError> {
+            Ok(Json::String("x".repeat(300_000)))
         }
     }
 
     struct Panics;
 
-    impl crate::Compute for Panics {
-        fn call(&self, _: &[serde_json::Value]) -> std::result::Result<serde_json::Value, String> {
+    impl Compute for Panics {
+        fn call(
+            &self,
+            _: &ComputeContext<'_>,
+            _: &[Json],
+        ) -> std::result::Result<Json, ComputeError> {
             panic!("kernel bug");
+        }
+    }
+
+    struct Slow;
+
+    impl Compute for Slow {
+        fn call(
+            &self,
+            _: &ComputeContext<'_>,
+            _: &[Json],
+        ) -> std::result::Result<Json, ComputeError> {
+            std::thread::sleep(Duration::from_millis(5));
+            Ok(Json::String("slow".into()))
         }
     }
 
     struct Counted;
 
-    impl crate::Compute for Counted {
-        fn call(&self, _: &[serde_json::Value]) -> std::result::Result<serde_json::Value, String> {
+    impl Compute for Counted {
+        fn call(
+            &self,
+            _: &ComputeContext<'_>,
+            _: &[Json],
+        ) -> std::result::Result<Json, ComputeError> {
             CALLS.fetch_add(1, Ordering::SeqCst);
-            Ok(serde_json::Value::String("unused".into()))
+            Ok(Json::String("unused".into()))
+        }
+    }
+
+    struct Clock;
+
+    impl Compute for Clock {
+        fn call(
+            &self,
+            _: &ComputeContext<'_>,
+            _: &[Json],
+        ) -> std::result::Result<Json, ComputeError> {
+            Ok(json!({"tag":"Decimal","value":"1500000"}))
+        }
+    }
+
+    struct Maybe;
+
+    impl Compute for Maybe {
+        fn call(
+            &self,
+            _: &ComputeContext<'_>,
+            arguments: &[Json],
+        ) -> std::result::Result<Json, ComputeError> {
+            match arguments.first().and_then(Json::as_bool) {
+                Some(true) => Ok(json!({"tag":"Some","value":"x"})),
+                Some(false) => Ok(json!({"tag":"None"})),
+                None => Err(ComputeError::InvalidInput),
+            }
+        }
+    }
+
+    struct Refuses(ComputeError);
+
+    impl Compute for Refuses {
+        fn call(
+            &self,
+            _: &ComputeContext<'_>,
+            _: &[Json],
+        ) -> std::result::Result<Json, ComputeError> {
+            Err(self.0.clone())
         }
     }
 
@@ -290,10 +401,10 @@ mod tests {
             .effects;
         assert!(effects.contains(&Effect::Host("Compute<demo.echo>".into())));
         let runtime = registered()?;
-        runtime.validate_compute(&bindings(&project.manifest)?)?;
-        let value = run(&project, &runtime, true)?;
+        project.validate_compute(&runtime)?;
+        let value = project.evaluate_with(&runtime)?.into_result()?;
         assert!(
-            matches!(&value.0, ValueKind::Ok(inner) if matches!(&inner.0, ValueKind::Text(text) if text == "hello")),
+            matches!(&value.0, ValueKind::Text(text) if text == "hello"),
             "unexpected value: {value:?}"
         );
         Ok(())
@@ -307,6 +418,22 @@ mod tests {
         )?;
         let runtime = registered()?;
         assert!(run(&project, &runtime, false).is_err());
+        Ok(())
+    }
+
+    #[test]
+    fn evaluate_with_requires_registered_kernels() -> Result<()> {
+        let project = project(
+            &manifest("\"Compute<demo.echo>\"", &echo_export()),
+            echo_call(),
+        )?;
+        assert!(matches!(
+            project
+                .evaluate_with(&crate::RuntimeGrants::default())?
+                .into_result(),
+            Err(Error::Denied)
+        ));
+        assert!(project.evaluate_with(&registered()?).is_ok());
         Ok(())
     }
 
@@ -373,7 +500,7 @@ mod tests {
     }
 
     #[test]
-    fn shared_and_browser_modules_cannot_call_compute() {
+    fn browser_modules_cannot_call_compute() {
         let browser = "export component Counter:\n  state label: Text = \"lab\"\n\n  html:\n    <p>{label}</p>\n\nfn probe() -> Result<Text, DataError>:\n  host.compute<Text>(\"demo\", \"echo\", \"lab\")\n";
         let error = project_with(
             &manifest("\"Compute<demo.echo>\"", &echo_export()),
@@ -386,6 +513,40 @@ mod tests {
             error.as_deref().is_some_and(
                 |text| text.contains("host operations require a server project module")
             ),
+            "unexpected error: {error:?}"
+        );
+    }
+
+    #[test]
+    fn shared_modules_cannot_spend_a_server_capability() {
+        let manifest = "schema_version = 1\nname = \"SharedCompute\"\nserver = \"server\"\n\
+             browser = \"counter\"\ncomponent = \"Counter\"\n\
+             provides = [\"Compute<demo.echo>\"]\n\
+             [modules.shared]\npath = \"shared.dia\"\ntarget = \"shared\"\n\
+             [modules.server]\npath = \"server.dia\"\ntarget = \"server\"\n\
+             imports = [\"shared\"]\nprovides = [\"Compute<demo.echo>\"]\n\
+             [modules.counter]\npath = \"counter.dia\"\ntarget = \"browser\"\n\
+             [compute.demo]\nkind = \"host\"\n[compute.demo.exports.echo]\n\
+             arguments = [\"Text\"]\nresult = \"Text\"\ndeterministic = true\n";
+        let sources = BTreeMap::from([
+            (
+                "server.dia".to_string(),
+                "export fn main() -> Text:\n  \"plain\"\n".to_string(),
+            ),
+            (
+                "shared.dia".to_string(),
+                "export fn probe(state: Text) -> Result<Text, DataError>:\n  host.compute<Text>(\"demo\", \"echo\", state)\n"
+                    .to_string(),
+            ),
+            ("counter.dia".to_string(), default_browser()),
+        ]);
+        let error = crate::project::compile_sources(manifest.to_string(), sources)
+            .err()
+            .map(|error| format!("{error}"));
+        assert!(
+            error
+                .as_deref()
+                .is_some_and(|text| text.contains("function effects exceed its module budget")),
             "unexpected error: {error:?}"
         );
     }
@@ -409,13 +570,37 @@ mod tests {
         );
         assert!(nondeterministic.is_err());
         let wasm = project(
-            &manifest(
+            &manifest_with_kind(
+                "wasm",
                 "\"Compute<demo.echo>\"",
-                "kind = \"wasm\"\npath = \"compute/demo.wasm\"\nsha256 = \"abc\"\n[compute.demo.exports.echo]\narguments = [\"Text\"]\nresult = \"Text\"\n",
+                "path = \"compute/demo.wasm\"\nsha256 = \"abc\"\n[compute.demo.exports.echo]\narguments = [\"Text\"]\nresult = \"Text\"\n",
             ),
             echo_call(),
         );
         assert!(wasm.is_err());
+        let host_with_path = project(
+            &manifest(
+                "\"Compute<demo.echo>\"",
+                "path = \"compute/demo.wasm\"\n[compute.demo.exports.echo]\narguments = [\"Text\"]\nresult = \"Text\"\ndeterministic = true\n",
+            ),
+            echo_call(),
+        );
+        assert!(host_with_path.is_err());
+        for limit in [
+            "max_input_bytes = 0",
+            "max_output_bytes = 0",
+            "max_duration_ms = 0",
+            "max_duration_ms = 10001",
+        ] {
+            assert!(
+                project(
+                    &manifest("\"Compute<demo.echo>\"", &echo_export_with(limit)),
+                    echo_call()
+                )
+                .is_err(),
+                "accepted {limit}"
+            );
+        }
     }
 
     #[test]
@@ -424,16 +609,24 @@ mod tests {
             &manifest("\"Compute<demo.echo>\"", &echo_export()),
             echo_call(),
         )?;
-        let declared = bindings(&project.manifest)?;
         assert!(
             crate::RuntimeGrants::default()
-                .validate_compute(&declared)
+                .validate_compute(&bindings(&project.manifest)?)
+                .is_err()
+        );
+        assert!(
+            project
+                .validate_compute(&crate::RuntimeGrants::default())
                 .is_err()
         );
         let mut mismatched = crate::RuntimeGrants::default();
         mismatched.register_compute("demo", "echo", &["Int"], "Text", Echo)?;
-        assert!(mismatched.validate_compute(&declared).is_err());
-        registered()?.validate_compute(&declared)?;
+        assert!(
+            mismatched
+                .validate_compute(&bindings(&project.manifest)?)
+                .is_err()
+        );
+        project.validate_compute(&registered()?)?;
         Ok(())
     }
 
@@ -443,12 +636,8 @@ mod tests {
             &manifest("\"Compute<demo.echo>\"", &echo_export()),
             echo_call(),
         )?;
-        let runtime = registered()?;
-        let value = run(&project, &runtime, true)?;
-        assert!(
-            matches!(&value.0, ValueKind::Ok(inner) if matches!(&inner.0, ValueKind::Text(text) if text == "hello")),
-            "unexpected value: {value:?}"
-        );
+        let value = run(&project, &registered()?, true)?;
+        assert_eq!(ok_text(&value), Some("hello"));
 
         let mut grants = crate::RuntimeGrants::default();
         grants.register_compute("demo", "echo", &["Text"], "Text", Oversized)?;
@@ -466,7 +655,7 @@ mod tests {
         grants.register_compute("demo", "echo", &["Text"], "Text", Panics)?;
         let value = run(&project, &grants, true)?;
         assert!(
-            matches!(value.0, ValueKind::Err(_)),
+            matches!(&value.0, ValueKind::Err(Failure::Message(text)) if text == "compute kernel failed"),
             "unexpected value: {value:?}"
         );
         assert!(
@@ -477,11 +666,87 @@ mod tests {
     }
 
     #[test]
+    fn runtime_enforces_the_declared_duration() -> Result<()> {
+        let project = project(
+            &manifest(
+                "\"Compute<demo.echo>\"",
+                &echo_export_with("max_duration_ms = 1"),
+            ),
+            echo_call(),
+        )?;
+        let mut grants = crate::RuntimeGrants::default();
+        grants.register_compute("demo", "echo", &["Text"], "Text", Slow)?;
+        let error = run(&project, &grants, true)
+            .err()
+            .map(|error| format!("{error}"));
+        assert!(
+            error
+                .as_deref()
+                .is_some_and(|text| text.contains("compute duration")),
+            "unexpected error: {error:?}"
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn runtime_transports_kernel_failure_classes() -> Result<()> {
+        let project = project(
+            &manifest("\"Compute<demo.echo>\"", &echo_export()),
+            echo_call(),
+        )?;
+        let mut grants = crate::RuntimeGrants::default();
+        grants.register_compute(
+            "demo",
+            "echo",
+            &["Text"],
+            "Text",
+            Refuses(ComputeError::Message("seed rejected".into())),
+        )?;
+        let value = run(&project, &grants, true)?;
+        assert!(
+            matches!(&value.0, ValueKind::Err(Failure::Message(text)) if text == "seed rejected"),
+            "unexpected value: {value:?}"
+        );
+
+        let mut grants = crate::RuntimeGrants::default();
+        grants.register_compute(
+            "demo",
+            "echo",
+            &["Text"],
+            "Text",
+            Refuses(ComputeError::Denied),
+        )?;
+        let value = run(&project, &grants, true)?;
+        assert!(
+            matches!(&value.0, ValueKind::Err(Failure::Denied)),
+            "unexpected value: {value:?}"
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn duplicate_registration_keeps_the_first_kernel() -> Result<()> {
+        let project = project(
+            &manifest("\"Compute<demo.echo>\"", &echo_export()),
+            echo_call(),
+        )?;
+        let mut grants = registered()?;
+        assert!(
+            grants
+                .register_compute("demo", "echo", &["Text"], "Text", Fixed("hijacked"))
+                .is_err()
+        );
+        let value = run(&project, &grants, true)?;
+        assert_eq!(ok_text(&value), Some("hello"));
+        Ok(())
+    }
+
+    #[test]
     fn runtime_rejects_oversized_input_before_execution() -> Result<()> {
         let project = project(
             &manifest(
                 "\"Compute<demo.echo>\"",
-                "[compute.demo.exports.echo]\narguments = [\"Text\"]\nresult = \"Text\"\ndeterministic = true\nmax_input_bytes = 1\n",
+                &echo_export_with("max_input_bytes = 1"),
             ),
             echo_call(),
         )?;
@@ -491,6 +756,77 @@ mod tests {
         assert!(run(&project, &runtime, true).is_err());
         assert_eq!(CALLS.load(Ordering::SeqCst), before);
         Ok(())
+    }
+
+    #[test]
+    fn decimal_and_option_replies_round_trip() -> Result<()> {
+        let decimal_project = project(
+            &manifest(
+                "\"Compute<demo.measure>\"",
+                "[compute.demo.exports.measure]\narguments = [\"Int\"]\nresult = \"Decimal\"\ndeterministic = true\n",
+            ),
+            "export fn main() -> Result<Decimal, DataError>:\n  host.compute<Decimal>(\"demo\", \"measure\", 3)\n",
+        )?;
+        let mut runtime = crate::RuntimeGrants::default();
+        runtime.register_compute("demo", "measure", &["Int"], "Decimal", Clock)?;
+        let value = decimal_project.evaluate_with(&runtime)?.into_result()?;
+        assert!(
+            matches!(&value.0, ValueKind::Decimal(1_500_000)),
+            "unexpected decimal: {value:?}"
+        );
+
+        for (literal, some) in [("true", true), ("false", false)] {
+            let server = format!(
+                "export fn main() -> Result<Option<Text>, DataError>:\n  host.compute<Option<Text>>(\"demo\", \"maybe\", {literal})\n"
+            );
+            let optional = project(
+                &manifest(
+                    "\"Compute<demo.maybe>\"",
+                    "[compute.demo.exports.maybe]\narguments = [\"Bool\"]\nresult = \"Option<Text>\"\ndeterministic = true\n",
+                ),
+                &server,
+            )?;
+            let mut runtime = crate::RuntimeGrants::default();
+            runtime.register_compute("demo", "maybe", &["Bool"], "Option<Text>", Maybe)?;
+            let value = optional.evaluate_with(&runtime)?.into_result()?;
+            let decoded = match &value.0 {
+                ValueKind::Ok(inner) => &inner.0,
+                other => other,
+            };
+            assert_eq!(matches!(decoded, ValueKind::Some(_)), some, "{value:?}");
+            if some {
+                assert!(
+                    matches!(decoded, ValueKind::Some(value) if matches!(&value.0, ValueKind::Text(text) if text == "x")),
+                    "unexpected optional: {value:?}"
+                );
+            }
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn same_arguments_produce_the_same_wire_bytes() -> Result<()> {
+        let project = project(
+            &manifest("\"Compute<demo.echo>\"", &echo_export()),
+            echo_call(),
+        )?;
+        let first = crate::project::wire::encode(&run(&project, &registered()?, true)?)?;
+        let second = crate::project::wire::encode(&run(&project, &registered()?, true)?)?;
+        assert_eq!(first, second);
+        Ok(())
+    }
+
+    #[test]
+    fn rpc_operations_may_call_compute() -> Result<()> {
+        let server = "export fn tick(state: Text) -> Result<Text, DataError>:\n  host.compute<Text>(\"demo\", \"echo\", state)\n\nexport fn main() -> Result<Text, DataError>:\n  tick(\"hello\")\n";
+        let project = project(&manifest_with_rpc(), server)?;
+        assert!(project.rpc.contains_key("tick"));
+        Ok(())
+    }
+
+    #[test]
+    fn runtime_configuration_cannot_grant_compute() {
+        assert!(crate::RuntimeGrants::from_json(r#"{"compute":{}}"#).is_err());
     }
 
     #[test]
@@ -507,6 +843,20 @@ mod tests {
         assert_eq!(export["result"], serde_json::json!("Text"));
         assert_eq!(export["deterministic"], serde_json::json!(true));
         assert_eq!(export["max_input_bytes"], serde_json::json!(65_536));
+        Ok(())
+    }
+
+    #[test]
+    fn artifact_omits_compute_when_undeclared() -> Result<()> {
+        let project = project(
+            &plain_manifest(),
+            "export fn main() -> Text:\n  \"plain\"\n",
+        )?;
+        let files = crate::project::artifact::files(&project)?;
+        let contract: serde_json::Value =
+            serde_json::from_str(files.get("contract.json").ok_or(Error::Denied)?)
+                .map_err(|_| Error::Denied)?;
+        assert!(contract.get("compute").is_none());
         Ok(())
     }
 }

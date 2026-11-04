@@ -86,10 +86,10 @@ fn decode_inner(ty: &Type, value: &Json, p: &CheckedProgram, depth: usize) -> Re
         Type::Int => ValueKind::Int(integer(value)?),
         Type::Bool => ValueKind::Bool(value.as_bool().ok_or_else(bad)?),
         Type::Text | Type::BoundedText(..) => {
-            let s = value
-                .as_str()
-                .filter(|s| s.len() <= crate::MAX_SOURCE_BYTES)
-                .ok_or_else(bad)?;
+            let s = value.as_str().ok_or_else(bad)?;
+            if s.len() > crate::MAX_SOURCE_BYTES {
+                return Err(Error::Limit("wire text bytes"));
+            }
             ValueKind::Text(s.into())
         }
         Type::Decimal | Type::Timestamp | Type::Duration => {

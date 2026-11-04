@@ -4,7 +4,7 @@ mod integrations;
 
 use crate::authority::{Effect, Effects};
 use crate::error::{Error, Location, Result};
-use crate::hir::{self, CheckedProgram, ComputeBinding, Segment};
+use crate::hir::{self, CheckedProgram, ComputeBindings, Segment};
 use crate::policy::Action;
 use crate::syntax::{
     self, Binary, Declaration, Expr, ExprKind, HtmlAttribute, HtmlNode, MatchArm, Pattern,
@@ -29,7 +29,7 @@ pub(crate) fn check_project(
     grants: Effects,
     storage: Option<&crate::relational::Storage>,
     durable: &BTreeMap<String, (String, String)>,
-    compute: &BTreeMap<(String, String), ComputeBinding>,
+    compute: &ComputeBindings,
 ) -> Result<CheckedProgram> {
     check_inner(source, grants, true, storage, durable, compute)
 }
@@ -40,7 +40,7 @@ fn check_inner(
     host_operations: bool,
     storage: Option<&crate::relational::Storage>,
     durable: &BTreeMap<String, (String, String)>,
-    compute: &BTreeMap<(String, String), ComputeBinding>,
+    compute: &ComputeBindings,
 ) -> Result<CheckedProgram> {
     let mut program = CheckedProgram {
         host_operations,
@@ -990,7 +990,7 @@ enum TransactionContext {
 
 struct Checker<'a> {
     program: &'a CheckedProgram,
-    compute: &'a BTreeMap<(String, String), ComputeBinding>,
+    compute: &'a ComputeBindings,
     locals: BTreeMap<String, Type>,
     effects: Effects,
     calls: BTreeSet<String>,
@@ -1626,7 +1626,11 @@ impl<'a> Checker<'a> {
         {
             return Err(Error::Denied);
         }
-        let Some(binding) = self.compute.get(&(module.to_string(), export.to_string())) else {
+        let Some(binding) = self
+            .compute
+            .get(module)
+            .and_then(|exports| exports.get(export))
+        else {
             return Err(Error::diagnostic(
                 "D310",
                 location,

@@ -16,6 +16,9 @@ checker change that breaks the compute surface fails the verification run.
   limits: `max_input_bytes`, `max_output_bytes`, and `max_duration_ms`.
 - Server code calls one static surface:
   `host.compute<Reply>(module, export, arguments...) -> Result<Reply, DataError>`.
+- `[rpc] tick = "server.tick"` binds the same function to RPC, so the
+  export-specific capability and the checker's host-operation allowlist are
+  exercised through the normal operation contract.
 
 Only server modules may call it. Shared and browser modules are rejected by the
 checker, and the capability must appear in both the module and application
@@ -36,9 +39,16 @@ project.serve_with_runtime(address, origin, configuration, mailbox, grants)?;
 
 A declared export that is not registered fails when the server starts, and a
 registered signature that differs from the manifest fails with it, so a mismatch
-is a deployment error rather than a first-use failure. Kernels receive and return
-wire-encoded values, must be pure and deterministic, and must not perform I/O;
-stateful work belongs to the database, job, and action surfaces.
+is a deployment error rather than a first-use failure. Kernels receive a
+`ComputeContext` (module, export, remaining deadline) and return a classified
+`ComputeError`, so failures map onto `DataError` classes instead of raw strings.
+They must be pure and deterministic, must not perform I/O, and must not retain
+state between calls; stateful work belongs to the database, job, and action
+surfaces. `CheckedProject::validate_compute` performs the startup check and
+`CheckedProject::evaluate_with` runs the same entry in-process.
+
+See [`examples/compute_embedding.rs`](../compute_embedding.rs) for a complete
+registration and evaluation loop.
 
 ## Check and build it
 
