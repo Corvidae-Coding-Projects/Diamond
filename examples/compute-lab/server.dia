@@ -1,0 +1,8 @@
+export fn tick(state: Text, days: Int) -> Result<Text, DataError>:
+  host.compute<Text>("sim", "tick", state, days)
+
+export fn plan(width: Int, height: Int) -> Result<List<Int>, DataError>:
+  host.compute<List<Int>>("sim", "plan", width, height)
+
+export fn main() -> Result<Text, DataError>:
+  tick("seed-0", 7)

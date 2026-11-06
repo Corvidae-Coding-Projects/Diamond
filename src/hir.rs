@@ -53,6 +53,21 @@ pub(crate) struct Route {
     pub location: Location,
 }
 
+/// One manifest-declared compute export, shared by the checker and runtime.
+#[derive(Clone, Debug)]
+pub(crate) struct ComputeBinding {
+    pub(crate) arguments: Vec<Type>,
+    pub(crate) result: Type,
+    pub(crate) capability: String,
+    pub(crate) max_input_bytes: usize,
+    pub(crate) max_output_bytes: usize,
+    pub(crate) max_duration_ms: u64,
+}
+
+/// Manifest-declared compute exports, keyed by module and then export so the
+/// checker and interpreter can resolve calls without allocating.
+pub(crate) type ComputeBindings = BTreeMap<String, BTreeMap<String, ComputeBinding>>;
+
 /// An executable program that can only be constructed by successful checking.
 ///
 /// ```
@@ -64,6 +79,7 @@ pub(crate) struct Route {
 pub struct CheckedProgram {
     pub(crate) host_operations: bool,
     pub(crate) durable: BTreeMap<String, (String, Type)>,
+    pub(crate) compute: ComputeBindings,
     pub(crate) storage: Option<crate::relational::Storage>,
     pub(crate) app: Option<App>,
     pub(crate) aliases: BTreeMap<String, Type>,

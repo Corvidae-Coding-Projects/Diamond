@@ -168,6 +168,7 @@ impl CheckedProject {
                 }
             }
         }
+        self.validate_compute(&runtime)?;
         let mut db = PostgresStore::open_control(self, configuration, None)?;
         db.finish_request(Ok(()))?;
         if self.manifest.mail.is_some() {

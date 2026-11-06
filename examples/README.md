@@ -93,6 +93,10 @@ The SQLite gallery includes exact setup commands in
 - [`functions/authority/`](functions/authority/) — the full checked syntax for
   PostgreSQL host calls, secrets/HTTP, jobs, events, RPC, sessions, API tokens,
   files, and live subscriptions.
+- [`compute-lab/`](compute-lab/) — the smallest declaration and call of
+  host-tier compute exports, with export-specific capabilities and per-export
+  limits. See its [README](compute-lab/README.md) and the [compute extensions
+  document](../docs/compute-extensions.md).
 
 Check and build a project without opening a database or network connection:
 
@@ -143,6 +147,8 @@ The newer `live-workspace` combines all three layers and adds jobs/events.
   CSRF binding, revocation, and expiry.
 - [`project_embedding.rs`](project_embedding.rs) — project checking, build/load,
   and explicit host grants.
+- [`compute_embedding.rs`](compute_embedding.rs) — registering host-tier compute
+  kernels, validating exported signatures, and evaluating a checked project.
 - [`connected_embedding.rs`](connected_embedding.rs) — PostgreSQL initialization
   and account provisioning through the public Rust API.
 

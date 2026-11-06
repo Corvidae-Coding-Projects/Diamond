@@ -30,6 +30,8 @@ struct Contract<'a> {
     browser: &'a super::lower::BrowserProgram,
     host_operations: Vec<crate::host::OperationContract>,
     integration_operations: serde_json::Value,
+    #[serde(skip_serializing_if = "BTreeMap::is_empty")]
+    compute: &'a BTreeMap<String, super::compute::ModuleConfig>,
     file_operations: serde_json::Value,
     private_files: Option<&'a super::files::Config>,
     git_operations: serde_json::Value,
@@ -120,6 +122,7 @@ pub(super) fn files(project: &CheckedProject) -> Result<BTreeMap<String, String>
         browser: &project.browser,
         host_operations: crate::host::contracts(),
         integration_operations: crate::integrations::contracts(),
+        compute: &project.manifest.compute,
         file_operations: super::files::contracts(),
         private_files: project.manifest.files.as_ref(),
         git_operations: super::git::contracts(),

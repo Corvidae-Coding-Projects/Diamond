@@ -7,6 +7,7 @@ mod api;
 pub(crate) mod artifact;
 mod assets;
 mod browser;
+mod compute;
 mod connected;
 pub(crate) mod delivery;
 mod deployment;
@@ -116,6 +117,8 @@ struct Manifest {
     secrets: BTreeMap<String, secrets::SecretUse>,
     #[serde(default)]
     queries: BTreeMap<String, queries::Config>,
+    #[serde(default)]
+    compute: BTreeMap<String, compute::ModuleConfig>,
 }
 
 #[derive(Clone, Debug)]
@@ -264,6 +267,53 @@ impl CheckedProject {
         } else {
             interpreter.main()
         }
+    }
+
+    /// Evaluate the checked server entry with explicit runtime grants.
+    ///
+    /// The scope carries the entry's checked effects, so an undeclared or
+    /// unregistered capability still fails with the matching `DataError`. This
+    /// is the embedding counterpart to serving: it opens no listener and no
+    /// storage.
+    ///
+    /// # Errors
+    /// Rejects missing server entries, runtime authority, and runtime failures.
+    ///
+    /// ```
+    /// let project = diamond::compile_project(std::path::Path::new("examples/compute-lab/diamond.toml"))?;
+    /// let value = project.evaluate_with(&diamond::RuntimeGrants::default())?;
+    /// assert!(matches!(value.into_result(), Err(diamond::Error::Denied)));
+    /// # Ok::<(), diamond::Error>(())
+    /// ```
+    pub fn evaluate_with(&self, runtime: &crate::RuntimeGrants) -> Result<Value> {
+        let principal = Principal::Anonymous;
+        let effects = &self
+            .server
+            .functions
+            .get("main")
+            .ok_or(Error::Denied)?
+            .effects;
+        let scope = Scope::new(&principal, effects);
+        crate::eval::Interpreter::new(&self.server, &scope, None, None)
+            .with_integrations(runtime)
+            .main()
+    }
+
+    /// Verify that every declared compute export is registered with a matching
+    /// signature. Serving and worker entry points call this before accepting
+    /// work, so a declaration/registration mismatch is a deployment error
+    /// rather than a first-use failure.
+    ///
+    /// # Errors
+    /// Rejects undeclared, unregistered, or signature-mismatched exports.
+    ///
+    /// ```
+    /// let project = diamond::compile_project(std::path::Path::new("examples/compute-lab/diamond.toml"))?;
+    /// assert!(project.validate_compute(&diamond::RuntimeGrants::default()).is_err());
+    /// # Ok::<(), diamond::Error>(())
+    /// ```
+    pub fn validate_compute(&self, runtime: &crate::RuntimeGrants) -> Result<()> {
+        runtime.validate_compute(&compute::bindings(&self.manifest)?)
     }
 
     /// Render a declared route's public initial component content without host authority.
@@ -1128,8 +1178,10 @@ fn check_server(manifest: &Manifest, modules: &BTreeMap<String, Module>) -> Resu
         }
     }
     let durable = durable_bindings(manifest, modules)?;
-    let server = crate::checker::check_project(&source, grants, storage.as_ref(), &durable)
-        .map_err(|error| locate(modules, error))?;
+    let compute = compute::bindings(manifest)?;
+    let server =
+        crate::checker::check_project(&source, grants, storage.as_ref(), &durable, &compute)
+            .map_err(|error| locate(modules, error))?;
     if server.grants.iter().any(|effect| match effect {
         Effect::Read(name) | Effect::Write(name) => !server.resources.contains_key(name),
         Effect::Host(_) => false,
@@ -1307,6 +1359,15 @@ fn capability_effect(name: &str) -> Result<Effect> {
         .strip_prefix("Http<")
         .and_then(|s| s.strip_suffix('>'))
         .is_some_and(resolve::identifier)
+    {
+        return Ok(Effect::Host(name.into()));
+    }
+    if let Some(inner) = name
+        .strip_prefix("Compute<")
+        .and_then(|value| value.strip_suffix('>'))
+        && let Some((module, export)) = inner.split_once('.')
+        && resolve::identifier(module)
+        && resolve::identifier(export)
     {
         return Ok(Effect::Host(name.into()));
     }
